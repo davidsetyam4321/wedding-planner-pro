@@ -21,8 +21,9 @@ export const create = mutation({
     startTime: v.string(),
     title: v.string(),
     note: v.optional(v.string()),
+    durationMinutes: v.optional(v.number()),
   },
-  handler: async (ctx, { startTime, title, note }) => {
+  handler: async (ctx, { startTime, title, note, durationMinutes }) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) throw new Error("Not signed in");
     if (!title.trim()) throw new Error("Nama acara wajib diisi");
@@ -32,8 +33,51 @@ export const create = mutation({
       startTime: /^\d{2}:\d{2}$/.test(startTime) ? startTime : "08:00",
       title: title.trim(),
       note: note?.trim() || undefined,
+      durationMinutes:
+        durationMinutes === undefined
+          ? undefined
+          : Math.max(0, Math.round(durationMinutes)),
       createdAt: Date.now(),
     });
+  },
+});
+
+export const update = mutation({
+  args: {
+    itemId: v.id("rundownItem"),
+    startTime: v.optional(v.string()),
+    title: v.optional(v.string()),
+    note: v.optional(v.string()),
+    durationMinutes: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) throw new Error("Not signed in");
+
+    const item = await ctx.db.get(args.itemId);
+    if (!item || item.userId !== userId) throw new Error("Item not found");
+
+    const patch: {
+      startTime?: string;
+      title?: string;
+      note?: string;
+      durationMinutes?: number;
+    } = {};
+
+    if (args.startTime !== undefined && /^\d{2}:\d{2}$/.test(args.startTime)) {
+      patch.startTime = args.startTime;
+    }
+    if (args.title !== undefined) {
+      const cleaned = args.title.trim();
+      if (!cleaned) throw new Error("Nama acara wajib diisi");
+      patch.title = cleaned;
+    }
+    if (args.note !== undefined) patch.note = args.note.trim() || undefined;
+    if (args.durationMinutes !== undefined) {
+      patch.durationMinutes = Math.max(0, Math.round(args.durationMinutes));
+    }
+
+    await ctx.db.patch(args.itemId, patch);
   },
 });
 

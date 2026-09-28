@@ -54,6 +54,7 @@ const schema = defineSchema(
       weddingDate: v.number(), // epoch ms
       fundTarget: v.number(),
       venueName: v.optional(v.string()),
+      guestEstimate: v.optional(v.number()),
     }).index("by_user", ["userId"]),
 
     /** Budget per category + its expenses. */
@@ -70,6 +71,7 @@ const schema = defineSchema(
       label: v.string(),
       amount: v.number(),
       paidAt: v.optional(v.number()),
+      createdAt: v.optional(v.number()),
     })
       .index("by_user", ["userId"])
       .index("by_category", ["categoryId"]),
@@ -88,20 +90,26 @@ const schema = defineSchema(
       label: v.string(),
       done: v.optional(v.boolean()),
       sortOrder: v.number(),
+      createdAt: v.optional(v.number()),
     })
       .index("by_user", ["userId"])
       .index("by_user_done", ["userId", "done"]),
 
-    /** Mood board boxes, one per reference idea, max 3 photos each. */
+    /** Mood board categories — free text so the couple can add their own. */
+    moodboardCategory: defineTable({
+      userId: v.id("users"),
+      name: v.string(),
+      sortOrder: v.number(),
+    }).index("by_user", ["userId"]),
+
+    /** One box per reference idea; holds a gallery of photos. */
     moodboardBox: defineTable({
       userId: v.id("users"),
-      tab: v.union(
-        v.literal("dekorasi"),
-        v.literal("baju"),
-        v.literal("makeup"),
-      ),
+      /** category name (kept as `tab` for backwards compatibility) */
+      tab: v.string(),
       title: v.string(),
       sortOrder: v.number(),
+      createdAt: v.optional(v.number()),
     })
       .index("by_user", ["userId"])
       .index("by_user_tab", ["userId", "tab"]),
@@ -110,6 +118,7 @@ const schema = defineSchema(
       userId: v.id("users"),
       boxId: v.id("moodboardBox"),
       storageId: v.id("_storage"),
+      caption: v.optional(v.string()),
       sortOrder: v.number(),
     })
       .index("by_box", ["boxId"])
@@ -121,6 +130,8 @@ const schema = defineSchema(
       name: v.string(),
       group: v.string(),
       pax: v.number(),
+      phone: v.optional(v.string()),
+      note: v.optional(v.string()),
       invited: v.optional(v.boolean()),
       rsvp: rsvpValidator,
       createdAt: v.number(),
@@ -133,6 +144,8 @@ const schema = defineSchema(
       category: v.string(),
       contact: v.optional(v.string()),
       cost: v.number(),
+      dpAmount: v.optional(v.number()),
+      note: v.optional(v.string()),
       status: vendorStatusValidator,
       createdAt: v.number(),
     }).index("by_user", ["userId"]),
@@ -143,6 +156,7 @@ const schema = defineSchema(
       startTime: v.string(), // "08:00"
       title: v.string(),
       note: v.optional(v.string()),
+      durationMinutes: v.optional(v.number()),
       createdAt: v.number(),
     }).index("by_user", ["userId"]),
   },

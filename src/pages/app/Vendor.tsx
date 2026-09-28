@@ -10,66 +10,172 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
-import { formatRupiah, formatRupiahShort } from "@/lib/format";
+import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
-import { ChevronLeft, Loader2, Phone, Plus, Trash2 } from "lucide-react";
+import { formatRupiah, formatRupiahShort } from "@/lib/format";
+import {
+  ChevronLeft,
+  Loader2,
+  MessageCircle,
+  Pencil,
+  Phone,
+  Plus,
+  Search,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 
-const STATUS_LABEL = {
-  belum: "Belum bayar",
-  dp: "Sudah DP",
-  lunas: "Lunas",
-} as const;
+type VendorStatus = "belum" | "dp" | "lunas";
 
-type VendorStatus = keyof typeof STATUS_LABEL;
+const STATUS_OPTIONS: { key: VendorStatus; label: string }[] = [
+  { key: "belum", label: "Belum" },
+  { key: "dp", label: "DP" },
+  { key: "lunas", label: "Lunas" },
+];
+
+const STATUS_CHIP: Record<VendorStatus, string> = {
+  belum: "bg-secondary text-secondary-foreground",
+  dp: "bg-tint-butter text-tint-butter-foreground",
+  lunas: "bg-primary text-primary-foreground",
+};
+
+type VendorForm = {
+  id: Id<"vendor"> | null;
+  name: string;
+  category: string;
+  contact: string;
+  cost: string;
+  dpAmount: string;
+  note: string;
+  status: VendorStatus;
+};
+
+const EMPTY_FORM: VendorForm = {
+  id: null,
+  name: "",
+  category: "",
+  contact: "",
+  cost: "",
+  dpAmount: "",
+  note: "",
+  status: "belum",
+};
+
+/** Total yang benar-benar sudah dibayar untuk satu vendor. */
+function paidFor(vendor: {
+  cost: number;
+  status: string;
+  dpAmount?: number;
+}): number {
+  if (vendor.status === "lunas") return vendor.cost;
+  if (vendor.status === "dp") return Math.min(vendor.cost, vendor.dpAmount ?? 0);
+  return 0;
+}
+
+function waLink(contact: string): string | null {
+  const digits = contact.replace(/[^0-9]/g, "");
+  if (digits.length < 7) return null;
+  const normalized = digits.replace(/^0/, "62");
+  return `https://wa.me/${normalized}`;
+}
 
 /** Vendor: kontak, biaya, dan status pembayaran. */
 export function VendorPage() {
   const vendors = useQuery(api.vendors.list);
   const createVendor = useMutation(api.vendors.create);
+  const updateVendor = useMutation(api.vendors.update);
   const setStatus = useMutation(api.vendors.setStatus);
   const removeVendor = useMutation(api.vendors.remove);
 
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [contact, setContact] = useState("");
-  const [cost, setCost] = useState("");
-  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState<VendorForm>(EMPTY_FORM);
+  const [formOpen, setFormOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [query, setQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
 
   const list = vendors ?? [];
+  const categories = Array.from(new Set(list.map((v) => v.category)));
   const totalCost = list.reduce((sum, v) => sum + v.cost, 0);
-  const paid = list.filter((v) => v.status === "lunas");
-  const paidAmount = paid.reduce((sum, v) => sum + v.cost, 0);
+  const paidTotal = list.reduce((sum, v) => sum + paidFor(v), 0);
+  const remaining = Math.max(0, totalCost - paidTotal);
+  const lunasCount = list.filter((v) => v.status === "lunas").length;
+
+  const visible = list.filter((vendor) => {
+    if (categoryFilter && vendor.category !== categoryFilter) return false;
+    const term = query.trim().toLowerCase();
+    if (!term) return true;
+    return (
+      vendor.name.toLowerCase().includes(term) ||
+      vendor.category.toLowerCase().includes(term)
+    );
+  });
+
+  const openNew = () => {
+    setForm(EMPTY_FORM);
+    setFormOpen(true);
+  };
+
+  const openEdit = (vendor: (typeof list)[number]) => {
+    setForm({
+      id: vendor._id,
+      name: vendor.name,
+      category: vendor.category,
+      contact: vendor.contact ?? "",
+      cost: String(vendor.cost),
+      dpAmount: vendor.dpAmount === undefined ? "" : String(vendor.dpAmount),
+      note: vendor.note ?? "",
+      status: vendor.status as VendorStatus,
+    });
+    setFormOpen(true);
+  };
 
   const submit = async () => {
-    if (!name.trim()) {
+    if (!form.name.trim()) {
       toast.error("Nama vendor wajib diisi.");
       return;
     }
-    setSaving(true);
+    const cost = Number(form.cost) || 0;
+    const dpAmount = form.dpAmount === "" ? 0 : Number(form.dpAmount) || 0;
+    setBusy(true);
     try {
-      await createVendor({ name, category, contact, cost: Number(cost) || 0 });
-      bloom();
-      toast.success("Vendor ditambahkan.");
-      setOpen(false);
-      setName("");
-      setCategory("");
-      setContact("");
-      setCost("");
+      if (form.id) {
+        await updateVendor({
+          vendorId: form.id,
+          name: form.name,
+          category: form.category,
+          contact: form.contact,
+          cost,
+          dpAmount,
+          note: form.note,
+          status: form.status,
+        });
+        toast.success("Vendor diperbarui.");
+      } else {
+        await createVendor({
+          name: form.name,
+          category: form.category,
+          contact: form.contact,
+          cost,
+          dpAmount,
+          note: form.note,
+          status: form.status,
+        });
+        bloom();
+        toast.success("Vendor ditambahkan.");
+      }
+      setFormOpen(false);
+      setForm(EMPTY_FORM);
     } catch {
-      toast.error("Gagal menambah vendor.");
+      toast.error("Gagal menyimpan vendor.");
     } finally {
-      setSaving(false);
+      setBusy(false);
     }
   };
 
-  const cycleStatus = async (vendorId: (typeof list)[number]["_id"], current: VendorStatus) => {
-    const next: VendorStatus =
-      current === "belum" ? "dp" : current === "dp" ? "lunas" : "belum";
+  const changeStatus = async (vendorId: Id<"vendor">, next: VendorStatus) => {
     await setStatus({ vendorId, status: next });
     if (next === "lunas") bloom();
   };
@@ -78,146 +184,310 @@ export function VendorPage() {
     <div className="space-y-4">
       <Link
         to="/app/lainnya"
-        className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground"
+        className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground"
       >
         <ChevronLeft className="size-3.5" /> Lainnya
       </Link>
 
       <section className="clay grad-butter relative overflow-hidden p-5 text-tint-butter-foreground">
         <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 opacity-25" />
-        <div className="relative flex items-center gap-3">
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-white/70 text-lg">
-            📋
-          </div>
+        <div className="relative flex items-start justify-between gap-3">
           <div>
-            <h1 className="text-xl font-semibold leading-tight">Vendor</h1>
-            <p className="text-[11px] opacity-80">{list.length} vendor terdaftar</p>
-          </div>
-        </div>
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          <div className="clay-inset rounded-2xl px-3 py-2">
-            <p className="text-[10px] font-medium text-muted-foreground">Total biaya</p>
-            <p className="text-sm font-bold">{formatRupiahShort(totalCost)}</p>
-          </div>
-          <div className="clay-inset rounded-2xl px-3 py-2">
-            <p className="text-[10px] font-medium text-muted-foreground">Sudah lunas</p>
-            <p className="text-sm font-bold text-primary">
-              {formatRupiahShort(paidAmount)}{" "}
-              <span className="text-[10px] font-medium text-muted-foreground">
-                ({paid.length})
-              </span>
+            <h1 className="h-page">Vendor</h1>
+            <p className="meta">
+              {list.length} vendor · {lunasCount} lunas · {categories.length} kategori
             </p>
           </div>
+          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-white/70 text-xl">
+            📋
+          </div>
+        </div>
+        <dl className="relative mt-4 grid grid-cols-3 gap-2">
+          <div className="stat-tile bg-white/70">
+            <dt>Total biaya</dt>
+            <dd>{formatRupiahShort(totalCost)}</dd>
+          </div>
+          <div className="stat-tile bg-white/70">
+            <dt>Terbayar</dt>
+            <dd>{formatRupiahShort(paidTotal)}</dd>
+          </div>
+          <div className="stat-tile bg-white/70">
+            <dt>Sisa</dt>
+            <dd>{formatRupiahShort(remaining)}</dd>
+          </div>
+        </dl>
+        <div className="relative mt-3 h-2.5 w-full overflow-hidden rounded-full bg-white/70">
+          <div
+            className="h-full rounded-full bg-primary transition-all"
+            style={{
+              width: `${totalCost > 0 ? Math.round((paidTotal / totalCost) * 100) : 0}%`,
+            }}
+          />
         </div>
       </section>
 
-      <Button className="w-full rounded-2xl" onClick={() => setOpen(true)}>
+      <Button className="w-full rounded-2xl" onClick={openNew}>
         <Plus className="size-4" /> Tambah vendor
       </Button>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Cari vendor atau kategori…"
+          className="pl-9"
+        />
+      </div>
+
+      {categories.length > 1 && (
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          <button
+            type="button"
+            onClick={() => setCategoryFilter(null)}
+            className={`chip shrink-0 ${
+              categoryFilter === null
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-secondary-foreground"
+            }`}
+          >
+            Semua
+          </button>
+          {categories.map((category) => (
+            <button
+              key={category}
+              type="button"
+              onClick={() => setCategoryFilter(category)}
+              className={`chip shrink-0 ${
+                categoryFilter === category
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-tint-butter text-tint-butter-foreground"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+      )}
+
       <section className="space-y-3">
-        {list.map((vendor) => (
-          <div key={vendor._id} className="clay p-3.5">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-bold">{vendor.name}</p>
-                <p className="text-[11px] text-muted-foreground">{vendor.category}</p>
+        {visible.map((vendor) => {
+          const status = vendor.status as VendorStatus;
+          const paid = paidFor(vendor);
+          const left = Math.max(0, vendor.cost - paid);
+          const wa = vendor.contact ? waLink(vendor.contact) : null;
+          return (
+            <article key={vendor._id} className="clay p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="h-card truncate">{vendor.name}</p>
+                  <p className="meta">
+                    {vendor.category}
+                    {vendor.contact ? ` · ${vendor.contact}` : ""}
+                  </p>
+                  {vendor.note && <p className="meta mt-0.5 italic">{vendor.note}</p>}
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <div className="text-right">
+                    <p className="num text-sm font-extrabold">
+                      {formatRupiah(vendor.cost)}
+                    </p>
+                    {left > 0 && (
+                      <p className="num meta">sisa {formatRupiahShort(left)}</p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    aria-label="Ubah vendor"
+                    className="text-muted-foreground hover:text-primary"
+                    onClick={() => openEdit(vendor)}
+                  >
+                    <Pencil className="size-4" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Hapus vendor"
+                    className="text-muted-foreground hover:text-destructive"
+                    onClick={() => {
+                      removeVendor({ vendorId: vendor._id });
+                      toast.success("Vendor dihapus.");
+                    }}
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                </div>
               </div>
-              <div className="flex shrink-0 items-center gap-2">
-                <span className="text-sm font-bold">{formatRupiah(vendor.cost)}</span>
-                <button
-                  type="button"
-                  aria-label="Hapus vendor"
-                  className="text-muted-foreground hover:text-destructive"
-                  onClick={() => {
-                    removeVendor({ vendorId: vendor._id });
-                    toast.success("Vendor dihapus.");
-                  }}
-                >
-                  <Trash2 className="size-3.5" />
-                </button>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <div className="clay-inset flex gap-1 p-1">
+                  {STATUS_OPTIONS.map((option) => (
+                    <button
+                      key={option.key}
+                      type="button"
+                      onClick={() => void changeStatus(vendor._id, option.key)}
+                      className={`rounded-xl px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                        status === option.key
+                          ? STATUS_CHIP[option.key]
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+
+                {paid > 0 && (
+                  <span className="chip bg-tint-mint text-tint-mint-foreground">
+                    Terbayar {formatRupiahShort(paid)}
+                  </span>
+                )}
+
+                {vendor.contact &&
+                  (wa ? (
+                    <a
+                      href={wa}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="chip bg-secondary text-secondary-foreground"
+                      aria-label="Chat WhatsApp"
+                    >
+                      <MessageCircle className="size-3.5" /> Chat
+                    </a>
+                  ) : (
+                    <span className="chip bg-secondary text-secondary-foreground">
+                      <Phone className="size-3.5" /> {vendor.contact}
+                    </span>
+                  ))}
               </div>
-            </div>
+            </article>
+          );
+        })}
 
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => cycleStatus(vendor._id, vendor.status as VendorStatus)}
-                className={`rounded-xl px-3 py-1.5 text-[11px] font-bold clay-sm transition-all ${
-                  vendor.status === "lunas"
-                    ? "bg-primary text-primary-foreground"
-                    : vendor.status === "dp"
-                      ? "bg-accent text-accent-foreground"
-                      : "bg-secondary text-secondary-foreground"
-                }`}
-              >
-                {STATUS_LABEL[vendor.status as VendorStatus]}
-              </button>
-              {vendor.contact && (
-                <span className="clay-inset flex items-center gap-1 rounded-xl px-3 py-1.5 text-[11px] text-muted-foreground">
-                  <Phone className="size-3" /> {vendor.contact}
-                </span>
-              )}
-            </div>
-          </div>
-        ))}
-
-        {vendors !== undefined && list.length === 0 && (
-          <div className="clay-inset flex h-24 items-center justify-center rounded-3xl text-xs text-muted-foreground">
+        {list.length === 0 && vendors !== undefined && (
+          <p className="clay-inset flex h-24 items-center justify-center rounded-3xl text-xs text-muted-foreground">
             Belum ada vendor. Catat vendor pertamamu!
-          </div>
+          </p>
+        )}
+        {list.length > 0 && visible.length === 0 && (
+          <p className="clay-inset flex h-24 items-center justify-center rounded-3xl text-xs text-muted-foreground">
+            Tidak ada vendor yang cocok.
+          </p>
         )}
       </section>
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Vendor baru</DialogTitle>
+            <DialogTitle>{form.id ? "Ubah vendor" : "Vendor baru"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
               <Label htmlFor="vendor-name">Nama vendor</Label>
               <Input
                 id="vendor-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={form.name}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, name: event.target.value }))
+                }
                 placeholder="cth. Dapur Ibu Sari"
               />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="vendor-category">Kategori</Label>
-              <Input
-                id="vendor-category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="cth. Katering"
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="vendor-category">Kategori</Label>
+                <Input
+                  id="vendor-category"
+                  list="vendor-categories"
+                  value={form.category}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, category: event.target.value }))
+                  }
+                  placeholder="cth. Katering"
+                />
+                <datalist id="vendor-categories">
+                  {categories.map((category) => (
+                    <option key={category} value={category} />
+                  ))}
+                </datalist>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="vendor-contact">Kontak</Label>
+                <Input
+                  id="vendor-contact"
+                  value={form.contact}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, contact: event.target.value }))
+                  }
+                  placeholder="0812xxxxxxx"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="vendor-cost">Biaya (Rp)</Label>
+                <Input
+                  id="vendor-cost"
+                  type="number"
+                  min={0}
+                  step={100000}
+                  value={form.cost}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, cost: event.target.value }))
+                  }
+                  placeholder="5000000"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="vendor-dp">Sudah DP (Rp)</Label>
+                <Input
+                  id="vendor-dp"
+                  type="number"
+                  min={0}
+                  step={100000}
+                  value={form.dpAmount}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, dpAmount: event.target.value }))
+                  }
+                  placeholder="1000000"
+                />
+              </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="vendor-contact">Kontak (opsional)</Label>
-              <Input
-                id="vendor-contact"
-                value={contact}
-                onChange={(e) => setContact(e.target.value)}
-                placeholder="cth. 0812-3456-7890"
-              />
+              <Label>Status pembayaran</Label>
+              <div className="clay-inset flex gap-1 p-1">
+                {STATUS_OPTIONS.map((option) => (
+                  <button
+                    key={option.key}
+                    type="button"
+                    onClick={() =>
+                      setForm((prev) => ({ ...prev, status: option.key }))
+                    }
+                    className={`flex-1 rounded-xl px-2.5 py-1.5 text-[11px] font-bold transition-colors ${
+                      form.status === option.key
+                        ? STATUS_CHIP[option.key]
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="vendor-cost">Biaya (Rp)</Label>
+              <Label htmlFor="vendor-note">Catatan (opsional)</Label>
               <Input
-                id="vendor-cost"
-                type="number"
-                min={0}
-                step={100000}
-                value={cost}
-                onChange={(e) => setCost(e.target.value)}
-                placeholder="5000000"
+                id="vendor-note"
+                value={form.note}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, note: event.target.value }))
+                }
+                placeholder="cth. sudah termasuk dekorasi"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={submit} disabled={saving} className="w-full rounded-2xl">
-              {saving ? <Loader2 className="size-4 animate-spin" /> : "Simpan vendor"}
+            <Button onClick={submit} disabled={busy} className="w-full rounded-2xl">
+              {busy ? <Loader2 className="size-4 animate-spin" /> : "Simpan vendor"}
             </Button>
           </DialogFooter>
         </DialogContent>

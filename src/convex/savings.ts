@@ -33,6 +33,28 @@ export const add = mutation({
   },
 });
 
+export const update = mutation({
+  args: {
+    depositId: v.id("savingDeposit"),
+    amount: v.number(),
+    note: v.optional(v.string()),
+  },
+  handler: async (ctx, { depositId, amount, note }) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) throw new Error("Not signed in");
+
+    const deposit = await ctx.db.get(depositId);
+    if (!deposit || deposit.userId !== userId) throw new Error("Deposit not found");
+
+    const cleaned = Math.round(amount);
+    if (cleaned <= 0) throw new Error("Nominal harus lebih dari nol");
+    await ctx.db.patch(depositId, {
+      amount: cleaned,
+      note: note?.trim() ? note.trim() : undefined,
+    });
+  },
+});
+
 export const remove = mutation({
   args: { depositId: v.id("savingDeposit") },
   handler: async (ctx, { depositId }) => {
@@ -40,9 +62,7 @@ export const remove = mutation({
     if (userId === null) throw new Error("Not signed in");
 
     const deposit = await ctx.db.get(depositId);
-    if (!deposit || deposit.userId !== userId) {
-      throw new Error("Deposit not found");
-    }
+    if (!deposit || deposit.userId !== userId) throw new Error("Deposit not found");
     await ctx.db.delete(depositId);
   },
 });

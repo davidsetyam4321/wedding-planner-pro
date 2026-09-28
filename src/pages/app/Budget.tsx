@@ -11,162 +11,296 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
-import { formatRupiah } from "@/lib/format";
 import { bloom } from "@/lib/bloom";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { formatRupiah, formatRupiahShort } from "@/lib/format";
+import {
+  Check,
+  ChevronDown,
+  Loader2,
+  Pencil,
+  Plus,
+  Trash2,
+  Wallet,
+} from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 
-/** Budget page: allocation per category with expense tracking. */
+type CategoryId = Id<"budgetCategory">;
+
 export function BudgetPage() {
   const budget = useQuery(api.budget.overview);
   const createCategory = useMutation(api.budget.createCategory);
+  const renameCategory = useMutation(api.budget.renameCategory);
+  const setCategoryAllocation = useMutation(api.budget.setCategoryAllocation);
+  const deleteCategory = useMutation(api.budget.deleteCategory);
   const addExpense = useMutation(api.budget.addExpense);
+  const updateExpense = useMutation(api.budget.updateExpense);
   const togglePaid = useMutation(api.budget.toggleExpensePaid);
   const deleteExpense = useMutation(api.budget.deleteExpense);
-  const deleteCategory = useMutation(api.budget.deleteCategory);
 
-  const [newCategoryOpen, setNewCategoryOpen] = useState(false);
+  const categories = budget?.categories ?? [];
+  const expenses = budget?.expenses ?? [];
+
+  const [expenseOpen, setExpenseOpen] = useState(false);
+  const [expenseForm, setExpenseForm] = useState({
+    id: null as Id<"budgetExpense"> | null,
+    label: "",
+    amount: "",
+    categoryId: "" as string,
+    paid: false,
+  });
   const [newCategoryName, setNewCategoryName] = useState("");
-  const [newCategoryAlloc, setNewCategoryAlloc] = useState("");
-  const [creating, setCreating] = useState(false);
+  const [busy, setBusy] = useState(false);
 
-  const [expenseTarget, setExpenseTarget] = useState<Id<"budgetCategory"> | null>(null);
-  const [expenseLabel, setExpenseLabel] = useState("");
-  const [expenseAmount, setExpenseAmount] = useState("");
-  const [addingExpense, setAddingExpense] = useState(false);
+  const [categoryDialog, setCategoryDialog] = useState<{
+    id: CategoryId | null;
+    name: string;
+    allocated: string;
+  } | null>(null);
 
-  const submitCategory = async () => {
-    if (!newCategoryName.trim()) {
-      toast.error("Nama kategori wajib diisi.");
-      return;
-    }
-    setCreating(true);
-    try {
-      await createCategory({
-        name: newCategoryName,
-        allocated: Number(newCategoryAlloc) || 0,
-      });
-      bloom();
-      toast.success("Kategori ditambahkan.");
-      setNewCategoryOpen(false);
-      setNewCategoryName("");
-      setNewCategoryAlloc("");
-    } catch {
-      toast.error("Gagal menambah kategori.");
-    } finally {
-      setCreating(false);
-    }
+  const totalAllocated = categories.reduce((sum, category) => sum + category.allocated, 0);
+  const totalSpent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  const totalPaid = expenses
+    .filter((expense) => expense.paidAt)
+    .reduce((sum, expense) => sum + expense.amount, 0);
+  const spentPct =
+    totalAllocated > 0 ? Math.min(100, Math.round((totalSpent / totalAllocated) * 100)) : 0;
+
+  const openNewExpense = () => {
+    setExpenseForm({
+      id: null,
+      label: "",
+      amount: "",
+      categoryId: categories[0]?._id ?? "",
+      paid: false,
+    });
+    setNewCategoryName("");
+    setExpenseOpen(true);
+  };
+
+  const openEditExpense = (expense: (typeof expenses)[number]) => {
+    setExpenseForm({
+      id: expense._id,
+      label: expense.label,
+      amount: String(expense.amount),
+      categoryId: expense.categoryId,
+      paid: Boolean(expense.paidAt),
+    });
+    setExpenseOpen(true);
   };
 
   const submitExpense = async () => {
-    if (!expenseTarget || !expenseLabel.trim() || !Number(expenseAmount)) {
-      toast.error("Isi nama dan nominal pengeluaran.");
+    const value = Number(expenseForm.amount);
+    if (!expenseForm.label.trim() || !value) {
+      toast.error("Isi keterangan dan nominal dulu, ya.");
       return;
     }
-    setAddingExpense(true);
+    setBusy(true);
     try {
-      await addExpense({
-        categoryId: expenseTarget,
-        label: expenseLabel,
-        amount: Number(expenseAmount),
-      });
-      bloom();
-      toast.success("Pengeluaran dicatat.");
-      setExpenseTarget(null);
-      setExpenseLabel("");
-      setExpenseAmount("");
+      const existingCategory = expenseForm.categoryId as CategoryId | "";
+      if (expenseForm.id) {
+        await updateExpense({
+          expenseId: expenseForm.id,
+          label: expenseForm.label,
+          amount: value,
+          categoryId: existingCategory || undefined,
+          paid: expenseForm.paid,
+        });
+        toast.success("Pengeluaran diperbarui.");
+      } else {
+        await addExpense({
+          categoryId: existingCategory || undefined,
+          categoryName: existingCategory ? undefined : newCategoryName,
+          label: expenseForm.label,
+          amount: value,
+          paid: expenseForm.paid,
+        });
+        bloom();
+        toast.success("Pengeluaran dicatat.");
+      }
+      setExpenseOpen(false);
     } catch {
-      toast.error("Gagal mencatat pengeluaran.");
+      toast.error("Gagal menyimpan pengeluaran.");
     } finally {
-      setAddingExpense(false);
+      setBusy(false);
     }
   };
 
-  const expensesFor = (categoryId: Id<"budgetCategory">) =>
-    (budget?.expenses ?? []).filter((e) => e.categoryId === categoryId);
-
-  const totalAllocated = (budget?.categories ?? []).reduce((s, c) => s + c.allocated, 0);
-  const totalSpent = (budget?.expenses ?? []).reduce((s, e) => s + e.amount, 0);
+  const submitCategory = async () => {
+    if (!categoryDialog) return;
+    setBusy(true);
+    try {
+      if (categoryDialog.id) {
+        await renameCategory({ categoryId: categoryDialog.id, name: categoryDialog.name });
+        await setCategoryAllocation({
+          categoryId: categoryDialog.id,
+          allocated: Number(categoryDialog.allocated) || 0,
+        });
+        toast.success("Kategori diperbarui.");
+      } else {
+        await createCategory({
+          name: categoryDialog.name,
+          allocated: Number(categoryDialog.allocated) || 0,
+        });
+        bloom();
+        toast.success("Kategori ditambahkan.");
+      }
+      setCategoryDialog(null);
+    } catch {
+      toast.error("Gagal menyimpan kategori.");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
-    <div className="space-y-4 pt-3">
+    <div className="space-y-4">
       <section className="clay grad-mint relative overflow-hidden p-5 text-tint-mint-foreground">
         <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 opacity-25" />
-        <div className="relative flex items-center gap-3">
-          <span className="text-2xl">💰</span>
+        <div className="relative flex items-start justify-between gap-3">
           <div>
-            <h1 className="text-xl font-semibold">Budget</h1>
-            <p className="mt-0.5 text-xs leading-relaxed opacity-80">
-              Catat alokasi dan pengeluaran tiap vendor supaya dana tetap
-              terkendali.
+            <h1 className="h-page">Budget</h1>
+            <p className="meta">
+              Terpakai {formatRupiahShort(totalSpent)} dari{" "}
+              {formatRupiahShort(totalAllocated)}
             </p>
           </div>
-        </div>
-      </section>
-
-      <section className="panel">
-        <div className="panel-header justify-between">
-          <span>Ringkasan</span>
-          <span className="normal-case tracking-normal">
-            {formatRupiah(totalSpent)} / {formatRupiah(totalAllocated)}
-          </span>
-        </div>
-        <div className="p-3">
-          <div className="h-1.5 w-full border border-border bg-background">
-            <div
-              className={`h-full ${totalSpent > totalAllocated ? "bg-destructive" : "bg-primary"}`}
-              style={{
-                width: `${totalAllocated > 0 ? Math.min(100, (totalSpent / totalAllocated) * 100) : 0}%`,
-              }}
-            />
+          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-white/70">
+            <Wallet className="size-5" />
           </div>
-          <p className="mt-1.5 text-[11px] text-muted-foreground">
-            {totalSpent > totalAllocated
-              ? "Total pengeluaran melebihi alokasi."
-              : `Tersisa ${formatRupiah(Math.max(0, totalAllocated - totalSpent))} dari total alokasi.`}
-          </p>
         </div>
+        <div className="relative mt-4 h-3 overflow-hidden rounded-full bg-white/70">
+          <div
+            className={`h-full rounded-full transition-all ${
+              totalSpent > totalAllocated
+                ? "bg-destructive"
+                : "bg-tint-mint-foreground/70"
+            }`}
+            style={{ width: `${spentPct}%` }}
+          />
+        </div>
+        <dl className="relative mt-3 grid grid-cols-3 gap-2">
+          <div className="stat-tile bg-white/70">
+            <dt>Terpakai</dt>
+            <dd>{formatRupiahShort(totalSpent)}</dd>
+          </div>
+          <div className="stat-tile bg-white/70">
+            <dt>Lunas</dt>
+            <dd>{formatRupiahShort(totalPaid)}</dd>
+          </div>
+          <div className="stat-tile bg-white/70">
+            <dt>Sisa</dt>
+            <dd>{formatRupiahShort(Math.max(0, totalAllocated - totalSpent))}</dd>
+          </div>
+        </dl>
       </section>
 
-      {(budget?.categories ?? []).map((category) => {
-        const expenses = expensesFor(category._id);
-        const spent = expenses.reduce((s, e) => s + e.amount, 0);
+      <div className="flex gap-2">
+        <Button className="flex-1 rounded-2xl" onClick={openNewExpense}>
+          <Plus className="size-4" /> Catat pengeluaran
+        </Button>
+        <Button
+          variant="secondary"
+          className="rounded-2xl"
+          onClick={() => setCategoryDialog({ id: null, name: "", allocated: "" })}
+        >
+          Kategori
+        </Button>
+      </div>
+
+      {categories.map((category) => {
+        const categoryExpenses = expenses.filter(
+          (expense) => expense.categoryId === category._id,
+        );
+        const spent = categoryExpenses.reduce((sum, expense) => sum + expense.amount, 0);
         const over = spent > category.allocated;
+        const pct =
+          category.allocated > 0
+            ? Math.min(100, Math.round((spent / category.allocated) * 100))
+            : 0;
+
         return (
-          <section key={category._id} className="panel">
-            <div className="panel-header justify-between">
-              <span className="truncate">{category.name}</span>
-              <span className="normal-case tracking-normal" style={{ color: over ? "var(--destructive)" : undefined }}>
-                {formatRupiah(spent)} / {formatRupiah(category.allocated)}
-              </span>
+          <section key={category._id} className="clay overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-extrabold">{category.name}</p>
+                <p className="num meta">
+                  {formatRupiahShort(spent)} / {formatRupiahShort(category.allocated)}
+                  {over ? " · melebihi alokasi" : ` · sisa ${formatRupiahShort(category.allocated - spent)}`}
+                </p>
+              </div>
+              <button
+                type="button"
+                aria-label="Ubah kategori"
+                className="text-muted-foreground hover:text-primary"
+                onClick={() =>
+                  setCategoryDialog({
+                    id: category._id,
+                    name: category.name,
+                    allocated: String(category.allocated),
+                  })
+                }
+              >
+                <Pencil className="size-4" />
+              </button>
+              <button
+                type="button"
+                aria-label="Hapus kategori"
+                className="text-muted-foreground hover:text-destructive"
+                onClick={() => {
+                  if (confirm(`Hapus kategori "${category.name}" beserta pengeluarannya?`)) {
+                    deleteCategory({ categoryId: category._id });
+                    toast.success("Kategori dihapus.");
+                  }
+                }}
+              >
+                <Trash2 className="size-4" />
+              </button>
             </div>
+            <div className="h-1.5 bg-muted">
+              <div
+                className={`h-full ${over ? "bg-destructive" : "bg-tint-mint-foreground/60"}`}
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+
             <ul className="divide-y divide-border">
-              {expenses.map((expense) => (
-                <li key={expense._id} className="flex items-center gap-2 px-3 py-2 text-sm">
+              {categoryExpenses.map((expense) => (
+                <li key={expense._id} className="flex items-center gap-3 px-4 py-2.5">
                   <button
                     type="button"
                     aria-label={expense.paidAt ? "Tandai belum lunas" : "Tandai lunas"}
-                    onClick={() =>
-                      togglePaid({ expenseId: expense._id, paid: !expense.paidAt })
-                    }
-                    className={`flex size-6 shrink-0 items-center justify-center rounded-full text-[10px] clay-inset ${
+                    onClick={() => {
+                      togglePaid({ expenseId: expense._id, paid: !expense.paidAt });
+                      if (!expense.paidAt) bloom();
+                    }}
+                    className={`flex size-6 shrink-0 items-center justify-center rounded-full ${
                       expense.paidAt
                         ? "bg-primary text-primary-foreground"
-                        : "text-transparent hover:text-primary/60"
+                        : "clay-inset text-muted-foreground hover:text-primary"
                     }`}
                   >
-                    ✓
+                    <Check className="size-3" />
                   </button>
                   <span
-                    className={`flex-1 truncate ${
-                      expense.paidAt ? "text-muted-foreground line-through" : ""
+                    className={`min-w-0 flex-1 truncate text-sm ${
+                      expense.paidAt ? "text-muted-foreground" : ""
                     }`}
                   >
                     {expense.label}
                   </span>
-                  <span className="text-xs tabular-nums">{formatRupiah(expense.amount)}</span>
+                  <span className="num text-sm font-bold">
+                    {formatRupiah(expense.amount)}
+                  </span>
+                  <button
+                    type="button"
+                    aria-label="Ubah pengeluaran"
+                    className="text-muted-foreground hover:text-primary"
+                    onClick={() => openEditExpense(expense)}
+                  >
+                    <Pencil className="size-3.5" />
+                  </button>
                   <button
                     type="button"
                     aria-label="Hapus pengeluaran"
@@ -177,100 +311,36 @@ export function BudgetPage() {
                   </button>
                 </li>
               ))}
-              {expenses.length === 0 && (
-                <li className="px-3 py-2 text-xs text-muted-foreground">
+              {categoryExpenses.length === 0 && (
+                <li className="px-4 py-2.5 text-xs text-muted-foreground">
                   Belum ada pengeluaran di kategori ini.
                 </li>
               )}
             </ul>
-            <div className="flex gap-2 border-t border-border p-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 text-xs"
-                onClick={() => setExpenseTarget(category._id)}
-              >
-                <Plus className="size-3.5" /> Pengeluaran
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs text-muted-foreground hover:text-destructive"
-                onClick={() => {
-                  if (confirm(`Hapus kategori "${category.name}" beserta pengeluarannya?`)) {
-                    deleteCategory({ categoryId: category._id });
-                  }
-                }}
-              >
-                <Trash2 className="size-3.5" />
-              </Button>
-            </div>
           </section>
         );
       })}
 
-      {(budget?.categories ?? []).length === 0 && budget !== undefined && (
-        <p className="panel p-3 text-xs text-muted-foreground">
-          Belum ada kategori. Tambahkan kategori pertama kalian di bawah.
+      {budget !== undefined && categories.length === 0 && (
+        <p className="clay-inset flex h-24 items-center justify-center rounded-3xl text-xs text-muted-foreground">
+          Belum ada kategori. Buat kategori pertama kalian.
         </p>
       )}
 
-      <Button
-        variant="secondary"
-        className="w-full rounded-2xl"
-        onClick={() => setNewCategoryOpen(true)}
-      >
-        <Plus className="size-4" /> Tambah kategori
-      </Button>
-
-      <Dialog open={newCategoryOpen} onOpenChange={setNewCategoryOpen}>
+      <Dialog open={expenseOpen} onOpenChange={setExpenseOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Kategori baru</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="cat-name">Nama kategori</Label>
-              <Input
-                id="cat-name"
-                value={newCategoryName}
-                onChange={(e) => setNewCategoryName(e.target.value)}
-                placeholder="cth. Sewa venue"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="cat-alloc">Alokasi (Rp)</Label>
-              <Input
-                id="cat-alloc"
-                type="number"
-                min={0}
-                step={100000}
-                value={newCategoryAlloc}
-                onChange={(e) => setNewCategoryAlloc(e.target.value)}
-                placeholder="5000000"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button onClick={submitCategory} disabled={creating} className="w-full">
-              {creating ? <Loader2 className="size-4 animate-spin" /> : "Simpan kategori"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={expenseTarget !== null} onOpenChange={(open) => !open && setExpenseTarget(null)}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Tambah pengeluaran</DialogTitle>
+            <DialogTitle>{expenseForm.id ? "Ubah pengeluaran" : "Pengeluaran baru"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
               <Label htmlFor="exp-label">Keterangan</Label>
               <Input
                 id="exp-label"
-                value={expenseLabel}
-                onChange={(e) => setExpenseLabel(e.target.value)}
+                value={expenseForm.label}
+                onChange={(event) =>
+                  setExpenseForm((previous) => ({ ...previous, label: event.target.value }))
+                }
                 placeholder="cth. DP katering"
               />
             </div>
@@ -280,16 +350,113 @@ export function BudgetPage() {
                 id="exp-amount"
                 type="number"
                 min={0}
-                step={10000}
-                value={expenseAmount}
-                onChange={(e) => setExpenseAmount(e.target.value)}
+                step={50000}
+                value={expenseForm.amount}
+                onChange={(event) =>
+                  setExpenseForm((previous) => ({ ...previous, amount: event.target.value }))
+                }
                 placeholder="1500000"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="exp-category">Kategori</Label>
+              <div className="relative">
+                <select
+                  id="exp-category"
+                  value={expenseForm.categoryId}
+                  onChange={(event) =>
+                    setExpenseForm((previous) => ({
+                      ...previous,
+                      categoryId: event.target.value,
+                    }))
+                  }
+                  className="h-9 w-full appearance-none rounded-xl border border-transparent bg-popover px-3 pr-9 text-sm"
+                >
+                  {categories.map((category) => (
+                    <option key={category._id} value={category._id}>
+                      {category.name}
+                    </option>
+                  ))}
+                  <option value="">+ Kategori baru…</option>
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              </div>
+            </div>
+            {expenseForm.categoryId === "" && (
+              <div className="space-y-1.5">
+                <Label htmlFor="exp-new-category">Nama kategori baru</Label>
+                <Input
+                  id="exp-new-category"
+                  value={newCategoryName}
+                  onChange={(event) => setNewCategoryName(event.target.value)}
+                  placeholder="cth. Mahar"
+                />
+              </div>
+            )}
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={expenseForm.paid}
+                onChange={(event) =>
+                  setExpenseForm((previous) => ({ ...previous, paid: event.target.checked }))
+                }
+                className="size-4 accent-[var(--primary)]"
+              />
+              Sudah dibayar
+            </label>
+          </div>
+          <DialogFooter>
+            <Button onClick={submitExpense} disabled={busy} className="w-full rounded-2xl">
+              {busy ? <Loader2 className="size-4 animate-spin" /> : "Simpan"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={categoryDialog !== null}
+        onOpenChange={(open) => !open && setCategoryDialog(null)}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>
+              {categoryDialog?.id ? "Ubah kategori" : "Kategori baru"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="cat-name">Nama kategori</Label>
+              <Input
+                id="cat-name"
+                value={categoryDialog?.name ?? ""}
+                onChange={(event) =>
+                  setCategoryDialog((previous) =>
+                    previous ? { ...previous, name: event.target.value } : previous,
+                  )
+                }
+                placeholder="cth. Venue"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="cat-alloc">Alokasi (Rp)</Label>
+              <Input
+                id="cat-alloc"
+                type="number"
+                min={0}
+                step={500000}
+                value={categoryDialog?.allocated ?? ""}
+                onChange={(event) =>
+                  setCategoryDialog((previous) =>
+                    previous ? { ...previous, allocated: event.target.value } : previous,
+                  )
+                }
+                placeholder="5000000"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={submitExpense} disabled={addingExpense} className="w-full">
-              {addingExpense ? <Loader2 className="size-4 animate-spin" /> : "Catat pengeluaran"}
+            <Button onClick={submitCategory} disabled={busy} className="w-full rounded-2xl">
+              {busy ? <Loader2 className="size-4 animate-spin" /> : "Simpan"}
             </Button>
           </DialogFooter>
         </DialogContent>

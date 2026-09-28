@@ -1,7 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
-import type { Doc } from "./_generated/dataModel";
+import { mutation, query, type MutationCtx } from "./_generated/server";
+import type { Doc, Id } from "./_generated/dataModel";
 
 const DEFAULT_WEDDING_DATE = new Date("2027-08-26T09:00:00+07:00").getTime();
 
@@ -29,6 +29,32 @@ const DEFAULT_BUDGET_CATEGORIES = [
   { name: "Undangan & Merch", allocated: 2_000_000 },
   { name: "Dokumen & Lainnya", allocated: 6_000_000 },
 ];
+
+const DEFAULT_MOODBOARD_CATEGORIES = ["Dekorasi", "Baju", "Makeup"];
+
+/**
+ * Mood board categories are free text, so besides the three defaults we adopt
+ * any category name that older boxes already use.
+ */
+async function ensureMoodboardCategories(ctx: MutationCtx, userId: Id<"users">) {
+  const existing = await ctx.db
+    .query("moodboardCategory")
+    .withIndex("by_user", (q) => q.eq("userId", userId))
+    .collect();
+  const known = new Set(existing.map((category) => category.name));
+
+  const boxes = await ctx.db
+    .query("moodboardBox")
+    .withIndex("by_user", (q) => q.eq("userId", userId))
+    .collect();
+
+  let order = existing.length;
+  for (const name of [...DEFAULT_MOODBOARD_CATEGORIES, ...boxes.map((b) => b.tab)]) {
+    if (known.has(name)) continue;
+    known.add(name);
+    await ctx.db.insert("moodboardCategory", { userId, name, sortOrder: order++ });
+  }
+}
 
 const DEFAULT_RUNDOWN = [
   { startTime: "07:00", title: "Persiapan & rias pengantin" },
@@ -61,7 +87,10 @@ export const ensureSetup = mutation({
       .query("wedding")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .first();
-    if (existing) return existing._id;
+    if (existing) {
+      await ensureMoodboardCategories(ctx, userId);
+      return existing._id;
+    }
 
     const weddingId = await ctx.db.insert("wedding", {
       userId,
@@ -97,6 +126,8 @@ export const ensureSetup = mutation({
         createdAt: Date.now(),
       });
     }
+
+    await ensureMoodboardCategories(ctx, userId);
 
     return weddingId;
   },

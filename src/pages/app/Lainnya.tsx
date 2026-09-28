@@ -17,7 +17,7 @@ export function LainnyaPage() {
   const guests = useQuery(api.guests.list);
   const vendors = useQuery(api.vendors.list);
   const rundown = useQuery(api.rundown.list);
-  const photos = useQuery(api.moodboard.listPhotos);
+  const categories = useQuery(api.moodboard.listCategories);
 
   const totalPax = (guests ?? []).reduce((sum, g) => sum + g.pax, 0);
   const vendorPaid = (vendors ?? []).filter((v) => v.status === "lunas").length;
@@ -28,7 +28,7 @@ export function LainnyaPage() {
       label: "Mood Board",
       desc: "Referensi dekorasi, baju & makeup",
       icon: FolderHeart,
-      count: `${(photos ?? []).length} foto`,
+      count: `${(categories ?? []).length} kategori`,
       surface: "bg-tint-rose text-tint-rose-foreground",
       grad: "grad-rose",
       emoji: "🎨",
@@ -78,13 +78,11 @@ export function LainnyaPage() {
             🌷
           </div>
           <div>
-            <h1 className="text-xl font-semibold">Lainnya</h1>
-            <p className="text-[11px] text-muted-foreground">
-              Alat tambahan & pengaturan
-            </p>
+            <h1 className="h-page">Lainnya</h1>
+            <p className="meta mt-0.5">Alat tambahan & pengaturan</p>
           </div>
         </div>
-        <p className="relative mt-3 text-xs leading-relaxed text-muted-foreground">
+        <p className="meta relative mt-3 text-xs leading-relaxed">
           Semua alat tambahan ada di sini — dari papan referensi sampai daftar
           tamu dan susunan acara.
         </p>
@@ -103,9 +101,11 @@ export function LainnyaPage() {
                 {tool.emoji}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-extrabold">{tool.label}</p>
-                <p className="truncate text-[11px] opacity-80">{tool.desc}</p>
-                <p className="mt-0.5 text-[11px] font-bold">{tool.count}</p>
+                <p className="h-card">{tool.label}</p>
+                <p className="truncate text-[11px] leading-snug opacity-80">
+                  {tool.desc}
+                </p>
+                <p className="num mt-0.5 text-[11px] font-bold">{tool.count}</p>
               </div>
               <ChevronRight className="size-4 shrink-0 opacity-70" />
             </div>
@@ -114,7 +114,7 @@ export function LainnyaPage() {
       </section>
 
       <section>
-        <h2 className="mb-2 text-base font-semibold">Jalan pintas</h2>
+        <h2 className="h-card mb-2">Jalan pintas</h2>
         <div className="grid grid-cols-2 gap-3">
           {shortcuts.map((feature) => (
             <Link
@@ -126,7 +126,7 @@ export function LainnyaPage() {
                 <feature.icon className="size-5" />
                 <span className="text-lg">{feature.emoji}</span>
               </div>
-              <p className="mt-2 text-sm font-extrabold">{feature.label}</p>
+              <p className="h-card mt-2">{feature.label}</p>
               <p className="mt-1 text-[11px] leading-snug opacity-80">
                 {feature.desc}
               </p>
@@ -144,8 +144,8 @@ export function LainnyaPage() {
             ⚙️
           </div>
           <div className="flex-1">
-            <p className="text-sm font-extrabold">Pengaturan</p>
-            <p className="text-[11px] opacity-80">
+            <p className="h-card">Pengaturan</p>
+            <p className="text-[11px] leading-snug opacity-80">
               Nama, tanggal pernikahan, venue & target dana
             </p>
           </div>
@@ -153,7 +153,7 @@ export function LainnyaPage() {
         </div>
       </Link>
 
-      <p className="pb-2 text-center text-[11px] text-muted-foreground">
+      <p className="meta pb-2 text-center">
         <Settings className="mr-1 inline size-3" />
         Planner Wedding · dibuat dengan hati
       </p>

@@ -82,9 +82,7 @@ function NotificationBell({
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-72 p-2">
-        <p className="px-2 pb-1 pt-1 text-xs font-semibold text-muted-foreground">
-          Notifikasi
-        </p>
+        <p className="label px-2 pb-1 pt-1 text-muted-foreground">Notifikasi</p>
         <ul className="space-y-1">
           {notes.map((note) => (
             <li
@@ -141,12 +139,12 @@ export function AppShell() {
                 {initials(wedding?.partnerOneName, wedding?.partnerTwoName)}
               </div>
               <div className="min-w-0">
-                <p className="truncate text-sm font-bold leading-tight">
+                <p className="h-card truncate">
                   {wedding
                     ? `${wedding.partnerOneName} & ${wedding.partnerTwoName}`
                     : "…"}
                 </p>
-                <p className="truncate text-[11px] text-muted-foreground">
+                <p className="meta truncate">
                   {wedding ? formatDateID(wedding.weddingDate) : ""}
                 </p>
               </div>
@@ -166,24 +164,22 @@ export function AppShell() {
             </div>
           </div>
 
-          <div className="mt-3 grid grid-cols-3 gap-2">
-            <div className="rounded-2xl bg-tint-butter px-3 py-2 text-tint-butter-foreground">
-              <p className="text-[10px] font-bold opacity-75">Hitung mundur</p>
-              <p className="text-sm font-extrabold">
+          <dl className="mt-3 grid grid-cols-3 gap-2">
+            <div className="stat-tile bg-tint-butter text-tint-butter-foreground">
+              <dt>Hitung mundur</dt>
+              <dd className="text-xs">
                 {wedding ? countdownLabel(wedding.weddingDate) : "—"}
-              </p>
+              </dd>
             </div>
-            <div className="rounded-2xl bg-tint-lavender px-3 py-2 text-tint-lavender-foreground">
-              <p className="text-[10px] font-bold opacity-75">Terkumpul</p>
-              <p className="text-sm font-extrabold">
-                {formatRupiahShort(savingsTotal)}
-              </p>
+            <div className="stat-tile bg-tint-lavender text-tint-lavender-foreground">
+              <dt>Terkumpul</dt>
+              <dd className="text-xs">{formatRupiahShort(savingsTotal)}</dd>
             </div>
-            <div className="rounded-2xl bg-tint-mint px-3 py-2 text-tint-mint-foreground">
-              <p className="text-[10px] font-bold opacity-75">Tugas</p>
-              <p className="text-sm font-extrabold">{openTasks} tersisa</p>
+            <div className="stat-tile bg-tint-mint text-tint-mint-foreground">
+              <dt>Tugas</dt>
+              <dd className="text-xs">{openTasks} tersisa</dd>
             </div>
-          </div>
+          </dl>
 
           <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-white/70">
             <div
@@ -191,7 +187,7 @@ export function AppShell() {
               style={{ width: `${progressPct}%` }}
             />
           </div>
-          <p className="mt-1.5 text-[11px] text-muted-foreground">
+          <p className="meta mt-1.5">
             {formatRupiahShort(savingsTotal)} dari target{" "}
             {formatRupiahShort(fundTarget)}
           </p>

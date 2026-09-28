@@ -12,221 +12,417 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
-import { Check, ChevronLeft, Loader2, Plus, Trash2, X } from "lucide-react";
+import {
+  ChevronLeft,
+  Loader2,
+  MessageCircle,
+  Pencil,
+  Plus,
+  Search,
+  Send,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 
-/** Daftar tamu: undangan, jumlah orang, dan status RSVP. */
+type Rsvp = "pending" | "hadir" | "tidak";
+
+const RSVP_OPTIONS: { key: Rsvp; label: string }[] = [
+  { key: "pending", label: "Belum" },
+  { key: "hadir", label: "Hadir" },
+  { key: "tidak", label: "Tidak" },
+];
+
+type GuestForm = {
+  id: Id<"guest"> | null;
+  name: string;
+  group: string;
+  pax: string;
+  phone: string;
+  note: string;
+};
+
+const EMPTY_FORM: GuestForm = {
+  id: null,
+  name: "",
+  group: "",
+  pax: "2",
+  phone: "",
+  note: "",
+};
+
+function waLink(phone: string): string {
+  const digits = phone.replace(/[^0-9]/g, "").replace(/^0/, "62");
+  return `https://wa.me/${digits}`;
+}
+
 export function TamuPage() {
   const guests = useQuery(api.guests.list);
   const createGuest = useMutation(api.guests.create);
+  const updateGuest = useMutation(api.guests.update);
+  const inviteAll = useMutation(api.guests.inviteAll);
   const setInvited = useMutation(api.guests.setInvited);
   const setRsvp = useMutation(api.guests.setRsvp);
   const removeGuest = useMutation(api.guests.remove);
 
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [group, setGroup] = useState("");
-  const [pax, setPax] = useState("2");
-  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState<GuestForm>(EMPTY_FORM);
+  const [formOpen, setFormOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [query, setQuery] = useState("");
+  const [groupFilter, setGroupFilter] = useState<string | null>(null);
 
   const list = guests ?? [];
-  const totalPax = list.reduce((sum, g) => sum + g.pax, 0);
-  const hadir = list.filter((g) => g.rsvp === "hadir");
-  const invited = list.filter((g) => g.invited).length;
+  const groups = Array.from(new Set(list.map((guest) => guest.group)));
+  const totalPax = list.reduce((sum, guest) => sum + guest.pax, 0);
+  const invited = list.filter((guest) => guest.invited).length;
+  const attendingPax = list
+    .filter((guest) => guest.rsvp === "hadir")
+    .reduce((sum, guest) => sum + guest.pax, 0);
+
+  const visible = list.filter((guest) => {
+    if (groupFilter && guest.group !== groupFilter) return false;
+    if (query.trim() === "") return true;
+    return guest.name.toLowerCase().includes(query.trim().toLowerCase());
+  });
+
+  const openNew = () => {
+    setForm(EMPTY_FORM);
+    setFormOpen(true);
+  };
+
+  const openEdit = (guest: (typeof list)[number]) => {
+    setForm({
+      id: guest._id,
+      name: guest.name,
+      group: guest.group,
+      pax: String(guest.pax),
+      phone: guest.phone ?? "",
+      note: guest.note ?? "",
+    });
+    setFormOpen(true);
+  };
 
   const submit = async () => {
-    if (!name.trim()) {
+    if (!form.name.trim()) {
       toast.error("Nama tamu wajib diisi.");
       return;
     }
-    setSaving(true);
+    setBusy(true);
     try {
-      await createGuest({ name, group, pax: Number(pax) || 1 });
-      bloom();
-      toast.success("Tamu ditambahkan.");
-      setOpen(false);
-      setName("");
-      setGroup("");
-      setPax("2");
+      if (form.id) {
+        await updateGuest({
+          guestId: form.id,
+          name: form.name,
+          group: form.group,
+          pax: Number(form.pax) || 1,
+          phone: form.phone,
+          note: form.note,
+        });
+        toast.success("Data tamu diperbarui.");
+      } else {
+        await createGuest({
+          name: form.name,
+          group: form.group,
+          pax: Number(form.pax) || 1,
+          phone: form.phone,
+          note: form.note,
+        });
+        bloom();
+        toast.success("Tamu ditambahkan.");
+      }
+      setFormOpen(false);
+      setForm(EMPTY_FORM);
     } catch {
-      toast.error("Gagal menambah tamu.");
+      toast.error("Gagal menyimpan tamu.");
     } finally {
-      setSaving(false);
+      setBusy(false);
     }
   };
 
-  const cycleRsvp = async (
-    guestId: Id<"guest">,
-    current: "pending" | "hadir" | "tidak",
-  ) => {
-    const next = current === "pending" ? "hadir" : current === "hadir" ? "tidak" : "pending";
-    await setRsvp({ guestId, rsvp: next });
-    if (next === "hadir") bloom();
+  const markAllSent = async () => {
+    const count = await inviteAll({ group: groupFilter ?? undefined });
+    if (count > 0) bloom();
+    toast.success(
+      count > 0 ? `${count} undangan ditandai terkirim.` : "Semua sudah terkirim.",
+    );
   };
 
   return (
     <div className="space-y-4">
       <Link
         to="/app/lainnya"
-        className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground"
+        className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground"
       >
         <ChevronLeft className="size-3.5" /> Lainnya
       </Link>
 
       <section className="clay grad-sky relative overflow-hidden p-5 text-tint-sky-foreground">
         <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 opacity-25" />
-        <div className="relative flex items-center gap-3">
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-white/70 text-lg">
+        <div className="relative flex items-start justify-between gap-3">
+          <div>
+            <h1 className="h-page">Daftar Tamu</h1>
+            <p className="meta">
+              {list.length} tamu · {totalPax} orang · {invited} terkirim
+            </p>
+          </div>
+          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-white/70 text-xl">
             💌
           </div>
-          <div>
-            <h1 className="text-xl font-semibold leading-tight">Daftar Tamu</h1>
-            <p className="text-[11px] opacity-80">
-              {list.length} tamu · {totalPax} orang
-            </p>
-          </div>
         </div>
-        <div className="mt-4 grid grid-cols-3 gap-2">
-          <div className="clay-inset rounded-2xl px-3 py-2">
-            <p className="text-[10px] font-medium text-muted-foreground">Diundang</p>
-            <p className="text-sm font-bold">{invited}</p>
+        <dl className="mt-4 grid grid-cols-3 gap-2">
+          <div className="stat-tile bg-white/70">
+            <dt>Total</dt>
+            <dd>{totalPax} org</dd>
           </div>
-          <div className="clay-inset rounded-2xl px-3 py-2">
-            <p className="text-[10px] font-medium text-muted-foreground">Hadir</p>
-            <p className="text-sm font-bold text-primary">
-              {hadir.reduce((sum, g) => sum + g.pax, 0)} orang
-            </p>
+          <div className="stat-tile bg-white/70">
+            <dt>Hadir</dt>
+            <dd>{attendingPax} org</dd>
           </div>
-          <div className="clay-inset rounded-2xl px-3 py-2">
-            <p className="text-[10px] font-medium text-muted-foreground">Belum pasti</p>
-            <p className="text-sm font-bold">
-              {list.filter((g) => g.rsvp === "pending").length}
-            </p>
+          <div className="stat-tile bg-white/70">
+            <dt>Ragu</dt>
+            <dd>{list.filter((guest) => guest.rsvp === "pending").length}</dd>
           </div>
-        </div>
+        </dl>
       </section>
 
-      <Button className="w-full rounded-2xl" onClick={() => setOpen(true)}>
-        <Plus className="size-4" /> Tambah tamu
-      </Button>
+      <div className="flex gap-2">
+        <Button className="flex-1 rounded-2xl" onClick={openNew}>
+          <Plus className="size-4" /> Tamu baru
+        </Button>
+        <Button
+          variant="secondary"
+          className="rounded-2xl"
+          onClick={() => void markAllSent()}
+        >
+          <Send className="size-4" /> Tandai terkirim
+        </Button>
+      </div>
+
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Cari nama tamu…"
+          className="pl-9"
+        />
+      </div>
+
+      {groups.length > 1 && (
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          <button
+            type="button"
+            onClick={() => setGroupFilter(null)}
+            className={`chip shrink-0 ${
+              groupFilter === null
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-secondary-foreground"
+            }`}
+          >
+            Semua grup
+          </button>
+          {groups.map((group) => (
+            <button
+              key={group}
+              type="button"
+              onClick={() => setGroupFilter(group)}
+              className={`chip shrink-0 ${
+                groupFilter === group
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-tint-sky text-tint-sky-foreground"
+              }`}
+            >
+              {group}
+            </button>
+          ))}
+        </div>
+      )}
 
       <section className="space-y-3">
-        {list.map((guest) => (
-          <div key={guest._id} className="clay p-3.5">
+        {visible.map((guest) => (
+          <article key={guest._id} className="clay p-4">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <p className="truncate text-sm font-bold">{guest.name}</p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="truncate text-sm font-extrabold">{guest.name}</p>
+                <p className="meta">
                   {guest.group} · {guest.pax} orang
                 </p>
+                {guest.note && <p className="meta mt-0.5 italic">{guest.note}</p>}
               </div>
-              <button
-                type="button"
-                aria-label="Hapus tamu"
-                className="shrink-0 text-muted-foreground hover:text-destructive"
-                onClick={() => {
-                  removeGuest({ guestId: guest._id });
-                  toast.success("Tamu dihapus.");
-                }}
-              >
-                <Trash2 className="size-3.5" />
-              </button>
+              <div className="flex shrink-0 items-center gap-2">
+                {guest.phone && (
+                  <a
+                    href={waLink(guest.phone)}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Chat WhatsApp"
+                    className="text-muted-foreground hover:text-primary"
+                  >
+                    <MessageCircle className="size-4" />
+                  </a>
+                )}
+                <button
+                  type="button"
+                  aria-label="Ubah tamu"
+                  className="text-muted-foreground hover:text-primary"
+                  onClick={() => openEdit(guest)}
+                >
+                  <Pencil className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Hapus tamu"
+                  className="text-muted-foreground hover:text-destructive"
+                  onClick={() => {
+                    removeGuest({ guestId: guest._id });
+                    toast.success("Tamu dihapus.");
+                  }}
+                >
+                  <Trash2 className="size-4" />
+                </button>
+              </div>
             </div>
 
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                onClick={() =>
-                  setInvited({ guestId: guest._id, invited: !guest.invited })
-                }
-                className={`rounded-xl px-3 py-1.5 text-[11px] font-bold transition-all clay-sm ${
+                onClick={() => setInvited({ guestId: guest._id, invited: !guest.invited })}
+                className={`chip ${
                   guest.invited
                     ? "bg-primary text-primary-foreground"
                     : "bg-secondary text-secondary-foreground"
                 }`}
               >
+                <CheckIcon invited={Boolean(guest.invited)} />
                 {guest.invited ? "Undangan terkirim" : "Belum diundang"}
               </button>
 
-              <button
-                type="button"
-                onClick={() => cycleRsvp(guest._id, guest.rsvp)}
-                className={`flex items-center gap-1 rounded-xl px-3 py-1.5 text-[11px] font-bold transition-all clay-sm ${
-                  guest.rsvp === "hadir"
-                    ? "bg-primary text-primary-foreground"
-                    : guest.rsvp === "tidak"
-                      ? "bg-destructive text-destructive-foreground"
-                      : "bg-accent text-accent-foreground"
-                }`}
-              >
-                {guest.rsvp === "hadir" ? (
-                  <>
-                    <Check className="size-3" /> Hadir
-                  </>
-                ) : guest.rsvp === "tidak" ? (
-                  <>
-                    <X className="size-3" /> Tidak hadir
-                  </>
-                ) : (
-                  "RSVP belum"
-                )}
-              </button>
+              <div className="clay-inset flex gap-1 p-1">
+                {RSVP_OPTIONS.map((option) => (
+                  <button
+                    key={option.key}
+                    type="button"
+                    onClick={() => {
+                      setRsvp({ guestId: guest._id, rsvp: option.key });
+                      if (option.key === "hadir") bloom();
+                    }}
+                    className={`rounded-xl px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                      guest.rsvp === option.key
+                        ? option.key === "hadir"
+                          ? "bg-primary text-primary-foreground"
+                          : option.key === "tidak"
+                            ? "bg-destructive text-destructive-foreground"
+                            : "bg-secondary text-secondary-foreground"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          </article>
         ))}
 
-        {guests !== undefined && list.length === 0 && (
-          <div className="clay-inset flex h-24 items-center justify-center rounded-3xl text-xs text-muted-foreground">
-            Belum ada tamu. Tambahkan yang pertama!
-          </div>
+        {visible.length === 0 && guests !== undefined && (
+          <p className="clay-inset flex h-24 items-center justify-center rounded-3xl text-xs text-muted-foreground">
+            {query || groupFilter ? "Tidak ada tamu yang cocok." : "Belum ada tamu."}
+          </p>
         )}
       </section>
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Tamu baru</DialogTitle>
+            <DialogTitle>{form.id ? "Ubah data tamu" : "Tamu baru"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
               <Label htmlFor="guest-name">Nama</Label>
               <Input
                 id="guest-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={form.name}
+                onChange={(event) =>
+                  setForm((previous) => ({ ...previous, name: event.target.value }))
+                }
                 placeholder="cth. Keluarga Budi"
               />
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="guest-group">Grup</Label>
+                <Input
+                  id="guest-group"
+                  list="guest-groups"
+                  value={form.group}
+                  onChange={(event) =>
+                    setForm((previous) => ({ ...previous, group: event.target.value }))
+                  }
+                  placeholder="cth. Keluarga"
+                />
+                <datalist id="guest-groups">
+                  {groups.map((group) => (
+                    <option key={group} value={group} />
+                  ))}
+                </datalist>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="guest-pax">Jumlah orang</Label>
+                <Input
+                  id="guest-pax"
+                  type="number"
+                  min={1}
+                  value={form.pax}
+                  onChange={(event) =>
+                    setForm((previous) => ({ ...previous, pax: event.target.value }))
+                  }
+                />
+              </div>
+            </div>
             <div className="space-y-1.5">
-              <Label htmlFor="guest-group">Grup</Label>
+              <Label htmlFor="guest-phone">No. WhatsApp (opsional)</Label>
               <Input
-                id="guest-group"
-                value={group}
-                onChange={(e) => setGroup(e.target.value)}
-                placeholder="cth. Keluarga mempelai wanita"
+                id="guest-phone"
+                value={form.phone}
+                onChange={(event) =>
+                  setForm((previous) => ({ ...previous, phone: event.target.value }))
+                }
+                placeholder="0812xxxxxxx"
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="guest-pax">Jumlah orang</Label>
+              <Label htmlFor="guest-note">Catatan (opsional)</Label>
               <Input
-                id="guest-pax"
-                type="number"
-                min={1}
-                value={pax}
-                onChange={(e) => setPax(e.target.value)}
+                id="guest-note"
+                value={form.note}
+                onChange={(event) =>
+                  setForm((previous) => ({ ...previous, note: event.target.value }))
+                }
+                placeholder="cth. alergi seafood"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={submit} disabled={saving} className="w-full rounded-2xl">
-              {saving ? <Loader2 className="size-4 animate-spin" /> : "Simpan tamu"}
+            <Button onClick={submit} disabled={busy} className="w-full rounded-2xl">
+              {busy ? <Loader2 className="size-4 animate-spin" /> : "Simpan tamu"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function CheckIcon({ invited }: { invited: boolean }) {
+  return (
+    <span
+      className={`flex size-3.5 items-center justify-center rounded-full border ${
+        invited ? "border-white/60 bg-white/30" : "border-current opacity-50"
+      }`}
+    >
+      {invited ? <span className="text-[8px] leading-none">✓</span> : null}
+    </span>
   );
 }

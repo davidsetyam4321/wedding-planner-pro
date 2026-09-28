@@ -63,7 +63,7 @@ export function PengaturanPage() {
     <div className="space-y-4">
       <Link
         to="/app/lainnya"
-        className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground"
+        className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground"
       >
         <ChevronLeft className="size-3.5" /> Lainnya
       </Link>
@@ -75,10 +75,8 @@ export function PengaturanPage() {
             ⚙️
           </div>
           <div>
-            <h1 className="text-xl font-semibold leading-tight">Pengaturan</h1>
-            <p className="text-[11px] text-muted-foreground">
-              Data ini dipakai di seluruh halaman
-            </p>
+            <h1 className="h-page">Pengaturan</h1>
+            <p className="meta mt-0.5">Data ini dipakai di seluruh halaman</p>
           </div>
         </div>
       </section>
@@ -144,7 +142,7 @@ export function PengaturanPage() {
       </form>
 
       <section className="clay p-4">
-        <h2 className="text-sm font-bold">8 fitur siap dipakai</h2>
+        <h2 className="h-card">8 fitur siap dipakai</h2>
         <ul className="mt-3 grid grid-cols-2 gap-2">
           {FEATURES.map((feature) => (
             <li

@@ -12,113 +12,155 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
-import { ChevronLeft, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Images,
+  Loader2,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { useRef, useState } from "react";
 import { Link } from "react-router";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 
-type Tab = "dekorasi" | "baju" | "makeup";
+type BoxId = Id<"moodboardBox">;
 
-const TAB_LABELS: Record<Tab, string> = {
-  dekorasi: "Dekorasi",
-  baju: "Baju",
-  makeup: "Makeup",
-};
+const MAX_PHOTOS = 12;
 
-const MAX_PHOTOS_PER_BOX = 3;
-
-/** Mood board: papan referensi per kategori, maksimal 3 foto per kotak. */
 export function MoodboardPage() {
-  const [tab, setTab] = useState<Tab>("dekorasi");
-  const boxes = useQuery(api.moodboard.listBoxes, { tab });
-  const photos = useQuery(api.moodboard.listPhotos);
+  const categories = useQuery(api.moodboard.listCategories);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
+  const categoryNames = (categories ?? []).map((c) => c.name);
+  const current = activeCategory ?? categoryNames[0] ?? "Dekorasi";
+
+  const boxes = useQuery(api.moodboard.listBoxes, { category: current });
+  const createCategory = useMutation(api.moodboard.createCategory);
+  const renameCategory = useMutation(api.moodboard.renameCategory);
+  const deleteCategory = useMutation(api.moodboard.deleteCategory);
   const createBox = useMutation(api.moodboard.createBox);
-  const renameBox = useMutation(api.moodboard.renameBox);
+  const updateBox = useMutation(api.moodboard.updateBox);
   const deleteBox = useMutation(api.moodboard.deleteBox);
   const addPhoto = useMutation(api.moodboard.addPhoto);
   const removePhoto = useMutation(api.moodboard.removePhoto);
+  const updateCaption = useMutation(api.moodboard.updatePhotoCaption);
   const generateUploadUrl = useAction(api.files.generateUploadUrl);
 
-  const [newBoxOpen, setNewBoxOpen] = useState(false);
-  const [newBoxTitle, setNewBoxTitle] = useState("");
-  const [creatingBox, setCreatingBox] = useState(false);
+  const [categoryDialog, setCategoryDialog] = useState<"add" | "manage" | null>(null);
+  const [categoryName, setCategoryName] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  const [renaming, setRenaming] = useState<{ id: Id<"moodboardBox">; title: string } | null>(null);
-  const [renameValue, setRenameValue] = useState("");
-  const [renamingBusy, setRenamingBusy] = useState(false);
-
-  const [uploadingBox, setUploadingBox] = useState<Id<"moodboardBox"> | null>(null);
+  const [boxDialog, setBoxDialog] = useState<{ id?: BoxId; title: string } | null>(null);
+  const [openBoxId, setOpenBoxId] = useState<BoxId | null>(null);
+  const [uploadingBox, setUploadingBox] = useState<BoxId | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const submitNewBox = async () => {
-    if (!newBoxTitle.trim()) {
+  const [lightbox, setLightbox] = useState<{ boxId: BoxId; index: number } | null>(null);
+  const [caption, setCaption] = useState("");
+
+  const activeBox = (boxes ?? []).find((box) => box._id === openBoxId) ?? null;
+  const lightboxBox = (boxes ?? []).find((box) => box._id === lightbox?.boxId) ?? null;
+  const lightboxPhoto =
+    lightboxBox && lightbox ? lightboxBox.photos[lightbox.index] ?? null : null;
+
+  const totalPhotos = (boxes ?? []).reduce((sum, box) => sum + box.photos.length, 0);
+
+  const submitCategory = async () => {
+    if (!categoryName.trim()) return;
+    setBusy(true);
+    try {
+      await createCategory({ name: categoryName });
+      setActiveCategory(categoryName.trim());
+      setCategoryName("");
+      setCategoryDialog(null);
+      bloom();
+      toast.success("Kategori ditambahkan.");
+    } catch {
+      toast.error("Kategori itu sudah ada.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const submitBox = async () => {
+    if (!boxDialog || !boxDialog.title.trim()) {
       toast.error("Isi judul kotak dulu, ya.");
       return;
     }
-    setCreatingBox(true);
+    setBusy(true);
     try {
-      await createBox({ tab, title: newBoxTitle });
-      bloom();
-      setNewBoxOpen(false);
-      setNewBoxTitle("");
-      toast.success("Kotak baru ditambahkan.");
+      if (boxDialog.id) {
+        await updateBox({ boxId: boxDialog.id, title: boxDialog.title });
+        toast.success("Kotak diperbarui.");
+      } else {
+        await createBox({ category: current, title: boxDialog.title });
+        bloom();
+        toast.success("Kotak ditambahkan.");
+      }
+      setBoxDialog(null);
     } catch {
-      toast.error("Gagal menambah kotak.");
+      toast.error("Gagal menyimpan kotak.");
     } finally {
-      setCreatingBox(false);
+      setBusy(false);
     }
   };
 
-  const submitRename = async () => {
-    if (!renaming || !renameValue.trim()) return;
-    setRenamingBusy(true);
+  const moveBox = async (boxId: BoxId, category: string) => {
     try {
-      await renameBox({ boxId: renaming.id, title: renameValue });
-      setRenaming(null);
-      toast.success("Nama kotak diperbarui.");
+      await updateBox({ boxId, category });
+      setOpenBoxId(null);
+      toast.success(`Dipindah ke ${category}.`);
     } catch {
-      toast.error("Gagal mengganti nama kotak.");
-    } finally {
-      setRenamingBusy(false);
+      toast.error("Gagal memindahkan kotak.");
     }
   };
 
-  const openFilePicker = (boxId: Id<"moodboardBox">) => {
+  const openFilePicker = (boxId: BoxId) => {
     setUploadingBox(boxId);
     fileInputRef.current?.click();
   };
 
-  const handleFileChosen = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleFiles = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
     event.target.value = "";
-    if (!file || !uploadingBox) return;
+    const boxId = uploadingBox;
+    if (files.length === 0 || !boxId) return;
 
-    try {
-      const uploadUrl = await generateUploadUrl({});
-      const response = await fetch(uploadUrl, {
-        method: "POST",
-        headers: { "Content-Type": file.type },
-        body: file,
-      });
-      if (!response.ok) throw new Error("upload gagal");
-      const { storageId } = (await response.json()) as { storageId: Id<"_storage"> };
-      await addPhoto({ boxId: uploadingBox, storageId });
+    let added = 0;
+    for (const file of files.slice(0, MAX_PHOTOS)) {
+      try {
+        const uploadUrl = await generateUploadUrl({});
+        const response = await fetch(uploadUrl, {
+          method: "POST",
+          headers: { "Content-Type": file.type },
+          body: file,
+        });
+        if (!response.ok) throw new Error("upload gagal");
+        const { storageId } = (await response.json()) as { storageId: Id<"_storage"> };
+        await addPhoto({ boxId, storageId });
+        added++;
+      } catch {
+        break;
+      }
+    }
+
+    setUploadingBox(null);
+    if (added > 0) {
       bloom();
-      toast.success("Foto ditambahkan.");
-    } catch (error) {
-      toast.error(
-        error instanceof Error && error.message.includes("Maksimal")
-          ? "Maksimal 3 foto per kotak."
-          : "Gagal mengunggah foto.",
-      );
-    } finally {
-      setUploadingBox(null);
+      toast.success(`${added} foto ditambahkan.`);
+    } else {
+      toast.error("Gagal mengunggah foto.");
     }
   };
 
-  const photosFor = (boxId: Id<"moodboardBox">) =>
-    (photos ?? []).filter((photo) => photo.boxId === boxId);
+  const saveCaption = async () => {
+    if (!lightboxPhoto) return;
+    await updateCaption({ photoId: lightboxPhoto._id, caption });
+    toast.success("Keterangan disimpan.");
+  };
 
   return (
     <div className="space-y-4">
@@ -126,13 +168,14 @@ export function MoodboardPage() {
         ref={fileInputRef}
         type="file"
         accept="image/*"
+        multiple
         className="hidden"
-        onChange={handleFileChosen}
+        onChange={handleFiles}
       />
 
       <Link
         to="/app/lainnya"
-        className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground"
+        className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground"
       >
         <ChevronLeft className="size-3.5" /> Lainnya
       </Link>
@@ -140,133 +183,101 @@ export function MoodboardPage() {
       <section className="clay grad-rose relative overflow-hidden p-5 text-tint-rose-foreground">
         <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 opacity-25" />
         <div className="relative flex items-center gap-3">
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-white/70 text-lg">
+          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-white/70 text-xl">
             🎨
           </div>
           <div>
-            <h1 className="text-xl font-semibold leading-tight">Mood Board</h1>
-            <p className="text-[11px] opacity-80">Maksimal 3 foto per kotak</p>
+            <h1 className="h-page">Mood Board</h1>
+            <p className="meta">
+              {boxes?.length ?? 0} kotak · {totalPhotos} foto di {current}
+            </p>
           </div>
         </div>
-        <p className="relative mt-3 text-xs leading-relaxed opacity-80">
-          Kumpulkan referensi dekor, baju & makeup di satu tempat supaya tidak
-          menumpuk screenshot di galeri. Butuh kotak lain? Tambahkan sendiri di
-          bawah.
+        <p className="meta relative mt-3 opacity-90">
+          Simpan referensi per kategori sebanyak yang kalian mau. Klik kotak
+          untuk melihat galeri, geser thumbnail untuk pindah foto.
         </p>
       </section>
 
-      <div className="clay-inset flex gap-1 p-1.5">
-        {(Object.keys(TAB_LABELS) as Tab[]).map((key) => (
+      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+        {categoryNames.map((name) => (
           <button
-            key={key}
+            key={name}
             type="button"
-            onClick={() => setTab(key)}
-            className={`flex-1 rounded-2xl px-3 py-2 text-xs font-bold transition-all ${
-              tab === key
-                ? "clay-sm bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground"
+            onClick={() => setActiveCategory(name)}
+            className={`chip shrink-0 ${
+              name === current
+                ? "bg-primary text-primary-foreground"
+                : "bg-tint-rose text-tint-rose-foreground"
             }`}
           >
-            {TAB_LABELS[key]}
+            {name}
           </button>
         ))}
+        <button
+          type="button"
+          onClick={() => {
+            setCategoryName("");
+            setCategoryDialog("add");
+          }}
+          className="chip shrink-0 bg-secondary text-secondary-foreground"
+        >
+          <Plus className="size-3.5" /> Kategori
+        </button>
+        <button
+          type="button"
+          onClick={() => setCategoryDialog("manage")}
+          className="chip shrink-0 bg-secondary text-secondary-foreground"
+          aria-label="Kelola kategori"
+        >
+          <Pencil className="size-3.5" />
+        </button>
       </div>
 
       <section className="grid grid-cols-2 gap-3">
         {(boxes ?? []).map((box) => {
-          const boxPhotos = photosFor(box._id);
-          const full = boxPhotos.length >= MAX_PHOTOS_PER_BOX;
+          const cover = box.photos[0];
+          const full = box.photos.length >= MAX_PHOTOS;
           return (
-            <div key={box._id} className="clay flex flex-col p-3">
-              <div className="flex items-start justify-between gap-1">
-                <p className="text-xs font-bold leading-snug">{box.title}</p>
-                <div className="flex shrink-0 items-center gap-1.5 text-muted-foreground">
-                  <button
-                    type="button"
-                    aria-label="Ganti nama kotak"
-                    className="hover:text-primary"
-                    onClick={() => {
-                      setRenaming({ id: box._id, title: box.title });
-                      setRenameValue(box.title);
-                    }}
-                  >
-                    <Pencil className="size-3" />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Hapus kotak"
-                    className="hover:text-destructive"
-                    onClick={() => {
-                      if (confirm(`Hapus kotak "${box.title}"?`)) {
-                        deleteBox({ boxId: box._id });
-                        toast.success("Kotak dihapus.");
-                      }
-                    }}
-                  >
-                    <Trash2 className="size-3" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="clay-inset mt-2.5 flex-1 rounded-2xl p-2">
-                {boxPhotos.length === 0 ? (
-                  <div className="flex h-24 items-center justify-center px-2 text-center text-[11px] text-muted-foreground">
-                    {box.title}
-                  </div>
+            <button
+              key={box._id}
+              type="button"
+              onClick={() => setOpenBoxId(box._id)}
+              className="clay clay-press overflow-hidden p-0 text-left"
+            >
+              <div className="relative aspect-[4/3] w-full bg-muted">
+                {cover ? (
+                  <img
+                    src={cover.url}
+                    alt={box.title}
+                    className="size-full object-cover"
+                  />
                 ) : (
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {boxPhotos.map((photo) => (
-                      <div key={photo._id} className="group relative aspect-square">
-                        <img
-                          src={photo.url}
-                          alt={box.title}
-                          className="size-full rounded-xl object-cover"
-                        />
-                        <button
-                          type="button"
-                          aria-label="Hapus foto"
-                          className="absolute inset-0 hidden items-center justify-center rounded-xl bg-destructive/70 text-destructive-foreground group-hover:flex"
-                          onClick={() => removePhoto({ photoId: photo._id })}
-                        >
-                          <Trash2 className="size-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                    {!full && (
-                      <button
-                        type="button"
-                        onClick={() => openFilePicker(box._id)}
-                        aria-label="Tambah foto"
-                        className="flex aspect-square items-center justify-center rounded-xl border border-dashed border-border text-muted-foreground hover:text-primary"
-                      >
-                        {uploadingBox === box._id ? (
-                          <Loader2 className="size-4 animate-spin" />
-                        ) : (
-                          <Plus className="size-4" />
-                        )}
-                      </button>
-                    )}
+                  <div className="flex size-full items-center justify-center text-tint-rose-foreground">
+                    <Images className="size-6 opacity-60" />
                   </div>
                 )}
+                <span className="num absolute bottom-1.5 right-1.5 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-bold text-white">
+                  {box.photos.length}/{MAX_PHOTOS}
+                </span>
               </div>
-
-              <button
-                type="button"
-                className="mt-2.5 rounded-2xl bg-secondary px-3 py-2 text-[11px] font-bold text-secondary-foreground disabled:opacity-50"
-                onClick={() => openFilePicker(box._id)}
-                disabled={full || uploadingBox === box._id}
-              >
-                {full
-                  ? "Kotak penuh (3/3)"
-                  : `+ Tambah foto (${boxPhotos.length}/3)`}
-              </button>
-            </div>
+              <div className="p-3">
+                <p className="text-xs font-extrabold leading-snug">{box.title}</p>
+                <p className="meta">
+                  {box.photos.length === 0
+                    ? "Belum ada foto"
+                    : full
+                      ? "Penuh"
+                      : "Klik untuk kelola"}
+                </p>
+              </div>
+            </button>
           );
         })}
 
         {boxes !== undefined && boxes.length === 0 && (
           <div className="clay-inset col-span-2 flex h-28 items-center justify-center rounded-3xl text-xs text-muted-foreground">
-            Belum ada kotak di kategori ini.
+            Belum ada kotak di {current}.
           </div>
         )}
       </section>
@@ -274,59 +285,298 @@ export function MoodboardPage() {
       <Button
         variant="secondary"
         className="w-full rounded-2xl"
-        onClick={() => setNewBoxOpen(true)}
+        onClick={() => setBoxDialog({ title: "" })}
       >
-        <Plus className="size-4" /> Tambah kotak baru
+        <Plus className="size-4" /> Kotak baru di {current}
       </Button>
 
-      <Dialog open={newBoxOpen} onOpenChange={setNewBoxOpen}>
+      {/* gallery */}
+      <Dialog open={activeBox !== null} onOpenChange={(open) => !open && setOpenBoxId(null)}>
+        <DialogContent className="max-w-md">
+          {activeBox && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="h-card">{activeBox.title}</DialogTitle>
+              </DialogHeader>
+
+              <div className="grid grid-cols-3 gap-2">
+                {activeBox.photos.map((photo, index) => (
+                  <div key={photo._id} className="relative aspect-square">
+                    <button
+                      type="button"
+                      className="size-full"
+                      onClick={() => {
+                        setLightbox({ boxId: activeBox._id, index });
+                        setCaption(photo.caption ?? "");
+                      }}
+                    >
+                      <img
+                        src={photo.url}
+                        alt={photo.caption ?? activeBox.title}
+                        className="size-full rounded-xl object-cover"
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Hapus foto"
+                      className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground"
+                      onClick={() => removePhoto({ photoId: photo._id })}
+                    >
+                      <Trash2 className="size-3" />
+                    </button>
+                  </div>
+                ))}
+
+                {activeBox.photos.length < MAX_PHOTOS && (
+                  <button
+                    type="button"
+                    onClick={() => openFilePicker(activeBox._id)}
+                    className="flex aspect-square items-center justify-center rounded-xl border border-dashed border-input text-muted-foreground hover:text-primary"
+                    aria-label="Tambah foto"
+                  >
+                    {uploadingBox === activeBox._id ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <Plus className="size-4" />
+                    )}
+                  </button>
+                )}
+              </div>
+
+              <p className="meta">
+                {activeBox.photos.length}/{MAX_PHOTOS} foto · bisa pilih beberapa
+                file sekaligus
+              </p>
+
+              <DialogFooter className="flex-col gap-2 sm:flex-col">
+                <Button
+                  className="w-full rounded-2xl"
+                  onClick={() => openFilePicker(activeBox._id)}
+                  disabled={activeBox.photos.length >= MAX_PHOTOS}
+                >
+                  <Plus className="size-4" /> Tambah foto
+                </Button>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant="secondary"
+                    className="rounded-2xl"
+                    onClick={() => setBoxDialog({ id: activeBox._id, title: activeBox.title })}
+                  >
+                    <Pencil className="size-3.5" /> Ubah nama
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    className="rounded-2xl"
+                    onClick={() => {
+                      if (confirm(`Hapus kotak "${activeBox.title}" beserta fotonya?`)) {
+                        deleteBox({ boxId: activeBox._id });
+                        setOpenBoxId(null);
+                        toast.success("Kotak dihapus.");
+                      }
+                    }}
+                  >
+                    <Trash2 className="size-3.5" /> Hapus
+                  </Button>
+                </div>
+                {categoryNames.length > 1 && (
+                  <div className="w-full">
+                    <p className="label mb-1.5 text-muted-foreground">Pindah kategori</p>
+                    <div className="flex flex-wrap gap-2">
+                      {categoryNames
+                        .filter((name) => name !== activeBox.tab)
+                        .map((name) => (
+                          <button
+                            key={name}
+                            type="button"
+                            className="chip bg-tint-rose text-tint-rose-foreground"
+                            onClick={() => moveBox(activeBox._id, name)}
+                          >
+                            {name}
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* lightbox */}
+      <Dialog
+        open={lightboxPhoto !== null}
+        onOpenChange={(open) => !open && setLightbox(null)}
+      >
+        <DialogContent className="max-w-md">
+          {lightboxBox && lightboxPhoto && lightbox && (
+            <>
+              <img
+                src={lightboxPhoto.url}
+                alt={lightboxPhoto.caption ?? lightboxBox.title}
+                className="max-h-[50vh] w-full rounded-2xl object-contain"
+              />
+              <div className="flex items-center gap-2 overflow-x-auto">
+                {lightboxBox.photos.map((photo, index) => (
+                  <button
+                    key={photo._id}
+                    type="button"
+                    onClick={() => {
+                      setLightbox({ boxId: lightboxBox._id, index });
+                      setCaption(photo.caption ?? "");
+                    }}
+                    className={`size-12 shrink-0 overflow-hidden rounded-lg ${
+                      index === lightbox.index ? "ring-2 ring-primary" : ""
+                    }`}
+                  >
+                    <img src={photo.url} alt="" className="size-full object-cover" />
+                  </button>
+                ))}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="caption">Keterangan</Label>
+                <Input
+                  id="caption"
+                  value={caption}
+                  onChange={(event) => setCaption(event.target.value)}
+                  onBlur={saveCaption}
+                  placeholder="cth. dekor pelaminan warna sage"
+                />
+              </div>
+              <DialogFooter className="gap-2">
+                <Button
+                  variant="secondary"
+                  className="rounded-2xl"
+                  onClick={() =>
+                    setLightbox({
+                      boxId: lightbox.boxId,
+                      index:
+                        (lightbox.index - 1 + lightboxBox.photos.length) %
+                        lightboxBox.photos.length,
+                    })
+                  }
+                >
+                  <ChevronLeft className="size-4" /> Sebelumnya
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="rounded-2xl"
+                  onClick={() =>
+                    setLightbox({
+                      boxId: lightbox.boxId,
+                      index: (lightbox.index + 1) % lightboxBox.photos.length,
+                    })
+                  }
+                >
+                  Berikutnya <ChevronRight className="size-4" />
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* create / rename box */}
+      <Dialog open={boxDialog !== null} onOpenChange={(open) => !open && setBoxDialog(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Kotak baru · {TAB_LABELS[tab]}</DialogTitle>
+            <DialogTitle>{boxDialog?.id ? "Ubah nama kotak" : `Kotak baru · ${current}`}</DialogTitle>
           </DialogHeader>
           <div className="space-y-1.5">
             <Label htmlFor="box-title">Judul kotak</Label>
             <Input
               id="box-title"
-              value={newBoxTitle}
-              onChange={(e) => setNewBoxTitle(e.target.value)}
+              value={boxDialog?.title ?? ""}
+              onChange={(event) =>
+                setBoxDialog((previous) =>
+                  previous ? { ...previous, title: event.target.value } : previous,
+                )
+              }
               placeholder="cth. Referensi pelaminan"
             />
           </div>
           <DialogFooter>
-            <Button
-              onClick={submitNewBox}
-              disabled={creatingBox}
-              className="w-full rounded-2xl"
-            >
-              {creatingBox ? <Loader2 className="size-4 animate-spin" /> : "Simpan kotak"}
+            <Button onClick={submitBox} disabled={busy} className="w-full rounded-2xl">
+              {busy ? <Loader2 className="size-4 animate-spin" /> : "Simpan"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      <Dialog open={renaming !== null} onOpenChange={(open) => !open && setRenaming(null)}>
+      {/* add category */}
+      <Dialog
+        open={categoryDialog === "add"}
+        onOpenChange={(open) => !open && setCategoryDialog(null)}
+      >
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Ganti nama kotak</DialogTitle>
+            <DialogTitle>Kategori baru</DialogTitle>
           </DialogHeader>
           <div className="space-y-1.5">
-            <Label htmlFor="rename-title">Judul baru</Label>
+            <Label htmlFor="category-name">Nama kategori</Label>
             <Input
-              id="rename-title"
-              value={renameValue}
-              onChange={(e) => setRenameValue(e.target.value)}
+              id="category-name"
+              value={categoryName}
+              onChange={(event) => setCategoryName(event.target.value)}
+              placeholder="cth. Souvenir, Undangan, Gaun"
             />
           </div>
           <DialogFooter>
-            <Button
-              onClick={submitRename}
-              disabled={renamingBusy}
-              className="w-full rounded-2xl"
-            >
-              {renamingBusy ? <Loader2 className="size-4 animate-spin" /> : "Simpan"}
+            <Button onClick={submitCategory} disabled={busy} className="w-full rounded-2xl">
+              {busy ? <Loader2 className="size-4 animate-spin" /> : "Simpan kategori"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* manage categories */}
+      <Dialog
+        open={categoryDialog === "manage"}
+        onOpenChange={(open) => !open && setCategoryDialog(null)}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Kelola kategori</DialogTitle>
+          </DialogHeader>
+          <ul className="space-y-2">
+            {(categories ?? []).map((category) => (
+              <li key={category._id} className="clay-inset flex items-center gap-2 rounded-2xl p-2">
+                <Input
+                  defaultValue={category.name}
+                  onBlur={(event) => {
+                    const next = event.target.value.trim();
+                    if (next && next !== category.name) {
+                      renameCategory({ categoryId: category._id, name: next }).then(() =>
+                        setActiveCategory(next),
+                      );
+                    }
+                  }}
+                  className="h-8"
+                />
+                <button
+                  type="button"
+                  aria-label={`Hapus kategori ${category.name}`}
+                  className="shrink-0 text-muted-foreground hover:text-destructive"
+                  onClick={() => {
+                    if (
+                      confirm(
+                        `Hapus kategori "${category.name}" beserta kotak dan fotonya?`,
+                      )
+                    ) {
+                      deleteCategory({ categoryId: category._id });
+                      setActiveCategory(null);
+                    }
+                  }}
+                >
+                  <Trash2 className="size-4" />
+                </button>
+              </li>
+            ))}
+          </ul>
+          <p className="meta">
+            Klik nama untuk mengubah. Semua kotak di kategori itu ikut berpindah
+            nama.
+          </p>
         </DialogContent>
       </Dialog>
     </div>
