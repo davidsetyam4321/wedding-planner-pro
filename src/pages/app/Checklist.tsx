@@ -35,10 +35,9 @@ export function ChecklistPage() {
 
   return (
     <div className="space-y-4 pt-3">
-      <section>
-        <p className="prompt-label text-xs text-muted-foreground">checklist</p>
-        <h1 className="mt-0.5 text-lg font-semibold">Tugas persiapan</h1>
-        <p className="text-xs text-muted-foreground">
+      <section className="clay p-5">
+        <h1 className="text-lg font-extrabold">Checklist</h1>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
           Semua yang perlu diselesaikan sebelum hari-H, di satu tempat.
         </p>
       </section>
@@ -51,8 +50,11 @@ export function ChecklistPage() {
           </span>
         </div>
         <div className="p-3">
-          <div className="h-1.5 w-full border border-border bg-background">
-            <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
+          <div className="clay-inset h-2.5 w-full overflow-hidden rounded-full">
+            <div
+              className="h-full rounded-full bg-primary"
+              style={{ width: `${pct}%` }}
+            />
           </div>
         </div>
       </section>
@@ -71,7 +73,12 @@ export function ChecklistPage() {
             onChange={(event) => setLabel(event.target.value)}
             placeholder="cth. Survey venue kedua"
           />
-          <Button type="submit" size="icon" disabled={adding || !label.trim()}>
+          <Button
+            type="submit"
+            size="icon"
+            className="rounded-2xl"
+            disabled={adding || !label.trim()}
+          >
             {adding ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
           </Button>
         </form>
@@ -86,10 +93,10 @@ export function ChecklistPage() {
                 type="button"
                 aria-label={item.done ? "Tandai belum selesai" : "Tandai selesai"}
                 onClick={() => toggleItem({ itemId: item._id, done: !item.done })}
-                className={`flex size-4 shrink-0 items-center justify-center border text-[10px] ${
+                className={`clay-inset flex size-6 shrink-0 items-center justify-center rounded-full text-[10px] ${
                   item.done
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card text-transparent hover:border-primary/60"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-transparent hover:text-primary/60"
                 }`}
               >
                 ✓

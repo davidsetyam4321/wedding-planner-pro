@@ -30,6 +30,14 @@ const DEFAULT_BUDGET_CATEGORIES = [
   { name: "Dokumen & Lainnya", allocated: 6_000_000 },
 ];
 
+const DEFAULT_RUNDOWN = [
+  { startTime: "07:00", title: "Persiapan & rias pengantin" },
+  { startTime: "09:00", title: "Prosesi akad nikah" },
+  { startTime: "11:00", title: "Sesi foto keluarga" },
+  { startTime: "12:00", title: "Makan siang bersama" },
+  { startTime: "18:00", title: "Resepsi & ramah tamah" },
+];
+
 export const get = query({
   args: {},
   handler: async (ctx): Promise<Doc<"wedding"> | null> => {
@@ -57,12 +65,10 @@ export const ensureSetup = mutation({
 
     const weddingId = await ctx.db.insert("wedding", {
       userId,
-      partnerOneName: "Kamu",
-      partnerTwoName: "Pasangan",
+      partnerOneName: "Andra",
+      partnerTwoName: "Rina",
       weddingDate: DEFAULT_WEDDING_DATE,
       fundTarget: 64_000_000,
-      fundClaimed: false,
-      setupComplete: false,
     });
 
     for (let i = 0; i < DEFAULT_CHECKLIST.length; i++) {
@@ -83,6 +89,15 @@ export const ensureSetup = mutation({
       });
     }
 
+    for (const item of DEFAULT_RUNDOWN) {
+      await ctx.db.insert("rundownItem", {
+        userId,
+        startTime: item.startTime,
+        title: item.title,
+        createdAt: Date.now(),
+      });
+    }
+
     return weddingId;
   },
 });
@@ -93,7 +108,7 @@ export const updateSettings = mutation({
     partnerTwoName: v.string(),
     weddingDate: v.number(),
     fundTarget: v.number(),
-    setupComplete: v.optional(v.boolean()),
+    venueName: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -110,33 +125,7 @@ export const updateSettings = mutation({
       partnerTwoName: args.partnerTwoName.trim() || "Pasangan",
       weddingDate: args.weddingDate,
       fundTarget: Math.max(0, Math.round(args.fundTarget)),
-      ...(args.setupComplete === undefined ? {} : { setupComplete: args.setupComplete }),
+      venueName: args.venueName?.trim() || undefined,
     });
-  },
-});
-
-/** One-time demo bonus: adds Rp 79.000 to savings. */
-export const claimFundBonus = mutation({
-  args: {},
-  handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
-
-    const wedding = await ctx.db
-      .query("wedding")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .first();
-    if (!wedding) throw new Error("Workspace not found");
-    if (wedding.fundClaimed) return { claimed: false };
-
-    await ctx.db.insert("savingDeposit", {
-      userId,
-      amount: 79_000,
-      note: "Bonus demo premium",
-      savedAt: Date.now(),
-    });
-    await ctx.db.patch(wedding._id, { fundClaimed: true });
-
-    return { claimed: true };
   },
 });

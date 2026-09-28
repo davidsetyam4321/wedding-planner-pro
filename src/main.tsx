@@ -1,17 +1,15 @@
 import '@vly-ai/integrations';
 import { Toaster } from "@/components/ui/sonner";
-import { RequireAuth } from "@/components/RequireAuth";
+import { Button } from "@/components/ui/button";
 import { VlyToolbar } from "../vly-toolbar-readonly.tsx";
-import { ConvexAuthProvider } from "@convex-dev/auth/react";
-import { ConvexReactClient } from "convex/react";
-import React, { StrictMode, useEffect, lazy, Suspense } from "react";
+import { ConvexAuthProvider, useAuthActions } from "@convex-dev/auth/react";
+import { ConvexReactClient, useConvexAuth } from "convex/react";
+import React, { StrictMode, useEffect, lazy, Suspense, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router";
 import "./index.css";
 
 // Lazy load route components for better code splitting
-const Landing = lazy(() => import("./pages/Landing.tsx"));
-const AuthPage = lazy(() => import("./pages/Auth.tsx"));
 const AppShell = lazy(() =>
   import("./components/AppShell.tsx").then((m) => ({ default: m.AppShell })),
 );
@@ -30,15 +28,79 @@ const ChecklistPage = lazy(() =>
 const LainnyaPage = lazy(() =>
   import("./pages/app/Lainnya.tsx").then((m) => ({ default: m.LainnyaPage })),
 );
+const MoodBoardPage = lazy(() =>
+  import("./pages/app/MoodBoard.tsx").then((m) => ({ default: m.MoodBoardPage })),
+);
+const TamuPage = lazy(() =>
+  import("./pages/app/Tamu.tsx").then((m) => ({ default: m.TamuPage })),
+);
+const VendorPage = lazy(() =>
+  import("./pages/app/Vendor.tsx").then((m) => ({ default: m.VendorPage })),
+);
+const RundownPage = lazy(() =>
+  import("./pages/app/Rundown.tsx").then((m) => ({ default: m.RundownPage })),
+);
+const PengaturanPage = lazy(() =>
+  import("./pages/app/Pengaturan.tsx").then((m) => ({ default: m.PengaturanPage })),
+);
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
 function RouteLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-pulse text-muted-foreground">Memuat…</div>
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="clay px-5 py-3 text-sm text-muted-foreground">Memuat…</div>
     </div>
   );
+}
+
+/**
+ * There is no sign-in screen: the workspace belongs to whoever opens the app,
+ * so we create (or reuse) a silent session automatically. The session token
+ * lives in this browser, so the couple's data stays attached to this device.
+ */
+function AutoSession({ children }: { children: React.ReactNode }) {
+  const { isLoading, isAuthenticated } = useConvexAuth();
+  const { signIn } = useAuthActions();
+  const triedRef = useRef(false);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (isLoading || isAuthenticated || error || triedRef.current) return;
+    triedRef.current = true;
+    signIn("anonymous").catch(() => {
+      triedRef.current = false;
+      setError(true);
+    });
+  }, [isLoading, isAuthenticated, error, signIn]);
+
+  if (error) {
+    return (
+      <main className="flex min-h-screen items-center justify-center p-6">
+        <div className="clay max-w-sm p-6 text-center">
+          <p className="text-sm font-semibold">Gagal menyiapkan ruang kerja</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Periksa koneksi internetmu, lalu coba lagi.
+          </p>
+          <Button className="mt-4" onClick={() => setError(false)}>
+            Coba lagi
+          </Button>
+        </div>
+      </main>
+    );
+  }
+
+  if (isLoading || !isAuthenticated) {
+    return (
+      <main className="flex min-h-screen items-center justify-center">
+        <div className="clay px-5 py-3 text-sm text-muted-foreground">
+          Menyiapkan Planner Wedding…
+        </div>
+      </main>
+    );
+  }
+
+  return <>{children}</>;
 }
 
 /** Silent error boundary — if VlyToolbar crashes it renders nothing instead of
@@ -78,14 +140,14 @@ class RootErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-background text-foreground p-6">
+        <div className="flex min-h-screen items-center justify-center bg-background p-6 text-foreground">
           <div className="max-w-lg text-center">
             <p className="text-sm font-semibold">Preview runtime error</p>
-            <p className="mt-2 text-xs text-muted-foreground break-words">
+            <p className="mt-2 break-words text-xs text-muted-foreground">
               {this.state.message}
             </p>
             {this.state.stack && (
-              <pre className="mt-3 text-left text-[10px] leading-4 text-muted-foreground/80 max-h-40 overflow-auto rounded border border-border/60 p-2">
+              <pre className="mt-3 max-h-40 overflow-auto rounded border border-border/60 p-2 text-left text-[10px] leading-4 text-muted-foreground/80">
                 {this.state.stack}
               </pre>
             )}
@@ -98,7 +160,6 @@ class RootErrorBoundary extends React.Component<
 }
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
-
 
 
 function RouteSyncer() {
@@ -135,28 +196,24 @@ createRoot(document.getElementById("root")!).render(
         <BrowserRouter>
           <RouteSyncer />
           <Suspense fallback={<RouteLoading />}>
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route
-                path="/auth"
-                element={<AuthPage redirectAfterAuth="/app" />}
-              />
-              <Route
-                path="/app"
-                element={
-                  <RequireAuth redirectImmediately>
-                    <AppShell />
-                  </RequireAuth>
-                }
-              >
-                <Route index element={<HomePage />} />
-                <Route path="budget" element={<BudgetPage />} />
-                <Route path="tabungan" element={<TabunganPage />} />
-                <Route path="checklist" element={<ChecklistPage />} />
-                <Route path="lainnya" element={<LainnyaPage />} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <AutoSession>
+              <Routes>
+                <Route path="/" element={<Navigate to="/app" replace />} />
+                <Route path="/app" element={<AppShell />}>
+                  <Route index element={<HomePage />} />
+                  <Route path="budget" element={<BudgetPage />} />
+                  <Route path="tabungan" element={<TabunganPage />} />
+                  <Route path="checklist" element={<ChecklistPage />} />
+                  <Route path="lainnya" element={<LainnyaPage />} />
+                  <Route path="moodboard" element={<MoodBoardPage />} />
+                  <Route path="tamu" element={<TamuPage />} />
+                  <Route path="vendor" element={<VendorPage />} />
+                  <Route path="rundown" element={<RundownPage />} />
+                  <Route path="pengaturan" element={<PengaturanPage />} />
+                </Route>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AutoSession>
           </Suspense>
         </BrowserRouter>
         <Toaster />

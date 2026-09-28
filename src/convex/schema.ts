@@ -16,6 +16,18 @@ export const roleValidator = v.union(
 );
 export type Role = Infer<typeof roleValidator>;
 
+export const rsvpValidator = v.union(
+  v.literal("pending"),
+  v.literal("hadir"),
+  v.literal("tidak"),
+);
+
+export const vendorStatusValidator = v.union(
+  v.literal("belum"),
+  v.literal("dp"),
+  v.literal("lunas"),
+);
+
 const schema = defineSchema(
   {
     // default auth tables using convex auth.
@@ -33,20 +45,18 @@ const schema = defineSchema(
     }).index("email", ["email"]), // index for the email. do not remove or modify
 
     // ── Planner Wedding ────────────────────────────────────────────────────
-    // One workspace per signed-in user (the couple shares one account).
 
+    /** Couple profile: names, date, funding target. */
     wedding: defineTable({
       userId: v.id("users"),
       partnerOneName: v.string(),
       partnerTwoName: v.string(),
       weddingDate: v.number(), // epoch ms
       fundTarget: v.number(),
-      fundClaimed: v.optional(v.boolean()),
-      setupComplete: v.optional(v.boolean()),
-    })
-      .index("by_user", ["userId"])
-      .index("by_user_claimed", ["userId", "fundClaimed"]),
+      venueName: v.optional(v.string()),
+    }).index("by_user", ["userId"]),
 
+    /** Budget per category + its expenses. */
     budgetCategory: defineTable({
       userId: v.id("users"),
       name: v.string(),
@@ -64,6 +74,7 @@ const schema = defineSchema(
       .index("by_user", ["userId"])
       .index("by_category", ["categoryId"]),
 
+    /** Savings deposits toward the fund target. */
     savingDeposit: defineTable({
       userId: v.id("users"),
       amount: v.number(),
@@ -71,6 +82,7 @@ const schema = defineSchema(
       savedAt: v.number(),
     }).index("by_user_savedAt", ["userId", "savedAt"]),
 
+    /** Preparation tasks. */
     checklistItem: defineTable({
       userId: v.id("users"),
       label: v.string(),
@@ -80,6 +92,7 @@ const schema = defineSchema(
       .index("by_user", ["userId"])
       .index("by_user_done", ["userId", "done"]),
 
+    /** Mood board boxes, one per reference idea, max 3 photos each. */
     moodboardBox: defineTable({
       userId: v.id("users"),
       tab: v.union(
@@ -101,6 +114,37 @@ const schema = defineSchema(
     })
       .index("by_box", ["boxId"])
       .index("by_user", ["userId"]),
+
+    /** Guest list with invitation + RSVP status. */
+    guest: defineTable({
+      userId: v.id("users"),
+      name: v.string(),
+      group: v.string(),
+      pax: v.number(),
+      invited: v.optional(v.boolean()),
+      rsvp: rsvpValidator,
+      createdAt: v.number(),
+    }).index("by_user", ["userId"]),
+
+    /** Vendors with contact, cost and payment status. */
+    vendor: defineTable({
+      userId: v.id("users"),
+      name: v.string(),
+      category: v.string(),
+      contact: v.optional(v.string()),
+      cost: v.number(),
+      status: vendorStatusValidator,
+      createdAt: v.number(),
+    }).index("by_user", ["userId"]),
+
+    /** Wedding day rundown, ordered by clock time. */
+    rundownItem: defineTable({
+      userId: v.id("users"),
+      startTime: v.string(), // "08:00"
+      title: v.string(),
+      note: v.optional(v.string()),
+      createdAt: v.number(),
+    }).index("by_user", ["userId"]),
   },
   {
     schemaValidation: false,

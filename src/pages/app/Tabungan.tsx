@@ -44,11 +44,10 @@ export function TabunganPage() {
 
   return (
     <div className="space-y-4 pt-3">
-      <section>
-        <p className="prompt-label text-xs text-muted-foreground">tabungan</p>
-        <h1 className="mt-0.5 text-lg font-semibold">Nabung untuk hari-H</h1>
-        <p className="text-xs text-muted-foreground">
-          Catat setiap setoran agar progres menuju target selalu terpantau.
+      <section className="clay p-5">
+        <h1 className="text-lg font-extrabold">Tabungan</h1>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+          Catat setiap setoran agar progres menuju target dana selalu terpantau.
         </p>
       </section>
 
@@ -64,8 +63,11 @@ export function TabunganPage() {
               target {formatRupiah(target)}
             </p>
           </div>
-          <div className="mt-2 h-1.5 w-full border border-border bg-background">
-            <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
+          <div className="clay-inset mt-2 h-2.5 w-full overflow-hidden rounded-full">
+            <div
+              className="h-full rounded-full bg-primary"
+              style={{ width: `${pct}%` }}
+            />
           </div>
         </div>
       </section>
@@ -94,7 +96,7 @@ export function TabunganPage() {
               placeholder="cth. setoran gaji bulan ini"
             />
           </div>
-          <Button onClick={submit} disabled={saving} className="w-full">
+          <Button onClick={submit} disabled={saving} className="w-full rounded-2xl">
             {saving ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (

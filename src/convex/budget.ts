@@ -1,7 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
-import type { Doc } from "./_generated/dataModel";
+import { mutation, query, type MutationCtx } from "./_generated/server";
+import type { Doc, Id } from "./_generated/dataModel";
 
 export const overview = query({
   args: {},
@@ -26,7 +26,7 @@ export const overview = query({
   },
 });
 
-async function requireCategory(ctx: any, categoryId: any) {
+async function requireCategory(ctx: MutationCtx, categoryId: Id<"budgetCategory">) {
   const userId = await getAuthUserId(ctx);
   if (userId === null) throw new Error("Not signed in");
   const category = await ctx.db.get(categoryId);

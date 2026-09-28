@@ -88,11 +88,10 @@ export function BudgetPage() {
 
   return (
     <div className="space-y-4 pt-3">
-      <section>
-        <p className="prompt-label text-xs text-muted-foreground">budget</p>
-        <h1 className="mt-0.5 text-lg font-semibold">Anggaran per kategori</h1>
-        <p className="text-xs text-muted-foreground">
-          Catat alokasi dan pengeluaran tiap vendor agar tidak borrow.
+      <section className="clay p-5">
+        <h1 className="text-lg font-extrabold">Budget</h1>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+          Catat alokasi dan pengeluaran tiap vendor supaya dana tetap terkendali.
         </p>
       </section>
 
@@ -141,10 +140,10 @@ export function BudgetPage() {
                     onClick={() =>
                       togglePaid({ expenseId: expense._id, paid: !expense.paidAt })
                     }
-                    className={`flex size-4 shrink-0 items-center justify-center border text-[10px] ${
+                    className={`flex size-6 shrink-0 items-center justify-center rounded-full text-[10px] clay-inset ${
                       expense.paidAt
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-card text-transparent hover:border-primary/60"
+                        ? "bg-primary text-primary-foreground"
+                        : "text-transparent hover:text-primary/60"
                     }`}
                   >
                     ✓
@@ -206,8 +205,8 @@ export function BudgetPage() {
       )}
 
       <Button
-        variant="outline"
-        className="w-full border-dashed"
+        variant="secondary"
+        className="w-full rounded-2xl"
         onClick={() => setNewCategoryOpen(true)}
       >
         <Plus className="size-4" /> Tambah kategori
