@@ -1,3 +1,4 @@
+import { coupleInitials, useCouplePhotoUpload } from "@/components/CouplePhoto";
 import { FlowerMark } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { FEATURES } from "@/lib/features";
 import { fromDateInputValue, toDateInputValue } from "@/lib/format";
 import { bloom } from "@/lib/bloom";
-import { ChevronLeft, Loader2, Save } from "lucide-react";
+import { Camera, ChevronLeft, Loader2, Save, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import { useMutation, useQuery } from "convex/react";
@@ -15,7 +16,10 @@ import { toast } from "sonner";
 /** Pengaturan: identitas pernikahan dan target dana. */
 export function PengaturanPage() {
   const wedding = useQuery(api.wedding.get);
+  const couplePhoto = useQuery(api.wedding.getCouplePhoto);
   const updateSettings = useMutation(api.wedding.updateSettings);
+  const removeCouplePhoto = useMutation(api.wedding.removeCouplePhoto);
+  const { uploading, openPicker, inputProps } = useCouplePhotoUpload();
   const [saving, setSaving] = useState(false);
 
   const [partnerOne, setPartnerOne] = useState("");
@@ -79,6 +83,61 @@ export function PengaturanPage() {
             <p className="meta mt-0.5">Data ini dipakai di seluruh halaman</p>
           </div>
         </div>
+      </section>
+
+      <input type="file" accept="image/*" className="hidden" {...inputProps} />
+
+      <section className="clay overflow-hidden">
+        <div className="relative aspect-[4/3] w-full bg-muted">
+          {couplePhoto ? (
+            <img
+              src={couplePhoto}
+              alt="Foto pasangan"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="grad-warm flex h-full w-full flex-col items-center justify-center gap-1.5">
+              <FlowerMark className="size-9 text-primary/25" />
+              <p className="font-serif text-2xl font-semibold text-primary/60">
+                {coupleInitials(wedding?.partnerOneName, wedding?.partnerTwoName)}
+              </p>
+              <p className="label text-muted-foreground">Belum ada foto</p>
+            </div>
+          )}
+        </div>
+        <div className="flex items-center gap-2 p-3">
+          <Button
+            type="button"
+            variant="secondary"
+            className="flex-1 rounded-2xl"
+            onClick={openPicker}
+            disabled={uploading}
+          >
+            {uploading ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Camera className="size-4" />
+            )}
+            {couplePhoto ? "Ganti foto" : "Unggah foto"}
+          </Button>
+          {couplePhoto && (
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-2xl"
+              disabled={uploading}
+              onClick={() => {
+                void removeCouplePhoto();
+                toast.success("Foto pasangan dihapus.");
+              }}
+            >
+              <Trash2 className="size-4" /> Hapus
+            </Button>
+          )}
+        </div>
+        <p className="meta px-3 pb-3">
+          Foto ini tampil di dashboard dan header aplikasi.
+        </p>
       </section>
 
       <form className="clay space-y-3 p-4" onSubmit={submit}>

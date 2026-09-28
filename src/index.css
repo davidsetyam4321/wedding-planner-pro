@@ -298,6 +298,17 @@
     background-image: linear-gradient(135deg, #edf4e9 0%, #e0ebdb 100%);
   }
 
+  /* readable text over the couple photo on the dashboard */
+  .photo-scrim {
+    background-image: linear-gradient(
+      to top,
+      rgba(20, 20, 19, 0.92) 0%,
+      rgba(20, 20, 19, 0.66) 42%,
+      rgba(20, 20, 19, 0.22) 72%,
+      rgba(20, 20, 19, 0) 100%
+    );
+  }
+
   /* falling petals */
   .petal {
     animation-name: petal-fall;

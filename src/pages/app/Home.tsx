@@ -1,6 +1,6 @@
+import { coupleInitials, useCouplePhotoUpload } from "@/components/CouplePhoto";
 import { FlowerMark } from "@/components/Decor";
 import { api } from "@/convex/_generated/api";
-import { useAuth } from "@/hooks/use-auth";
 import { FEATURES } from "@/lib/features";
 import { bloom } from "@/lib/bloom";
 import {
@@ -9,18 +9,19 @@ import {
   formatRupiah,
   formatRupiahShort,
 } from "@/lib/format";
-import { ArrowUpRight, CheckCircle2, Circle } from "lucide-react";
+import { ArrowUpRight, Camera, CheckCircle2, Circle, Loader2 } from "lucide-react";
 import { Link } from "react-router";
 import { useMutation, useQuery } from "convex/react";
 
 /** Dashboard: ringkasan utama + pintu masuk ke delapan fitur. */
 export function HomePage() {
-  const { user } = useAuth();
   const wedding = useQuery(api.wedding.get);
   const savings = useQuery(api.savings.list);
   const budget = useQuery(api.budget.overview);
   const checklist = useQuery(api.checklist.list);
   const toggleItem = useMutation(api.checklist.toggle);
+  const couplePhoto = useQuery(api.wedding.getCouplePhoto);
+  const { uploading, openPicker, inputProps } = useCouplePhotoUpload();
 
   const savingsTotal = savings?.reduce((sum, d) => sum + d.amount, 0) ?? 0;
   const fundTarget = wedding?.fundTarget ?? 0;
@@ -45,28 +46,59 @@ export function HomePage() {
 
   return (
     <div className="space-y-4">
-      <section className="clay grad-warm relative overflow-hidden p-5">
-        <FlowerMark className="float-slow pointer-events-none absolute -right-4 -top-4 size-24 text-tint-peach-foreground/20" />
-        <div className="relative flex items-start justify-between gap-3">
-          <div>
-            <p className="label text-muted-foreground">Selamat datang kembali</p>
-            <h1 className="h-page mt-1.5">
-              {user?.name ?? wedding?.partnerOneName ?? "Pengantin"}
-            </h1>
-            <p className="meta mt-1">
+      <input type="file" accept="image/*" className="hidden" {...inputProps} />
+
+      <section className="clay relative overflow-hidden">
+        <div className="relative aspect-[4/3] w-full">
+          {couplePhoto ? (
+            <img
+              src={couplePhoto}
+              alt="Foto pasangan"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="grad-warm flex h-full w-full flex-col items-center justify-center gap-1.5">
+              <FlowerMark className="float-slow size-9 text-primary/25" />
+              <p className="font-serif text-2xl font-semibold text-primary/60">
+                {coupleInitials(wedding?.partnerOneName, wedding?.partnerTwoName)}
+              </p>
+              <p className="label text-muted-foreground">Foto pasangan</p>
+            </div>
+          )}
+
+          <div className="photo-scrim absolute inset-0" />
+
+          <div className="absolute inset-x-0 bottom-0 p-5">
+            <p className="label text-white/70">Menuju hari bahagia</p>
+            <h1 className="h-page mt-1.5 text-white">
               {wedding
-                ? `${formatDateID(wedding.weddingDate)}${wedding.venueName ? ` · ${wedding.venueName}` : ""}`
-                : "Memuat rencana pernikahan…"}
+                ? `${wedding.partnerOneName} & ${wedding.partnerTwoName}`
+                : "Memuat rencana…"}
+            </h1>
+            <p className="meta mt-1 text-white/85">
+              {wedding ? formatDateID(wedding.weddingDate) : ""}
+              {wedding?.venueName ? ` · ${wedding.venueName}` : ""}
             </p>
           </div>
-          <div className="clay-sm flex size-12 items-center justify-center rounded-2xl bg-tint-rose text-2xl">
-            💐
-          </div>
+
+          <button
+            type="button"
+            onClick={openPicker}
+            disabled={uploading}
+            className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-white/85 px-3 py-1.5 text-[11px] font-bold text-foreground shadow-sm backdrop-blur transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {uploading ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <Camera className="size-3.5" />
+            )}
+            {couplePhoto ? "Ganti foto" : "Tambah foto"}
+          </button>
         </div>
 
-        <div className="clay-inset relative mt-4 flex items-center justify-between rounded-3xl px-4 py-3">
+        <div className="flex items-center justify-between gap-3 px-4 py-3.5">
           <div>
-            <p className="label text-muted-foreground">Menuju hari bahagia</p>
+            <p className="label text-muted-foreground">Hitung mundur</p>
             <p className="num mt-1 text-3xl font-semibold leading-none text-primary">
               {wedding ? countdownLabel(wedding.weddingDate) : "—"}
             </p>
@@ -76,7 +108,12 @@ export function HomePage() {
             <p className="num mt-1 text-sm font-bold">
               {formatRupiahShort(savingsTotal)}
             </p>
-            <p className="meta">{fundPct}% dari target</p>
+            <div className="mt-1.5 ml-auto h-1.5 w-28 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary"
+                style={{ width: `${fundPct}%` }}
+              />
+            </div>
           </div>
         </div>
       </section>

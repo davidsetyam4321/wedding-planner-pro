@@ -1,4 +1,5 @@
 import { BottomNav } from "@/components/BottomNav";
+import { coupleInitials } from "@/components/CouplePhoto";
 import { BloomOverlay, FlowerMark, Petals } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,12 +29,6 @@ function useEnsureSetup() {
   }, [ensureSetup]);
 
   return state;
-}
-
-function initials(one: string | undefined, two: string | undefined): string {
-  const a = one?.trim().charAt(0) ?? "";
-  const b = two?.trim().charAt(0) ?? "";
-  return `${a}${b}`.toUpperCase() || "PW";
 }
 
 function NotificationBell({
@@ -106,6 +101,7 @@ export function AppShell() {
   const wedding = useQuery(api.wedding.get);
   const savings = useQuery(api.savings.list);
   const checklist = useQuery(api.checklist.list);
+  const couplePhoto = useQuery(api.wedding.getCouplePhoto);
 
   const setupReady =
     setupState !== "pending" || (wedding !== undefined && wedding !== null);
@@ -135,8 +131,21 @@ export function AppShell() {
           <FlowerMark className="sway pointer-events-none absolute -left-4 bottom-2 size-14 text-primary/15" />
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="clay-sm flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-sm font-extrabold text-primary-foreground relative">
-                {initials(wedding?.partnerOneName, wedding?.partnerTwoName)}
+              <div className="relative size-12 shrink-0 overflow-hidden rounded-2xl border border-white/70 bg-primary text-sm font-extrabold text-primary-foreground">
+                {couplePhoto ? (
+                  <img
+                    src={couplePhoto}
+                    alt="Foto pasangan"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="flex h-full w-full items-center justify-center">
+                    {coupleInitials(
+                      wedding?.partnerOneName,
+                      wedding?.partnerTwoName,
+                    )}
+                  </span>
+                )}
               </div>
               <div className="min-w-0">
                 <p className="h-card truncate">
@@ -164,24 +173,7 @@ export function AppShell() {
             </div>
           </div>
 
-          <dl className="mt-3 grid grid-cols-3 gap-2">
-            <div className="stat-tile bg-tint-butter text-tint-butter-foreground">
-              <dt>Hitung mundur</dt>
-              <dd className="text-xs">
-                {wedding ? countdownLabel(wedding.weddingDate) : "—"}
-              </dd>
-            </div>
-            <div className="stat-tile bg-tint-lavender text-tint-lavender-foreground">
-              <dt>Terkumpul</dt>
-              <dd className="text-xs">{formatRupiahShort(savingsTotal)}</dd>
-            </div>
-            <div className="stat-tile bg-tint-mint text-tint-mint-foreground">
-              <dt>Tugas</dt>
-              <dd className="text-xs">{openTasks} tersisa</dd>
-            </div>
-          </dl>
-
-          <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-white/70">
+          <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-white/70">
             <div
               className="h-full rounded-full bg-primary transition-all"
               style={{ width: `${progressPct}%` }}

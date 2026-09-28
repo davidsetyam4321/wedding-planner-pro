@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 96.81 96.81"><rect width="96.81" height="96.81" rx="18"/><g fill="#fff"><rect x="24.67" y="24.67" width="47.47" height="11.87"/><rect x="24.67" y="36.54" width="11.87" height="35.61"/><rect x="40.06" y="39.98" width="23.74" height="11.87"/><rect x="40.06" y="51.85" width="11.87" height="20.3"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Planner Wedding">
+  <rect width="512" height="512" rx="112" fill="#c96442" />
+  <g fill="#faf9f5">
+    <ellipse cx="256" cy="168" rx="46" ry="78" />
+    <ellipse cx="256" cy="168" rx="46" ry="78" transform="rotate(72 256 256)" />
+    <ellipse cx="256" cy="168" rx="46" ry="78" transform="rotate(144 256 256)" />
+    <ellipse cx="256" cy="168" rx="46" ry="78" transform="rotate(216 256 256)" />
+    <ellipse cx="256" cy="168" rx="46" ry="78" transform="rotate(288 256 256)" />
+  </g>
+  <circle cx="256" cy="256" r="32" fill="#fbeec4" />
+</svg>

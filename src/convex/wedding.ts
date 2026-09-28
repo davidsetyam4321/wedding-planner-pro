@@ -133,6 +133,62 @@ export const ensureSetup = mutation({
   },
 });
 
+/** Public URL of the couple photo, or null when none has been uploaded. */
+export const getCouplePhoto = query({
+  args: {},
+  handler: async (ctx): Promise<string | null> => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) return null;
+    const wedding = await ctx.db
+      .query("wedding")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+    if (!wedding?.photoStorageId) return null;
+    return (await ctx.storage.getUrl(wedding.photoStorageId)) ?? null;
+  },
+});
+
+/** Stores a freshly uploaded photo, replacing (and deleting) the previous one. */
+export const setCouplePhoto = mutation({
+  args: { storageId: v.id("_storage") },
+  handler: async (ctx, { storageId }) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) throw new Error("Not signed in");
+
+    const wedding = await ctx.db
+      .query("wedding")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+    if (!wedding) throw new Error("Workspace not found");
+
+    const previous = wedding.photoStorageId;
+    await ctx.db.patch(wedding._id, { photoStorageId: storageId });
+    if (previous && previous !== storageId) {
+      await ctx.storage.delete(previous);
+    }
+  },
+});
+
+export const removeCouplePhoto = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) throw new Error("Not signed in");
+
+    const wedding = await ctx.db
+      .query("wedding")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+    if (!wedding) throw new Error("Workspace not found");
+
+    const previous = wedding.photoStorageId;
+    await ctx.db.patch(wedding._id, { photoStorageId: undefined });
+    if (previous) {
+      await ctx.storage.delete(previous);
+    }
+  },
+});
+
 export const updateSettings = mutation({
   args: {
     partnerOneName: v.string(),

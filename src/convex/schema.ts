@@ -55,6 +55,8 @@ const schema = defineSchema(
       fundTarget: v.number(),
       venueName: v.optional(v.string()),
       guestEstimate: v.optional(v.number()),
+      /** Foto pasangan yang tampil di dashboard. */
+      photoStorageId: v.optional(v.id("_storage")),
     }).index("by_user", ["userId"]),
 
     /** Budget per category + its expenses. */

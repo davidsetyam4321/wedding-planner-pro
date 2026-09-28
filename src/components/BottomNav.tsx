@@ -45,6 +45,8 @@ export function BottomNav() {
           <NavLink
             key={to}
             to={to}
+            // `end` keeps Home from staying active on every nested /app/* route.
+            end={to === "/app"}
             className={({ isActive }) =>
               `relative my-2 flex min-w-14 flex-col items-center justify-center gap-1 rounded-2xl px-2 text-[10px] font-bold transition-all duration-200 ${
                 isActive
