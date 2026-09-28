@@ -28,8 +28,8 @@ const ChecklistPage = lazy(() =>
 const LainnyaPage = lazy(() =>
   import("./pages/app/Lainnya.tsx").then((m) => ({ default: m.LainnyaPage })),
 );
-const MoodBoardPage = lazy(() =>
-  import("./pages/app/MoodBoard.tsx").then((m) => ({ default: m.MoodBoardPage })),
+const MoodboardPage = lazy(() =>
+  import("./pages/app/Moodboard.tsx").then((m) => ({ default: m.MoodboardPage })),
 );
 const TamuPage = lazy(() =>
   import("./pages/app/Tamu.tsx").then((m) => ({ default: m.TamuPage })),
@@ -205,7 +205,7 @@ createRoot(document.getElementById("root")!).render(
                   <Route path="tabungan" element={<TabunganPage />} />
                   <Route path="checklist" element={<ChecklistPage />} />
                   <Route path="lainnya" element={<LainnyaPage />} />
-                  <Route path="moodboard" element={<MoodBoardPage />} />
+                  <Route path="moodboard" element={<MoodboardPage />} />
                   <Route path="tamu" element={<TamuPage />} />
                   <Route path="vendor" element={<VendorPage />} />
                   <Route path="rundown" element={<RundownPage />} />

@@ -27,7 +27,7 @@ const TAB_LABELS: Record<Tab, string> = {
 const MAX_PHOTOS_PER_BOX = 3;
 
 /** Mood board: papan referensi per kategori, maksimal 3 foto per kotak. */
-export function MoodBoardPage() {
+export function MoodboardPage() {
   const [tab, setTab] = useState<Tab>("dekorasi");
   const boxes = useQuery(api.moodboard.listBoxes, { tab });
   const photos = useQuery(api.moodboard.listPhotos);
