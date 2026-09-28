@@ -2,6 +2,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { mutation, query, type MutationCtx } from "./_generated/server";
 import type { Doc, Id } from "./_generated/dataModel";
+import { moveWorkspaceData } from "./migration";
 import { workspaceUserId } from "./workspace";
 
 const DEFAULT_WEDDING_DATE = new Date("2027-08-26T09:00:00+07:00").getTime();
@@ -78,10 +79,18 @@ export const get = query({
   },
 });
 
-/** Creates the workspace with friendly defaults on first visit. Idempotent. */
+/**
+ * Creates the workspace with friendly defaults on first visit. Idempotent.
+ *
+ * `anonymousUserId` (optional) is the id of the anonymous workspace this
+ * device used before signing in with an email. When the fresh email account
+ * has no workspace of its own, the anonymous one is adopted atomically inside
+ * this transaction — so a reload after sign-in can never race ahead and seed
+ * defaults that would block the migration.
+ */
 export const ensureSetup = mutation({
-  args: {},
-  handler: async (ctx) => {
+  args: { anonymousUserId: v.optional(v.id("users")) },
+  handler: async (ctx, { anonymousUserId }) => {
     const authId = await getAuthUserId(ctx);
     if (authId === null) throw new Error("Not signed in");
     const userId = await workspaceUserId(ctx);
@@ -93,6 +102,37 @@ export const ensureSetup = mutation({
     if (existing) {
       await ensureMoodboardCategories(ctx, userId);
       return existing._id;
+    }
+
+    // Adopt this device's anonymous workspace (one-time, guarded) before
+    // seeding defaults, so nothing is duplicated and no data is lost.
+    if (anonymousUserId) {
+      const emailUser = await ctx.db.get(authId);
+      const anonUser = anonymousUserId === authId ? null : await ctx.db.get(anonymousUserId);
+      if (
+        emailUser &&
+        !emailUser.isAnonymous &&
+        anonUser &&
+        anonUser.isAnonymous
+      ) {
+        const alreadyClaimed = await ctx.db
+          .query("migrationClaim")
+          .withIndex("by_anonymous", (q) => q.eq("anonymousUserId", anonymousUserId))
+          .first();
+        const anonWedding = await ctx.db
+          .query("wedding")
+          .withIndex("by_user", (q) => q.eq("userId", anonymousUserId))
+          .first();
+        if (!alreadyClaimed && anonWedding) {
+          await moveWorkspaceData(ctx, anonymousUserId, userId);
+          await ctx.db.insert("migrationClaim", {
+            anonymousUserId,
+            emailUserId: authId,
+          });
+          await ensureMoodboardCategories(ctx, userId);
+          return anonWedding._id;
+        }
+      }
     }
 
     const weddingId = await ctx.db.insert("wedding", {

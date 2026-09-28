@@ -8,25 +8,38 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 import { countdownLabel, formatDateID, formatRupiahShort } from "@/lib/format";
+import {
+  readStoredAnonymousUser,
+  trackAnonymousUser,
+} from "@/lib/session";
+import { useAuth } from "@/hooks/use-auth";
 import { Bell, Loader2, Settings } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, Outlet } from "react-router";
 import { useMutation, useQuery } from "convex/react";
 
-/** Runs ensureSetup once per mount; the mutation itself is idempotent. */
-function useEnsureSetup() {
+/**
+ * Runs ensureSetup once per signed-in user; the mutation itself is idempotent.
+ * Re-running for a new user id (anonymous → email sign-in, without a reload)
+ * lets the fresh email account adopt this device's anonymous workspace.
+ */
+function useEnsureSetup(
+  userId: string | undefined,
+  anonymousUserId?: Id<"users">,
+) {
   const ensureSetup = useMutation(api.wedding.ensureSetup);
   const [state, setState] = useState<"pending" | "done" | "error">("pending");
-  const startedRef = useRef(false);
+  const ranForRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    if (startedRef.current) return;
-    startedRef.current = true;
-    ensureSetup({})
+    if (!userId || ranForRef.current === userId) return;
+    ranForRef.current = userId;
+    ensureSetup({ anonymousUserId })
       .then(() => setState("done"))
       .catch(() => setState("error"));
-  }, [ensureSetup]);
+  }, [userId, anonymousUserId, ensureSetup]);
 
   return state;
 }
@@ -97,7 +110,20 @@ function NotificationBell({
 }
 
 export function AppShell() {
-  const setupState = useEnsureSetup();
+  const { user } = useAuth();
+
+  // Remember this device's anonymous user id so a later email sign-in can
+  // adopt (migrate) the anonymous workspace atomically inside ensureSetup.
+  useEffect(() => {
+    if (user?._id && (user.isAnonymous ?? false)) {
+      trackAnonymousUser(user._id);
+    }
+  }, [user?._id, user?.isAnonymous]);
+
+  const setupState = useEnsureSetup(
+    user?._id,
+    user && !(user.isAnonymous ?? false) ? readStoredAnonymousUser() : undefined,
+  );
   const wedding = useQuery(api.wedding.get);
   const savings = useQuery(api.savings.list);
   const checklist = useQuery(api.checklist.list);

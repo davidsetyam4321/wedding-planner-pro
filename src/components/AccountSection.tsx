@@ -13,13 +13,12 @@ import {
   Mail,
   RefreshCw,
   ShieldCheck,
+  UserPlus,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
-
-const ANON_ID_KEY = "planner-wedding:anonymous-user-id";
 
 /**
  * Account management for the couple: sign in with an email (OTP code) so the
@@ -30,7 +29,6 @@ export function AccountSection() {
   const { user, isLoading } = useAuth();
   const { signIn, signOut } = useAuthActions();
   const workspace = useQuery(api.workspace.status);
-  const claimMutation = useMutation(api.migration.claim);
   const joinMutation = useMutation(api.workspace.joinByInviteCode);
   const leaveMutation = useMutation(api.workspace.leaveWorkspace);
   const revealMutation = useMutation(api.workspace.revealInviteCode);
@@ -41,34 +39,6 @@ export function AccountSection() {
   const [busy, setBusy] = useState(false);
   const [joinCode, setJoinCode] = useState("");
   const [copied, setCopied] = useState(false);
-
-  // Remember the current anonymous user id once, before any email sign-in,
-  // so a later email session can claim (migrate) that device's data.
-  useEffect(() => {
-    if (user?._id && (user.isAnonymous ?? false)) {
-      const existing = localStorage.getItem(ANON_ID_KEY);
-      if (!existing) localStorage.setItem(ANON_ID_KEY, user._id);
-    }
-  }, [user?._id, user?.isAnonymous]);
-
-  // After an email session is established, migrate the old anonymous data.
-  useEffect(() => {
-    if (!user?._id || (user.isAnonymous ?? false)) return;
-    const stored = localStorage.getItem(ANON_ID_KEY);
-    if (!stored) return;
-    localStorage.removeItem(ANON_ID_KEY);
-    claimMutation({ anonymousUserId: stored as never })
-      .then((result) => {
-        if (result.migrated) {
-          bloom();
-          toast.success("Data dari perangkat sebelumnya berhasil dipindahkan.");
-        }
-      })
-      .catch(() => {
-        // Migration is best-effort; the workspace simply stays fresh.
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?._id, user?.isAnonymous]);
 
   const sendCode = async () => {
     const cleaned = email.trim().toLowerCase();
@@ -399,6 +369,42 @@ export function AccountSection() {
           <p className="meta">
             Kamu sedang melihat workspace sendiri. Masukkan kode dari
             pasanganmu untuk berbagi.
+          </p>
+        </div>
+      )}
+
+      {/* Owner without a partner can also join someone else's workspace —
+          useful when the partner set everything up first. */}
+      {isOwner && !connectedEmail && (
+        <div className="clay-inset mt-2.5 space-y-2.5 rounded-2xl px-3 py-2.5">
+          <p className="label text-muted-foreground">Gabung pakai kode</p>
+          <div className="flex items-center gap-2">
+            <Input
+              value={joinCode}
+              onChange={(event) => setJoinCode(event.target.value.toUpperCase())}
+              maxLength={6}
+              placeholder="ABC123"
+              className="num flex-1 tracking-[0.25em]"
+            />
+            <Button
+              size="sm"
+              variant="secondary"
+              className="rounded-xl"
+              disabled={busy || joinCode.length !== 6}
+              onClick={() => void join()}
+            >
+              {busy ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <>
+                  <UserPlus className="size-4" /> Gabung
+                </>
+              )}
+            </Button>
+          </div>
+          <p className="meta">
+            Punya kode dari pasanganmu? Masukkan di sini untuk berbagi satu
+            workspace.
           </p>
         </div>
       )}

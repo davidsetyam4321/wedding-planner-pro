@@ -123,6 +123,11 @@ export const joinByInviteCode = mutation({
       throw new Error("Masuk dengan email dulu sebelum bergabung.");
     }
     if (user.coupleId) throw new Error("Kamu sudah tergabung di sebuah workspace.");
+    // An owner that already has a partner must not join another workspace —
+    // that would chain workspaces instead of sharing one.
+    if (await isSharingWorkspace(ctx, userId)) {
+      throw new Error("Workspace kamu sudah punya pasangan.");
+    }
 
     const normalized = code.trim().toUpperCase();
     if (!/^[A-Z0-9]{6}$/.test(normalized)) {

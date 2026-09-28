@@ -1,6 +1,6 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import { mutation } from "./_generated/server";
+import { mutation, type MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 
 /**
@@ -8,13 +8,55 @@ import type { Id } from "./_generated/dataModel";
  *
  * Every visitor gets a silent anonymous account whose data lives under that
  * anonymous user id. When they sign in with an email on a NEW device, they
- * would otherwise start with an empty workspace — this module hands the old
- * anonymous workspace over to the (possibly fresh) email account, one time,
- * so the couple's data follows them across devices.
+ * would otherwise start with an empty workspace — the workspace's ownership
+ * is handed over to the (possibly fresh) email account, one time, so the
+ * couple's data follows them across devices.
  *
  * The client remembers the anonymous user id (localStorage) before signing in
- * and passes it here right after the email session is established.
+ * and passes it to `ensureSetup` right after the email session is established.
  */
+
+/** Every data table that hangs off a `userId`. */
+const WORKSPACE_TABLES = [
+  "wedding",
+  "budgetCategory",
+  "budgetExpense",
+  "savingDeposit",
+  "checklistItem",
+  "moodboardCategory",
+  "moodboardBox",
+  "moodboardPhoto",
+  "guest",
+  "vendor",
+  "rundownItem",
+] as const;
+
+/**
+ * Moves every workspace row from `from` to `to`. Runs inside the caller's
+ * transaction so the handover is atomic (all rows or none).
+ */
+export async function moveWorkspaceData(
+  ctx: MutationCtx,
+  from: Id<"users">,
+  to: Id<"users">,
+): Promise<void> {
+  for (const table of WORKSPACE_TABLES) {
+    if (table === "savingDeposit") {
+      const rows = await ctx.db
+        .query("savingDeposit")
+        .withIndex("by_user_savedAt", (q) => q.eq("userId", from))
+        .collect();
+      for (const row of rows) await ctx.db.patch(row._id, { userId: to });
+    } else {
+      const rows = await ctx.db
+        .query(table)
+        .withIndex("by_user", (q) => q.eq("userId", from))
+        .collect();
+      for (const row of rows) await ctx.db.patch(row._id, { userId: to });
+    }
+  }
+}
+
 export const claim = mutation({
   args: { anonymousUserId: v.id("users") },
   handler: async (ctx, { anonymousUserId }) => {
@@ -48,81 +90,7 @@ export const claim = mutation({
       .first();
     if (!anonWedding) return { migrated: false };
 
-    const from = anonymousUserId;
-    const to = emailUserId;
-
-    const weddings = await ctx.db
-      .query("wedding")
-      .withIndex("by_user", (q) => q.eq("userId", from))
-      .collect();
-    for (const row of weddings) await ctx.db.patch(row._id, { userId: to });
-
-    const budgetCategories = await ctx.db
-      .query("budgetCategory")
-      .withIndex("by_user", (q) => q.eq("userId", from))
-      .collect();
-    for (const row of budgetCategories)
-      await ctx.db.patch(row._id, { userId: to });
-
-    const budgetExpenses = await ctx.db
-      .query("budgetExpense")
-      .withIndex("by_user", (q) => q.eq("userId", from))
-      .collect();
-    for (const row of budgetExpenses)
-      await ctx.db.patch(row._id, { userId: to });
-
-    const deposits = await ctx.db
-      .query("savingDeposit")
-      .withIndex("by_user_savedAt", (q) => q.eq("userId", from))
-      .collect();
-    for (const row of deposits) await ctx.db.patch(row._id, { userId: to });
-
-    const checklistItems = await ctx.db
-      .query("checklistItem")
-      .withIndex("by_user", (q) => q.eq("userId", from))
-      .collect();
-    for (const row of checklistItems)
-      await ctx.db.patch(row._id, { userId: to });
-
-    const moodboardCategories = await ctx.db
-      .query("moodboardCategory")
-      .withIndex("by_user", (q) => q.eq("userId", from))
-      .collect();
-    for (const row of moodboardCategories)
-      await ctx.db.patch(row._id, { userId: to });
-
-    const moodboardBoxes = await ctx.db
-      .query("moodboardBox")
-      .withIndex("by_user", (q) => q.eq("userId", from))
-      .collect();
-    for (const row of moodboardBoxes)
-      await ctx.db.patch(row._id, { userId: to });
-
-    const moodboardPhotos = await ctx.db
-      .query("moodboardPhoto")
-      .withIndex("by_user", (q) => q.eq("userId", from))
-      .collect();
-    for (const row of moodboardPhotos)
-      await ctx.db.patch(row._id, { userId: to });
-
-    const guests = await ctx.db
-      .query("guest")
-      .withIndex("by_user", (q) => q.eq("userId", from))
-      .collect();
-    for (const row of guests) await ctx.db.patch(row._id, { userId: to });
-
-    const vendors = await ctx.db
-      .query("vendor")
-      .withIndex("by_user", (q) => q.eq("userId", from))
-      .collect();
-    for (const row of vendors) await ctx.db.patch(row._id, { userId: to });
-
-    const rundownItems = await ctx.db
-      .query("rundownItem")
-      .withIndex("by_user", (q) => q.eq("userId", from))
-      .collect();
-    for (const row of rundownItems)
-      await ctx.db.patch(row._id, { userId: to });
+    await moveWorkspaceData(ctx, anonymousUserId, emailUserId);
 
     await ctx.db.insert("migrationClaim", { anonymousUserId, emailUserId });
     return { migrated: true };
@@ -130,6 +98,3 @@ export const claim = mutation({
 });
 
 export type ClaimResult = { migrated: boolean };
-
-/** Exported for typing on the client (unused on the server). */
-export type AnonymousClaimId = Id<"users">;
