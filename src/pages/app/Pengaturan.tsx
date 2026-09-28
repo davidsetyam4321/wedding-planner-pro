@@ -1,9 +1,11 @@
+import { FlowerMark } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import { FEATURES } from "@/lib/features";
 import { fromDateInputValue, toDateInputValue } from "@/lib/format";
+import { bloom } from "@/lib/bloom";
 import { ChevronLeft, Loader2, Save } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
@@ -48,6 +50,7 @@ export function PengaturanPage() {
         fundTarget: Number(target) || 0,
         venueName: venue,
       });
+      bloom();
       toast.success("Pengaturan tersimpan.");
     } catch {
       toast.error("Gagal menyimpan pengaturan.");
@@ -65,13 +68,14 @@ export function PengaturanPage() {
         <ChevronLeft className="size-3.5" /> Lainnya
       </Link>
 
-      <section className="clay p-5">
-        <div className="flex items-center gap-3">
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-accent text-lg">
+      <section className="clay grad-warm relative overflow-hidden p-5">
+        <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 text-primary/20" />
+        <div className="relative flex items-center gap-3">
+          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-tint-rose text-lg">
             ⚙️
           </div>
           <div>
-            <h1 className="text-lg font-extrabold leading-tight">Pengaturan</h1>
+            <h1 className="text-xl font-semibold leading-tight">Pengaturan</h1>
             <p className="text-[11px] text-muted-foreground">
               Data ini dipakai di seluruh halaman
             </p>
@@ -145,10 +149,10 @@ export function PengaturanPage() {
           {FEATURES.map((feature) => (
             <li
               key={feature.to}
-              className="clay-inset flex items-center gap-2 rounded-2xl px-3 py-2"
+              className={`flex items-center gap-2 rounded-2xl px-3 py-2 ${feature.surface}`}
             >
-              <feature.icon className="size-3.5 shrink-0 text-primary" />
-              <span className="text-[11px] font-semibold">{feature.label}</span>
+              <feature.icon className="size-3.5 shrink-0" />
+              <span className="text-[11px] font-bold">{feature.label}</span>
             </li>
           ))}
         </ul>

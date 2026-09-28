@@ -1,3 +1,4 @@
+import { FlowerMark } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { bloom } from "@/lib/bloom";
 import { Check, ChevronLeft, Loader2, Plus, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
@@ -43,6 +45,7 @@ export function TamuPage() {
     setSaving(true);
     try {
       await createGuest({ name, group, pax: Number(pax) || 1 });
+      bloom();
       toast.success("Tamu ditambahkan.");
       setOpen(false);
       setName("");
@@ -61,6 +64,7 @@ export function TamuPage() {
   ) => {
     const next = current === "pending" ? "hadir" : current === "hadir" ? "tidak" : "pending";
     await setRsvp({ guestId, rsvp: next });
+    if (next === "hadir") bloom();
   };
 
   return (
@@ -72,14 +76,15 @@ export function TamuPage() {
         <ChevronLeft className="size-3.5" /> Lainnya
       </Link>
 
-      <section className="clay p-5">
-        <div className="flex items-center gap-3">
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-accent text-lg">
+      <section className="clay grad-sky relative overflow-hidden p-5 text-tint-sky-foreground">
+        <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 opacity-25" />
+        <div className="relative flex items-center gap-3">
+          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-white/70 text-lg">
             💌
           </div>
           <div>
-            <h1 className="text-lg font-extrabold leading-tight">Daftar Tamu</h1>
-            <p className="text-[11px] text-muted-foreground">
+            <h1 className="text-xl font-semibold leading-tight">Daftar Tamu</h1>
+            <p className="text-[11px] opacity-80">
               {list.length} tamu · {totalPax} orang
             </p>
           </div>

@@ -1,6 +1,8 @@
+import { FlowerMark } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { api } from "@/convex/_generated/api";
+import { bloom } from "@/lib/bloom";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
@@ -25,6 +27,7 @@ export function ChecklistPage() {
     setAdding(true);
     try {
       await createItem({ label });
+      bloom();
       setLabel("");
     } catch {
       toast.error("Gagal menambah tugas.");
@@ -35,11 +38,17 @@ export function ChecklistPage() {
 
   return (
     <div className="space-y-4 pt-3">
-      <section className="clay p-5">
-        <h1 className="text-lg font-extrabold">Checklist</h1>
-        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-          Semua yang perlu diselesaikan sebelum hari-H, di satu tempat.
-        </p>
+      <section className="clay grad-peach relative overflow-hidden p-5 text-tint-peach-foreground">
+        <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 opacity-25" />
+        <div className="relative flex items-center gap-3">
+          <span className="text-2xl">📝</span>
+          <div>
+            <h1 className="text-xl font-semibold">Checklist</h1>
+            <p className="mt-0.5 text-xs leading-relaxed opacity-80">
+              Semua yang perlu diselesaikan sebelum hari-H, di satu tempat.
+            </p>
+          </div>
+        </div>
       </section>
 
       <section className="panel">
@@ -92,7 +101,10 @@ export function ChecklistPage() {
               <button
                 type="button"
                 aria-label={item.done ? "Tandai belum selesai" : "Tandai selesai"}
-                onClick={() => toggleItem({ itemId: item._id, done: !item.done })}
+                onClick={() => {
+                  toggleItem({ itemId: item._id, done: !item.done });
+                  if (!item.done) bloom();
+                }}
                 className={`clay-inset flex size-6 shrink-0 items-center justify-center rounded-full text-[10px] ${
                   item.done
                     ? "bg-primary text-primary-foreground"

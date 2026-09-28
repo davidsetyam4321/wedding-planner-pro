@@ -1,3 +1,4 @@
+import { FlowerMark } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { bloom } from "@/lib/bloom";
 import { ChevronLeft, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { Link } from "react-router";
@@ -57,6 +59,7 @@ export function MoodboardPage() {
     setCreatingBox(true);
     try {
       await createBox({ tab, title: newBoxTitle });
+      bloom();
       setNewBoxOpen(false);
       setNewBoxTitle("");
       toast.success("Kotak baru ditambahkan.");
@@ -101,6 +104,7 @@ export function MoodboardPage() {
       if (!response.ok) throw new Error("upload gagal");
       const { storageId } = (await response.json()) as { storageId: Id<"_storage"> };
       await addPhoto({ boxId: uploadingBox, storageId });
+      bloom();
       toast.success("Foto ditambahkan.");
     } catch (error) {
       toast.error(
@@ -133,19 +137,18 @@ export function MoodboardPage() {
         <ChevronLeft className="size-3.5" /> Lainnya
       </Link>
 
-      <section className="clay p-5">
-        <div className="flex items-center gap-3">
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-accent text-lg">
+      <section className="clay grad-rose relative overflow-hidden p-5 text-tint-rose-foreground">
+        <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 opacity-25" />
+        <div className="relative flex items-center gap-3">
+          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-white/70 text-lg">
             🎨
           </div>
           <div>
-            <h1 className="text-lg font-extrabold leading-tight">Mood Board</h1>
-            <p className="text-[11px] text-muted-foreground">
-              Maksimal 3 foto per kotak
-            </p>
+            <h1 className="text-xl font-semibold leading-tight">Mood Board</h1>
+            <p className="text-[11px] opacity-80">Maksimal 3 foto per kotak</p>
           </div>
         </div>
-        <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+        <p className="relative mt-3 text-xs leading-relaxed opacity-80">
           Kumpulkan referensi dekor, baju & makeup di satu tempat supaya tidak
           menumpuk screenshot di galeri. Butuh kotak lain? Tambahkan sendiri di
           bawah.

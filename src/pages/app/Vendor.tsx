@@ -1,3 +1,4 @@
+import { FlowerMark } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import { formatRupiah, formatRupiahShort } from "@/lib/format";
+import { bloom } from "@/lib/bloom";
 import { ChevronLeft, Loader2, Phone, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
@@ -51,6 +53,7 @@ export function VendorPage() {
     setSaving(true);
     try {
       await createVendor({ name, category, contact, cost: Number(cost) || 0 });
+      bloom();
       toast.success("Vendor ditambahkan.");
       setOpen(false);
       setName("");
@@ -68,6 +71,7 @@ export function VendorPage() {
     const next: VendorStatus =
       current === "belum" ? "dp" : current === "dp" ? "lunas" : "belum";
     await setStatus({ vendorId, status: next });
+    if (next === "lunas") bloom();
   };
 
   return (
@@ -79,16 +83,15 @@ export function VendorPage() {
         <ChevronLeft className="size-3.5" /> Lainnya
       </Link>
 
-      <section className="clay p-5">
-        <div className="flex items-center gap-3">
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-accent text-lg">
+      <section className="clay grad-butter relative overflow-hidden p-5 text-tint-butter-foreground">
+        <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 opacity-25" />
+        <div className="relative flex items-center gap-3">
+          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-white/70 text-lg">
             📋
           </div>
           <div>
-            <h1 className="text-lg font-extrabold leading-tight">Vendor</h1>
-            <p className="text-[11px] text-muted-foreground">
-              {list.length} vendor terdaftar
-            </p>
+            <h1 className="text-xl font-semibold leading-tight">Vendor</h1>
+            <p className="text-[11px] opacity-80">{list.length} vendor terdaftar</p>
           </div>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-2">

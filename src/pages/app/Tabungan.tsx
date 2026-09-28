@@ -1,8 +1,10 @@
+import { FlowerMark } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import { formatDateTimeID, formatRupiah } from "@/lib/format";
+import { bloom } from "@/lib/bloom";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
@@ -32,6 +34,7 @@ export function TabunganPage() {
     setSaving(true);
     try {
       await addDeposit({ amount: value, note: note || undefined });
+      bloom();
       toast.success(`Setoran ${formatRupiah(value)} tercatat.`);
       setAmount("");
       setNote("");
@@ -44,11 +47,18 @@ export function TabunganPage() {
 
   return (
     <div className="space-y-4 pt-3">
-      <section className="clay p-5">
-        <h1 className="text-lg font-extrabold">Tabungan</h1>
-        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-          Catat setiap setoran agar progres menuju target dana selalu terpantau.
-        </p>
+      <section className="clay grad-lavender relative overflow-hidden p-5 text-tint-lavender-foreground">
+        <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 opacity-25" />
+        <div className="relative flex items-center gap-3">
+          <span className="text-2xl">🐷</span>
+          <div>
+            <h1 className="text-xl font-semibold">Tabungan</h1>
+            <p className="mt-0.5 text-xs leading-relaxed opacity-80">
+              Catat setiap setoran agar progres menuju target dana selalu
+              terpantau.
+            </p>
+          </div>
+        </div>
       </section>
 
       <section className="panel">

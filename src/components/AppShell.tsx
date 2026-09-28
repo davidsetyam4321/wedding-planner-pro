@@ -1,4 +1,5 @@
 import { BottomNav } from "@/components/BottomNav";
+import { BloomOverlay, FlowerMark, Petals } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -128,11 +129,15 @@ export function AppShell() {
 
   return (
     <div className="min-h-screen pb-28">
+      <Petals />
+      <BloomOverlay />
       <header className="mx-auto max-w-md px-4 pt-5">
-        <div className="clay p-4">
+        <div className="clay grad-warm relative overflow-hidden p-5">
+          <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 text-tint-peach-foreground/25" />
+          <FlowerMark className="sway pointer-events-none absolute -left-4 bottom-2 size-14 text-primary/15" />
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="clay-sm flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-sm font-extrabold text-primary-foreground">
+              <div className="clay-sm flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-sm font-extrabold text-primary-foreground relative">
                 {initials(wedding?.partnerOneName, wedding?.partnerTwoName)}
               </div>
               <div className="min-w-0">
@@ -162,29 +167,25 @@ export function AppShell() {
           </div>
 
           <div className="mt-3 grid grid-cols-3 gap-2">
-            <div className="clay-inset px-3 py-2">
-              <p className="text-[10px] font-medium text-muted-foreground">
-                Hitung mundur
-              </p>
-              <p className="text-sm font-bold">
+            <div className="rounded-2xl bg-tint-butter px-3 py-2 text-tint-butter-foreground">
+              <p className="text-[10px] font-bold opacity-75">Hitung mundur</p>
+              <p className="text-sm font-extrabold">
                 {wedding ? countdownLabel(wedding.weddingDate) : "—"}
               </p>
             </div>
-            <div className="clay-inset px-3 py-2">
-              <p className="text-[10px] font-medium text-muted-foreground">
-                Terkumpul
-              </p>
-              <p className="text-sm font-bold text-primary">
+            <div className="rounded-2xl bg-tint-lavender px-3 py-2 text-tint-lavender-foreground">
+              <p className="text-[10px] font-bold opacity-75">Terkumpul</p>
+              <p className="text-sm font-extrabold">
                 {formatRupiahShort(savingsTotal)}
               </p>
             </div>
-            <div className="clay-inset px-3 py-2">
-              <p className="text-[10px] font-medium text-muted-foreground">Tugas</p>
-              <p className="text-sm font-bold">{openTasks} tersisa</p>
+            <div className="rounded-2xl bg-tint-mint px-3 py-2 text-tint-mint-foreground">
+              <p className="text-[10px] font-bold opacity-75">Tugas</p>
+              <p className="text-sm font-extrabold">{openTasks} tersisa</p>
             </div>
           </div>
 
-          <div className="clay-inset mt-3 h-2.5 w-full overflow-hidden rounded-full">
+          <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-white/70">
             <div
               className="h-full rounded-full bg-primary transition-all"
               style={{ width: `${progressPct}%` }}
