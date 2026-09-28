@@ -12,14 +12,31 @@ import "./index.css";
 // Lazy load route components for better code splitting
 const Landing = lazy(() => import("./pages/Landing.tsx"));
 const AuthPage = lazy(() => import("./pages/Auth.tsx"));
-const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
+const AppShell = lazy(() =>
+  import("./components/AppShell.tsx").then((m) => ({ default: m.AppShell })),
+);
+const HomePage = lazy(() =>
+  import("./pages/app/Home.tsx").then((m) => ({ default: m.HomePage })),
+);
+const BudgetPage = lazy(() =>
+  import("./pages/app/Budget.tsx").then((m) => ({ default: m.BudgetPage })),
+);
+const TabunganPage = lazy(() =>
+  import("./pages/app/Tabungan.tsx").then((m) => ({ default: m.TabunganPage })),
+);
+const ChecklistPage = lazy(() =>
+  import("./pages/app/Checklist.tsx").then((m) => ({ default: m.ChecklistPage })),
+);
+const LainnyaPage = lazy(() =>
+  import("./pages/app/Lainnya.tsx").then((m) => ({ default: m.LainnyaPage })),
+);
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
 function RouteLoading() {
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-pulse text-muted-foreground">Loading...</div>
+      <div className="animate-pulse text-muted-foreground">Memuat…</div>
     </div>
   );
 }
@@ -122,16 +139,22 @@ createRoot(document.getElementById("root")!).render(
               <Route path="/" element={<Landing />} />
               <Route
                 path="/auth"
-                element={<AuthPage redirectAfterAuth="/dashboard" />}
+                element={<AuthPage redirectAfterAuth="/app" />}
               />
               <Route
-                path="/dashboard"
+                path="/app"
                 element={
-                  <RequireAuth>
-                    <Dashboard />
+                  <RequireAuth redirectImmediately>
+                    <AppShell />
                   </RequireAuth>
                 }
-              />
+              >
+                <Route index element={<HomePage />} />
+                <Route path="budget" element={<BudgetPage />} />
+                <Route path="tabungan" element={<TabunganPage />} />
+                <Route path="checklist" element={<ChecklistPage />} />
+                <Route path="lainnya" element={<LainnyaPage />} />
+              </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
@@ -140,4 +163,4 @@ createRoot(document.getElementById("root")!).render(
       </ConvexAuthProvider>
     </RootErrorBoundary>
   </StrictMode>,
-);
+)

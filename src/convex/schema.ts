@@ -32,12 +32,75 @@ const schema = defineSchema(
       role: v.optional(roleValidator), // role of the user. do not remove
     }).index("email", ["email"]), // index for the email. do not remove or modify
 
-    // add other tables here
+    // ── Planner Wedding ────────────────────────────────────────────────────
+    // One workspace per signed-in user (the couple shares one account).
 
-    // tableName: defineTable({
-    //   ...
-    //   // table fields
-    // }).index("by_field", ["field"])
+    wedding: defineTable({
+      userId: v.id("users"),
+      partnerOneName: v.string(),
+      partnerTwoName: v.string(),
+      weddingDate: v.number(), // epoch ms
+      fundTarget: v.number(),
+      fundClaimed: v.optional(v.boolean()),
+      setupComplete: v.optional(v.boolean()),
+    })
+      .index("by_user", ["userId"])
+      .index("by_user_claimed", ["userId", "fundClaimed"]),
+
+    budgetCategory: defineTable({
+      userId: v.id("users"),
+      name: v.string(),
+      allocated: v.number(),
+      sortOrder: v.number(),
+    }).index("by_user", ["userId"]),
+
+    budgetExpense: defineTable({
+      userId: v.id("users"),
+      categoryId: v.id("budgetCategory"),
+      label: v.string(),
+      amount: v.number(),
+      paidAt: v.optional(v.number()),
+    })
+      .index("by_user", ["userId"])
+      .index("by_category", ["categoryId"]),
+
+    savingDeposit: defineTable({
+      userId: v.id("users"),
+      amount: v.number(),
+      note: v.optional(v.string()),
+      savedAt: v.number(),
+    }).index("by_user_savedAt", ["userId", "savedAt"]),
+
+    checklistItem: defineTable({
+      userId: v.id("users"),
+      label: v.string(),
+      done: v.optional(v.boolean()),
+      sortOrder: v.number(),
+    })
+      .index("by_user", ["userId"])
+      .index("by_user_done", ["userId", "done"]),
+
+    moodboardBox: defineTable({
+      userId: v.id("users"),
+      tab: v.union(
+        v.literal("dekorasi"),
+        v.literal("baju"),
+        v.literal("makeup"),
+      ),
+      title: v.string(),
+      sortOrder: v.number(),
+    })
+      .index("by_user", ["userId"])
+      .index("by_user_tab", ["userId", "tab"]),
+
+    moodboardPhoto: defineTable({
+      userId: v.id("users"),
+      boxId: v.id("moodboardBox"),
+      storageId: v.id("_storage"),
+      sortOrder: v.number(),
+    })
+      .index("by_box", ["boxId"])
+      .index("by_user", ["userId"]),
   },
   {
     schemaValidation: false,

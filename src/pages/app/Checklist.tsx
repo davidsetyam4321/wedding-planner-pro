@@ -1,0 +1,121 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { api } from "@/convex/_generated/api";
+import { Loader2, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { useMutation, useQuery } from "convex/react";
+import { toast } from "sonner";
+
+/** Checklist page: tugas persiapan pernikahan. */
+export function ChecklistPage() {
+  const items = useQuery(api.checklist.list);
+  const createItem = useMutation(api.checklist.create);
+  const toggleItem = useMutation(api.checklist.toggle);
+  const removeItem = useMutation(api.checklist.remove);
+
+  const [label, setLabel] = useState("");
+  const [adding, setAdding] = useState(false);
+
+  const all = items ?? [];
+  const doneCount = all.filter((item) => item.done).length;
+  const pct = all.length > 0 ? Math.round((doneCount / all.length) * 100) : 0;
+
+  const submit = async () => {
+    if (!label.trim()) return;
+    setAdding(true);
+    try {
+      await createItem({ label });
+      setLabel("");
+    } catch {
+      toast.error("Gagal menambah tugas.");
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4 pt-3">
+      <section>
+        <p className="prompt-label text-xs text-muted-foreground">checklist</p>
+        <h1 className="mt-0.5 text-lg font-semibold">Tugas persiapan</h1>
+        <p className="text-xs text-muted-foreground">
+          Semua yang perlu diselesaikan sebelum hari-H, di satu tempat.
+        </p>
+      </section>
+
+      <section className="panel">
+        <div className="panel-header justify-between">
+          <span>Progres</span>
+          <span className="normal-case tracking-normal">
+            {doneCount}/{all.length} selesai
+          </span>
+        </div>
+        <div className="p-3">
+          <div className="h-1.5 w-full border border-border bg-background">
+            <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+      </section>
+
+      <section className="panel">
+        <div className="panel-header">Tambah tugas</div>
+        <form
+          className="flex gap-2 p-3"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void submit();
+          }}
+        >
+          <Input
+            value={label}
+            onChange={(event) => setLabel(event.target.value)}
+            placeholder="cth. Survey venue kedua"
+          />
+          <Button type="submit" size="icon" disabled={adding || !label.trim()}>
+            {adding ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
+          </Button>
+        </form>
+      </section>
+
+      <section className="panel">
+        <div className="panel-header">Daftar tugas</div>
+        <ul className="divide-y divide-border">
+          {all.map((item) => (
+            <li key={item._id} className="flex items-center gap-2 px-3 py-2 text-sm">
+              <button
+                type="button"
+                aria-label={item.done ? "Tandai belum selesai" : "Tandai selesai"}
+                onClick={() => toggleItem({ itemId: item._id, done: !item.done })}
+                className={`flex size-4 shrink-0 items-center justify-center border text-[10px] ${
+                  item.done
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-card text-transparent hover:border-primary/60"
+                }`}
+              >
+                ✓
+              </button>
+              <span
+                className={`flex-1 ${item.done ? "text-muted-foreground line-through" : ""}`}
+              >
+                {item.label}
+              </span>
+              <button
+                type="button"
+                aria-label="Hapus tugas"
+                className="text-muted-foreground hover:text-destructive"
+                onClick={() => removeItem({ itemId: item._id })}
+              >
+                <Trash2 className="size-3.5" />
+              </button>
+            </li>
+          ))}
+          {all.length === 0 && (
+            <li className="px-3 py-3 text-xs text-muted-foreground">
+              {items === undefined ? "Memuat…" : "Belum ada tugas. Tambahkan yang pertama!"}
+            </li>
+          )}
+        </ul>
+      </section>
+    </div>
+  );
+}
