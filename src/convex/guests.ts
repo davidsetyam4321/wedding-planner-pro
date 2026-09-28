@@ -2,12 +2,14 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { rsvpValidator } from "./schema";
+import { workspaceUserId } from "./workspace";
 
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) return [];
+    const authId = await getAuthUserId(ctx);
+    if (authId === null) return [];
+    const userId = await workspaceUserId(ctx);
     const guests = await ctx.db
       .query("guest")
       .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -26,8 +28,7 @@ export const create = mutation({
     note: v.optional(v.string()),
   },
   handler: async (ctx, { name, group, pax, phone, note }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
     if (!name.trim()) throw new Error("Nama tamu wajib diisi");
 
     await ctx.db.insert("guest", {
@@ -54,8 +55,7 @@ export const update = mutation({
     note: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const guest = await ctx.db.get(args.guestId);
     if (!guest || guest.userId !== userId) throw new Error("Guest not found");
@@ -85,8 +85,7 @@ export const update = mutation({
 export const setInvited = mutation({
   args: { guestId: v.id("guest"), invited: v.boolean() },
   handler: async (ctx, { guestId, invited }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
     const guest = await ctx.db.get(guestId);
     if (!guest || guest.userId !== userId) throw new Error("Guest not found");
     await ctx.db.patch(guestId, { invited });
@@ -97,8 +96,7 @@ export const setInvited = mutation({
 export const inviteAll = mutation({
   args: { group: v.optional(v.string()) },
   handler: async (ctx, { group }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const guests = await ctx.db
       .query("guest")
@@ -119,8 +117,7 @@ export const inviteAll = mutation({
 export const setRsvp = mutation({
   args: { guestId: v.id("guest"), rsvp: rsvpValidator },
   handler: async (ctx, { guestId, rsvp }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
     const guest = await ctx.db.get(guestId);
     if (!guest || guest.userId !== userId) throw new Error("Guest not found");
     await ctx.db.patch(guestId, { rsvp });
@@ -130,8 +127,7 @@ export const setRsvp = mutation({
 export const remove = mutation({
   args: { guestId: v.id("guest") },
   handler: async (ctx, { guestId }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
     const guest = await ctx.db.get(guestId);
     if (!guest || guest.userId !== userId) throw new Error("Guest not found");
     await ctx.db.delete(guestId);

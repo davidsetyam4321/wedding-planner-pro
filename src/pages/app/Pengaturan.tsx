@@ -1,3 +1,4 @@
+import { AccountSection } from "@/components/AccountSection";
 import { coupleInitials, useCouplePhotoUpload } from "@/components/CouplePhoto";
 import { FlowerMark } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
@@ -86,6 +87,8 @@ export function PengaturanPage() {
       </section>
 
       <input type="file" accept="image/*" className="hidden" {...inputProps} />
+
+      <AccountSection />
 
       <section className="clay overflow-hidden">
         <div className="relative aspect-[4/3] w-full bg-muted">

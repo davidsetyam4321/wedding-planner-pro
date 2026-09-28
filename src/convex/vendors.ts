@@ -2,12 +2,14 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { vendorStatusValidator } from "./schema";
+import { workspaceUserId } from "./workspace";
 
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) return [];
+    const authId = await getAuthUserId(ctx);
+    if (authId === null) return [];
+    const userId = await workspaceUserId(ctx);
     const vendors = await ctx.db
       .query("vendor")
       .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -28,8 +30,7 @@ export const create = mutation({
     status: v.optional(vendorStatusValidator),
   },
   handler: async (ctx, { name, category, contact, cost, dpAmount, note, status }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
     if (!name.trim()) throw new Error("Nama vendor wajib diisi");
 
     await ctx.db.insert("vendor", {
@@ -58,8 +59,7 @@ export const update = mutation({
     status: v.optional(vendorStatusValidator),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const vendor = await ctx.db.get(args.vendorId);
     if (!vendor || vendor.userId !== userId) throw new Error("Vendor not found");
@@ -95,8 +95,7 @@ export const update = mutation({
 export const setStatus = mutation({
   args: { vendorId: v.id("vendor"), status: vendorStatusValidator },
   handler: async (ctx, { vendorId, status }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
     const vendor = await ctx.db.get(vendorId);
     if (!vendor || vendor.userId !== userId) throw new Error("Vendor not found");
     await ctx.db.patch(vendorId, { status });
@@ -106,8 +105,7 @@ export const setStatus = mutation({
 export const remove = mutation({
   args: { vendorId: v.id("vendor") },
   handler: async (ctx, { vendorId }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
     const vendor = await ctx.db.get(vendorId);
     if (!vendor || vendor.userId !== userId) throw new Error("Vendor not found");
     await ctx.db.delete(vendorId);

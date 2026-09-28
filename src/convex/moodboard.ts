@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { workspaceUserId } from "./workspace";
 
 /** Sane ceiling that keeps a single reference box browsable. */
 const MAX_PHOTOS_PER_BOX = 12;
@@ -8,8 +9,9 @@ const MAX_PHOTOS_PER_BOX = 12;
 export const listCategories = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) return [];
+    const authId = await getAuthUserId(ctx);
+    if (authId === null) return [];
+    const userId = await workspaceUserId(ctx);
     const categories = await ctx.db
       .query("moodboardCategory")
       .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -22,8 +24,7 @@ export const listCategories = query({
 export const createCategory = mutation({
   args: { name: v.string() },
   handler: async (ctx, { name }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const cleaned = name.trim();
     if (!cleaned) throw new Error("Nama kategori wajib diisi");
@@ -47,8 +48,7 @@ export const createCategory = mutation({
 export const renameCategory = mutation({
   args: { categoryId: v.id("moodboardCategory"), name: v.string() },
   handler: async (ctx, { categoryId, name }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const category = await ctx.db.get(categoryId);
     if (!category || category.userId !== userId) throw new Error("Category not found");
@@ -70,8 +70,7 @@ export const renameCategory = mutation({
 export const deleteCategory = mutation({
   args: { categoryId: v.id("moodboardCategory") },
   handler: async (ctx, { categoryId }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const category = await ctx.db.get(categoryId);
     if (!category || category.userId !== userId) throw new Error("Category not found");
@@ -97,8 +96,9 @@ export const deleteCategory = mutation({
 export const listBoxes = query({
   args: { category: v.string() },
   handler: async (ctx, { category }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) return [];
+    const authId = await getAuthUserId(ctx);
+    if (authId === null) return [];
+    const userId = await workspaceUserId(ctx);
 
     const boxes = await ctx.db
       .query("moodboardBox")
@@ -133,8 +133,7 @@ export const listBoxes = query({
 export const createBox = mutation({
   args: { category: v.string(), title: v.string() },
   handler: async (ctx, { category, title }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const existing = await ctx.db
       .query("moodboardBox")
@@ -158,8 +157,7 @@ export const updateBox = mutation({
     category: v.optional(v.string()),
   },
   handler: async (ctx, { boxId, title, category }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const box = await ctx.db.get(boxId);
     if (!box || box.userId !== userId) throw new Error("Box not found");
@@ -189,8 +187,7 @@ export const updateBox = mutation({
 export const deleteBox = mutation({
   args: { boxId: v.id("moodboardBox") },
   handler: async (ctx, { boxId }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const box = await ctx.db.get(boxId);
     if (!box || box.userId !== userId) throw new Error("Box not found");
@@ -213,8 +210,7 @@ export const addPhoto = mutation({
     caption: v.optional(v.string()),
   },
   handler: async (ctx, { boxId, storageId, caption }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const box = await ctx.db.get(boxId);
     if (!box || box.userId !== userId) throw new Error("Box not found");
@@ -240,8 +236,7 @@ export const addPhoto = mutation({
 export const updatePhotoCaption = mutation({
   args: { photoId: v.id("moodboardPhoto"), caption: v.string() },
   handler: async (ctx, { photoId, caption }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const photo = await ctx.db.get(photoId);
     if (!photo || photo.userId !== userId) throw new Error("Photo not found");
@@ -252,8 +247,7 @@ export const updatePhotoCaption = mutation({
 export const removePhoto = mutation({
   args: { photoId: v.id("moodboardPhoto") },
   handler: async (ctx, { photoId }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const photo = await ctx.db.get(photoId);
     if (!photo || photo.userId !== userId) throw new Error("Photo not found");

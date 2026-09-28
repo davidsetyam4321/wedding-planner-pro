@@ -2,14 +2,16 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { mutation, query, type MutationCtx } from "./_generated/server";
 import type { Doc, Id } from "./_generated/dataModel";
+import { workspaceUserId } from "./workspace";
 
 export const overview = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) {
+    const authId = await getAuthUserId(ctx);
+    if (authId === null) {
       return { categories: [], expenses: [] as Doc<"budgetExpense">[] };
     }
+    const userId = await workspaceUserId(ctx);
 
     const categories = await ctx.db
       .query("budgetCategory")
@@ -40,8 +42,7 @@ async function requireCategory(ctx: MutationCtx, categoryId: Id<"budgetCategory"
 export const createCategory = mutation({
   args: { name: v.string(), allocated: v.number() },
   handler: async (ctx, { name, allocated }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const existing = await ctx.db
       .query("budgetCategory")
@@ -107,8 +108,7 @@ export const addExpense = mutation({
     paid: v.optional(v.boolean()),
   },
   handler: async (ctx, { categoryId, categoryName, label, amount, paid }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     let targetId = categoryId;
     if (targetId) {
@@ -157,8 +157,7 @@ export const updateExpense = mutation({
     paid: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const expense = await ctx.db.get(args.expenseId);
     if (!expense || expense.userId !== userId) throw new Error("Expense not found");
@@ -193,8 +192,7 @@ export const updateExpense = mutation({
 export const toggleExpensePaid = mutation({
   args: { expenseId: v.id("budgetExpense"), paid: v.boolean() },
   handler: async (ctx, { expenseId, paid }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const expense = await ctx.db.get(expenseId);
     if (!expense || expense.userId !== userId) {
@@ -208,8 +206,7 @@ export const toggleExpensePaid = mutation({
 export const deleteExpense = mutation({
   args: { expenseId: v.id("budgetExpense") },
   handler: async (ctx, { expenseId }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const expense = await ctx.db.get(expenseId);
     if (!expense || expense.userId !== userId) {

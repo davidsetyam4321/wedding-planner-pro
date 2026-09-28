@@ -2,6 +2,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { mutation, query, type MutationCtx } from "./_generated/server";
 import type { Doc, Id } from "./_generated/dataModel";
+import { workspaceUserId } from "./workspace";
 
 const DEFAULT_WEDDING_DATE = new Date("2027-08-26T09:00:00+07:00").getTime();
 
@@ -67,8 +68,9 @@ const DEFAULT_RUNDOWN = [
 export const get = query({
   args: {},
   handler: async (ctx): Promise<Doc<"wedding"> | null> => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) return null;
+    const authId = await getAuthUserId(ctx);
+    if (authId === null) return null;
+    const userId = await workspaceUserId(ctx);
     return await ctx.db
       .query("wedding")
       .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -80,8 +82,9 @@ export const get = query({
 export const ensureSetup = mutation({
   args: {},
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const authId = await getAuthUserId(ctx);
+    if (authId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const existing = await ctx.db
       .query("wedding")
@@ -137,8 +140,9 @@ export const ensureSetup = mutation({
 export const getCouplePhoto = query({
   args: {},
   handler: async (ctx): Promise<string | null> => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) return null;
+    const authId = await getAuthUserId(ctx);
+    if (authId === null) return null;
+    const userId = await workspaceUserId(ctx);
     const wedding = await ctx.db
       .query("wedding")
       .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -152,8 +156,7 @@ export const getCouplePhoto = query({
 export const setCouplePhoto = mutation({
   args: { storageId: v.id("_storage") },
   handler: async (ctx, { storageId }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const wedding = await ctx.db
       .query("wedding")
@@ -172,8 +175,7 @@ export const setCouplePhoto = mutation({
 export const removeCouplePhoto = mutation({
   args: {},
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const wedding = await ctx.db
       .query("wedding")
@@ -198,8 +200,7 @@ export const updateSettings = mutation({
     venueName: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const wedding = await ctx.db
       .query("wedding")

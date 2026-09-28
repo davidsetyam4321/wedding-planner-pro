@@ -2,12 +2,14 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { mutation, query, type MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
+import { workspaceUserId } from "./workspace";
 
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) return [];
+    const authId = await getAuthUserId(ctx);
+    if (authId === null) return [];
+    const userId = await workspaceUserId(ctx);
     const items = await ctx.db
       .query("checklistItem")
       .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -28,8 +30,7 @@ async function nextSortOrder(ctx: MutationCtx, userId: Id<"users">): Promise<num
 export const create = mutation({
   args: { label: v.string() },
   handler: async (ctx, { label }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     await ctx.db.insert("checklistItem", {
       userId,
@@ -45,8 +46,7 @@ export const create = mutation({
 export const createMany = mutation({
   args: { labels: v.array(v.string()) },
   handler: async (ctx, { labels }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     let order = await nextSortOrder(ctx, userId);
     const cleaned = labels.map((label) => label.trim()).filter(Boolean);
@@ -66,8 +66,7 @@ export const createMany = mutation({
 export const update = mutation({
   args: { itemId: v.id("checklistItem"), label: v.string() },
   handler: async (ctx, { itemId, label }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const item = await ctx.db.get(itemId);
     if (!item || item.userId !== userId) throw new Error("Item not found");
@@ -81,8 +80,7 @@ export const update = mutation({
 export const toggle = mutation({
   args: { itemId: v.id("checklistItem"), done: v.boolean() },
   handler: async (ctx, { itemId, done }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const item = await ctx.db.get(itemId);
     if (!item || item.userId !== userId) throw new Error("Item not found");
@@ -93,8 +91,7 @@ export const toggle = mutation({
 export const remove = mutation({
   args: { itemId: v.id("checklistItem") },
   handler: async (ctx, { itemId }) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const item = await ctx.db.get(itemId);
     if (!item || item.userId !== userId) throw new Error("Item not found");
@@ -106,8 +103,7 @@ export const remove = mutation({
 export const clearDone = mutation({
   args: {},
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) throw new Error("Not signed in");
+    const userId = await workspaceUserId(ctx);
 
     const items = await ctx.db
       .query("checklistItem")

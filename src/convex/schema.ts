@@ -42,6 +42,10 @@ const schema = defineSchema(
       isAnonymous: v.optional(v.boolean()), // is the user anonymous. do not remove
 
       role: v.optional(roleValidator), // role of the user. do not remove
+
+      // ── Planner Wedding ────────────────────────────────────────────────
+      /** Workspace pemilik data utama. Null = akun ini adalah pemilik workspace sendiri. */
+      coupleId: v.optional(v.id("users")),
     }).index("email", ["email"]), // index for the email. do not remove or modify
 
     // ── Planner Wedding ────────────────────────────────────────────────────
@@ -57,7 +61,11 @@ const schema = defineSchema(
       guestEstimate: v.optional(v.number()),
       /** Foto pasangan yang tampil di dashboard. */
       photoStorageId: v.optional(v.id("_storage")),
-    }).index("by_user", ["userId"]),
+      /** Kode 6 karakter untuk mengundang pasangan ke workspace ini. */
+      inviteCode: v.optional(v.string()),
+    })
+      .index("by_user", ["userId"])
+      .index("by_inviteCode", ["inviteCode"]),
 
     /** Budget per category + its expenses. */
     budgetCategory: defineTable({
@@ -161,6 +169,15 @@ const schema = defineSchema(
       durationMinutes: v.optional(v.number()),
       createdAt: v.number(),
     }).index("by_user", ["userId"]),
+
+    /**
+     * One-way handshake when an anonymous workspace is migrated to a fresh
+     * email account: the anonymous user's id is claimed by the email user.
+     */
+    migrationClaim: defineTable({
+      anonymousUserId: v.id("users"),
+      emailUserId: v.id("users"),
+    }).index("by_anonymous", ["anonymousUserId"]),
   },
   {
     schemaValidation: false,
