@@ -44,15 +44,58 @@ function useEnsureSetup(
   return state;
 }
 
+type WorkspaceStatus = {
+  isOwner: boolean;
+  isAnonymous: boolean;
+  email: string | null;
+  connectedEmail: string | null;
+  inviteCode: string | null;
+};
+
 function NotificationBell({
   wedding,
   openTasks,
+  workspace,
 }: {
   wedding: { weddingDate: number; venueName?: string } | null | undefined;
   openTasks: number;
+  workspace: WorkspaceStatus | null | undefined;
 }) {
   const notes = useMemo(() => {
-    const list: { id: string; label: string }[] = [];
+    const list: { id: string; label: string; tone?: "mint" | "amber" }[] = [];
+
+    // Sync status first — this is what makes the bell reflect the shared
+    // workspace in real time on both devices.
+    if (workspace) {
+      if (workspace.connectedEmail) {
+        list.push({
+          id: "sync",
+          tone: "mint",
+          label: `Tersinkron dengan ${workspace.connectedEmail} — perubahan kalian berdua langsung tampil di sini.`,
+        });
+      } else if (workspace.isAnonymous) {
+        list.push({
+          id: "sync",
+          tone: "amber",
+          label:
+            "Ruang kerja masih anonim — masuk dengan email di Pengaturan agar data tersimpan & bisa dibagikan.",
+        });
+      } else if (workspace.inviteCode) {
+        list.push({
+          id: "sync",
+          tone: "amber",
+          label: `Menunggu pasangan bergabung · kode ${workspace.inviteCode}.`,
+        });
+      } else {
+        list.push({
+          id: "sync",
+          tone: "amber",
+          label:
+            "Belum ada kode pasangan — buat di Pengaturan untuk mengajak pasanganmu.",
+        });
+      }
+    }
+
     if (wedding) {
       list.push({
         id: "countdown",
@@ -95,9 +138,18 @@ function NotificationBell({
           {notes.map((note) => (
             <li
               key={note.id}
-              className="clay-inset px-3 py-2 text-xs leading-relaxed text-foreground"
+              className="clay-inset flex items-start gap-2 px-3 py-2 text-xs leading-relaxed text-foreground"
             >
-              {note.label}
+              {note.tone && (
+                <span
+                  className={`mt-1.5 size-1.5 shrink-0 rounded-full ${
+                    note.tone === "mint"
+                      ? "bg-tint-mint-foreground"
+                      : "bg-amber-500"
+                  }`}
+                />
+              )}
+              <span>{note.label}</span>
             </li>
           ))}
           {notes.length === 0 && (
@@ -128,6 +180,7 @@ export function AppShell() {
   const savings = useQuery(api.savings.list);
   const checklist = useQuery(api.checklist.list);
   const couplePhoto = useQuery(api.wedding.getCouplePhoto);
+  const workspace = useQuery(api.workspace.status);
 
   const setupReady =
     setupState !== "pending" || (wedding !== undefined && wedding !== null);
@@ -185,7 +238,11 @@ export function AppShell() {
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <NotificationBell wedding={wedding} openTasks={openTasks} />
+              <NotificationBell
+                wedding={wedding}
+                openTasks={openTasks}
+                workspace={workspace}
+              />
               <Button
                 asChild
                 variant="outline"
