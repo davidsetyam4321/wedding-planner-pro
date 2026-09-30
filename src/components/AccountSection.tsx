@@ -15,10 +15,34 @@ import {
   ShieldCheck,
   UserPlus,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
+
+/**
+ * Remembers the OTP flow step so navigating away (e.g. to open the email app)
+ * doesn't lose the code input when coming back to Pengaturan.
+ */
+const OTP_FLOW_KEY = "planner-wedding:otp-flow";
+
+function loadOtpFlow(): { email: string; stage: "email" | "code" } {
+  try {
+    const raw = sessionStorage.getItem(OTP_FLOW_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as { email?: string; stage?: string };
+      if (
+        typeof parsed.email === "string" &&
+        (parsed.stage === "email" || parsed.stage === "code")
+      ) {
+        return { email: parsed.email, stage: parsed.stage };
+      }
+    }
+  } catch {
+    // Ignore unreadable storage; fall back to the email step.
+  }
+  return { email: "", stage: "email" };
+}
 
 /**
  * Account management for the couple: sign in with an email (OTP code) so the
@@ -33,9 +57,18 @@ export function AccountSection() {
   const leaveMutation = useMutation(api.workspace.leaveWorkspace);
   const revealMutation = useMutation(api.workspace.revealInviteCode);
 
-  const [email, setEmail] = useState("");
+  const savedFlow = useMemo(() => loadOtpFlow(), []);
+  const [email, setEmail] = useState(savedFlow.email);
   const [code, setCode] = useState("");
-  const [stage, setStage] = useState<"email" | "code">("email");
+  const [stage, setStage] = useState<"email" | "code">(savedFlow.stage);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(OTP_FLOW_KEY, JSON.stringify({ email, stage }));
+    } catch {
+      // Best-effort persistence only.
+    }
+  }, [email, stage]);
   const [busy, setBusy] = useState(false);
   const [joinCode, setJoinCode] = useState("");
   const [copied, setCopied] = useState(false);
@@ -48,11 +81,9 @@ export function AccountSection() {
     }
     setBusy(true);
     try {
-      const result = await signIn("email-otp", { email: cleaned });
-      if (result.signingIn) {
-        setStage("code");
-        toast.success(`Kode 6 digit dikirim ke ${cleaned}.`);
-      }
+      await signIn("email-otp", { email: cleaned });
+      setStage("code");
+      toast.success(`Kode 6 digit dikirim ke ${cleaned}.`);
     } catch {
       toast.error("Gagal mengirim kode. Coba lagi.");
     } finally {
@@ -74,6 +105,7 @@ export function AccountSection() {
       });
       bloom();
       toast.success("Berhasil masuk. Data kamu tersinkron antar perangkat.");
+      setEmail("");
       setCode("");
       setStage("email");
     } catch {
@@ -202,6 +234,7 @@ export function AccountSection() {
               <Label htmlFor="account-code">Kode dari email</Label>
               <Input
                 id="account-code"
+                autoFocus
                 inputMode="numeric"
                 maxLength={6}
                 value={code}
