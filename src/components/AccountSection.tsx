@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import { bloom } from "@/lib/bloom";
+import { requestSetupRefresh } from "@/lib/session";
 import { useAuth } from "@/hooks/use-auth";
 import {
   Check,
@@ -104,6 +105,9 @@ export function AccountSection() {
         code: cleaned,
       });
       bloom();
+      // Re-run ensureSetup right away: the fresh email account adopts this
+      // device's anonymous workspace and every query re-syncs live.
+      requestSetupRefresh();
       toast.success("Berhasil masuk. Data kamu tersinkron antar perangkat.");
       setEmail("");
       setCode("");

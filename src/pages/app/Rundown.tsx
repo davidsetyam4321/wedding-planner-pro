@@ -1,4 +1,5 @@
 import { FlowerMark } from "@/components/Decor";
+import { EmptyState, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
-import { ChevronLeft, Clock, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { ChevronLeft, Clock, Loader2, Plus } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import { useMutation, useQuery } from "convex/react";
@@ -176,61 +177,69 @@ export function RundownPage() {
         <Plus className="size-4" /> Tambah agenda
       </Button>
 
-      <section className="space-y-3">
-        {list.map((item) => {
-          const duration = item.durationMinutes ?? 0;
-          return (
-            <article key={item._id} className="clay flex items-start gap-3 p-3.5">
-              <div className="clay-sm shrink-0 rounded-2xl bg-primary px-3 py-2 text-center text-primary-foreground">
-                <p className="num text-xs font-extrabold">{item.startTime}</p>
-                {duration > 0 && (
-                  <p className="num text-[10px] opacity-80">
-                    {addMinutes(item.startTime, duration)}
-                  </p>
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold leading-snug">{item.title}</p>
-                <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                  {duration > 0 ? (
-                    <span className="chip bg-tint-sage text-tint-sage-foreground">
-                      <Clock className="size-3" /> {formatDuration(duration)}
-                    </span>
-                  ) : (
-                    <span className="meta">Durasi belum diisi</span>
-                  )}
+      <section className="relative">
+        {list.length > 0 && (
+          <span
+            aria-hidden
+            className="absolute bottom-4 left-[52px] top-4 w-0.5 rounded-full bg-gradient-to-b from-primary/40 via-primary/25 to-transparent"
+          />
+        )}
+        <Stagger className="space-y-3">
+          {list.map((item) => {
+            const duration = item.durationMinutes ?? 0;
+            return (
+              <StaggerItem key={item._id}>
+                <div className="relative flex items-start gap-3">
+                  {/* Timeline dot + clock chip */}
+                  <div className="relative z-10 flex w-12 shrink-0 flex-col items-center">
+                    <div className="clay-sm rounded-2xl bg-primary px-1.5 py-2 text-center text-primary-foreground">
+                      <p className="num text-xs font-extrabold">{item.startTime}</p>
+                      {duration > 0 && (
+                        <p className="num text-[10px] opacity-80">
+                          {addMinutes(item.startTime, duration)}
+                        </p>
+                      )}
+                    </div>
+                    <span className="mt-1 size-2 rounded-full bg-primary/60 ring-4 ring-background/80" />
+                  </div>
+
+                  <article className="clay min-w-0 flex-1 p-3.5">
+                    <p className="text-sm font-bold leading-snug">{item.title}</p>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                      {duration > 0 ? (
+                        <span className="chip bg-tint-sage text-tint-sage-foreground">
+                          <Clock className="size-3" /> {formatDuration(duration)}
+                        </span>
+                      ) : (
+                        <span className="meta">Durasi belum diisi</span>
+                      )}
+                    </div>
+                    {item.note && <p className="meta mt-1">{item.note}</p>}
+                    <div className="absolute right-2 top-2">
+                      <RowMenu
+                        onEdit={() => openEdit(item)}
+                        onDelete={() => {
+                          removeItem({ itemId: item._id });
+                          toast.success("Agenda dihapus.");
+                        }}
+                        deleteTitle={`Hapus "${item.title}"?`}
+                      />
+                    </div>
+                  </article>
                 </div>
-                {item.note && <p className="meta mt-1">{item.note}</p>}
-              </div>
-              <div className="flex shrink-0 items-center gap-2">
-                <button
-                  type="button"
-                  aria-label="Ubah agenda"
-                  className="text-muted-foreground hover:text-primary"
-                  onClick={() => openEdit(item)}
-                >
-                  <Pencil className="size-4" />
-                </button>
-                <button
-                  type="button"
-                  aria-label="Hapus agenda"
-                  className="text-muted-foreground hover:text-destructive"
-                  onClick={() => {
-                    removeItem({ itemId: item._id });
-                    toast.success("Agenda dihapus.");
-                  }}
-                >
-                  <Trash2 className="size-4" />
-                </button>
-              </div>
-            </article>
-          );
-        })}
+              </StaggerItem>
+            );
+          })}
+        </Stagger>
 
         {items !== undefined && list.length === 0 && (
-          <p className="clay-inset flex h-24 items-center justify-center rounded-3xl text-xs text-muted-foreground">
-            Belum ada agenda. Susun acara hari-H dari sini!
-          </p>
+          <EmptyState
+            emoji="⏰"
+            title="Belum ada agenda"
+            description="Susun acara hari-H dari persiapan pagi sampai ramah tamah malam."
+            actionLabel="Tambah agenda"
+            onAction={openNew}
+          />
         )}
       </section>
 

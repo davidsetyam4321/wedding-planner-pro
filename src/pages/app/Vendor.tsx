@@ -1,4 +1,5 @@
 import { FlowerMark } from "@/components/Decor";
+import { EmptyState, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,11 +18,9 @@ import {
   ChevronLeft,
   Loader2,
   MessageCircle,
-  Pencil,
   Phone,
   Plus,
   Search,
-  Trash2,
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
@@ -40,6 +39,13 @@ const STATUS_CHIP: Record<VendorStatus, string> = {
   belum: "bg-secondary text-secondary-foreground",
   dp: "bg-tint-butter text-tint-butter-foreground",
   lunas: "bg-primary text-primary-foreground",
+};
+
+/** Garis aksen warna status di sisi kiri kartu vendor. */
+const STATUS_ACCENT: Record<VendorStatus, string> = {
+  belum: "bg-muted-foreground/30",
+  dp: "bg-amber-400",
+  lunas: "bg-emerald-500",
 };
 
 type VendorForm = {
@@ -271,107 +277,110 @@ export function VendorPage() {
       )}
 
       <section className="space-y-3">
-        {visible.map((vendor) => {
-          const status = vendor.status as VendorStatus;
-          const paid = paidFor(vendor);
-          const left = Math.max(0, vendor.cost - paid);
-          const wa = vendor.contact ? waLink(vendor.contact) : null;
-          return (
-            <article key={vendor._id} className="clay p-4">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="h-card truncate">{vendor.name}</p>
-                  <p className="meta">
-                    {vendor.category}
-                    {vendor.contact ? ` · ${vendor.contact}` : ""}
-                  </p>
-                  {vendor.note && <p className="meta mt-0.5 italic">{vendor.note}</p>}
-                </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  <div className="text-right">
-                    <p className="num text-sm font-extrabold">
-                      {formatRupiah(vendor.cost)}
-                    </p>
-                    {left > 0 && (
-                      <p className="num meta">sisa {formatRupiahShort(left)}</p>
-                    )}
+        <Stagger className="space-y-3">
+          {visible.map((vendor) => {
+            const status = vendor.status as VendorStatus;
+            const paid = paidFor(vendor);
+            const left = Math.max(0, vendor.cost - paid);
+            const wa = vendor.contact ? waLink(vendor.contact) : null;
+            return (
+              <StaggerItem key={vendor._id}>
+                <article className="clay relative overflow-hidden p-4 pl-5">
+                  <span
+                    className={`absolute inset-y-0 left-0 w-1.5 ${STATUS_ACCENT[status]}`}
+                    aria-hidden
+                  />
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="h-card truncate">{vendor.name}</p>
+                      <p className="meta">
+                        {vendor.category}
+                        {vendor.contact ? ` · ${vendor.contact}` : ""}
+                      </p>
+                      {vendor.note && <p className="meta mt-0.5 italic">{vendor.note}</p>}
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <div className="text-right">
+                        <p className="num text-sm font-extrabold">
+                          {formatRupiah(vendor.cost)}
+                        </p>
+                        {left > 0 && (
+                          <p className="num meta">sisa {formatRupiahShort(left)}</p>
+                        )}
+                      </div>
+                      <RowMenu
+                        onEdit={() => openEdit(vendor)}
+                        onDelete={() => {
+                          removeVendor({ vendorId: vendor._id });
+                          toast.success("Vendor dihapus.");
+                        }}
+                        deleteTitle={`Hapus ${vendor.name}?`}
+                      />
+                    </div>
                   </div>
-                  <button
-                    type="button"
-                    aria-label="Ubah vendor"
-                    className="text-muted-foreground hover:text-primary"
-                    onClick={() => openEdit(vendor)}
-                  >
-                    <Pencil className="size-4" />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Hapus vendor"
-                    className="text-muted-foreground hover:text-destructive"
-                    onClick={() => {
-                      removeVendor({ vendorId: vendor._id });
-                      toast.success("Vendor dihapus.");
-                    }}
-                  >
-                    <Trash2 className="size-4" />
-                  </button>
-                </div>
-              </div>
 
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <div className="clay-inset flex gap-1 p-1">
-                  {STATUS_OPTIONS.map((option) => (
-                    <button
-                      key={option.key}
-                      type="button"
-                      onClick={() => void changeStatus(vendor._id, option.key)}
-                      className={`rounded-xl px-2.5 py-1 text-[11px] font-bold transition-colors ${
-                        status === option.key
-                          ? STATUS_CHIP[option.key]
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <div className="clay-inset flex gap-1 p-1">
+                      {STATUS_OPTIONS.map((option) => (
+                        <button
+                          key={option.key}
+                          type="button"
+                          onClick={() => void changeStatus(vendor._id, option.key)}
+                          className={`rounded-xl px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                            status === option.key
+                              ? STATUS_CHIP[option.key]
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
 
-                {paid > 0 && (
-                  <span className="chip bg-tint-mint text-tint-mint-foreground">
-                    Terbayar {formatRupiahShort(paid)}
-                  </span>
-                )}
+                    {paid > 0 && (
+                      <span className="chip bg-tint-mint text-tint-mint-foreground">
+                        Terbayar {formatRupiahShort(paid)}
+                      </span>
+                    )}
 
-                {vendor.contact &&
-                  (wa ? (
-                    <a
-                      href={wa}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="chip bg-secondary text-secondary-foreground"
-                      aria-label="Chat WhatsApp"
-                    >
-                      <MessageCircle className="size-3.5" /> Chat
-                    </a>
-                  ) : (
-                    <span className="chip bg-secondary text-secondary-foreground">
-                      <Phone className="size-3.5" /> {vendor.contact}
-                    </span>
-                  ))}
-              </div>
-            </article>
-          );
-        })}
+                    {vendor.contact &&
+                      (wa ? (
+                        <a
+                          href={wa}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="chip bg-secondary text-secondary-foreground"
+                          aria-label="Chat WhatsApp"
+                        >
+                          <MessageCircle className="size-3.5" /> Chat
+                        </a>
+                      ) : (
+                        <span className="chip bg-secondary text-secondary-foreground">
+                          <Phone className="size-3.5" /> {vendor.contact}
+                        </span>
+                      ))}
+                  </div>
+                </article>
+              </StaggerItem>
+            );
+          })}
+        </Stagger>
 
         {list.length === 0 && vendors !== undefined && (
-          <p className="clay-inset flex h-24 items-center justify-center rounded-3xl text-xs text-muted-foreground">
-            Belum ada vendor. Catat vendor pertamamu!
-          </p>
+          <EmptyState
+            emoji="🤝"
+            title="Belum ada vendor"
+            description="Catat katering, dekorasi, dokumentasi — lengkap dengan status bayarnya."
+            actionLabel="Tambah vendor"
+            onAction={openNew}
+          />
         )}
         {list.length > 0 && visible.length === 0 && (
-          <p className="clay-inset flex h-24 items-center justify-center rounded-3xl text-xs text-muted-foreground">
-            Tidak ada vendor yang cocok.
-          </p>
+          <EmptyState
+            emoji="🔍"
+            title="Tidak ada vendor yang cocok"
+            description="Coba ubah filter kategori atau kata kunci pencarian."
+          />
         )}
       </section>
 

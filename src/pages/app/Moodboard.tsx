@@ -1,4 +1,5 @@
 import { FlowerMark } from "@/components/Decor";
+import { EmptyState, Stagger, StaggerItem } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -234,16 +235,16 @@ export function MoodboardPage() {
         </button>
       </div>
 
-      <section className="grid grid-cols-2 gap-3">
+      <Stagger className="grid grid-cols-2 gap-3">
         {(boxes ?? []).map((box) => {
           const cover = box.photos[0];
           const full = box.photos.length >= MAX_PHOTOS;
           return (
+            <StaggerItem key={box._id} className="h-full">
             <button
-              key={box._id}
               type="button"
               onClick={() => setOpenBoxId(box._id)}
-              className="clay clay-press overflow-hidden p-0 text-left"
+              className="clay clay-press h-full w-full overflow-hidden p-0 text-left"
             >
               <div className="relative aspect-[4/3] w-full bg-muted">
                 {cover ? (
@@ -272,15 +273,20 @@ export function MoodboardPage() {
                 </p>
               </div>
             </button>
+            </StaggerItem>
           );
         })}
+      </Stagger>
 
-        {boxes !== undefined && boxes.length === 0 && (
-          <div className="clay-inset col-span-2 flex h-28 items-center justify-center rounded-3xl text-xs text-muted-foreground">
-            Belum ada kotak di {current}.
-          </div>
-        )}
-      </section>
+      {boxes !== undefined && boxes.length === 0 && (
+        <EmptyState
+          emoji="🎨"
+          title={`Belum ada kotak di ${current}`}
+          description="Buat satu kotak untuk tiap ide: dekorasi panggung, gaun, buket…"
+          actionLabel={`Kotak baru di ${current}`}
+          onAction={() => setBoxDialog({ title: "" })}
+        />
+      )}
 
       <Button
         variant="secondary"

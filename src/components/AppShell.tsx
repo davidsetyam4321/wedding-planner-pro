@@ -15,33 +15,53 @@ import {
   trackAnonymousUser,
 } from "@/lib/session";
 import { useAuth } from "@/hooks/use-auth";
-import { Bell, Loader2, Settings } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { SETUP_REFRESH_EVENT } from "@/lib/session";
+import { Bell, Settings, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, Outlet } from "react-router";
 import { useMutation, useQuery } from "convex/react";
 
 /**
  * Runs ensureSetup once per signed-in user; the mutation itself is idempotent.
- * Re-running for a new user id (anonymous → email sign-in, without a reload)
- * lets the fresh email account adopt this device's anonymous workspace.
+ * Re-runs when the user id changes (anonymous → email sign-in without a
+ * reload, so the fresh account adopts this device's anonymous workspace) or
+ * when SETUP_REFRESH_EVENT fires right after an email sign-in.
  */
 function useEnsureSetup(
   userId: string | undefined,
   anonymousUserId?: Id<"users">,
 ) {
   const ensureSetup = useMutation(api.wedding.ensureSetup);
-  const [state, setState] = useState<"pending" | "done" | "error">("pending");
-  const ranForRef = useRef<string | undefined>(undefined);
+  const [tick, setTick] = useState(0);
+  const [results, setResults] = useState<Record<string, "done" | "error">>({});
+
+  const runKey = `${userId ?? ""}|${anonymousUserId ?? ""}|${tick}`;
 
   useEffect(() => {
-    if (!userId || ranForRef.current === userId) return;
-    ranForRef.current = userId;
+    if (!userId) return;
+    let cancelled = false;
     ensureSetup({ anonymousUserId })
-      .then(() => setState("done"))
-      .catch(() => setState("error"));
-  }, [userId, anonymousUserId, ensureSetup]);
+      .then(() => {
+        if (!cancelled)
+          setResults((previous) => ({ ...previous, [runKey]: "done" }));
+      })
+      .catch(() => {
+        if (!cancelled)
+          setResults((previous) => ({ ...previous, [runKey]: "error" }));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, anonymousUserId, runKey, ensureSetup]);
 
-  return state;
+  useEffect(() => {
+    const refresh = () => setTick((value) => value + 1);
+    window.addEventListener(SETUP_REFRESH_EVENT, refresh);
+    return () => window.removeEventListener(SETUP_REFRESH_EVENT, refresh);
+  }, []);
+
+  const state = userId ? (results[runKey] ?? "pending") : "pending";
+  return { state, retry: () => setTick((value) => value + 1) };
 }
 
 type WorkspaceStatus = {
@@ -172,7 +192,7 @@ export function AppShell() {
     }
   }, [user?._id, user?.isAnonymous]);
 
-  const setupState = useEnsureSetup(
+  const { state: setupState, retry: retrySetup } = useEnsureSetup(
     user?._id,
     user && !(user.isAnonymous ?? false) ? readStoredAnonymousUser() : undefined,
   );
@@ -182,9 +202,6 @@ export function AppShell() {
   const couplePhoto = useQuery(api.wedding.getCouplePhoto);
   const workspace = useQuery(api.workspace.status);
 
-  const setupReady =
-    setupState !== "pending" || (wedding !== undefined && wedding !== null);
-
   const savingsTotal =
     savings?.reduce((sum, deposit) => sum + deposit.amount, 0) ?? 0;
   const fundTarget = wedding?.fundTarget ?? 0;
@@ -192,10 +209,39 @@ export function AppShell() {
     fundTarget > 0 ? Math.min(100, (savingsTotal / fundTarget) * 100) : 0;
   const openTasks = (checklist ?? []).filter((item) => !item.done).length;
 
-  if (!setupReady) {
+  // Themed sync screen while the workspace is being prepared or re-synced
+  // (first visit, and right after signing in with an email).
+  if (setupState === "pending" && !wedding) {
     return (
       <main className="flex min-h-screen items-center justify-center">
-        <Loader2 className="size-7 animate-spin text-primary" />
+        <Petals />
+        <div className="clay grad-warm relative overflow-hidden px-8 py-7 text-center">
+          <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-16 text-primary/20" />
+          <div className="clay-sm relative mx-auto flex size-12 items-center justify-center rounded-full bg-white/70">
+            <Sparkles className="size-5 animate-pulse text-primary" />
+          </div>
+          <p className="h-card relative mt-3">Menyiapkan ruang kerja…</p>
+          <p className="meta relative mt-1">
+            Menyinkronkan data pernikahan kalian
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  if (setupState === "error" && !wedding) {
+    return (
+      <main className="flex min-h-screen items-center justify-center p-6">
+        <Petals />
+        <div className="clay max-w-sm p-6 text-center">
+          <p className="text-sm font-semibold">Gagal menyiapkan ruang kerja</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Periksa koneksi internetmu, lalu coba lagi.
+          </p>
+          <Button className="mt-4" onClick={retrySetup}>
+            Coba lagi
+          </Button>
+        </div>
       </main>
     );
   }

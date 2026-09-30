@@ -1,4 +1,5 @@
 import { FlowerMark } from "@/components/Decor";
+import { EmptyState, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,11 +17,9 @@ import {
   ChevronLeft,
   Loader2,
   MessageCircle,
-  Pencil,
   Plus,
   Search,
   Send,
-  Trash2,
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
@@ -58,6 +57,30 @@ function waLink(phone: string): string {
   return `https://wa.me/${digits}`;
 }
 
+const AVATAR_TINTS = [
+  "bg-tint-rose text-tint-rose-foreground",
+  "bg-tint-sky text-tint-sky-foreground",
+  "bg-tint-butter text-tint-butter-foreground",
+  "bg-tint-mint text-tint-mint-foreground",
+  "bg-tint-sage text-tint-sage-foreground",
+  "bg-tint-lavender text-tint-lavender-foreground",
+];
+
+/** Warna avatar yang konsisten untuk setiap grup tamu. */
+function groupTint(group: string): string {
+  let hash = 0;
+  for (const char of group) hash = (hash * 31 + char.charCodeAt(0)) % 997;
+  return AVATAR_TINTS[hash % AVATAR_TINTS.length];
+}
+
+function initialsOf(name: string): string {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "?";
+  const first = words[0][0] ?? "";
+  const second = words[1]?.[0] ?? "";
+  return (first + second).toUpperCase();
+}
+
 export function TamuPage() {
   const guests = useQuery(api.guests.list);
   const createGuest = useMutation(api.guests.create);
@@ -72,6 +95,7 @@ export function TamuPage() {
   const [busy, setBusy] = useState(false);
   const [query, setQuery] = useState("");
   const [groupFilter, setGroupFilter] = useState<string | null>(null);
+  const [rsvpFilter, setRsvpFilter] = useState<"semua" | Rsvp>("semua");
 
   const list = guests ?? [];
   const groups = Array.from(new Set(list.map((guest) => guest.group)));
@@ -83,9 +107,26 @@ export function TamuPage() {
 
   const visible = list.filter((guest) => {
     if (groupFilter && guest.group !== groupFilter) return false;
+    if (rsvpFilter !== "semua" && guest.rsvp !== rsvpFilter) return false;
     if (query.trim() === "") return true;
     return guest.name.toLowerCase().includes(query.trim().toLowerCase());
   });
+
+  const rsvpPill = (key: "semua" | Rsvp, label: string, count: number) => (
+    <button
+      key={key}
+      type="button"
+      aria-pressed={rsvpFilter === key}
+      onClick={() => setRsvpFilter(key)}
+      className={`chip shrink-0 ${
+        rsvpFilter === key
+          ? "bg-white text-tint-sky-foreground shadow-sm"
+          : "bg-white/60 text-tint-sky-foreground/80"
+      }`}
+    >
+      {label} · {count}
+    </button>
+  );
 
   const openNew = () => {
     setForm(EMPTY_FORM);
@@ -171,7 +212,13 @@ export function TamuPage() {
             💌
           </div>
         </div>
-        <dl className="mt-4 grid grid-cols-3 gap-2">
+        <div className="relative mt-4 flex items-center gap-2 overflow-x-auto pb-0.5">
+          {rsvpPill("semua", "Semua", list.length)}
+          {rsvpPill("hadir", "Hadir", list.filter((guest) => guest.rsvp === "hadir").length)}
+          {rsvpPill("pending", "Belum", list.filter((guest) => guest.rsvp === "pending").length)}
+          {rsvpPill("tidak", "Tidak", list.filter((guest) => guest.rsvp === "tidak").length)}
+        </div>
+        <dl className="relative mt-3 grid grid-cols-3 gap-2">
           <div className="stat-tile bg-white/70">
             <dt>Total</dt>
             <dd>{totalPax} org</dd>
@@ -181,8 +228,8 @@ export function TamuPage() {
             <dd>{attendingPax} org</dd>
           </div>
           <div className="stat-tile bg-white/70">
-            <dt>Ragu</dt>
-            <dd>{list.filter((guest) => guest.rsvp === "pending").length}</dd>
+            <dt>Terikirim</dt>
+            <dd>{invited}/{list.length}</dd>
           </div>
         </dl>
       </section>
@@ -241,95 +288,101 @@ export function TamuPage() {
       )}
 
       <section className="space-y-3">
-        {visible.map((guest) => (
-          <article key={guest._id} className="clay p-4">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-extrabold">{guest.name}</p>
-                <p className="meta">
-                  {guest.group} · {guest.pax} orang
-                </p>
-                {guest.note && <p className="meta mt-0.5 italic">{guest.note}</p>}
-              </div>
-              <div className="flex shrink-0 items-center gap-2">
-                {guest.phone && (
-                  <a
-                    href={waLink(guest.phone)}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="Chat WhatsApp"
-                    className="text-muted-foreground hover:text-primary"
+        <Stagger className="space-y-3">
+          {visible.map((guest) => (
+            <StaggerItem key={guest._id}>
+              <article className="clay p-4">
+                <div className="flex items-start gap-3">
+                  <div
+                    className={`clay-sm flex size-11 shrink-0 items-center justify-center rounded-2xl text-sm font-extrabold ${groupTint(guest.group)}`}
                   >
-                    <MessageCircle className="size-4" />
-                  </a>
-                )}
-                <button
-                  type="button"
-                  aria-label="Ubah tamu"
-                  className="text-muted-foreground hover:text-primary"
-                  onClick={() => openEdit(guest)}
-                >
-                  <Pencil className="size-4" />
-                </button>
-                <button
-                  type="button"
-                  aria-label="Hapus tamu"
-                  className="text-muted-foreground hover:text-destructive"
-                  onClick={() => {
-                    removeGuest({ guestId: guest._id });
-                    toast.success("Tamu dihapus.");
-                  }}
-                >
-                  <Trash2 className="size-4" />
-                </button>
-              </div>
-            </div>
+                    {initialsOf(guest.name)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-extrabold">{guest.name}</p>
+                    <p className="meta">
+                      {guest.group} · {guest.pax} orang
+                    </p>
+                    {guest.note && <p className="meta mt-0.5 italic">{guest.note}</p>}
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1.5">
+                    {guest.phone && (
+                      <a
+                        href={waLink(guest.phone)}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label="Chat WhatsApp"
+                        className="flex size-7 items-center justify-center rounded-xl text-muted-foreground hover:bg-secondary hover:text-primary"
+                      >
+                        <MessageCircle className="size-4" />
+                      </a>
+                    )}
+                    <RowMenu
+                      onEdit={() => openEdit(guest)}
+                      onDelete={() => {
+                        removeGuest({ guestId: guest._id });
+                        toast.success("Tamu dihapus.");
+                      }}
+                      deleteTitle={`Hapus ${guest.name}?`}
+                    />
+                  </div>
+                </div>
 
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setInvited({ guestId: guest._id, invited: !guest.invited })}
-                className={`chip ${
-                  guest.invited
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-secondary text-secondary-foreground"
-                }`}
-              >
-                <CheckIcon invited={Boolean(guest.invited)} />
-                {guest.invited ? "Undangan terkirim" : "Belum diundang"}
-              </button>
-
-              <div className="clay-inset flex gap-1 p-1">
-                {RSVP_OPTIONS.map((option) => (
+                <div className="mt-3 flex flex-wrap items-center gap-2">
                   <button
-                    key={option.key}
                     type="button"
-                    onClick={() => {
-                      setRsvp({ guestId: guest._id, rsvp: option.key });
-                      if (option.key === "hadir") bloom();
-                    }}
-                    className={`rounded-xl px-2.5 py-1 text-[11px] font-bold transition-colors ${
-                      guest.rsvp === option.key
-                        ? option.key === "hadir"
-                          ? "bg-primary text-primary-foreground"
-                          : option.key === "tidak"
-                            ? "bg-destructive text-destructive-foreground"
-                            : "bg-secondary text-secondary-foreground"
-                        : "text-muted-foreground"
+                    onClick={() => setInvited({ guestId: guest._id, invited: !guest.invited })}
+                    className={`chip ${
+                      guest.invited
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary text-secondary-foreground"
                     }`}
                   >
-                    {option.label}
+                    <CheckIcon invited={Boolean(guest.invited)} />
+                    {guest.invited ? "Undangan terkirim" : "Belum diundang"}
                   </button>
-                ))}
-              </div>
-            </div>
-          </article>
-        ))}
+
+                  <div className="clay-inset flex gap-1 p-1">
+                    {RSVP_OPTIONS.map((option) => (
+                      <button
+                        key={option.key}
+                        type="button"
+                        onClick={() => {
+                          setRsvp({ guestId: guest._id, rsvp: option.key });
+                          if (option.key === "hadir") bloom();
+                        }}
+                        className={`rounded-xl px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                          guest.rsvp === option.key
+                            ? option.key === "hadir"
+                              ? "bg-primary text-primary-foreground"
+                              : option.key === "tidak"
+                                ? "bg-destructive text-destructive-foreground"
+                                : "bg-secondary text-secondary-foreground"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </article>
+            </StaggerItem>
+          ))}
+        </Stagger>
 
         {visible.length === 0 && guests !== undefined && (
-          <p className="clay-inset flex h-24 items-center justify-center rounded-3xl text-xs text-muted-foreground">
-            {query || groupFilter ? "Tidak ada tamu yang cocok." : "Belum ada tamu."}
-          </p>
+          <EmptyState
+            emoji={query || groupFilter || rsvpFilter !== "semua" ? "🔍" : "💌"}
+            title={query || groupFilter || rsvpFilter !== "semua" ? "Tidak ada tamu yang cocok" : "Belum ada tamu"}
+            description={
+              query || groupFilter || rsvpFilter !== "semua"
+                ? "Coba ubah filter atau kata kunci pencarian."
+                : "Mulai dari keluarga terdekat, lalu teman dan rekan kerja."
+            }
+            actionLabel={query || groupFilter || rsvpFilter !== "semua" ? undefined : "Tambah tamu"}
+            onAction={query || groupFilter || rsvpFilter !== "semua" ? undefined : openNew}
+          />
         )}
       </section>
 

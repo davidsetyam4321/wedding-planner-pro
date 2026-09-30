@@ -1,5 +1,11 @@
 import { FlowerMark } from "@/components/Decor";
+import { EmptyState, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   Dialog,
   DialogContent,
@@ -14,12 +20,11 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
 import { formatRupiah, formatRupiahShort } from "@/lib/format";
 import {
+  AlertTriangle,
   Check,
   ChevronDown,
   Loader2,
-  Pencil,
   Plus,
-  Trash2,
   Wallet,
 } from "lucide-react";
 import { useState } from "react";
@@ -52,6 +57,7 @@ export function BudgetPage() {
   });
   const [newCategoryName, setNewCategoryName] = useState("");
   const [busy, setBusy] = useState(false);
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
   const [categoryDialog, setCategoryDialog] = useState<{
     id: CategoryId | null;
@@ -66,6 +72,7 @@ export function BudgetPage() {
     .reduce((sum, expense) => sum + expense.amount, 0);
   const spentPct =
     totalAllocated > 0 ? Math.min(100, Math.round((totalSpent / totalAllocated) * 100)) : 0;
+  const isOver = totalSpent > totalAllocated;
 
   const openNewExpense = () => {
     setExpenseForm({
@@ -173,12 +180,18 @@ export function BudgetPage() {
         <div className="relative mt-4 h-3 overflow-hidden rounded-full bg-white/70">
           <div
             className={`h-full rounded-full transition-all ${
-              totalSpent > totalAllocated
-                ? "bg-destructive"
-                : "bg-tint-mint-foreground/70"
+              isOver ? "bg-destructive" : "bg-tint-mint-foreground/70"
             }`}
             style={{ width: `${spentPct}%` }}
           />
+        </div>
+        <div className="relative mt-2 flex items-center gap-1.5">
+          <p className="num meta font-bold">{spentPct}% terpakai</p>
+          {isOver && (
+            <span className="chip bg-destructive/90 text-white">
+              <AlertTriangle className="size-3" /> Melebihi alokasi
+            </span>
+          )}
         </div>
         <dl className="relative mt-3 grid grid-cols-3 gap-2">
           <div className="stat-tile bg-white/70">
@@ -209,122 +222,134 @@ export function BudgetPage() {
         </Button>
       </div>
 
-      {categories.map((category) => {
-        const categoryExpenses = expenses.filter(
-          (expense) => expense.categoryId === category._id,
-        );
-        const spent = categoryExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-        const over = spent > category.allocated;
-        const pct =
-          category.allocated > 0
-            ? Math.min(100, Math.round((spent / category.allocated) * 100))
-            : 0;
+      <Stagger className="space-y-3">
+        {categories.map((category) => {
+          const categoryExpenses = expenses.filter(
+            (expense) => expense.categoryId === category._id,
+          );
+          const spent = categoryExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+          const over = spent > category.allocated;
+          const pct =
+            category.allocated > 0
+              ? Math.min(100, Math.round((spent / category.allocated) * 100))
+              : 0;
+          const open = !collapsed[category._id];
 
-        return (
-          <section key={category._id} className="clay overflow-hidden">
-            <div className="flex items-center gap-2 px-4 py-3">
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-extrabold">{category.name}</p>
-                <p className="num meta">
-                  {formatRupiahShort(spent)} / {formatRupiahShort(category.allocated)}
-                  {over ? " · melebihi alokasi" : ` · sisa ${formatRupiahShort(category.allocated - spent)}`}
-                </p>
-              </div>
-              <button
-                type="button"
-                aria-label="Ubah kategori"
-                className="text-muted-foreground hover:text-primary"
-                onClick={() =>
-                  setCategoryDialog({
-                    id: category._id,
-                    name: category.name,
-                    allocated: String(category.allocated),
-                  })
+          return (
+            <StaggerItem key={category._id}>
+              <Collapsible
+                open={open}
+                onOpenChange={(value) =>
+                  setCollapsed((previous) => ({
+                    ...previous,
+                    [category._id]: !value,
+                  }))
                 }
               >
-                <Pencil className="size-4" />
-              </button>
-              <button
-                type="button"
-                aria-label="Hapus kategori"
-                className="text-muted-foreground hover:text-destructive"
-                onClick={() => {
-                  if (confirm(`Hapus kategori "${category.name}" beserta pengeluarannya?`)) {
-                    deleteCategory({ categoryId: category._id });
-                    toast.success("Kategori dihapus.");
-                  }
-                }}
-              >
-                <Trash2 className="size-4" />
-              </button>
-            </div>
-            <div className="h-1.5 bg-muted">
-              <div
-                className={`h-full ${over ? "bg-destructive" : "bg-tint-mint-foreground/60"}`}
-                style={{ width: `${pct}%` }}
-              />
-            </div>
+                <section className="clay overflow-hidden">
+                  <div className="flex items-center gap-1 px-3 py-2.5">
+                    <CollapsibleTrigger className="group flex min-w-0 flex-1 items-center gap-2 py-1 text-left">
+                      <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-data-[state=open]:rotate-0 group-data-[state=closed]:-rotate-90" />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-extrabold">{category.name}</p>
+                        <p className="num meta">
+                          {formatRupiahShort(spent)} / {formatRupiahShort(category.allocated)}
+                          {over ? " · melebihi!" : ` · sisa ${formatRupiahShort(category.allocated - spent)}`}
+                        </p>
+                      </div>
+                      <span
+                        className={`num shrink-0 rounded-full px-2 py-0.5 text-[11px] font-extrabold ${
+                          over
+                            ? "bg-destructive/10 text-destructive"
+                            : "bg-tint-mint text-tint-mint-foreground"
+                        }`}
+                      >
+                        {pct}%
+                      </span>
+                    </CollapsibleTrigger>
+                    <RowMenu
+                      onEdit={() =>
+                        setCategoryDialog({
+                          id: category._id,
+                          name: category.name,
+                          allocated: String(category.allocated),
+                        })
+                      }
+                      onDelete={() => {
+                        deleteCategory({ categoryId: category._id });
+                        toast.success("Kategori dihapus.");
+                      }}
+                      deleteTitle={`Hapus kategori "${category.name}"?`}
+                      deleteDescription="Semua pengeluaran di dalamnya juga akan terhapus."
+                    />
+                  </div>
+                  <div className="mx-4 h-1.5 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className={`h-full rounded-full transition-all ${
+                        over ? "bg-destructive" : "bg-tint-mint-foreground/60"
+                      }`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
 
-            <ul className="divide-y divide-border">
-              {categoryExpenses.map((expense) => (
-                <li key={expense._id} className="flex items-center gap-3 px-4 py-2.5">
-                  <button
-                    type="button"
-                    aria-label={expense.paidAt ? "Tandai belum lunas" : "Tandai lunas"}
-                    onClick={() => {
-                      togglePaid({ expenseId: expense._id, paid: !expense.paidAt });
-                      if (!expense.paidAt) bloom();
-                    }}
-                    className={`flex size-6 shrink-0 items-center justify-center rounded-full ${
-                      expense.paidAt
-                        ? "bg-primary text-primary-foreground"
-                        : "clay-inset text-muted-foreground hover:text-primary"
-                    }`}
-                  >
-                    <Check className="size-3" />
-                  </button>
-                  <span
-                    className={`min-w-0 flex-1 truncate text-sm ${
-                      expense.paidAt ? "text-muted-foreground" : ""
-                    }`}
-                  >
-                    {expense.label}
-                  </span>
-                  <span className="num text-sm font-bold">
-                    {formatRupiah(expense.amount)}
-                  </span>
-                  <button
-                    type="button"
-                    aria-label="Ubah pengeluaran"
-                    className="text-muted-foreground hover:text-primary"
-                    onClick={() => openEditExpense(expense)}
-                  >
-                    <Pencil className="size-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Hapus pengeluaran"
-                    className="text-muted-foreground hover:text-destructive"
-                    onClick={() => deleteExpense({ expenseId: expense._id })}
-                  >
-                    <Trash2 className="size-3.5" />
-                  </button>
-                </li>
-              ))}
-              {categoryExpenses.length === 0 && (
-                <li className="px-4 py-2.5 text-xs text-muted-foreground">
-                  Belum ada pengeluaran di kategori ini.
-                </li>
-              )}
-            </ul>
-          </section>
-        );
-      })}
+                  <CollapsibleContent>
+                    <ul className="divide-y divide-border">
+                      {categoryExpenses.map((expense) => (
+                        <li key={expense._id} className="flex items-center gap-2.5 px-4 py-2.5">
+                          <button
+                            type="button"
+                            aria-label={expense.paidAt ? "Tandai belum lunas" : "Tandai lunas"}
+                            onClick={() => {
+                              togglePaid({ expenseId: expense._id, paid: !expense.paidAt });
+                              if (!expense.paidAt) bloom();
+                            }}
+                            className={`flex size-6 shrink-0 items-center justify-center rounded-full transition-colors ${
+                              expense.paidAt
+                                ? "bg-primary text-primary-foreground"
+                                : "clay-inset text-muted-foreground hover:text-primary"
+                            }`}
+                          >
+                            <Check className="size-3" />
+                          </button>
+                          <span
+                            className={`min-w-0 flex-1 truncate text-sm ${
+                              expense.paidAt ? "text-muted-foreground" : ""
+                            }`}
+                          >
+                            {expense.label}
+                          </span>
+                          <span className="num text-sm font-bold">
+                            {formatRupiah(expense.amount)}
+                          </span>
+                          <RowMenu
+                            onEdit={() => openEditExpense(expense)}
+                            onDelete={() => deleteExpense({ expenseId: expense._id })}
+                            deleteTitle={`Hapus "${expense.label}"?`}
+                          />
+                        </li>
+                      ))}
+                      {categoryExpenses.length === 0 && (
+                        <li className="px-4 py-2.5 text-xs text-muted-foreground">
+                          Belum ada pengeluaran di kategori ini.
+                        </li>
+                      )}
+                    </ul>
+                  </CollapsibleContent>
+                </section>
+              </Collapsible>
+            </StaggerItem>
+          );
+        })}
+      </Stagger>
 
       {budget !== undefined && categories.length === 0 && (
-        <p className="clay-inset flex h-24 items-center justify-center rounded-3xl text-xs text-muted-foreground">
-          Belum ada kategori. Buat kategori pertama kalian.
-        </p>
+        <EmptyState
+          emoji="💸"
+          title="Belum ada kategori"
+          description="Pecah anggaran pernikahan jadi kategori kecil biar gampang diatur."
+          actionLabel="Catat pengeluaran"
+          onAction={openNewExpense}
+        />
       )}
 
       <Dialog open={expenseOpen} onOpenChange={setExpenseOpen}>

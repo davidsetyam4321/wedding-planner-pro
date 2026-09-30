@@ -1,4 +1,5 @@
 import { FlowerMark } from "@/components/Decor";
+import { EmptyState, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,7 +14,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
 import { formatDateTimeID, formatRupiah, formatRupiahShort } from "@/lib/format";
-import { Loader2, Pencil, Plus, Target, Trash2 } from "lucide-react";
+import { Loader2, Plus, Target, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
@@ -23,6 +24,7 @@ const MONTHS = [
   "Januari", "Februari", "Maret", "April", "Mei", "Juni",
   "Juli", "Agustus", "September", "Oktober", "November", "Desember",
 ];
+const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
 
 export function TabunganPage() {
   const wedding = useQuery(api.wedding.get);
@@ -58,6 +60,23 @@ export function TabunganPage() {
     })
     .reduce((sum, deposit) => sum + deposit.amount, 0);
   const average = list.length > 0 ? Math.round(total / list.length) : 0;
+
+  // Last 6 months of deposits for the mini bar chart (oldest → newest).
+  const chart: { label: string; sum: number }[] = [];
+  for (let offset = 5; offset >= 0; offset--) {
+    const date = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+    const sum = list
+      .filter((deposit) => {
+        const saved = new Date(deposit.savedAt);
+        return (
+          saved.getMonth() === date.getMonth() &&
+          saved.getFullYear() === date.getFullYear()
+        );
+      })
+      .reduce((accumulator, deposit) => accumulator + deposit.amount, 0);
+    chart.push({ label: MONTHS_SHORT[date.getMonth()], sum });
+  }
+  const chartMax = Math.max(...chart.map((bar) => bar.sum), 1);
 
   const groups = list.reduce<Record<string, typeof list>>((accumulator, deposit) => {
     const date = new Date(deposit.savedAt);
@@ -176,16 +195,52 @@ export function TabunganPage() {
         </dl>
       </section>
 
+      {/* Mini chart: 6 bulan terakhir */}
+      <Stagger>
+        <StaggerItem>
+          <section className="clay p-4">
+            <h2 className="h-card flex items-center gap-1.5">
+              <TrendingUp className="size-4 text-primary" /> 6 bulan terakhir
+            </h2>
+            <div className="mt-3 flex h-24 items-end justify-between gap-2">
+              {chart.map((bar) => (
+                <div
+                  key={bar.label}
+                  className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1"
+                >
+                  <p className="num text-[9px] font-bold text-muted-foreground">
+                    {bar.sum > 0 ? formatRupiahShort(bar.sum) : ""}
+                  </p>
+                  <div
+                    className={`w-full max-w-9 rounded-t-lg transition-all ${
+                      bar.sum > 0
+                        ? "bg-tint-lavender-foreground/70"
+                        : "clay-inset bg-muted"
+                    }`}
+                    style={{
+                      height: bar.sum > 0 ? `${Math.max(10, (bar.sum / chartMax) * 72)}px` : 6,
+                    }}
+                  />
+                  <p className="num text-[10px] font-bold text-muted-foreground">
+                    {bar.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+        </StaggerItem>
+      </Stagger>
+
       <section className="clay space-y-3 p-4">
         <h2 className="h-card">Setor baru</h2>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {QUICK_AMOUNTS.map((value) => (
             <button
               key={value}
               type="button"
               disabled={saving}
               onClick={() => void submit(value)}
-              className="chip bg-tint-lavender text-tint-lavender-foreground disabled:opacity-60"
+              className="clay-inset clay-press rounded-2xl bg-tint-lavender px-3 py-2.5 text-sm font-extrabold text-tint-lavender-foreground transition-all disabled:opacity-60"
             >
               + {formatRupiahShort(value)}
             </button>
@@ -221,60 +276,58 @@ export function TabunganPage() {
         </Button>
       </section>
 
-      {Object.entries(groups).map(([month, monthDeposits]) => (
-        <section key={month} className="clay overflow-hidden">
-          <div className="flex items-center justify-between border-b border-border px-4 py-3">
-            <h2 className="h-card">{month}</h2>
-            <span className="num text-[11px] font-bold text-primary">
-              + {formatRupiahShort(
-                monthDeposits.reduce((sum, deposit) => sum + deposit.amount, 0),
-              )}
-            </span>
-          </div>
-          <ul className="divide-y divide-border">
-            {monthDeposits.map((deposit) => (
-              <li key={deposit._id} className="flex items-center gap-3 px-4 py-3">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-bold">
-                    {deposit.note ?? "Setoran"}
-                  </p>
-                  <p className="meta">{formatDateTimeID(deposit.savedAt)}</p>
-                </div>
-                <span className="num text-sm font-bold text-primary">
-                  +{formatRupiahShort(deposit.amount)}
+      <Stagger className="space-y-3">
+        {Object.entries(groups).map(([month, monthDeposits]) => (
+          <StaggerItem key={month}>
+            <section className="clay overflow-hidden">
+              <div className="flex items-center justify-between border-b border-border px-4 py-3">
+                <h2 className="h-card">{month}</h2>
+                <span className="num text-[11px] font-bold text-primary">
+                  + {formatRupiahShort(
+                    monthDeposits.reduce((sum, deposit) => sum + deposit.amount, 0),
+                  )}
                 </span>
-                <button
-                  type="button"
-                  aria-label="Ubah setoran"
-                  className="text-muted-foreground hover:text-primary"
-                  onClick={() =>
-                    setEditing({
-                      id: deposit._id,
-                      amount: String(deposit.amount),
-                      note: deposit.note ?? "",
-                    })
-                  }
-                >
-                  <Pencil className="size-3.5" />
-                </button>
-                <button
-                  type="button"
-                  aria-label="Hapus setoran"
-                  className="text-muted-foreground hover:text-destructive"
-                  onClick={() => removeDeposit({ depositId: deposit._id })}
-                >
-                  <Trash2 className="size-3.5" />
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+              </div>
+              <ul className="divide-y divide-border">
+                {monthDeposits.map((deposit) => (
+                  <li key={deposit._id} className="flex items-center gap-3 px-4 py-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-bold">
+                        {deposit.note ?? "Setoran"}
+                      </p>
+                      <p className="meta">{formatDateTimeID(deposit.savedAt)}</p>
+                    </div>
+                    <span className="num text-sm font-bold text-primary">
+                      +{formatRupiahShort(deposit.amount)}
+                    </span>
+                    <RowMenu
+                      onEdit={() =>
+                        setEditing({
+                          id: deposit._id,
+                          amount: String(deposit.amount),
+                          note: deposit.note ?? "",
+                        })
+                      }
+                      onDelete={() => removeDeposit({ depositId: deposit._id })}
+                      deleteTitle="Hapus setoran ini?"
+                      deleteDescription="Total tabungan akan menyesuaikan."
+                    />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </StaggerItem>
+        ))}
+      </Stagger>
 
       {list.length === 0 && deposits !== undefined && (
-        <p className="clay-inset flex h-24 items-center justify-center rounded-3xl text-xs text-muted-foreground">
-          Belum ada setoran. Mulai dari nominal kecil, yang penting rutin!
-        </p>
+        <EmptyState
+          emoji="🐷"
+          title="Belum ada setoran"
+          description="Mulai dari nominal kecil, yang penting rutin. Tabungan cepat terasa kalau konsisten!"
+          actionLabel={`Setor ${formatRupiahShort(QUICK_AMOUNTS[0])}`}
+          onAction={() => void submit(QUICK_AMOUNTS[0])}
+        />
       )}
 
       <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>

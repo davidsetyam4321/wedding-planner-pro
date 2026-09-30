@@ -1,4 +1,5 @@
 import { FlowerMark } from "@/components/Decor";
+import { EmptyState, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
-import { Check, Loader2, Pencil, Plus, Search, Sparkles, Trash2 } from "lucide-react";
+import { Check, Loader2, Plus, Search, Sparkles, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
@@ -59,6 +60,41 @@ export function ChecklistPage() {
     if (filter === "selesai" && !item.done) return false;
     return matches(item.label);
   });
+  const visibleOpen = visible.filter((item) => !item.done);
+  const visibleDone = visible.filter((item) => item.done);
+
+  const renderItem = (item: (typeof all)[number]) => (
+    <li key={item._id} className="clay flex items-center gap-3 p-3">
+      <button
+        type="button"
+        aria-label={item.done ? "Tandai belum selesai" : "Tandai selesai"}
+        onClick={() => {
+          toggleItem({ itemId: item._id, done: !item.done });
+          if (!item.done) bloom();
+        }}
+        className={`flex size-7 shrink-0 items-center justify-center rounded-full transition-colors ${
+          item.done
+            ? "bg-primary text-primary-foreground"
+            : "clay-inset text-muted-foreground hover:text-primary"
+        }`}
+      >
+        <Check className="size-3.5" />
+      </button>
+      <span
+        className={`flex-1 text-sm leading-snug ${
+          item.done ? "text-muted-foreground line-through" : ""
+        }`}
+      >
+        {item.label}
+      </span>
+      <RowMenu
+        onEdit={() => setEditing({ id: item._id, label: item.label })}
+        onDelete={() => removeItem({ itemId: item._id })}
+        deleteTitle={`Hapus tugas ini?`}
+        deleteDescription={item.label}
+      />
+    </li>
+  );
 
   const submit = async () => {
     if (!label.trim()) return;
@@ -202,66 +238,69 @@ export function ChecklistPage() {
           />
         </div>
 
-        <ul className="space-y-2">
-          {visible.map((item) => (
-            <li key={item._id} className="clay flex items-center gap-3 p-3">
-              <button
-                type="button"
-                aria-label={item.done ? "Tandai belum selesai" : "Tandai selesai"}
-                onClick={() => {
-                  toggleItem({ itemId: item._id, done: !item.done });
-                  if (!item.done) bloom();
-                }}
-                className={`flex size-7 shrink-0 items-center justify-center rounded-full transition-colors ${
-                  item.done
-                    ? "bg-primary text-primary-foreground"
-                    : "clay-inset text-muted-foreground hover:text-primary"
-                }`}
-              >
-                <Check className="size-3.5" />
-              </button>
-              <span
-                className={`flex-1 text-sm leading-snug ${
-                  item.done ? "text-muted-foreground line-through" : ""
-                }`}
-              >
-                {item.label}
-              </span>
-              <button
-                type="button"
-                aria-label="Ubah tugas"
-                className="text-muted-foreground hover:text-primary"
-                onClick={() => setEditing({ id: item._id, label: item.label })}
-              >
-                <Pencil className="size-3.5" />
-              </button>
-              <button
-                type="button"
-                aria-label="Hapus tugas"
-                className="text-muted-foreground hover:text-destructive"
-                onClick={() => removeItem({ itemId: item._id })}
-              >
-                <Trash2 className="size-3.5" />
-              </button>
-            </li>
-          ))}
-          {visible.length === 0 && items !== undefined && (
-            <li className="clay-inset flex h-20 items-center justify-center rounded-3xl text-xs text-muted-foreground">
-              {query || filter !== "semua"
-                ? "Tidak ada tugas yang cocok."
-                : "Belum ada tugas. Tambahkan yang pertama!"}
-            </li>
+        <Stagger className="space-y-4">
+          {(filter === "semua" || filter === "belum") && visibleOpen.length > 0 && (
+            <StaggerItem>
+              <section className="space-y-2">
+                <p className="label px-1 text-muted-foreground">
+                  Belum · {visibleOpen.length}
+                </p>
+                <ul className="space-y-2">
+                  {visibleOpen.map(renderItem)}
+                </ul>
+              </section>
+            </StaggerItem>
           )}
-        </ul>
 
-        {filter === "semua" && done.length > 0 && (
+          {(filter === "semua" || filter === "selesai") && visibleDone.length > 0 && showDone && (
+            <StaggerItem>
+              <section className="space-y-2">
+                <div className="flex items-center justify-between px-1">
+                  <p className="label text-muted-foreground">Selesai · {visibleDone.length}</p>
+                  {filter === "semua" && (
+                    <button
+                      type="button"
+                      onClick={() => setShowDone(false)}
+                      className="text-[11px] font-bold text-muted-foreground hover:text-foreground"
+                    >
+                      Sembunyikan
+                    </button>
+                  )}
+                </div>
+                <ul className="space-y-2">
+                  {visibleDone.map(renderItem)}
+                </ul>
+              </section>
+            </StaggerItem>
+          )}
+        </Stagger>
+
+        {filter === "semua" && done.length > 0 && !showDone && (
           <button
             type="button"
-            onClick={() => setShowDone((previous) => !previous)}
+            onClick={() => setShowDone(true)}
             className="text-[11px] font-bold text-muted-foreground"
           >
-            {showDone ? "Sembunyikan yang selesai" : "Tampilkan yang selesai"}
+            Tampilkan {done.length} yang selesai
           </button>
+        )}
+
+        {visible.length === 0 && items !== undefined && (
+          <EmptyState
+            emoji={query || filter !== "semua" ? "🔍" : "📝"}
+            title={
+              query || filter !== "semua"
+                ? "Tidak ada tugas yang cocok"
+                : "Belum ada tugas"
+            }
+            description={
+              query || filter !== "semua"
+                ? "Coba kata kunci lain atau ganti filter."
+                : "Tuliskan satu per satu, atau tempel daftar tugas sekaligus."
+            }
+            actionLabel={query || filter !== "semua" ? undefined : "Tempel banyak tugas"}
+            onAction={query || filter !== "semua" ? undefined : () => setBulkOpen(true)}
+          />
         )}
       </section>
 

@@ -20,3 +20,14 @@ export function readStoredAnonymousUser(): Id<"users"> | undefined {
     (localStorage.getItem(ANON_ID_KEY) as Id<"users"> | null) ?? undefined
   );
 }
+
+/**
+ * Fired right after an email sign-in so AppShell re-runs ensureSetup
+ * immediately — the workspace re-syncs (and adopts the anonymous data)
+ * without a page reload.
+ */
+export const SETUP_REFRESH_EVENT = "planner-wedding:setup-refresh";
+
+export function requestSetupRefresh(): void {
+  window.dispatchEvent(new CustomEvent(SETUP_REFRESH_EVENT));
+}
