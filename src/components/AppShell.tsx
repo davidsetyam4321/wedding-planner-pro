@@ -1,4 +1,5 @@
 import { BottomNav } from "@/components/BottomNav";
+import { SideNav } from "@/components/SideNav";
 import { coupleInitials } from "@/components/CouplePhoto";
 import { BloomOverlay, FlowerMark, Petals } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
@@ -247,10 +248,12 @@ export function AppShell() {
   }
 
   return (
-    <div className="min-h-screen pb-28">
+    <div className="mx-auto flex w-full max-w-7xl">
+      <SideNav status={workspace} />
+      <div className="min-w-0 flex-1 pb-28 lg:pb-10">
       <Petals />
       <BloomOverlay />
-      <header className="mx-auto max-w-md px-4 pt-5">
+      <header className="mx-auto w-full max-w-md px-4 pt-5 lg:max-w-3xl lg:px-10 lg:pt-8">
         <div className="clay grad-warm relative overflow-hidden p-5">
           <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 text-tint-peach-foreground/25" />
           <FlowerMark className="sway pointer-events-none absolute -left-4 bottom-2 size-14 text-primary/15" />
@@ -315,11 +318,12 @@ export function AppShell() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-md px-4 pt-4">
+      <main className="mx-auto w-full max-w-md px-4 pt-4 lg:max-w-3xl lg:px-10">
         <Outlet />
       </main>
 
       <BottomNav />
+      </div>
     </div>
   );
 }

@@ -37,7 +37,7 @@ const NAV_ITEMS = [
 
 export function BottomNav() {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 px-4 pb-4">
+    <nav className="fixed inset-x-0 bottom-0 z-40 px-4 pb-4 lg:hidden">
       <div className="clay grad-warm relative mx-auto flex h-16 max-w-md items-stretch justify-around overflow-hidden px-2">
         <FlowerMark className="pointer-events-none absolute -left-3 -top-3 size-12 text-primary/10" />
         <FlowerMark className="pointer-events-none absolute -bottom-4 right-2 size-14 text-tint-rose-foreground/15" />

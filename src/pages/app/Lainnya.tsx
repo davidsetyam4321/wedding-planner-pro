@@ -1,4 +1,12 @@
 import { FlowerMark } from "@/components/Decor";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { api } from "@/convex/_generated/api";
 import { FEATURES } from "@/lib/features";
 import {
@@ -19,8 +27,11 @@ export function LainnyaPage() {
   const rundown = useQuery(api.rundown.list);
   const categories = useQuery(api.moodboard.listCategories);
 
-  const totalPax = (guests ?? []).reduce((sum, g) => sum + g.pax, 0);
-  const vendorPaid = (vendors ?? []).filter((v) => v.status === "lunas").length;
+  const loading =
+    guests === undefined ||
+    vendors === undefined ||
+    rundown === undefined ||
+    categories === undefined;
 
   const TOOLS = [
     {
@@ -30,7 +41,6 @@ export function LainnyaPage() {
       icon: FolderHeart,
       count: `${(categories ?? []).length} kategori`,
       surface: "bg-tint-rose text-tint-rose-foreground",
-      grad: "grad-rose",
       emoji: "🎨",
     },
     {
@@ -38,9 +48,8 @@ export function LainnyaPage() {
       label: "Daftar Tamu",
       desc: "Undangan, jumlah orang, dan RSVP",
       icon: Users,
-      count: `${(guests ?? []).length} tamu · ${totalPax} orang`,
+      count: `${(guests ?? []).length} tamu`,
       surface: "bg-tint-sky text-tint-sky-foreground",
-      grad: "grad-sky",
       emoji: "💌",
     },
     {
@@ -48,9 +57,8 @@ export function LainnyaPage() {
       label: "Vendor",
       desc: "Kontak, biaya, dan status pembayaran",
       icon: Receipt,
-      count: `${(vendors ?? []).length} vendor · ${vendorPaid} lunas`,
+      count: `${(vendors ?? []).length} vendor`,
       surface: "bg-tint-butter text-tint-butter-foreground",
-      grad: "grad-butter",
       emoji: "📋",
     },
     {
@@ -60,7 +68,6 @@ export function LainnyaPage() {
       icon: CalendarClock,
       count: `${(rundown ?? []).length} agenda`,
       surface: "bg-tint-sage text-tint-sage-foreground",
-      grad: "grad-sage",
       emoji: "⏰",
     },
   ];
@@ -74,7 +81,7 @@ export function LainnyaPage() {
       <section className="clay grad-warm relative overflow-hidden p-5">
         <FlowerMark className="sway pointer-events-none absolute -right-4 -top-4 size-24 text-primary/15" />
         <div className="relative flex items-center gap-3">
-          <div className="clay-sm flex size-12 items-center justify-center rounded-2xl bg-tint-rose text-2xl">
+          <div className="clay-sm flex size-12 items-center justify-center rounded-2xl bg-white/70 text-2xl">
             🌷
           </div>
           <div>
@@ -82,40 +89,57 @@ export function LainnyaPage() {
             <p className="meta mt-0.5">Alat tambahan & pengaturan</p>
           </div>
         </div>
-        <p className="meta relative mt-3 text-xs leading-relaxed">
-          Semua alat tambahan ada di sini — dari papan referensi sampai daftar
-          tamu dan susunan acara.
-        </p>
-      </section>
-
-      <section className="space-y-3">
-        {TOOLS.map((tool) => (
-          <Link
-            key={tool.to}
-            to={tool.to}
-            className={`clay clay-press relative overflow-hidden p-4 ${tool.grad} ${tool.surface}`}
-          >
-            <FlowerMark className="pointer-events-none absolute -bottom-4 -right-4 size-16 opacity-20" />
-            <div className="relative flex items-center gap-3">
-              <div className="clay-sm flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white/70 text-xl">
-                {tool.emoji}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="h-card">{tool.label}</p>
-                <p className="truncate text-[11px] leading-snug opacity-80">
-                  {tool.desc}
-                </p>
-                <p className="num mt-0.5 text-[11px] font-bold">{tool.count}</p>
-              </div>
-              <ChevronRight className="size-4 shrink-0 opacity-70" />
-            </div>
-          </Link>
-        ))}
       </section>
 
       <section>
-        <h2 className="h-card mb-2">Jalan pintas</h2>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="mb-2.5 flex items-center gap-3">
+          <h2 className="h-card shrink-0">Alat perencanaan</h2>
+          <Separator className="flex-1" />
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          {TOOLS.map((tool) => (
+            <Link
+              key={tool.to}
+              to={tool.to}
+              className="clay clay-press group flex items-center gap-3 p-3.5"
+            >
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span
+                    className={`clay-sm flex size-11 shrink-0 cursor-default items-center justify-center rounded-2xl text-lg ${tool.surface}`}
+                  >
+                    {tool.emoji}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>{tool.desc}</TooltipContent>
+              </Tooltip>
+              <div className="min-w-0 flex-1">
+                <p className="font-serif text-base font-semibold leading-tight">
+                  {tool.label}
+                </p>
+                <p className="meta truncate">{tool.desc}</p>
+              </div>
+              {loading ? (
+                <Skeleton className="h-5 w-16 shrink-0 rounded-full" />
+              ) : (
+                <Badge
+                  className={`shrink-0 border-transparent ${tool.surface}`}
+                >
+                  {tool.count}
+                </Badge>
+              )}
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-2.5 flex items-center gap-3">
+          <h2 className="h-card shrink-0">Jalan pintas</h2>
+          <Separator className="flex-1" />
+        </div>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
           {shortcuts.map((feature) => (
             <Link
               key={feature.to}
@@ -137,20 +161,23 @@ export function LainnyaPage() {
 
       <Link
         to="/app/pengaturan"
-        className="clay clay-press grad-lavender block p-4 text-tint-lavender-foreground"
+        className="clay clay-press flex items-center gap-3 p-3.5"
       >
-        <div className="flex items-center gap-3">
-          <div className="clay-sm flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white/70 text-xl">
-            ⚙️
-          </div>
-          <div className="flex-1">
-            <p className="h-card">Pengaturan</p>
-            <p className="text-[11px] leading-snug opacity-80">
-              Nama, tanggal pernikahan, venue & target dana
-            </p>
-          </div>
-          <ChevronRight className="size-4 shrink-0 opacity-70" />
+        <span className="clay-sm flex size-11 shrink-0 items-center justify-center rounded-2xl bg-tint-lavender text-lg text-tint-lavender-foreground">
+          ⚙️
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="font-serif text-base font-semibold leading-tight">
+            Pengaturan
+          </p>
+          <p className="meta truncate">
+            Nama, tanggal, venue, target dana & akun
+          </p>
         </div>
+        <Badge variant="secondary" className="shrink-0 border-transparent">
+          Akun & data
+        </Badge>
+        <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
       </Link>
 
       <p className="meta pb-2 text-center">

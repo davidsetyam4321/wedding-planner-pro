@@ -1,0 +1,150 @@
+import { FlowerMark } from "@/components/Decor";
+import { Separator } from "@/components/ui/separator";
+import {
+  CalendarClock,
+  FolderHeart,
+  Home,
+  ListChecks,
+  PiggyBank,
+  Receipt,
+  Settings,
+  Users,
+  Wallet,
+} from "lucide-react";
+import { NavLink, Link } from "react-router";
+
+const PRIMARY = [
+  {
+    to: "/app",
+    label: "Home",
+    icon: Home,
+    active: "bg-tint-butter text-tint-butter-foreground",
+  },
+  {
+    to: "/app/budget",
+    label: "Budget",
+    icon: Wallet,
+    active: "bg-tint-mint text-tint-mint-foreground",
+  },
+  {
+    to: "/app/tabungan",
+    label: "Tabungan",
+    icon: PiggyBank,
+    active: "bg-tint-lavender text-tint-lavender-foreground",
+  },
+  {
+    to: "/app/checklist",
+    label: "Checklist",
+    icon: ListChecks,
+    active: "bg-tint-peach text-tint-peach-foreground",
+  },
+  {
+    to: "/app/lainnya",
+    label: "Lainnya",
+    icon: FolderHeart,
+    active: "bg-tint-rose text-tint-rose-foreground",
+  },
+];
+
+const TOOLS = [
+  { to: "/app/moodboard", label: "Mood Board", icon: FolderHeart, emoji: "🎨" },
+  { to: "/app/tamu", label: "Daftar Tamu", icon: Users, emoji: "💌" },
+  { to: "/app/vendor", label: "Vendor", icon: Receipt, emoji: "📋" },
+  { to: "/app/rundown", label: "Rundown", icon: CalendarClock, emoji: "⏰" },
+];
+
+type SyncInfo = {
+  isAnonymous: boolean;
+  email: string | null;
+  connectedEmail: string | null;
+} | null | undefined;
+
+/** Desktop-only navigation sidebar (BottomNav takes over below `lg`). */
+export function SideNav({ status }: { status: SyncInfo }) {
+  return (
+    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col gap-4 px-5 py-6 lg:flex">
+      <Link to="/app" className="flex items-center gap-3">
+        <span className="clay grad-warm clay-sm flex size-11 items-center justify-center rounded-2xl">
+          <FlowerMark className="size-6 text-primary" />
+        </span>
+        <span>
+          <span className="block font-serif text-lg font-semibold leading-tight">
+            Planner Wedding
+          </span>
+          <span className="meta block">untuk berdua</span>
+        </span>
+      </Link>
+
+      <nav className="flex flex-col gap-1">
+        {PRIMARY.map(({ to, label, icon: Icon, active }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={to === "/app"}
+            className={({ isActive }) =>
+              `flex items-center gap-2.5 rounded-2xl px-3 py-2.5 text-sm font-bold transition-colors ${
+                isActive
+                  ? `${active} clay-sm`
+                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+              }`
+            }
+          >
+            <Icon className="size-4" />
+            {label}
+          </NavLink>
+        ))}
+      </nav>
+
+      <Separator />
+
+      <div className="flex flex-col gap-0.5">
+        <p className="label px-3 pb-1.5 text-muted-foreground">Alat</p>
+        {TOOLS.map(({ to, label, icon: Icon, emoji }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) =>
+              `flex items-center gap-2.5 rounded-2xl px-3 py-2 text-[13px] font-semibold transition-colors ${
+                isActive
+                  ? "bg-secondary text-foreground"
+                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+              }`
+            }
+          >
+            <span className="text-sm">{emoji}</span>
+            <Icon className="size-3.5 opacity-60" />
+            {label}
+          </NavLink>
+        ))}
+      </div>
+
+      <div className="mt-auto space-y-2">
+        <div className="clay-inset flex items-center gap-2.5 rounded-2xl px-3 py-2.5">
+          <span
+            className={`size-2 shrink-0 rounded-full ${
+              status?.connectedEmail
+                ? "bg-tint-mint-foreground"
+                : "bg-amber-500"
+            }`}
+          />
+          <div className="min-w-0 flex-1">
+            <p className="label text-muted-foreground">
+              {status?.connectedEmail ? "Tersinkron dengan" : "Status akun"}
+            </p>
+            <p className="truncate text-xs font-bold">
+              {status?.connectedEmail ??
+                status?.email ??
+                "Masuk dengan email"}
+            </p>
+          </div>
+        </div>
+        <Link
+          to="/app/pengaturan"
+          className="flex items-center gap-2.5 rounded-2xl px-3 py-2 text-[13px] font-semibold text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+        >
+          <Settings className="size-4" /> Pengaturan
+        </Link>
+      </div>
+    </aside>
+  );
+}
