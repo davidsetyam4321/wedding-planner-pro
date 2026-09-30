@@ -1,0 +1,17 @@
+{
+  "name": "Planner Wedding",
+  "short_name": "Planner Wedding",
+  "description": "Perencana pernikahan untuk berdua: budget, tabungan, checklist, daftar tamu, vendor, mood board, dan rundown hari-H.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf9f5",
+  "theme_color": "#c96442",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
