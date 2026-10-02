@@ -15,10 +15,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { ChevronLeft, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState, type ReactNode } from "react";
+import { useNavigate } from "react-router";
 
 /**
  * Staggered entrance: direct StaggerItem children fade/slide in one after
@@ -191,6 +193,50 @@ export function EmptyState({
           {actionLabel}
         </Button>
       )}
+    </div>
+  );
+}
+
+/**
+ * Tombol "Kembali" bersama untuk semua halaman: kembali ke riwayat
+ * navigasi, atau ke `fallback` bila halaman dibuka langsung (deep link).
+ */
+export function BackLink({
+  label = "Kembali",
+  fallback = "/app",
+}: {
+  label?: string;
+  fallback?: string;
+}) {
+  const navigate = useNavigate();
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        if ((window.history.state?.idx ?? 0) > 0) navigate(-1);
+        else navigate(fallback);
+      }}
+      className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground"
+    >
+      <ChevronLeft className="size-3.5" /> {label}
+    </button>
+  );
+}
+
+/**
+ * Placeholder yang ditampilkan selama query Convex pertama masih dimuat,
+ * supaya halaman tidak berkedip menampilkan empty-state dulu.
+ */
+export function PageSkeleton() {
+  return (
+    <div className="space-y-4" aria-hidden="true">
+      <Skeleton className="h-36 w-full rounded-3xl" />
+      <Skeleton className="h-28 w-full rounded-3xl" />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Skeleton className="h-24 rounded-3xl" />
+        <Skeleton className="h-24 rounded-3xl" />
+      </div>
+      <Skeleton className="h-40 w-full rounded-3xl" />
     </div>
   );
 }

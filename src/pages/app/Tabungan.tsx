@@ -1,5 +1,5 @@
 import { FlowerMark } from "@/components/Decor";
-import { EmptyState, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
+import { EmptyState, PageSkeleton, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -144,6 +144,8 @@ export function TabunganPage() {
       setTargetBusy(false);
     }
   };
+
+  if (deposits === undefined) return <PageSkeleton />;
 
   return (
     <div className="space-y-4">

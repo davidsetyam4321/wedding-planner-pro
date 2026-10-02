@@ -1,6 +1,5 @@
 import { FlowerMark } from "@/components/Decor";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
@@ -60,9 +59,9 @@ export function LainnyaPage() {
       </section>
 
       <section>
-        <div className="mb-2.5 flex items-center gap-3">
-          <h2 className="h-card shrink-0">Alat perencanaan</h2>
-          <Separator className="flex-1" />
+        <div className="mb-2 flex items-end justify-between">
+          <h2 className="h-card">Alat perencanaan</h2>
+          <span className="meta">4 alat</span>
         </div>
         <div className="grid gap-3 md:grid-cols-2">
           {tools.map((tool) => (
@@ -82,7 +81,7 @@ export function LainnyaPage() {
                 <TooltipContent>{tool.desc}</TooltipContent>
               </Tooltip>
               <div className="min-w-0 flex-1">
-                <p className="font-serif text-base font-semibold leading-tight">
+                <p className="text-sm font-extrabold leading-tight">
                   {tool.label}
                 </p>
                 <p className="meta truncate">{tool.desc}</p>
@@ -103,9 +102,9 @@ export function LainnyaPage() {
       </section>
 
       <section>
-        <div className="mb-2.5 flex items-center gap-3">
-          <h2 className="h-card shrink-0">Jalan pintas</h2>
-          <Separator className="flex-1" />
+        <div className="mb-2 flex items-end justify-between">
+          <h2 className="h-card">Jalan pintas</h2>
+          <span className="meta">3 pintasan</span>
         </div>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
           {shortcuts.map((feature) => (
@@ -118,7 +117,9 @@ export function LainnyaPage() {
                 <feature.icon className="size-5" />
                 <span className="text-lg">{feature.emoji}</span>
               </div>
-              <p className="h-card mt-2">{feature.label}</p>
+              <p className="mt-2.5 text-sm font-extrabold leading-tight">
+                {feature.label}
+              </p>
               <p className="mt-1 text-[11px] leading-snug opacity-80">
                 {feature.desc}
               </p>
@@ -135,7 +136,7 @@ export function LainnyaPage() {
           ⚙️
         </span>
         <div className="min-w-0 flex-1">
-          <p className="font-serif text-base font-semibold leading-tight">
+          <p className="text-sm font-extrabold leading-tight">
             Pengaturan
           </p>
           <p className="meta truncate">

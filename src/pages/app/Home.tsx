@@ -6,7 +6,6 @@ import { api } from "@/convex/_generated/api";
 import { FEATURES } from "@/lib/features";
 import { bloom } from "@/lib/bloom";
 import {
-  countdownLabel,
   formatDateID,
   formatRupiah,
   formatRupiahShort,
@@ -116,27 +115,6 @@ export function HomePage() {
               {couplePhoto ? "Ganti foto" : "Tambah foto"}
             </button>
           </div>
-
-          <div className="flex items-center justify-between gap-3 px-4 py-3.5">
-            <div>
-              <p className="label text-muted-foreground">Hitung mundur</p>
-              <p className="num mt-1 text-3xl font-semibold leading-none text-primary">
-                {countdownLabel(wedding.weddingDate)}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="label text-muted-foreground">Dana terkumpul</p>
-              <p className="num mt-1 text-sm font-bold">
-                {formatRupiahShort(savingsTotal)}
-              </p>
-              <div className="mt-1.5 ml-auto h-1.5 w-28 overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-primary"
-                  style={{ width: `${fundPct}%` }}
-                />
-              </div>
-            </div>
-          </div>
         </section>
       )}
 
@@ -234,7 +212,7 @@ export function HomePage() {
             </Link>
             <Link
               to="/app/vendor"
-              className="clay clay-press grad-sage p-4 text-tint-sage-foreground"
+              className="clay clay-press grad-butter p-4 text-tint-butter-foreground"
             >
               <div className="flex items-center justify-between">
                 <p className="label opacity-80">Vendor</p>
@@ -327,10 +305,6 @@ export function HomePage() {
             <div className="flex justify-between">
               <span className="opacity-75">Target dana</span>
               <span className="num font-semibold">{formatRupiah(fundTarget)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="opacity-75">Terkumpul</span>
-              <span className="num font-semibold">{formatRupiah(savingsTotal)}</span>
             </div>
             <div className="flex justify-between">
               <span className="opacity-75">Alokasi anggaran</span>

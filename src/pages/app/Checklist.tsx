@@ -1,5 +1,5 @@
 import { FlowerMark } from "@/components/Decor";
-import { EmptyState, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
+import { EmptyState, PageSkeleton, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -146,6 +146,8 @@ export function ChecklistPage() {
       setEditingBusy(false);
     }
   };
+
+  if (items === undefined) return <PageSkeleton />;
 
   return (
     <div className="space-y-4">

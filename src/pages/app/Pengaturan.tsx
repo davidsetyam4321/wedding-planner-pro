@@ -1,4 +1,5 @@
 import { AccountSection } from "@/components/AccountSection";
+import { BackLink } from "@/components/Shared";
 import { coupleInitials, useCouplePhotoUpload } from "@/components/CouplePhoto";
 import { FlowerMark } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
@@ -7,15 +8,13 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import { fromDateInputValue, toDateInputValue } from "@/lib/format";
 import { bloom } from "@/lib/bloom";
-import { Camera, ChevronLeft, Loader2, Save, Trash2 } from "lucide-react";
+import { Camera, Loader2, Save, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 
 /** Pengaturan: identitas pernikahan dan target dana. */
 export function PengaturanPage() {
-  const navigate = useNavigate();
   const wedding = useQuery(api.wedding.get);
   const couplePhoto = useQuery(api.wedding.getCouplePhoto);
   const updateSettings = useMutation(api.wedding.updateSettings);
@@ -29,12 +28,6 @@ export function PengaturanPage() {
   const [venue, setVenue] = useState("");
   const [target, setTarget] = useState("");
   const [seeded, setSeeded] = useState(false);
-
-  // Kembali ke halaman sebelumnya; jatuh ke Beranda bila dibuka langsung.
-  const goBack = () => {
-    if ((window.history.state?.idx ?? 0) > 0) navigate(-1);
-    else navigate("/app");
-  };
 
   // Seed the form once the document arrives, without an effect.
   if (wedding && !seeded) {
@@ -72,13 +65,7 @@ export function PengaturanPage() {
 
   return (
     <div className="space-y-4">
-      <button
-        type="button"
-        onClick={goBack}
-        className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground"
-      >
-        <ChevronLeft className="size-3.5" /> Kembali
-      </button>
+      <BackLink />
 
       <section className="clay grad-warm relative overflow-hidden p-5">
         <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 text-primary/20" />

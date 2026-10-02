@@ -1,5 +1,11 @@
 import { FlowerMark } from "@/components/Decor";
-import { EmptyState, Stagger, StaggerItem } from "@/components/Shared";
+import {
+  BackLink,
+  EmptyState,
+  PageSkeleton,
+  Stagger,
+  StaggerItem,
+} from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,7 +29,6 @@ import {
   Trash2,
 } from "lucide-react";
 import { useRef, useState } from "react";
-import { Link } from "react-router";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 
@@ -163,6 +168,8 @@ export function MoodboardPage() {
     toast.success("Keterangan disimpan.");
   };
 
+  if (categories === undefined || boxes === undefined) return <PageSkeleton />;
+
   return (
     <div className="space-y-4">
       <input
@@ -174,12 +181,7 @@ export function MoodboardPage() {
         onChange={handleFiles}
       />
 
-      <Link
-        to="/app/lainnya"
-        className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground"
-      >
-        <ChevronLeft className="size-3.5" /> Lainnya
-      </Link>
+      <BackLink fallback="/app/lainnya" />
 
       <section className="clay grad-rose relative overflow-hidden p-5 text-tint-rose-foreground">
         <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 opacity-25" />

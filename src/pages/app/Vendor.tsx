@@ -1,5 +1,12 @@
 import { FlowerMark } from "@/components/Decor";
-import { EmptyState, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
+import {
+  BackLink,
+  EmptyState,
+  PageSkeleton,
+  RowMenu,
+  Stagger,
+  StaggerItem,
+} from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,7 +22,6 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
 import { formatRupiah, formatRupiahShort } from "@/lib/format";
 import {
-  ChevronLeft,
   Loader2,
   MessageCircle,
   Phone,
@@ -23,7 +29,6 @@ import {
   Search,
 } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 
@@ -186,14 +191,11 @@ export function VendorPage() {
     if (next === "lunas") bloom();
   };
 
+  if (vendors === undefined) return <PageSkeleton />;
+
   return (
     <div className="space-y-4">
-      <Link
-        to="/app/lainnya"
-        className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground"
-      >
-        <ChevronLeft className="size-3.5" /> Lainnya
-      </Link>
+      <BackLink fallback="/app/lainnya" />
 
       <section className="clay grad-butter relative overflow-hidden p-5 text-tint-butter-foreground">
         <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 opacity-25" />
@@ -292,7 +294,7 @@ export function VendorPage() {
                   />
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <p className="h-card truncate">{vendor.name}</p>
+                      <p className="text-sm font-extrabold truncate">{vendor.name}</p>
                       <p className="meta">
                         {vendor.category}
                         {vendor.contact ? ` · ${vendor.contact}` : ""}
