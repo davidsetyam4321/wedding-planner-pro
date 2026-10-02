@@ -1,6 +1,4 @@
-import { getAuthUserId } from "@convex-dev/auth/server";
-import { v } from "convex/values";
-import { mutation, type MutationCtx } from "./_generated/server";
+import type { MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 
 /**
@@ -57,44 +55,3 @@ export async function moveWorkspaceData(
   }
 }
 
-export const claim = mutation({
-  args: { anonymousUserId: v.id("users") },
-  handler: async (ctx, { anonymousUserId }) => {
-    const emailUserId = await getAuthUserId(ctx);
-    if (emailUserId === null) throw new Error("Not signed in");
-
-    const emailUser = await ctx.db.get(emailUserId);
-    if (!emailUser) throw new Error("User not found");
-    if (emailUser.isAnonymous) return { migrated: false };
-
-    // Never overwrite a workspace the email account already owns — this is
-    // what protects the partner's data when signing in on a shared device.
-    const existingWedding = await ctx.db
-      .query("wedding")
-      .withIndex("by_user", (q) => q.eq("userId", emailUserId))
-      .first();
-    if (existingWedding) return { migrated: false };
-
-    const anonUser = await ctx.db.get(anonymousUserId);
-    if (!anonUser || !anonUser.isAnonymous) return { migrated: false };
-
-    const alreadyClaimed = await ctx.db
-      .query("migrationClaim")
-      .withIndex("by_anonymous", (q) => q.eq("anonymousUserId", anonymousUserId))
-      .first();
-    if (alreadyClaimed) return { migrated: false };
-
-    const anonWedding = await ctx.db
-      .query("wedding")
-      .withIndex("by_user", (q) => q.eq("userId", anonymousUserId))
-      .first();
-    if (!anonWedding) return { migrated: false };
-
-    await moveWorkspaceData(ctx, anonymousUserId, emailUserId);
-
-    await ctx.db.insert("migrationClaim", { anonymousUserId, emailUserId });
-    return { migrated: true };
-  },
-});
-
-export type ClaimResult = { migrated: boolean };

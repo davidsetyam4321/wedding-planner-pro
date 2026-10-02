@@ -108,7 +108,7 @@ export function AccountSection() {
       // Re-run ensureSetup right away: the fresh email account adopts this
       // device's anonymous workspace and every query re-syncs live.
       requestSetupRefresh();
-      toast.success("Berhasil masuk. Data kamu tersinkron antar perangkat.");
+      toast.success("Berhasil masuk. Data Anda tersinkron di semua perangkat.");
       setEmail("");
       setCode("");
       setStage("email");
@@ -124,7 +124,7 @@ export function AccountSection() {
     try {
       await joinMutation({ code: joinCode });
       bloom();
-      toast.success("Berhasil bergabung dengan workspace pasangan!");
+      toast.success("Berhasil bergabung dengan ruang kerja pasangan!");
       setJoinCode("");
     } catch (error) {
       toast.error(
@@ -139,9 +139,9 @@ export function AccountSection() {
     setBusy(true);
     try {
       await leaveMutation({});
-      toast.success("Kamu keluar dari workspace bersama.");
+      toast.success("Anda telah keluar dari ruang kerja bersama.");
     } catch {
-      toast.error("Gagal keluar dari workspace.");
+      toast.error("Gagal keluar dari ruang kerja.");
     } finally {
       setBusy(false);
     }
@@ -197,7 +197,7 @@ export function AccountSection() {
           </span>
           <div>
             <h2 className="h-card">Masuk dengan Email</h2>
-            <p className="meta">Simpan data selamanya & buka dari HP mana saja</p>
+            <p className="meta">Tersimpan permanen, dapat dibuka dari perangkat mana saja</p>
           </div>
         </div>
 
@@ -229,7 +229,8 @@ export function AccountSection() {
               )}
             </Button>
             <p className="meta">
-              Kami kirim kode 6 digit ke emailmu. Tanpa password, tanpa ribet.
+              Kami mengirimkan kode 6 digit ke email Anda. Tanpa kata sandi,
+              tanpa kerumitan.
             </p>
           </div>
         ) : (
@@ -299,7 +300,7 @@ export function AccountSection() {
           className="text-muted-foreground hover:text-destructive"
           onClick={() => {
             void signOut();
-            toast.success("Kamu telah keluar.");
+            toast.success("Anda telah keluar.");
           }}
         >
           <LogOut className="size-4" />
@@ -311,8 +312,8 @@ export function AccountSection() {
           <p className="label text-muted-foreground">Terhubung dengan</p>
           <p className="num mt-0.5 text-sm font-bold">{connectedEmail}</p>
           <p className="meta mt-1">
-            Semua perubahan kalian berdua langsung tampil di perangkat
-            masing-masing.
+            Setiap perubahan Anda dan pasangan langsung tampil di kedua
+            perangkat.
           </p>
           {!isOwner ? (
             <Button
@@ -322,12 +323,12 @@ export function AccountSection() {
               disabled={busy}
               onClick={() => void leave()}
             >
-              Keluar dari workspace
+              Keluar dari ruang kerja
             </Button>
           ) : (
             <p className="meta mt-2">
-              Untuk memutus, pasanganmu menekan "Keluar dari workspace" di
-              app-nya.
+              Untuk memutus, pasangan Anda menekan "Keluar dari ruang kerja"
+              di aplikasinya.
             </p>
           )}
         </div>
@@ -379,8 +380,8 @@ export function AccountSection() {
             </Button>
           )}
           <p className="meta mt-1.5">
-            Minta pasanganmu masuk dengan emailnya, lalu masukkan kode ini di
-            app-nya.
+            Minta pasangan Anda masuk dengan emailnya, lalu masukkan kode ini
+            di aplikasinya.
           </p>
         </div>
       ) : (
@@ -404,8 +405,8 @@ export function AccountSection() {
             </Button>
           </div>
           <p className="meta">
-            Kamu sedang melihat workspace sendiri. Masukkan kode dari
-            pasanganmu untuk berbagi.
+            Anda sedang melihat ruang kerja sendiri. Masukkan kode dari
+            pasangan Anda untuk berbagi.
           </p>
         </div>
       )}
@@ -440,8 +441,8 @@ export function AccountSection() {
             </Button>
           </div>
           <p className="meta">
-            Punya kode dari pasanganmu? Masukkan di sini untuk berbagi satu
-            workspace.
+            Punya kode dari pasangan Anda? Masukkan di sini untuk berbagi satu
+            ruang kerja.
           </p>
         </div>
       )}

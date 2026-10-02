@@ -5,17 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
-import { FEATURES } from "@/lib/features";
 import { fromDateInputValue, toDateInputValue } from "@/lib/format";
 import { bloom } from "@/lib/bloom";
 import { Camera, ChevronLeft, Loader2, Save, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router";
+import { useNavigate } from "react-router";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 
 /** Pengaturan: identitas pernikahan dan target dana. */
 export function PengaturanPage() {
+  const navigate = useNavigate();
   const wedding = useQuery(api.wedding.get);
   const couplePhoto = useQuery(api.wedding.getCouplePhoto);
   const updateSettings = useMutation(api.wedding.updateSettings);
@@ -29,6 +29,12 @@ export function PengaturanPage() {
   const [venue, setVenue] = useState("");
   const [target, setTarget] = useState("");
   const [seeded, setSeeded] = useState(false);
+
+  // Kembali ke halaman sebelumnya; jatuh ke Beranda bila dibuka langsung.
+  const goBack = () => {
+    if ((window.history.state?.idx ?? 0) > 0) navigate(-1);
+    else navigate("/app");
+  };
 
   // Seed the form once the document arrives, without an effect.
   if (wedding && !seeded) {
@@ -66,12 +72,13 @@ export function PengaturanPage() {
 
   return (
     <div className="space-y-4">
-      <Link
-        to="/app/lainnya"
+      <button
+        type="button"
+        onClick={goBack}
         className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground"
       >
-        <ChevronLeft className="size-3.5" /> Lainnya
-      </Link>
+        <ChevronLeft className="size-3.5" /> Kembali
+      </button>
 
       <section className="clay grad-warm relative overflow-hidden p-5">
         <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 text-primary/20" />
@@ -145,7 +152,7 @@ export function PengaturanPage() {
 
       <form className="clay space-y-3 p-4" onSubmit={submit}>
         <div className="space-y-1.5">
-          <Label htmlFor="set-p1">Nama kamu</Label>
+          <Label htmlFor="set-p1">Nama Anda</Label>
           <Input
             id="set-p1"
             value={partnerOne}
@@ -202,21 +209,6 @@ export function PengaturanPage() {
           )}
         </Button>
       </form>
-
-      <section className="clay p-4">
-        <h2 className="h-card">8 fitur siap dipakai</h2>
-        <ul className="mt-3 grid grid-cols-2 gap-2">
-          {FEATURES.map((feature) => (
-            <li
-              key={feature.to}
-              className={`flex items-center gap-2 rounded-2xl px-3 py-2 ${feature.surface}`}
-            >
-              <feature.icon className="size-3.5 shrink-0" />
-              <span className="text-[11px] font-bold">{feature.label}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
     </div>
   );
 }

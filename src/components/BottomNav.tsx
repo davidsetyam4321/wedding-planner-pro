@@ -1,58 +1,8 @@
 import { FlowerMark } from "@/components/Decor";
 import { api } from "@/convex/_generated/api";
-import {
-  FolderHeart,
-  Home,
-  ListChecks,
-  PiggyBank,
-  Wallet,
-  type LucideIcon,
-} from "lucide-react";
+import { PRIMARY_NAV } from "@/lib/nav";
 import { NavLink } from "react-router";
 import { useQuery } from "convex/react";
-
-type NavItem = {
-  to: string;
-  label: string;
-  icon: LucideIcon;
-  active: string;
-  /** Tampilkan lencana jumlah tugas yang belum diselesaikan. */
-  badge?: boolean;
-};
-
-const NAV_ITEMS: NavItem[] = [
-  {
-    to: "/app",
-    label: "Home",
-    icon: Home,
-    active: "bg-tint-butter text-tint-butter-foreground",
-  },
-  {
-    to: "/app/budget",
-    label: "Budget",
-    icon: Wallet,
-    active: "bg-tint-mint text-tint-mint-foreground",
-  },
-  {
-    to: "/app/tabungan",
-    label: "Tabungan",
-    icon: PiggyBank,
-    active: "bg-tint-lavender text-tint-lavender-foreground",
-  },
-  {
-    to: "/app/checklist",
-    label: "Checklist",
-    icon: ListChecks,
-    active: "bg-tint-peach text-tint-peach-foreground",
-    badge: true,
-  },
-  {
-    to: "/app/lainnya",
-    label: "Lainnya",
-    icon: FolderHeart,
-    active: "bg-tint-rose text-tint-rose-foreground",
-  },
-];
 
 export function BottomNav() {
   const checklist = useQuery(api.checklist.list);
@@ -63,7 +13,7 @@ export function BottomNav() {
       <div className="clay grad-warm relative mx-auto flex h-16 max-w-md items-stretch justify-around overflow-hidden px-2">
         <FlowerMark className="pointer-events-none absolute -left-3 -top-3 size-12 text-primary/10" />
         <FlowerMark className="pointer-events-none absolute -bottom-4 right-2 size-14 text-tint-rose-foreground/15" />
-        {NAV_ITEMS.map(({ to, label, icon: Icon, active, badge }) => (
+        {PRIMARY_NAV.map(({ to, label, icon: Icon, active, badge }) => (
           <NavLink
             key={to}
             to={to}

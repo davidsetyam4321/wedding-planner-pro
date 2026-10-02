@@ -31,7 +31,7 @@ export type Feature = {
 export const FEATURES: Feature[] = [
   {
     to: "/app",
-    label: "Dashboard",
+    label: "Beranda",
     desc: "Ringkasan dana, tugas, dan hitung mundur hari-H.",
     icon: LayoutDashboard,
     surface: "bg-tint-butter text-tint-butter-foreground",
@@ -102,7 +102,3 @@ export const FEATURES: Feature[] = [
     emoji: "⏰",
   },
 ];
-
-export function featureByPath(path: string): Feature | undefined {
-  return FEATURES.find((feature) => feature.to === path);
-}

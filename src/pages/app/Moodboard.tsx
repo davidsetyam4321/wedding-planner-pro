@@ -195,7 +195,7 @@ export function MoodboardPage() {
           </div>
         </div>
         <p className="meta relative mt-3 opacity-90">
-          Simpan referensi per kategori sebanyak yang kalian mau. Klik kotak
+          Simpan referensi per kategori sebanyak yang Anda butuhkan. Klik kotak
           untuk melihat galeri, geser thumbnail untuk pindah foto.
         </p>
       </section>

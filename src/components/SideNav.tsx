@@ -1,57 +1,8 @@
 import { FlowerMark } from "@/components/Decor";
 import { Separator } from "@/components/ui/separator";
-import {
-  CalendarClock,
-  FolderHeart,
-  Home,
-  ListChecks,
-  PiggyBank,
-  Receipt,
-  Settings,
-  Users,
-  Wallet,
-} from "lucide-react";
+import { PRIMARY_NAV, TOOL_NAV } from "@/lib/nav";
+import { Settings } from "lucide-react";
 import { NavLink, Link } from "react-router";
-
-const PRIMARY = [
-  {
-    to: "/app",
-    label: "Home",
-    icon: Home,
-    active: "bg-tint-butter text-tint-butter-foreground",
-  },
-  {
-    to: "/app/budget",
-    label: "Budget",
-    icon: Wallet,
-    active: "bg-tint-mint text-tint-mint-foreground",
-  },
-  {
-    to: "/app/tabungan",
-    label: "Tabungan",
-    icon: PiggyBank,
-    active: "bg-tint-lavender text-tint-lavender-foreground",
-  },
-  {
-    to: "/app/checklist",
-    label: "Checklist",
-    icon: ListChecks,
-    active: "bg-tint-peach text-tint-peach-foreground",
-  },
-  {
-    to: "/app/lainnya",
-    label: "Lainnya",
-    icon: FolderHeart,
-    active: "bg-tint-rose text-tint-rose-foreground",
-  },
-];
-
-const TOOLS = [
-  { to: "/app/moodboard", label: "Mood Board", icon: FolderHeart, emoji: "🎨" },
-  { to: "/app/tamu", label: "Daftar Tamu", icon: Users, emoji: "💌" },
-  { to: "/app/vendor", label: "Vendor", icon: Receipt, emoji: "📋" },
-  { to: "/app/rundown", label: "Rundown", icon: CalendarClock, emoji: "⏰" },
-];
 
 type SyncInfo = {
   isAnonymous: boolean;
@@ -76,7 +27,7 @@ export function SideNav({ status }: { status: SyncInfo }) {
       </Link>
 
       <nav className="flex flex-col gap-1">
-        {PRIMARY.map(({ to, label, icon: Icon, active }) => (
+        {PRIMARY_NAV.map(({ to, label, icon: Icon, active }) => (
           <NavLink
             key={to}
             to={to}
@@ -99,7 +50,7 @@ export function SideNav({ status }: { status: SyncInfo }) {
 
       <div className="flex flex-col gap-0.5">
         <p className="label px-3 pb-1.5 text-muted-foreground">Alat</p>
-        {TOOLS.map(({ to, label, icon: Icon, emoji }) => (
+        {TOOL_NAV.map(({ to, label, icon: Icon, emoji }) => (
           <NavLink
             key={to}
             to={to}

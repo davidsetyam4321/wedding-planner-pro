@@ -9,14 +9,8 @@ import {
 } from "@/components/ui/tooltip";
 import { api } from "@/convex/_generated/api";
 import { FEATURES } from "@/lib/features";
-import {
-  CalendarClock,
-  ChevronRight,
-  FolderHeart,
-  Receipt,
-  Settings,
-  Users,
-} from "lucide-react";
+import { TOOL_NAV } from "@/lib/nav";
+import { ChevronRight, Settings } from "lucide-react";
 import { Link } from "react-router";
 import { useQuery } from "convex/react";
 
@@ -33,47 +27,21 @@ export function LainnyaPage() {
     rundown === undefined ||
     categories === undefined;
 
-  const TOOLS = [
-    {
-      to: "/app/moodboard",
-      label: "Mood Board",
-      desc: "Referensi dekorasi, baju & makeup",
-      icon: FolderHeart,
-      count: `${(categories ?? []).length} kategori`,
-      surface: "bg-tint-rose text-tint-rose-foreground",
-      emoji: "🎨",
-    },
-    {
-      to: "/app/tamu",
-      label: "Daftar Tamu",
-      desc: "Undangan, jumlah orang, dan RSVP",
-      icon: Users,
-      count: `${(guests ?? []).length} tamu`,
-      surface: "bg-tint-sky text-tint-sky-foreground",
-      emoji: "💌",
-    },
-    {
-      to: "/app/vendor",
-      label: "Vendor",
-      desc: "Kontak, biaya, dan status pembayaran",
-      icon: Receipt,
-      count: `${(vendors ?? []).length} vendor`,
-      surface: "bg-tint-butter text-tint-butter-foreground",
-      emoji: "📋",
-    },
-    {
-      to: "/app/rundown",
-      label: "Rundown Acara",
-      desc: "Susunan acara hari-H",
-      icon: CalendarClock,
-      count: `${(rundown ?? []).length} agenda`,
-      surface: "bg-tint-sage text-tint-sage-foreground",
-      emoji: "⏰",
-    },
-  ];
+  const counts: Record<string, string> = {
+    "/app/moodboard": `${(categories ?? []).length} kategori`,
+    "/app/tamu": `${(guests ?? []).length} tamu`,
+    "/app/vendor": `${(vendors ?? []).length} vendor`,
+    "/app/rundown": `${(rundown ?? []).length} agenda`,
+  };
+
+  const tools = TOOL_NAV.map((tool) => ({
+    ...tool,
+    count: counts[tool.to] ?? "",
+  }));
 
   const shortcuts = FEATURES.filter(
-    (feature) => feature.to !== "/app" && !TOOLS.some((tool) => tool.to === feature.to),
+    (feature) =>
+      feature.to !== "/app" && !TOOL_NAV.some((tool) => tool.to === feature.to),
   );
 
   return (
@@ -97,7 +65,7 @@ export function LainnyaPage() {
           <Separator className="flex-1" />
         </div>
         <div className="grid gap-3 md:grid-cols-2">
-          {TOOLS.map((tool) => (
+          {tools.map((tool) => (
             <Link
               key={tool.to}
               to={tool.to}
@@ -182,7 +150,7 @@ export function LainnyaPage() {
 
       <p className="meta pb-2 text-center">
         <Settings className="mr-1 inline size-3" />
-        Planner Wedding · dibuat dengan hati
+        Planner Wedding · Perencana pernikahan untuk berdua
       </p>
     </div>
   );

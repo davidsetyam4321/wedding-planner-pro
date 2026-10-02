@@ -6,7 +6,7 @@ import { ConvexAuthProvider, useAuthActions } from "@convex-dev/auth/react";
 import { ConvexReactClient, useConvexAuth } from "convex/react";
 import React, { StrictMode, useEffect, lazy, Suspense, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router";
 import "./index.css";
 
 // Lazy load route components for better code splitting
@@ -44,6 +44,9 @@ const PengaturanPage = lazy(() =>
   import("./pages/app/Pengaturan.tsx").then((m) => ({ default: m.PengaturanPage })),
 );
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
+const LandingPage = lazy(() =>
+  import("./pages/Landing.tsx").then((m) => ({ default: m.LandingPage })),
+);
 
 // Simple loading fallback for route transitions
 function RouteLoading() {
@@ -80,7 +83,7 @@ function AutoSession({ children }: { children: React.ReactNode }) {
         <div className="clay max-w-sm p-6 text-center">
           <p className="text-sm font-semibold">Gagal menyiapkan ruang kerja</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Periksa koneksi internetmu, lalu coba lagi.
+            Periksa koneksi internet Anda, lalu coba lagi.
           </p>
           <Button className="mt-4" onClick={() => setError(false)}>
             Coba lagi
@@ -198,7 +201,7 @@ createRoot(document.getElementById("root")!).render(
           <Suspense fallback={<RouteLoading />}>
             <AutoSession>
               <Routes>
-                <Route path="/" element={<Navigate to="/app" replace />} />
+                <Route path="/" element={<LandingPage />} />
                 <Route path="/app" element={<AppShell />}>
                   <Route index element={<HomePage />} />
                   <Route path="budget" element={<BudgetPage />} />
