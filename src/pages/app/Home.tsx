@@ -1,6 +1,15 @@
 import { coupleInitials, useCouplePhotoUpload } from "@/components/CouplePhoto";
 import { FlowerMark } from "@/components/Decor";
 import { api } from "@/convex/_generated/api";
+import { Stagger, StaggerItem } from "@/components/Shared";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { FEATURES } from "@/lib/features";
 import { bloom } from "@/lib/bloom";
 import {
@@ -9,7 +18,16 @@ import {
   formatRupiah,
   formatRupiahShort,
 } from "@/lib/format";
-import { ArrowUpRight, Camera, CheckCircle2, Circle, Loader2 } from "lucide-react";
+import {
+  ArrowUpRight,
+  Camera,
+  CheckCircle2,
+  ChevronRight,
+  Circle,
+  LayoutGrid,
+  Loader2,
+} from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router";
 import { useMutation, useQuery } from "convex/react";
 
@@ -22,6 +40,7 @@ export function HomePage() {
   const toggleItem = useMutation(api.checklist.toggle);
   const couplePhoto = useQuery(api.wedding.getCouplePhoto);
   const { uploading, openPicker, inputProps } = useCouplePhotoUpload();
+  const [featuresOpen, setFeaturesOpen] = useState(false);
 
   const savingsTotal = savings?.reduce((sum, d) => sum + d.amount, 0) ?? 0;
   const fundTarget = wedding?.fundTarget ?? 0;
@@ -153,32 +172,26 @@ export function HomePage() {
         </Link>
       </section>
 
-      <section>
-        <div className="mb-2 flex items-end justify-between">
-          <h2 className="h-card">8 fitur Planner Wedding</h2>
-          <span className="meta">semua aktif</span>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          {FEATURES.map((feature) => (
-            <Link
-              key={feature.to}
-              to={feature.to}
-              className={`clay clay-press p-4 ${feature.surface}`}
-            >
-              <div className="flex items-center justify-between">
-                <feature.icon className="size-5" />
-                <span className="text-lg">{feature.emoji}</span>
-              </div>
-              <p className="mt-2.5 text-sm font-extrabold leading-tight">
-                {feature.label}
-              </p>
-              <p className="mt-1 text-[11px] leading-snug opacity-80">
-                {feature.desc}
-              </p>
-            </Link>
-          ))}
-        </div>
-      </section>
+      <button
+        type="button"
+        onClick={() => setFeaturesOpen(true)}
+        className="clay clay-press grad-butter flex w-full items-center gap-3.5 px-4 py-4 text-left text-tint-butter-foreground"
+      >
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-white/70">
+          <LayoutGrid className="size-5" />
+        </span>
+        <span className="flex-1">
+          <span className="block text-sm font-extrabold leading-tight">
+            Menu fitur Planner
+          </span>
+          <span className="meta mt-0.5 block opacity-80">
+            Buka 8 alat pernikahan dalam satu popup
+          </span>
+        </span>
+        <span className="flex size-8 items-center justify-center rounded-full bg-white/70">
+          <ChevronRight className="size-4" />
+        </span>
+      </button>
 
       <section className="clay p-5">
         <div className="flex items-center justify-between">
@@ -239,6 +252,43 @@ export function HomePage() {
           </div>
         </div>
       </section>
+
+      <Drawer open={featuresOpen} onOpenChange={setFeaturesOpen}>
+        <DrawerContent className="max-h-[85dvh] overflow-y-auto sm:mx-auto sm:max-w-md data-[vaul-drawer-direction=bottom]:rounded-t-3xl">
+          <DrawerHeader className="text-left">
+            <DrawerTitle className="font-serif text-xl">
+              Menu fitur
+            </DrawerTitle>
+            <DrawerDescription>
+              Semua alat Planner Wedding — pilih yang ingin dibuka.
+            </DrawerDescription>
+          </DrawerHeader>
+
+          <Stagger className="grid grid-cols-2 gap-3 px-4 pb-8">
+            {FEATURES.map((feature) => (
+              <StaggerItem key={feature.to}>
+                <DrawerClose asChild>
+                  <Link
+                    to={feature.to}
+                    className={`clay clay-press block p-4 ${feature.surface}`}
+                  >
+                    <span className="flex items-center justify-between">
+                      <feature.icon className="size-5" />
+                      <span className="text-lg">{feature.emoji}</span>
+                    </span>
+                    <span className="mt-2.5 block text-sm font-extrabold leading-tight">
+                      {feature.label}
+                    </span>
+                    <span className="mt-1 block text-[11px] leading-snug opacity-80">
+                      {feature.desc}
+                    </span>
+                  </Link>
+                </DrawerClose>
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }
