@@ -4,11 +4,21 @@ import { coupleInitials } from "@/components/CouplePhoto";
 import { BloomOverlay, FlowerMark, Petals } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
 import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Stagger, StaggerItem } from "@/components/Shared";
 import { api } from "@/convex/_generated/api";
+import { FEATURES } from "@/lib/features";
 import type { Id } from "@/convex/_generated/dataModel";
 import { countdownLabel, formatDateID, formatRupiahShort } from "@/lib/format";
 import {
@@ -17,7 +27,7 @@ import {
 } from "@/lib/session";
 import { useAuth } from "@/hooks/use-auth";
 import { SETUP_REFRESH_EVENT } from "@/lib/session";
-import { Bell, Settings, Sparkles } from "lucide-react";
+import { Bell, LayoutGrid, Settings, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, Outlet } from "react-router";
 import { useMutation, useQuery } from "convex/react";
@@ -92,27 +102,27 @@ function NotificationBell({
         list.push({
           id: "sync",
           tone: "mint",
-          label: `Tersinkron dengan ${workspace.connectedEmail} — perubahan kalian berdua langsung tampil di sini.`,
+          label: `Tersinkron dengan ${workspace.connectedEmail} — setiap perubahan langsung tersaji di kedua perangkat.`,
         });
       } else if (workspace.isAnonymous) {
         list.push({
           id: "sync",
           tone: "amber",
           label:
-            "Ruang kerja masih anonim — masuk dengan email di Pengaturan agar data tersimpan & bisa dibagikan.",
+            "Ruang kerja masih lokal — masuk dengan email melalui Pengaturan agar data tersimpan dan dapat dibagikan.",
         });
       } else if (workspace.inviteCode) {
         list.push({
           id: "sync",
           tone: "amber",
-          label: `Menunggu pasangan bergabung · kode ${workspace.inviteCode}.`,
+          label: `Menunggu pasangan bergabung · kode undangan ${workspace.inviteCode}.`,
         });
       } else {
         list.push({
           id: "sync",
           tone: "amber",
           label:
-            "Belum ada kode pasangan — buat di Pengaturan untuk mengajak pasanganmu.",
+            "Kode undangan belum dibuat — buat di Pengaturan untuk mengundang pasangan.",
         });
       }
     }
@@ -120,17 +130,17 @@ function NotificationBell({
     if (wedding) {
       list.push({
         id: "countdown",
-        label: `${countdownLabel(wedding.weddingDate)} menuju hari-H · ${formatDateID(wedding.weddingDate)}`,
+        label: `${countdownLabel(wedding.weddingDate)} menuju hari pernikahan · ${formatDateID(wedding.weddingDate)}`,
       });
       list.push({
         id: "checklist",
         label:
           openTasks === 0
-            ? "Semua tugas checklist sudah selesai. Mantap!"
-            : `${openTasks} tugas checklist masih menunggu.`,
+            ? "Seluruh tugas telah diselesaikan."
+            : `Terdapat ${openTasks} tugas yang belum diselesaikan.`,
       });
       if (wedding.venueName) {
-        list.push({ id: "venue", label: `Venue: ${wedding.venueName}` });
+        list.push({ id: "venue", label: `Lokasi acara: ${wedding.venueName}` });
       }
     }
     return list;
@@ -174,7 +184,7 @@ function NotificationBell({
             </li>
           ))}
           {notes.length === 0 && (
-            <li className="px-3 py-2 text-xs text-muted-foreground">Memuat…</li>
+            <li className="px-3 py-2 text-xs text-muted-foreground">Memuat notifikasi…</li>
           )}
         </ul>
       </PopoverContent>
@@ -184,6 +194,7 @@ function NotificationBell({
 
 export function AppShell() {
   const { user } = useAuth();
+  const [featuresOpen, setFeaturesOpen] = useState(false);
 
   // Remember this device's anonymous user id so a later email sign-in can
   // adopt (migrate) the anonymous workspace atomically inside ensureSetup.
@@ -223,7 +234,7 @@ export function AppShell() {
           </div>
           <p className="h-card relative mt-3">Menyiapkan ruang kerja…</p>
           <p className="meta relative mt-1">
-            Menyinkronkan data pernikahan kalian
+            Menyinkronkan data pernikahan Anda dan pasangan
           </p>
         </div>
       </main>
@@ -237,7 +248,7 @@ export function AppShell() {
         <div className="clay max-w-sm p-6 text-center">
           <p className="text-sm font-semibold">Gagal menyiapkan ruang kerja</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Periksa koneksi internetmu, lalu coba lagi.
+            Periksa koneksi internet Anda, lalu coba lagi.
           </p>
           <Button className="mt-4" onClick={retrySetup}>
             Coba lagi
@@ -281,12 +292,28 @@ export function AppShell() {
                     ? `${wedding.partnerOneName} & ${wedding.partnerTwoName}`
                     : "…"}
                 </p>
-                <p className="meta truncate">
-                  {wedding ? formatDateID(wedding.weddingDate) : ""}
-                </p>
+                <div className="mt-0.5 flex items-center gap-2">
+                  <p className="meta truncate">
+                    {wedding ? formatDateID(wedding.weddingDate) : ""}
+                  </p>
+                  {wedding && (
+                    <span className="clay-sm shrink-0 rounded-full bg-white/75 px-2 py-0.5 text-[10px] font-extrabold text-primary">
+                      {countdownLabel(wedding.weddingDate)}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-10 rounded-full bg-card"
+                aria-label="Buka menu fitur"
+                onClick={() => setFeaturesOpen(true)}
+              >
+                <LayoutGrid className="size-4" />
+              </Button>
               <NotificationBell
                 wedding={wedding}
                 openTasks={openTasks}
@@ -321,6 +348,53 @@ export function AppShell() {
       <main className="mx-auto w-full max-w-md px-4 pt-4 lg:max-w-3xl lg:px-10">
         <Outlet />
       </main>
+
+      <Drawer open={featuresOpen} onOpenChange={setFeaturesOpen}>
+        <DrawerContent className="max-h-[85dvh] overflow-y-auto sm:mx-auto sm:max-w-md data-[vaul-drawer-direction=bottom]:rounded-t-3xl">
+          <DrawerHeader className="text-left">
+            <DrawerTitle className="font-serif text-xl">Semua Fitur</DrawerTitle>
+            <DrawerDescription>
+              Akses seluruh modul perencanaan pernikahan Anda dalam satu tempat.
+            </DrawerDescription>
+          </DrawerHeader>
+
+          <Stagger className="grid grid-cols-2 gap-3 px-4">
+            {FEATURES.map((feature) => (
+              <StaggerItem key={feature.to}>
+                <DrawerClose asChild>
+                  <Link
+                    to={feature.to}
+                    className={`clay clay-press block p-4 ${feature.surface}`}
+                  >
+                    <span className="flex items-center justify-between">
+                      <feature.icon className="size-5" />
+                      <span className="text-lg">{feature.emoji}</span>
+                    </span>
+                    <span className="mt-2.5 block text-sm font-extrabold leading-tight">
+                      {feature.label}
+                    </span>
+                    <span className="mt-1 block text-[11px] leading-snug opacity-80">
+                      {feature.desc}
+                    </span>
+                  </Link>
+                </DrawerClose>
+              </StaggerItem>
+            ))}
+          </Stagger>
+
+          <div className="px-4 pb-8">
+            <DrawerClose asChild>
+              <Link
+                to="/app/pengaturan"
+                className="clay clay-press flex items-center justify-between px-4 py-3.5 text-sm font-extrabold"
+              >
+                Pengaturan
+                <Settings className="size-4 text-muted-foreground" />
+              </Link>
+            </DrawerClose>
+          </div>
+        </DrawerContent>
+      </Drawer>
 
       <BottomNav />
       </div>
