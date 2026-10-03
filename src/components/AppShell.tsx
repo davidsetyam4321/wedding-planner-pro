@@ -29,7 +29,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { SETUP_REFRESH_EVENT } from "@/lib/session";
 import { Bell, LayoutGrid, Settings, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Link, Outlet } from "react-router";
+import { Link, Outlet, useLocation } from "react-router";
 import { useMutation, useQuery } from "convex/react";
 
 /**
@@ -83,14 +83,25 @@ type WorkspaceStatus = {
   inviteCode: string | null;
 };
 
+/** Judul halaman untuk header tipis — diambil dari rute aktif. */
+function pageTitleFor(pathname: string): string {
+  if (pathname === "/app") return "Beranda";
+  const feature = FEATURES.find((item) => item.to === pathname);
+  if (feature) return feature.label;
+  if (pathname.startsWith("/app/pengaturan")) return "Pengaturan";
+  return "Beranda";
+}
+
 function NotificationBell({
   wedding,
   openTasks,
   workspace,
+  savingsNote,
 }: {
   wedding: { weddingDate: number; venueName?: string } | null | undefined;
   openTasks: number;
   workspace: WorkspaceStatus | null | undefined;
+  savingsNote: string | null;
 }) {
   const notes = useMemo(() => {
     const list: { id: string; label: string; tone?: "mint" | "amber" }[] = [];
@@ -127,6 +138,10 @@ function NotificationBell({
       }
     }
 
+    if (savingsNote) {
+      list.push({ id: "savings", tone: "mint", label: savingsNote });
+    }
+
     if (wedding) {
       list.push({
         id: "countdown",
@@ -144,7 +159,7 @@ function NotificationBell({
       }
     }
     return list;
-  }, [wedding, openTasks]);
+  }, [wedding, openTasks, savingsNote]);
 
   return (
     <Popover>
@@ -152,7 +167,7 @@ function NotificationBell({
         <Button
           variant="outline"
           size="icon"
-          className="relative size-10 rounded-full bg-card"
+          className="relative size-9 rounded-full bg-card"
           aria-label="Notifikasi"
         >
           <Bell className="size-4" />
@@ -213,12 +228,16 @@ export function AppShell() {
   const checklist = useQuery(api.checklist.list);
   const couplePhoto = useQuery(api.wedding.getCouplePhoto);
   const workspace = useQuery(api.workspace.status);
+  const { pathname } = useLocation();
+  const pageTitle = pageTitleFor(pathname);
 
   const savingsTotal =
     savings?.reduce((sum, deposit) => sum + deposit.amount, 0) ?? 0;
   const fundTarget = wedding?.fundTarget ?? 0;
-  const progressPct =
-    fundTarget > 0 ? Math.min(100, (savingsTotal / fundTarget) * 100) : 0;
+  const savingsNote =
+    fundTarget > 0
+      ? `Tabungan ${formatRupiahShort(savingsTotal)} dari target ${formatRupiahShort(fundTarget)}.`
+      : null;
   const openTasks = (checklist ?? []).filter((item) => !item.done).length;
 
   // Themed sync screen while the workspace is being prepared or re-synced
@@ -265,84 +284,58 @@ export function AppShell() {
       <Petals />
       <BloomOverlay />
       <header className="mx-auto w-full max-w-md px-4 pt-5 lg:max-w-3xl lg:px-10 lg:pt-8">
-        <div className="clay grad-warm relative overflow-hidden p-5">
-          <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 text-tint-peach-foreground/25" />
-          <FlowerMark className="sway pointer-events-none absolute -left-4 bottom-2 size-14 text-primary/15" />
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="relative size-12 shrink-0 overflow-hidden rounded-2xl border border-white/70 bg-primary text-sm font-extrabold text-primary-foreground">
-                {couplePhoto ? (
-                  <img
-                    src={couplePhoto}
-                    alt="Foto pasangan"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <span className="flex h-full w-full items-center justify-center">
-                    {coupleInitials(
-                      wedding?.partnerOneName,
-                      wedding?.partnerTwoName,
-                    )}
-                  </span>
-                )}
-              </div>
-              <div className="min-w-0">
-                <p className="h-card truncate">
-                  {wedding
-                    ? `${wedding.partnerOneName} & ${wedding.partnerTwoName}`
-                    : "…"}
-                </p>
-                <div className="mt-0.5 flex items-center gap-2">
-                  <p className="meta truncate">
-                    {wedding ? formatDateID(wedding.weddingDate) : ""}
-                  </p>
-                  {wedding && (
-                    <span className="clay-sm shrink-0 rounded-full bg-white/75 px-2 py-0.5 text-[10px] font-extrabold text-primary">
-                      {countdownLabel(wedding.weddingDate)}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="flex shrink-0 items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-10 rounded-full bg-card"
-                aria-label="Buka menu fitur"
-                onClick={() => setFeaturesOpen(true)}
-              >
-                <LayoutGrid className="size-4" />
-              </Button>
+        <div className="flex items-center justify-between gap-3">
+          <Link to="/app" className="flex min-w-0 items-center gap-2.5">
+            <span className="clay-sm grad-warm flex size-9 shrink-0 items-center justify-center rounded-xl lg:hidden">
+              <FlowerMark className="size-5 text-primary" />
+            </span>
+            <span className="min-w-0">
+              <span className="label block text-muted-foreground lg:hidden">
+                Planner Wedding
+              </span>
+              <h1 className="truncate font-serif text-lg font-semibold leading-tight">
+                {pageTitle}
+              </h1>
+            </span>
+          </Link>
+          <div className="flex shrink-0 items-center gap-1.5">
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-9 rounded-full bg-card"
+              aria-label="Buka menu fitur"
+              onClick={() => setFeaturesOpen(true)}
+            >
+              <LayoutGrid className="size-4" />
+            </Button>
               <NotificationBell
                 wedding={wedding}
                 openTasks={openTasks}
                 workspace={workspace}
+                savingsNote={savingsNote}
               />
-              <Button
-                asChild
-                variant="outline"
-                size="icon"
-                className="size-10 rounded-full bg-card"
-              >
-                <Link to="/app/pengaturan" aria-label="Pengaturan">
-                  <Settings className="size-4" />
-                </Link>
-              </Button>
+            <Link
+              to="/app/pengaturan"
+              aria-label="Pengaturan"
+              className="block size-9 shrink-0 overflow-hidden rounded-full"
+            >
+              {couplePhoto ? (
+                <img
+                  src={couplePhoto}
+                  alt="Foto pasangan"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center rounded-full bg-primary text-[11px] font-extrabold text-primary-foreground">
+                  {coupleInitials(
+                    wedding?.partnerOneName,
+                    wedding?.partnerTwoName,
+                  )}
+                </span>
+              )}
+            </Link>
             </div>
           </div>
-
-          <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-white/70">
-            <div
-              className="h-full rounded-full bg-primary transition-all"
-              style={{ width: `${progressPct}%` }}
-            />
-          </div>
-          <p className="meta mt-1.5">
-            {formatRupiahShort(savingsTotal)} dari target{" "}
-            {formatRupiahShort(fundTarget)}
-          </p>
-        </div>
       </header>
 
       <main className="mx-auto w-full max-w-md px-4 pt-4 lg:max-w-3xl lg:px-10">

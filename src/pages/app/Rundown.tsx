@@ -1,4 +1,3 @@
-import { FlowerMark } from "@/components/Decor";
 import {
   BackLink,
   EmptyState,
@@ -146,30 +145,29 @@ export function RundownPage() {
     <div className="space-y-4">
       <BackLink fallback="/app/lainnya" />
 
-      <section className="clay grad-sage relative overflow-hidden p-5 text-tint-sage-foreground">
-        <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 opacity-25" />
-        <div className="relative flex items-start justify-between gap-3">
+      <section className="clay p-5">
+        <div className="flex items-start justify-between gap-3">
           <div>
-            <h1 className="h-page">Rundown Acara</h1>
-            <p className="meta">
+            <p className="label text-muted-foreground">Agenda hari-H</p>
+            <p className="meta mt-1">
               {list.length} agenda
               {firstTime && lastTime ? ` · ${firstTime}–${lastTime}` : ""}
             </p>
           </div>
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-white/70 text-xl">
+          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-tint-sage text-xl text-tint-sage-foreground">
             ⏰
           </div>
         </div>
-        <dl className="relative mt-4 grid grid-cols-3 gap-2">
-          <div className="stat-tile bg-white/70">
+        <dl className="mt-4 grid grid-cols-3 gap-2">
+          <div className="stat-tile bg-secondary">
             <dt>Agenda</dt>
             <dd>{list.length}</dd>
           </div>
-          <div className="stat-tile bg-white/70">
+          <div className="stat-tile bg-secondary">
             <dt>Mulai</dt>
             <dd>{firstTime ?? "—"}</dd>
           </div>
-          <div className="stat-tile bg-white/70">
+          <div className="stat-tile bg-secondary">
             <dt>Total durasi</dt>
             <dd>{formatDuration(totalMinutes)}</dd>
           </div>

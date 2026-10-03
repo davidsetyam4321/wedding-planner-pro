@@ -1,4 +1,3 @@
-import { FlowerMark } from "@/components/Decor";
 import { EmptyState, PageSkeleton, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
@@ -165,21 +164,20 @@ export function BudgetPage() {
 
   return (
     <div className="space-y-4">
-      <section className="clay grad-mint relative overflow-hidden p-5 text-tint-mint-foreground">
-        <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 opacity-25" />
-        <div className="relative flex items-start justify-between gap-3">
+      <section className="clay p-5">
+        <div className="flex items-start justify-between gap-3">
           <div>
-            <h1 className="h-page">Budget</h1>
-            <p className="meta">
+            <p className="label text-muted-foreground">Progres anggaran</p>
+            <p className="meta mt-1">
               Terpakai {formatRupiahShort(totalSpent)} dari{" "}
               {formatRupiahShort(totalAllocated)}
             </p>
           </div>
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-white/70">
+          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-tint-mint text-tint-mint-foreground">
             <Wallet className="size-5" />
           </div>
         </div>
-        <div className="relative mt-4 h-3 overflow-hidden rounded-full bg-white/70">
+        <div className="mt-4 h-3 overflow-hidden rounded-full bg-secondary">
           <div
             className={`h-full rounded-full transition-all ${
               isOver ? "bg-destructive" : "bg-tint-mint-foreground/70"
@@ -196,15 +194,15 @@ export function BudgetPage() {
           )}
         </div>
         <dl className="relative mt-3 grid grid-cols-3 gap-2">
-          <div className="stat-tile bg-white/70">
+          <div className="stat-tile bg-secondary">
             <dt>Terpakai</dt>
             <dd>{formatRupiahShort(totalSpent)}</dd>
           </div>
-          <div className="stat-tile bg-white/70">
+          <div className="stat-tile bg-secondary">
             <dt>Lunas</dt>
             <dd>{formatRupiahShort(totalPaid)}</dd>
           </div>
-          <div className="stat-tile bg-white/70">
+          <div className="stat-tile bg-secondary">
             <dt>Sisa</dt>
             <dd>{formatRupiahShort(Math.max(0, totalAllocated - totalSpent))}</dd>
           </div>

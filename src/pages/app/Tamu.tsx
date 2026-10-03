@@ -1,4 +1,3 @@
-import { FlowerMark } from "@/components/Decor";
 import {
   BackLink,
   EmptyState,
@@ -125,8 +124,8 @@ export function TamuPage() {
       onClick={() => setRsvpFilter(key)}
       className={`chip shrink-0 ${
         rsvpFilter === key
-          ? "bg-white text-tint-sky-foreground shadow-sm"
-          : "bg-white/60 text-tint-sky-foreground/80"
+          ? "bg-primary text-primary-foreground shadow-sm"
+          : "bg-secondary text-secondary-foreground"
       }`}
     >
       {label} · {count}
@@ -201,16 +200,15 @@ export function TamuPage() {
     <div className="space-y-4">
       <BackLink fallback="/app/lainnya" />
 
-      <section className="clay grad-sky relative overflow-hidden p-5 text-tint-sky-foreground">
-        <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 opacity-25" />
-        <div className="relative flex items-start justify-between gap-3">
+      <section className="clay p-5">
+        <div className="flex items-start justify-between gap-3">
           <div>
-            <h1 className="h-page">Daftar Tamu</h1>
-            <p className="meta">
+            <p className="label text-muted-foreground">Respons undangan</p>
+            <p className="meta mt-1">
               {list.length} tamu · {totalPax} orang · {invited} terkirim
             </p>
           </div>
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-white/70 text-xl">
+          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-tint-sky text-xl text-tint-sky-foreground">
             💌
           </div>
         </div>
@@ -221,15 +219,15 @@ export function TamuPage() {
           {rsvpPill("tidak", "Tidak", list.filter((guest) => guest.rsvp === "tidak").length)}
         </div>
         <dl className="relative mt-3 grid grid-cols-3 gap-2">
-          <div className="stat-tile bg-white/70">
+          <div className="stat-tile bg-secondary">
             <dt>Total</dt>
             <dd>{totalPax} org</dd>
           </div>
-          <div className="stat-tile bg-white/70">
+          <div className="stat-tile bg-secondary">
             <dt>Hadir</dt>
             <dd>{attendingPax} org</dd>
           </div>
-          <div className="stat-tile bg-white/70">
+          <div className="stat-tile bg-secondary">
             <dt>Terikirim</dt>
             <dd>{invited}/{list.length}</dd>
           </div>

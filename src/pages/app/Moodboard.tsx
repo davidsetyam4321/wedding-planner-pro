@@ -1,4 +1,3 @@
-import { FlowerMark } from "@/components/Decor";
 import {
   BackLink,
   EmptyState,
@@ -183,20 +182,19 @@ export function MoodboardPage() {
 
       <BackLink fallback="/app/lainnya" />
 
-      <section className="clay grad-rose relative overflow-hidden p-5 text-tint-rose-foreground">
-        <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 opacity-25" />
-        <div className="relative flex items-center gap-3">
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-white/70 text-xl">
+      <section className="clay p-5">
+        <div className="flex items-center gap-3">
+          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-tint-rose text-xl text-tint-rose-foreground">
             🎨
           </div>
           <div>
-            <h1 className="h-page">Mood Board</h1>
-            <p className="meta">
+            <p className="label text-muted-foreground">Koleksi inspirasi</p>
+            <p className="meta mt-1">
               {boxes?.length ?? 0} kotak · {totalPhotos} foto di {current}
             </p>
           </div>
         </div>
-        <p className="meta relative mt-3 opacity-90">
+        <p className="meta mt-3">
           Simpan referensi per kategori sebanyak yang Anda butuhkan. Klik kotak
           untuk melihat galeri, geser thumbnail untuk pindah foto.
         </p>

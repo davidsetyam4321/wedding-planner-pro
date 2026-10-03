@@ -67,15 +67,14 @@ export function PengaturanPage() {
     <div className="space-y-4">
       <BackLink />
 
-      <section className="clay grad-warm relative overflow-hidden p-5">
-        <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 text-primary/20" />
-        <div className="relative flex items-center gap-3">
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-tint-rose text-lg">
+      <section className="clay p-5">
+        <div className="flex items-center gap-3">
+          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-tint-rose text-lg text-tint-rose-foreground">
             ⚙️
           </div>
           <div>
-            <h1 className="h-page">Pengaturan</h1>
-            <p className="meta mt-0.5">Data ini dipakai di seluruh halaman</p>
+            <p className="label text-muted-foreground">Preferensi ruang kerja</p>
+            <p className="meta mt-1">Data ini dipakai di seluruh halaman</p>
           </div>
         </div>
       </section>

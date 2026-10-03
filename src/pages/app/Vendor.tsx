@@ -1,4 +1,3 @@
-import { FlowerMark } from "@/components/Decor";
 import {
   BackLink,
   EmptyState,
@@ -20,6 +19,7 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
+import { waLink } from "@/lib/contact";
 import { formatRupiah, formatRupiahShort } from "@/lib/format";
 import {
   Loader2,
@@ -190,34 +190,33 @@ export function VendorPage() {
     <div className="space-y-4">
       <BackLink fallback="/app/lainnya" />
 
-      <section className="clay grad-butter relative overflow-hidden p-5 text-tint-butter-foreground">
-        <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 opacity-25" />
-        <div className="relative flex items-start justify-between gap-3">
+      <section className="clay p-5">
+        <div className="flex items-start justify-between gap-3">
           <div>
-            <h1 className="h-page">Vendor</h1>
-            <p className="meta">
+            <p className="label text-muted-foreground">Status pembayaran</p>
+            <p className="meta mt-1">
               {list.length} vendor · {lunasCount} lunas · {categories.length} kategori
             </p>
           </div>
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-white/70 text-xl">
+          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-tint-butter text-xl text-tint-butter-foreground">
             📋
           </div>
         </div>
-        <dl className="relative mt-4 grid grid-cols-3 gap-2">
-          <div className="stat-tile bg-white/70">
+        <dl className="mt-4 grid grid-cols-3 gap-2">
+          <div className="stat-tile bg-secondary">
             <dt>Total biaya</dt>
             <dd>{formatRupiahShort(totalCost)}</dd>
           </div>
-          <div className="stat-tile bg-white/70">
+          <div className="stat-tile bg-secondary">
             <dt>Terbayar</dt>
             <dd>{formatRupiahShort(paidTotal)}</dd>
           </div>
-          <div className="stat-tile bg-white/70">
+          <div className="stat-tile bg-secondary">
             <dt>Sisa</dt>
             <dd>{formatRupiahShort(remaining)}</dd>
           </div>
         </dl>
-        <div className="relative mt-3 h-2.5 w-full overflow-hidden rounded-full bg-white/70">
+        <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-secondary">
           <div
             className="h-full rounded-full bg-primary transition-all"
             style={{

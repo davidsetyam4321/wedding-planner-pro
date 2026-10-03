@@ -198,6 +198,27 @@ export function EmptyState({
 }
 
 /**
+ * Judul seksi bergaya VOWCRAFT: huruf kapital kecil di kiri, aksi/meta di
+ * kanan. Dipakai di seluruh halaman agar struktur judul seragam.
+ */
+export function SectionHeader({
+  title,
+  action,
+}: {
+  title: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="mb-2.5 flex items-end justify-between gap-2">
+      <h2 className="text-[13px] font-extrabold uppercase tracking-wider leading-tight">
+        {title}
+      </h2>
+      {action}
+    </div>
+  );
+}
+
+/**
  * Tombol "Kembali" bersama untuk semua halaman: kembali ke riwayat
  * navigasi, atau ke `fallback` bila halaman dibuka langsung (deep link).
  */

@@ -1,5 +1,11 @@
-import { FlowerMark } from "@/components/Decor";
-import { EmptyState, PageSkeleton, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
+import {
+  EmptyState,
+  PageSkeleton,
+  RowMenu,
+  SectionHeader,
+  Stagger,
+  StaggerItem,
+} from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -149,16 +155,15 @@ export function TabunganPage() {
 
   return (
     <div className="space-y-4">
-      <section className="clay grad-lavender relative overflow-hidden p-5 text-tint-lavender-foreground">
-        <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 opacity-25" />
-        <div className="relative flex items-start justify-between gap-3">
+      <section className="clay p-5">
+        <div className="flex items-start justify-between gap-3">
           <div>
-            <h1 className="h-page">Tabungan</h1>
-            <p className="meta">Target {formatRupiahShort(target)}</p>
+            <p className="label text-muted-foreground">Progres tabungan</p>
+            <p className="meta mt-1">Target {formatRupiahShort(target)}</p>
           </div>
           <button
             type="button"
-            className="chip bg-white/70"
+            className="chip bg-tint-lavender text-tint-lavender-foreground"
             onClick={() => {
               setTargetValue(String(target));
               setTargetOpen(true);
@@ -168,10 +173,10 @@ export function TabunganPage() {
           </button>
         </div>
 
-        <p className="num relative mt-4 text-3xl font-extrabold">
+        <p className="num mt-4 text-3xl font-extrabold">
           {formatRupiah(total)}
         </p>
-        <div className="mt-3 h-3 overflow-hidden rounded-full bg-white/70">
+        <div className="mt-3 h-3 overflow-hidden rounded-full bg-secondary">
           <div
             className="h-full rounded-full bg-tint-lavender-foreground/70 transition-all"
             style={{ width: `${pct}%` }}
@@ -201,9 +206,10 @@ export function TabunganPage() {
       <Stagger>
         <StaggerItem>
           <section className="clay p-4">
-            <h2 className="h-card flex items-center gap-1.5">
-              <TrendingUp className="size-4 text-primary" /> 6 bulan terakhir
-            </h2>
+            <SectionHeader
+              title="6 bulan terakhir"
+              action={<TrendingUp className="size-4 text-primary" />}
+            />
             <div className="mt-3 flex h-24 items-end justify-between gap-2">
               {chart.map((bar) => (
                 <div
@@ -234,7 +240,7 @@ export function TabunganPage() {
       </Stagger>
 
       <section className="clay space-y-3 p-4">
-        <h2 className="h-card">Setor baru</h2>
+        <SectionHeader title="Setor baru" />
         <div className="grid grid-cols-2 gap-2">
           {QUICK_AMOUNTS.map((value) => (
             <button

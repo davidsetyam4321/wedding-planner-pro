@@ -1,4 +1,3 @@
-import { FlowerMark } from "@/components/Decor";
 import { EmptyState, PageSkeleton, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
@@ -175,18 +174,19 @@ export function ChecklistPage() {
 
   return (
     <div className="space-y-4">
-      <section className="clay grad-peach relative overflow-hidden p-5 text-tint-peach-foreground">
-        <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-20 opacity-25" />
-        <div className="relative flex items-center justify-between gap-3">
+      <section className="clay p-5">
+        <div className="flex items-center justify-between gap-3">
           <div>
-            <h1 className="h-page">Checklist</h1>
-            <p className="meta">{open.length} tugas menunggu · {done.length} selesai</p>
+            <p className="label text-muted-foreground">Progres tugas</p>
+            <p className="meta mt-1">
+              {open.length} tugas menunggu · {done.length} selesai
+            </p>
           </div>
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-white/70 text-xl">
+          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-tint-peach text-xl text-tint-peach-foreground">
             📝
           </div>
         </div>
-        <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white/70">
+        <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-secondary">
           <div
             className="h-full rounded-full bg-tint-peach-foreground/70 transition-all"
             style={{ width: `${pct}%` }}

@@ -1,4 +1,4 @@
-import { FlowerMark } from "@/components/Decor";
+import { SectionHeader } from "@/components/Shared";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -45,24 +45,25 @@ export function LainnyaPage() {
 
   return (
     <div className="space-y-4">
-      <section className="clay grad-warm relative overflow-hidden p-5">
-        <FlowerMark className="sway pointer-events-none absolute -right-4 -top-4 size-24 text-primary/15" />
-        <div className="relative flex items-center gap-3">
-          <div className="clay-sm flex size-12 items-center justify-center rounded-2xl bg-white/70 text-2xl">
+      <section className="clay p-5">
+        <div className="flex items-center gap-3">
+          <div className="clay-sm flex size-12 items-center justify-center rounded-2xl bg-tint-rose text-2xl text-tint-rose-foreground">
             🌷
           </div>
           <div>
-            <h1 className="h-page">Lainnya</h1>
-            <p className="meta mt-0.5">Alat tambahan & pengaturan</p>
+            <p className="label text-muted-foreground">Alat tambahan</p>
+            <p className="meta mt-1">
+              Semua modul perencanaan dalam satu tempat
+            </p>
           </div>
         </div>
       </section>
 
       <section>
-        <div className="mb-2 flex items-end justify-between">
-          <h2 className="h-card">Alat perencanaan</h2>
-          <span className="meta">4 alat</span>
-        </div>
+        <SectionHeader
+          title="Alat perencanaan"
+          action={<span className="meta">4 alat</span>}
+        />
         <div className="grid gap-3 md:grid-cols-2">
           {tools.map((tool) => (
             <Link
@@ -102,10 +103,10 @@ export function LainnyaPage() {
       </section>
 
       <section>
-        <div className="mb-2 flex items-end justify-between">
-          <h2 className="h-card">Jalan pintas</h2>
-          <span className="meta">3 pintasan</span>
-        </div>
+        <SectionHeader
+          title="Jalan pintas"
+          action={<span className="meta">3 pintasan</span>}
+        />
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
           {shortcuts.map((feature) => (
             <Link
