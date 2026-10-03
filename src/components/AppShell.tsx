@@ -159,7 +159,7 @@ function NotificationBell({
       }
     }
     return list;
-  }, [wedding, openTasks, savingsNote]);
+  }, [workspace, wedding, openTasks, savingsNote]);
 
   return (
     <Popover>
