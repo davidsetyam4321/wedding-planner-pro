@@ -34,6 +34,27 @@ export function formatDateID(ms: number): string {
   return `${d.getDate()} ${MONTHS_ID[d.getMonth()]} ${d.getFullYear()}`;
 }
 
+const WEEKDAYS_ID = [
+  "Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu",
+];
+
+const MONTHS_SHORT_ID = [
+  "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+  "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
+];
+
+/** Long form with weekday, e.g. "Sabtu, 28 Oktober 2025" (dashboard hero). */
+export function formatDateLongID(ms: number): string {
+  const d = new Date(ms);
+  return `${WEEKDAYS_ID[d.getDay()]}, ${d.getDate()} ${MONTHS_ID[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+/** Compact form, e.g. "28 Okt" (wedding-stage timeline). */
+export function formatDateShortID(ms: number): string {
+  const d = new Date(ms);
+  return `${d.getDate()} ${MONTHS_SHORT_ID[d.getMonth()]}`;
+}
+
 export function formatDateTimeID(ms: number): string {
   const d = new Date(ms);
   const hh = String(d.getHours()).padStart(2, "0");
@@ -41,11 +62,37 @@ export function formatDateTimeID(ms: number): string {
   return `${d.getDate()} ${MONTHS_ID[d.getMonth()]} · ${hh}:${mm}`;
 }
 
-/** Whole days remaining until the wedding; 0 once the date has passed. */
+/**
+ * Whole days remaining until the wedding (floor, so the label always matches
+ * the live hour/minute/second counter next to it); 0 once the date has passed.
+ */
 export function daysUntil(weddingDateMs: number, now = Date.now()): number {
   const diff = weddingDateMs - now;
   if (diff <= 0) return 0;
-  return Math.ceil(diff / 86_400_000);
+  return Math.floor(diff / 86_400_000);
+}
+
+export type CountdownParts = {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+};
+
+/** Detailed countdown breakdown for the dashboard hero (all values padded in the UI). */
+export function countdownParts(
+  weddingDateMs: number,
+  now = Date.now(),
+): CountdownParts {
+  const diff = Math.max(0, weddingDateMs - now);
+  const days = Math.floor(diff / 86_400_000);
+  const rest = diff - days * 86_400_000;
+  return {
+    days,
+    hours: Math.floor(rest / 3_600_000),
+    minutes: Math.floor((rest % 3_600_000) / 60_000),
+    seconds: Math.floor((rest % 60_000) / 1000),
+  };
 }
 
 /** H-xxx label (H-0 shown as "Hari ini"). */

@@ -101,6 +101,10 @@ const schema = defineSchema(
       done: v.optional(v.boolean()),
       sortOrder: v.number(),
       createdAt: v.optional(v.number()),
+      /** Urgency shown on the dashboard agenda; lama = tidak ada (dianggap "sedang"). */
+      priority: v.optional(
+        v.union(v.literal("tinggi"), v.literal("sedang"), v.literal("rendah")),
+      ),
     })
       .index("by_user", ["userId"])
       .index("by_user_done", ["userId", "done"]),

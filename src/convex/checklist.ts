@@ -88,6 +88,24 @@ export const toggle = mutation({
   },
 });
 
+export const setPriority = mutation({
+  args: {
+    itemId: v.id("checklistItem"),
+    priority: v.union(
+      v.literal("tinggi"),
+      v.literal("sedang"),
+      v.literal("rendah"),
+    ),
+  },
+  handler: async (ctx, { itemId, priority }) => {
+    const userId = await workspaceUserId(ctx);
+
+    const item = await ctx.db.get(itemId);
+    if (!item || item.userId !== userId) throw new Error("Item not found");
+    await ctx.db.patch(itemId, { priority });
+  },
+});
+
 export const remove = mutation({
   args: { itemId: v.id("checklistItem") },
   handler: async (ctx, { itemId }) => {

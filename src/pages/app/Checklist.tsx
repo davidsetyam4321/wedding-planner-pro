@@ -14,6 +14,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
+import {
+  PRIORITY_BADGE,
+  PRIORITY_LABEL,
+  nextPriority,
+  normalizePriority,
+} from "@/lib/priority";
 import { Check, Loader2, Plus, Search, Sparkles, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
@@ -33,6 +39,7 @@ export function ChecklistPage() {
   const createMany = useMutation(api.checklist.createMany);
   const updateItem = useMutation(api.checklist.update);
   const toggleItem = useMutation(api.checklist.toggle);
+  const setPriority = useMutation(api.checklist.setPriority);
   const removeItem = useMutation(api.checklist.remove);
   const clearDone = useMutation(api.checklist.clearDone);
 
@@ -87,6 +94,23 @@ export function ChecklistPage() {
       >
         {item.label}
       </span>
+      {!item.done && (
+        <button
+          type="button"
+          title="Ubah prioritas tugas"
+          onClick={() =>
+            setPriority({
+              itemId: item._id,
+              priority: nextPriority(item.priority),
+            })
+          }
+          className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider transition-transform active:scale-95 ${
+            PRIORITY_BADGE[normalizePriority(item.priority)]
+          }`}
+        >
+          {PRIORITY_LABEL[normalizePriority(item.priority)]}
+        </button>
+      )}
       <RowMenu
         onEdit={() => setEditing({ id: item._id, label: item.label })}
         onDelete={() => removeItem({ itemId: item._id })}
