@@ -167,20 +167,20 @@ export function BudgetPage() {
       <section className="clay p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="label text-muted-foreground">Progres anggaran</p>
+            <p className="label text-muted-foreground">Ikhtisar anggaran</p>
             <p className="meta mt-1">
               Terpakai {formatRupiahShort(totalSpent)} dari{" "}
               {formatRupiahShort(totalAllocated)}
             </p>
           </div>
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-tint-mint text-tint-mint-foreground">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-tint-mint text-tint-mint-foreground shadow-sm">
             <Wallet className="size-5" />
           </div>
         </div>
-        <div className="mt-4 h-3 overflow-hidden rounded-full bg-secondary">
+        <div className="mt-4 h-3 overflow-hidden rounded-full bg-tint-sage">
           <div
-            className={`h-full rounded-full transition-all ${
-              isOver ? "bg-destructive" : "bg-tint-mint-foreground/70"
+            className={`h-full rounded-full transition-all duration-700 ${
+              isOver ? "bg-destructive" : "fill-botanical"
             }`}
             style={{ width: `${spentPct}%` }}
           />
@@ -286,7 +286,7 @@ export function BudgetPage() {
                   <div className="mx-4 h-1.5 overflow-hidden rounded-full bg-muted">
                     <div
                       className={`h-full rounded-full transition-all ${
-                        over ? "bg-destructive" : "bg-tint-mint-foreground/60"
+                        over ? "bg-destructive" : "fill-botanical"
                       }`}
                       style={{ width: `${pct}%` }}
                     />

@@ -176,9 +176,9 @@ export function TabunganPage() {
         <p className="num mt-4 text-3xl font-extrabold">
           {formatRupiah(total)}
         </p>
-        <div className="mt-3 h-3 overflow-hidden rounded-full bg-secondary">
+        <div className="mt-3 h-3 overflow-hidden rounded-full bg-tint-sage">
           <div
-            className="h-full rounded-full bg-tint-lavender-foreground/70 transition-all"
+            className="fill-botanical h-full rounded-full transition-all duration-700"
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -221,9 +221,7 @@ export function TabunganPage() {
                   </p>
                   <div
                     className={`w-full max-w-9 rounded-t-lg transition-all ${
-                      bar.sum > 0
-                        ? "bg-tint-lavender-foreground/70"
-                        : "clay-inset bg-muted"
+                      bar.sum > 0 ? "bg-primary" : "bg-tint-sage"
                     }`}
                     style={{
                       height: bar.sum > 0 ? `${Math.max(10, (bar.sum / chartMax) * 72)}px` : 6,
@@ -248,7 +246,7 @@ export function TabunganPage() {
               type="button"
               disabled={saving}
               onClick={() => void submit(value)}
-              className="clay-inset clay-press rounded-2xl bg-tint-lavender px-3 py-2.5 text-sm font-extrabold text-tint-lavender-foreground transition-all disabled:opacity-60"
+              className="clay-press rounded-2xl bg-tint-butter/60 px-3 py-2.5 text-sm font-extrabold text-tint-butter-foreground transition-all disabled:opacity-60"
             >
               + {formatRupiahShort(value)}
             </button>

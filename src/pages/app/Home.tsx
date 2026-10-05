@@ -32,9 +32,11 @@ import {
   Loader2,
   Lock,
   Mail,
+  MapPin,
   Palette,
   PartyPopper,
   Phone,
+  Quote,
   Sparkles,
   TrendingUp,
   UserPlus,
@@ -70,41 +72,36 @@ function CountdownTimer({ weddingDate }: { weddingDate: number }) {
 
   const parts = countdownParts(weddingDate, now);
   const cells = [
-    { value: parts.hours, label: "Jam" },
-    { value: parts.minutes, label: "Mnt" },
-    { value: parts.seconds, label: "Dtk" },
+    { value: parts.days, label: "Hari", gold: false },
+    { value: parts.hours, label: "Jam", gold: false },
+    { value: parts.minutes, label: "Menit", gold: false },
+    { value: parts.seconds, label: "Detik", gold: true },
   ];
 
   return (
-    <div className="mt-4 flex items-center gap-3 rounded-2xl bg-white/80 p-3.5">
-      <div className="min-w-0 flex-1">
-        <p className="label text-muted-foreground">Menghitung detik bahagia</p>
-        <p className="mt-1 font-serif text-xl font-semibold leading-tight">
-          {parts.days > 0
-            ? `H-${parts.days} Hari Lagi`
-            : "Hari ini hari bahagia"}
-        </p>
-      </div>
-      <div className="flex shrink-0 gap-1.5">
-        {cells.map((cell) => (
-          <div
-            key={cell.label}
-            className="clay-sm w-12 rounded-xl bg-card py-1.5 text-center"
+    <div className="grid grid-cols-4 gap-2 text-center">
+      {cells.map((cell) => (
+        <div
+          key={cell.label}
+          className="flex flex-col items-center rounded-2xl bg-card/85 py-2.5 shadow-sm backdrop-blur-md"
+        >
+          <p
+            className={`num font-serif text-[1.35rem] font-semibold leading-tight ${
+              cell.gold ? "text-gold" : ""
+            }`}
           >
-            <p className="num text-lg font-extrabold leading-none">
-              {String(cell.value).padStart(2, "0")}
-            </p>
-            <p className="label mt-1 text-[9px] text-muted-foreground">
-              {cell.label}
-            </p>
-          </div>
-        ))}
-      </div>
+            {String(cell.value).padStart(2, "0")}
+          </p>
+          <p className="label mt-0.5 text-[9px] text-muted-foreground">
+            {cell.label}
+          </p>
+        </div>
+      ))}
     </div>
   );
 }
 
-/** Kartu statistik kecil gaya VOWCRAFT: label + ikon + angka + bar progres. */
+/** Kartu progres mini ala SatuJanji: ikon bulat berwarna, angka serif, bar botanical. */
 function ReadinessCard({
   label,
   icon: Icon,
@@ -118,25 +115,36 @@ function ReadinessCard({
   value: string;
   suffix?: string;
   pct: number;
-  tone: string;
+  tone: { icon: string; pct: string };
 }) {
   return (
-    <div className="clay p-4">
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-xs font-bold text-muted-foreground">{label}</p>
-        <Icon className="size-4 shrink-0 text-muted-foreground" />
+    <div className="clay flex flex-col justify-between gap-3 p-4">
+      <div className="flex items-center justify-between">
+        <span
+          className={`flex size-8 items-center justify-center rounded-full ${tone.icon}`}
+        >
+          <Icon className="size-4" />
+        </span>
+        <span className={`num text-[11px] font-extrabold ${tone.pct}`}>
+          {Math.round(pct)}%
+        </span>
       </div>
-      <p className="num mt-2 text-2xl font-extrabold leading-none">
-        {value}
-        {suffix && (
-          <span className="ml-1.5 text-xs font-bold text-muted-foreground">
-            {suffix}
-          </span>
-        )}
-      </p>
-      <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary">
+      <div>
+        <p className="font-serif text-lg font-semibold leading-tight">
+          {value}
+          {suffix && (
+            <span className="ml-1 text-xs font-semibold text-muted-foreground">
+              {suffix}
+            </span>
+          )}
+        </p>
+        <p className="mt-0.5 text-[11px] font-semibold leading-tight text-muted-foreground">
+          {label}
+        </p>
+      </div>
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-tint-sage">
         <div
-          className={`h-full rounded-full transition-all ${tone}`}
+          className="fill-botanical h-full rounded-full transition-all duration-700"
           style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
         />
       </div>
@@ -155,6 +163,7 @@ export function HomePage() {
   const vendors = useQuery(api.vendors.list);
   const toggleItem = useMutation(api.checklist.toggle);
   const couplePhoto = useQuery(api.wedding.getCouplePhoto);
+  const workspace = useQuery(api.workspace.status);
   const { uploading, openPicker, inputProps } = useCouplePhotoUpload();
 
   const moodCategories = useQuery(api.moodboard.listCategories);
@@ -222,22 +231,45 @@ export function HomePage() {
     <div className="space-y-5">
       <input type="file" accept="image/*" className="hidden" {...inputProps} />
 
-      {/* ── Hero: perjalanan cinta + hitung mundur detail ─────────────── */}
+      {/* ── Pill sinkronisasi ────────────────────────────────── */}
+      {wedding && (
+        <div className="flex items-center justify-between rounded-full bg-tint-sage/60 px-3 py-1.5 text-[11px] font-semibold text-muted-foreground backdrop-blur-md">
+          <span className="flex items-center gap-1.5">
+            <span className="size-2 animate-pulse rounded-full bg-primary" />
+            Sinkronisasi otomatis
+          </span>
+          <span className="text-tint-sky-foreground">
+            {workspace?.connectedEmail
+              ? `Tersinkron dengan ${workspace.connectedEmail}`
+              : workspace?.isAnonymous
+                ? "Ruang kerja lokal"
+                : workspace?.inviteCode
+                  ? `Kode undangan ${workspace.inviteCode}`
+                  : "Belum ada kode undangan"}
+          </span>
+        </div>
+      )}
+
+      {/* ── Hero: menuju janji suci + hitung mundur ────────── */}
       {!wedding ? (
         <Skeleton className="h-56 w-full rounded-3xl" />
       ) : (
         <section className="clay grad-warm relative overflow-hidden p-5">
-          <div className="flex items-start justify-between gap-3">
-            <span className="chip bg-tint-sage uppercase tracking-wider text-tint-sage-foreground">
-              <span className="size-1.5 rounded-full bg-tint-sage-foreground" />
-              Perjalanan cinta
-            </span>
+          <div className="pointer-events-none absolute -bottom-10 -right-10 size-44 rounded-full bg-tint-mint/50 blur-2xl" />
+          <div className="pointer-events-none absolute -left-12 -top-12 size-36 rounded-full bg-tint-butter/40 blur-xl" />
+          <div className="relative z-10 flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-gold">
+                <Heart className="size-3.5" />
+                Menuju Janji Suci
+              </span>
+            </div>
             <button
               type="button"
               onClick={openPicker}
               disabled={uploading}
               aria-label="Ganti foto pasangan"
-              className="size-11 shrink-0 overflow-hidden rounded-full border-2 border-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
+              className="size-11 shrink-0 overflow-hidden rounded-full ring-2 ring-primary/25 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {uploading ? (
                 <span className="flex size-full items-center justify-center bg-card">
@@ -260,18 +292,36 @@ export function HomePage() {
             </button>
           </div>
 
-          <p className="mt-3 font-serif text-[1.7rem] font-semibold leading-tight">
+          <p className="relative z-10 mt-1 font-serif text-[1.7rem] font-semibold leading-tight text-primary">
             {`${wedding.partnerOneName} & ${wedding.partnerTwoName}`}
           </p>
-          <p className="meta mt-1.5 flex items-start gap-1.5">
-            <CalendarDays className="mt-0.5 size-3.5 shrink-0" />
-            <span>
-              {formatDateLongID(wedding.weddingDate)}
-              {wedding.venueName ? ` • ${wedding.venueName}` : ""}
-            </span>
-          </p>
 
-          <CountdownTimer weddingDate={wedding.weddingDate} />
+          <div className="relative z-10 mt-4">
+            <CountdownTimer weddingDate={wedding.weddingDate} />
+          </div>
+
+          <div className="relative z-10 mt-4 space-y-1.5 text-[13px] text-muted-foreground">
+            <p className="flex items-center gap-2">
+              <CalendarDays className="size-4 shrink-0 text-gold" />
+              <span className="font-semibold text-foreground">
+                {formatDateLongID(wedding.weddingDate)}
+              </span>
+            </p>
+            {wedding.venueName && (
+              <p className="flex items-center gap-2">
+                <MapPin className="size-4 shrink-0 text-primary" />
+                <span>{wedding.venueName}</span>
+              </p>
+            )}
+          </div>
+
+          <div className="relative z-10 mt-4 rounded-2xl bg-tint-mint/40 p-3 backdrop-blur-sm">
+            <p className="flex items-start gap-2 font-serif text-[13px] italic leading-snug text-tint-mint-foreground">
+              <Quote className="mt-0.5 size-4 shrink-0" />
+              “Dua hati, satu janji — dipersiapkan dengan tenang, dijalani
+              dengan bahagia.”
+            </p>
+          </div>
         </section>
       )}
 
@@ -308,7 +358,10 @@ export function HomePage() {
                 value={`${readiness}%`}
                 suffix={readinessNote}
                 pct={readiness}
-                tone="bg-primary"
+                tone={{
+                  icon: "bg-tint-mint text-tint-mint-foreground",
+                  pct: "text-primary",
+                }}
               />
             </StaggerItem>
             <StaggerItem>
@@ -318,7 +371,10 @@ export function HomePage() {
                 value={`${doneTasks.length} / ${allTasks.length}`}
                 suffix="Tugas"
                 pct={taskPct}
-                tone="bg-tint-sage-foreground"
+                tone={{
+                  icon: "bg-tint-mint/60 text-tint-mint-foreground",
+                  pct: "text-primary",
+                }}
               />
             </StaggerItem>
             <StaggerItem>
@@ -328,7 +384,10 @@ export function HomePage() {
                 value={`${guestHadir} / ${guestTotal}`}
                 suffix="Hadir"
                 pct={guestTotal > 0 ? Math.round((guestHadir / guestTotal) * 100) : 0}
-                tone="bg-tint-sky-foreground"
+                tone={{
+                  icon: "bg-tint-butter text-tint-butter-foreground",
+                  pct: "text-gold",
+                }}
               />
             </StaggerItem>
             <StaggerItem>
@@ -338,7 +397,10 @@ export function HomePage() {
                 value={`${spentPct}%`}
                 suffix="Terkendali"
                 pct={spentPct}
-                tone="bg-tint-butter-foreground"
+                tone={{
+                  icon: "bg-tint-sky text-tint-sky-foreground",
+                  pct: "text-gold",
+                }}
               />
             </StaggerItem>
           </Stagger>
@@ -348,24 +410,24 @@ export function HomePage() {
       {/* ── Aksi cepat ────────────────────────────────────────────────── */}
       <section>
         <SectionHeader title="Aksi cepat" />
-        <Stagger className="grid grid-cols-4 gap-2.5">
+        <Stagger className="-mx-4 flex items-center gap-2.5 overflow-x-auto px-4 pb-1">
           {[
-            { to: "/app/budget", label: "Catat Biaya", icon: Wallet, surface: "bg-tint-mint text-tint-mint-foreground" },
-            { to: "/app/tamu", label: "Undang Tamu", icon: UserPlus, surface: "bg-tint-sky text-tint-sky-foreground" },
-            { to: "/app/rundown", label: "Tambah Agenda", icon: CalendarPlus, surface: "bg-tint-sage text-tint-sage-foreground" },
-            { to: "/app/moodboard", label: "Inspirasi", icon: Palette, surface: "bg-tint-rose text-tint-rose-foreground" },
+            { to: "/app/budget", label: "Catat Biaya", icon: Wallet, surface: "bg-tint-butter text-tint-butter-foreground" },
+            { to: "/app/tamu", label: "Tambah Tamu", icon: UserPlus, surface: "bg-tint-mint text-tint-mint-foreground" },
+            { to: "/app/rundown", label: "Rundown Acara", icon: CalendarPlus, surface: "bg-tint-sky text-tint-sky-foreground" },
+            { to: "/app/moodboard", label: "Moodboard", icon: Palette, surface: "bg-tint-rose text-tint-rose-foreground" },
           ].map((action) => (
-            <StaggerItem key={action.to}>
+            <StaggerItem key={action.to} className="shrink-0">
               <Link
                 to={action.to}
-                className="clay clay-press flex flex-col items-center gap-2 p-3"
+                className="clay clay-press flex items-center gap-2 rounded-full py-2.5 pl-2.5 pr-4"
               >
                 <span
-                  className={`flex size-12 items-center justify-center rounded-full ${action.surface}`}
+                  className={`flex size-8 shrink-0 items-center justify-center rounded-full ${action.surface}`}
                 >
-                  <action.icon className="size-5" />
+                  <action.icon className="size-4" />
                 </span>
-                <span className="text-center text-[11px] font-bold leading-tight">
+                <span className="whitespace-nowrap text-[13px] font-bold">
                   {action.label}
                 </span>
               </Link>
@@ -406,17 +468,17 @@ export function HomePage() {
                           index === 0
                             ? "invisible"
                             : index <= activePhase
-                              ? "bg-tint-sage-foreground"
+                              ? "bg-primary/40"
                               : "bg-border"
                         }`}
                       />
                       <span
                         className={`flex size-9 shrink-0 items-center justify-center rounded-full ${
                           status === "done"
-                            ? "bg-tint-sage-foreground text-white"
+                            ? "bg-primary/70 text-white"
                             : status === "active"
-                              ? "bg-tint-butter-foreground text-white"
-                              : "border border-border bg-secondary text-muted-foreground"
+                              ? "bg-primary text-primary-foreground"
+                              : "border border-border bg-tint-sage text-muted-foreground"
                         }`}
                       >
                         <Icon className="size-4" />
@@ -426,7 +488,7 @@ export function HomePage() {
                           index >= PHASES.length - 1
                             ? "invisible"
                             : index < activePhase
-                              ? "bg-tint-sage-foreground"
+                              ? "bg-primary/40"
                               : "bg-border"
                         }`}
                       />

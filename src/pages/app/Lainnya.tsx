@@ -152,7 +152,7 @@ export function LainnyaPage() {
 
       <p className="meta pb-2 text-center">
         <Settings className="mr-1 inline size-3" />
-        Planner Wedding · Perencana pernikahan untuk berdua
+        SatuJanji · Perencana pernikahan untuk berdua
       </p>
     </div>
   );

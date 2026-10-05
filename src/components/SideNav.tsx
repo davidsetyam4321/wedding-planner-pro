@@ -15,14 +15,14 @@ export function SideNav({ status }: { status: SyncInfo }) {
   return (
     <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col gap-4 px-5 py-6 lg:flex">
       <Link to="/app" className="flex items-center gap-3">
-        <span className="clay grad-warm clay-sm flex size-11 items-center justify-center rounded-2xl">
+        <span className="flex size-11 items-center justify-center rounded-2xl bg-tint-mint shadow-sm">
           <FlowerMark className="size-6 text-primary" />
         </span>
         <span>
-          <span className="block font-serif text-lg font-semibold leading-tight">
-            Planner Wedding
+          <span className="block font-serif text-lg font-semibold leading-tight text-primary">
+            SatuJanji
           </span>
-          <span className="meta block">untuk berdua</span>
+          <span className="meta block">Rencana pernikahan untuk berdua</span>
         </span>
       </Link>
 
@@ -33,10 +33,10 @@ export function SideNav({ status }: { status: SyncInfo }) {
             to={to}
             end={to === "/app"}
             className={({ isActive }) =>
-              `flex items-center gap-2.5 rounded-2xl px-3 py-2.5 text-sm font-bold transition-colors ${
+              `flex items-center gap-2.5 rounded-full px-3 py-2.5 text-sm font-bold transition-colors ${
                 isActive
-                  ? `${active} clay-sm`
-                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  ? `${active}`
+                  : "text-muted-foreground hover:bg-tint-sage hover:text-foreground"
               }`
             }
           >
@@ -55,10 +55,10 @@ export function SideNav({ status }: { status: SyncInfo }) {
             key={to}
             to={to}
             className={({ isActive }) =>
-              `flex items-center gap-2.5 rounded-2xl px-3 py-2 text-[13px] font-semibold transition-colors ${
+              `flex items-center gap-2.5 rounded-full px-3 py-2 text-[13px] font-semibold transition-colors ${
                 isActive
-                  ? "bg-secondary text-foreground"
-                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  ? "bg-tint-mint text-tint-mint-foreground"
+                  : "text-muted-foreground hover:bg-tint-sage hover:text-foreground"
               }`
             }
           >
@@ -91,7 +91,7 @@ export function SideNav({ status }: { status: SyncInfo }) {
         </div>
         <Link
           to="/app/pengaturan"
-          className="flex items-center gap-2.5 rounded-2xl px-3 py-2 text-[13px] font-semibold text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          className="flex items-center gap-2.5 rounded-full px-3 py-2 text-[13px] font-semibold text-muted-foreground transition-colors hover:bg-tint-sage hover:text-foreground"
         >
           <Settings className="size-4" /> Pengaturan
         </Link>

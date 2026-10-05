@@ -1,11 +1,11 @@
 {
-  "name": "Planner Wedding",
-  "short_name": "Planner Wedding",
+  "name": "SatuJanji",
+  "short_name": "SatuJanji",
   "description": "Perencana pernikahan untuk berdua: budget, tabungan, checklist, daftar tamu, vendor, mood board, dan rundown hari-H.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#faf9f5",
-  "theme_color": "#c96442",
+  "background_color": "#f1fcf3",
+  "theme_color": "#425a49",
   "icons": [
     {
       "src": "/logo.svg",

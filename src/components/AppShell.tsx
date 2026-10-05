@@ -280,25 +280,39 @@ export function AppShell() {
   return (
     <div className="mx-auto flex w-full max-w-7xl">
       <SideNav status={workspace} />
-      <div className="min-w-0 flex-1 pb-28 lg:pb-10">
+      <div className="relative min-w-0 flex-1 pb-28 lg:pb-10">
+      {/* Ambient botanical blur blobs — SatuJanji backdrop */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 -z-20 overflow-hidden"
+      >
+        <div className="absolute -left-20 -top-24 size-80 rounded-full bg-tint-mint/40 blur-3xl" />
+        <div className="absolute -right-24 top-1/3 size-72 rounded-full bg-tint-butter/30 blur-3xl" />
+      </div>
       <Petals />
       <BloomOverlay />
-      <header className="mx-auto w-full max-w-md px-4 pt-5 lg:max-w-3xl lg:px-10 lg:pt-8">
-        <div className="flex items-center justify-between gap-3">
+      <header className="sticky top-0 z-30 w-full bg-background/80 pb-2.5 pt-4 backdrop-blur-xl">
+        <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3 px-4 lg:max-w-3xl lg:px-10">
           <Link to="/app" className="flex min-w-0 items-center gap-2.5">
-            <span className="clay-sm grad-warm flex size-9 shrink-0 items-center justify-center rounded-xl lg:hidden">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-tint-mint shadow-sm lg:hidden">
               <FlowerMark className="size-5 text-primary" />
             </span>
-            <span className="min-w-0">
-              <span className="label block text-muted-foreground lg:hidden">
-                Planner Wedding
-              </span>
-              <h1 className="truncate font-serif text-lg font-semibold leading-tight">
-                {pageTitle}
+            <span className="flex min-w-0 flex-col leading-tight">
+              <h1 className="truncate font-serif text-[17px] font-semibold text-primary">
+                SatuJanji
               </h1>
+              <span className="truncate text-[11px] font-semibold text-muted-foreground">
+                {pageTitle}
+              </span>
             </span>
           </Link>
           <div className="flex shrink-0 items-center gap-1.5">
+            {wedding && (
+              <span className="hidden items-center gap-1.5 rounded-full bg-tint-mint/70 px-3 py-1 text-[11px] font-semibold text-tint-mint-foreground shadow-sm backdrop-blur-md sm:flex">
+                <span className="size-1.5 animate-pulse rounded-full bg-primary" />
+                {wedding.partnerOneName} & {wedding.partnerTwoName} ❤️
+              </span>
+            )}
             <Button
               variant="outline"
               size="icon"
@@ -317,7 +331,7 @@ export function AppShell() {
             <Link
               to="/app/pengaturan"
               aria-label="Pengaturan"
-              className="block size-9 shrink-0 overflow-hidden rounded-full"
+              className="block size-9 shrink-0 overflow-hidden rounded-full p-0.5 ring-2 ring-primary/25"
             >
               {couplePhoto ? (
                 <img

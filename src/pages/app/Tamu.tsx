@@ -108,6 +108,14 @@ export function TamuPage() {
   const attendingPax = list
     .filter((guest) => guest.rsvp === "hadir")
     .reduce((sum, guest) => sum + guest.pax, 0);
+  const declinedPax = list
+    .filter((guest) => guest.rsvp === "tidak")
+    .reduce((sum, guest) => sum + guest.pax, 0);
+  // Bar 3 segmen gaya SatuJanji: hadir / menunggu / berhalangan (berdasar pax).
+  const paxBase = Math.max(1, totalPax);
+  const hadirSeg = Math.round((attendingPax / paxBase) * 100);
+  const tidakSeg = Math.round((declinedPax / paxBase) * 100);
+  const pendingSeg = Math.max(0, 100 - hadirSeg - tidakSeg);
 
   const visible = list.filter((guest) => {
     if (groupFilter && guest.group !== groupFilter) return false;
@@ -208,9 +216,26 @@ export function TamuPage() {
               {list.length} tamu · {totalPax} orang · {invited} terkirim
             </p>
           </div>
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-tint-sky text-xl text-tint-sky-foreground">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-tint-sky text-xl text-tint-sky-foreground shadow-sm">
             💌
           </div>
+        </div>
+        <div className="relative mt-4 flex h-2 w-full overflow-hidden rounded-full bg-tint-sage">
+          <div
+            className="h-full bg-primary transition-all duration-700"
+            style={{ width: `${hadirSeg}%` }}
+            title="Hadir"
+          />
+          <div
+            className="h-full bg-gold transition-all duration-700"
+            style={{ width: `${pendingSeg}%` }}
+            title="Menunggu"
+          />
+          <div
+            className="h-full bg-border transition-all duration-700"
+            style={{ width: `${tidakSeg}%` }}
+            title="Berhalangan"
+          />
         </div>
         <div className="relative mt-4 flex items-center gap-2 overflow-x-auto pb-0.5">
           {rsvpPill("semua", "Semua", list.length)}

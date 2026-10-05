@@ -28,32 +28,32 @@ export const PRIMARY_NAV: NavItem[] = [
     to: "/app",
     label: "Beranda",
     icon: Home,
-    active: "bg-tint-butter text-tint-butter-foreground",
+    active: "bg-tint-mint/80 text-primary shadow-sm",
   },
   {
     to: "/app/budget",
     label: "Budget",
     icon: Wallet,
-    active: "bg-tint-mint text-tint-mint-foreground",
+    active: "bg-tint-butter/80 text-tint-butter-foreground shadow-sm",
   },
   {
     to: "/app/tabungan",
     label: "Tabungan",
     icon: PiggyBank,
-    active: "bg-tint-lavender text-tint-lavender-foreground",
+    active: "bg-tint-lavender/80 text-tint-lavender-foreground shadow-sm",
   },
   {
     to: "/app/checklist",
     label: "Checklist",
     icon: ListChecks,
-    active: "bg-tint-peach text-tint-peach-foreground",
+    active: "bg-tint-sage/80 text-tint-sage-foreground shadow-sm",
     badge: true,
   },
   {
     to: "/app/lainnya",
     label: "Lainnya",
     icon: FolderHeart,
-    active: "bg-tint-rose text-tint-rose-foreground",
+    active: "bg-tint-rose/80 text-tint-rose-foreground shadow-sm",
   },
 ];
 

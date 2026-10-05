@@ -7,11 +7,11 @@ export const PRIORITY_LABEL: Record<Priority, string> = {
   rendah: "Rendah",
 };
 
-/** Uppercase pill shown in the dashboard agenda list. */
+/** Uppercase pill shown in the dashboard agenda list (SatuJanji tones). */
 export const PRIORITY_BADGE: Record<Priority, string> = {
   tinggi: "bg-tint-rose text-tint-rose-foreground",
   sedang: "bg-tint-butter text-tint-butter-foreground",
-  rendah: "bg-tint-sage text-tint-sage-foreground",
+  rendah: "bg-tint-mint text-tint-mint-foreground",
 };
 
 /** Ordering weight for sorting (lower = more urgent). */

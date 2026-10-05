@@ -46,11 +46,11 @@ const STATUS_CHIP: Record<VendorStatus, string> = {
   lunas: "bg-primary text-primary-foreground",
 };
 
-/** Garis aksen warna status di sisi kiri kartu vendor. */
+/** Garis aksen warna status di sisi kiri kartu vendor (SatuJanji tones). */
 const STATUS_ACCENT: Record<VendorStatus, string> = {
-  belum: "bg-muted-foreground/30",
-  dp: "bg-amber-400",
-  lunas: "bg-emerald-500",
+  belum: "bg-border",
+  dp: "bg-gold/70",
+  lunas: "bg-primary",
 };
 
 type VendorForm = {
@@ -216,9 +216,9 @@ export function VendorPage() {
             <dd>{formatRupiahShort(remaining)}</dd>
           </div>
         </dl>
-        <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-secondary">
+        <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-tint-sage">
           <div
-            className="h-full rounded-full bg-primary transition-all"
+            className="fill-botanical h-full rounded-full transition-all duration-700"
             style={{
               width: `${totalCost > 0 ? Math.round((paidTotal / totalCost) * 100) : 0}%`,
             }}

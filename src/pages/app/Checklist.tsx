@@ -182,13 +182,13 @@ export function ChecklistPage() {
               {open.length} tugas menunggu · {done.length} selesai
             </p>
           </div>
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-tint-peach text-xl text-tint-peach-foreground">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-tint-sage text-xl text-tint-sage-foreground shadow-sm">
             📝
           </div>
         </div>
-        <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-secondary">
+        <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-tint-sage">
           <div
-            className="h-full rounded-full bg-tint-peach-foreground/70 transition-all"
+            className="fill-botanical h-full rounded-full transition-all duration-700"
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -228,7 +228,7 @@ export function ChecklistPage() {
                   clearDone().then(() => toast.success("Tugas selesai dibersihkan."));
                 }
               }}
-              className="chip bg-secondary text-secondary-foreground"
+              className="chip bg-tint-sage text-tint-sage-foreground"
             >
               <Trash2 className="size-3.5" /> Bersihkan selesai
             </button>

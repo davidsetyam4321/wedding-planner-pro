@@ -33,6 +33,7 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-gold: var(--gold);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -63,116 +64,121 @@
    Warm neutral base, terracotta accents, generous padding, gentle rounding.
    On top of it: a playful pastel per feature so nothing looks monotonous. */
 :root {
-  --radius: 0.5rem;
+  --radius: 0.75rem;
 
-  --background: #faf9f5;
-  --foreground: #3d3929;
-  --card: #faf9f5;
-  --card-foreground: #141413;
+  --background: #f1fcf3;
+  --foreground: #141e18;
+  --card: #ffffff;
+  --card-foreground: #141e18;
   --popover: #ffffff;
-  --popover-foreground: #28261b;
-  --primary: #c96442;
+  --popover-foreground: #141e18;
+  --primary: #425a49;
   --primary-foreground: #ffffff;
-  --secondary: #e9e6dc;
-  --secondary-foreground: #535146;
-  --muted: #ede9de;
-  --muted-foreground: #83827d;
-  --accent: #e9e6dc;
-  --accent-foreground: #28261b;
-  --destructive: #141413;
+  --secondary: #e5f1e7;
+  --secondary-foreground: #344c3b;
+  --muted: #e5f1e7;
+  --muted-foreground: #4f5b53;
+  --accent: #ceead2;
+  --accent-foreground: #344c3b;
+  --destructive: #ba1a1a;
   --destructive-foreground: #ffffff;
-  --border: #dad9d4;
-  --input: #b4b2a7;
-  --ring: #c96442;
-  --chart-1: #b05730;
-  --chart-2: #9c87f5;
-  --chart-3: #ded8c4;
-  --chart-4: #dbd3f0;
-  --chart-5: #b4552d;
-  --sidebar: #f5f4ee;
-  --sidebar-foreground: #3d3d3a;
-  --sidebar-primary: #c96442;
-  --sidebar-primary-foreground: #fbfbfb;
-  --sidebar-accent: #e9e6dc;
-  --sidebar-accent-foreground: #343434;
-  --sidebar-border: #ebebeb;
-  --sidebar-ring: #b5b5b5;
+  --border: #c9d4c9;
+  --input: #c2c8c1;
+  --ring: #425a49;
+  --chart-1: #425a49;
+  --chart-2: #775a19;
+  --chart-3: #ceead2;
+  --chart-4: #ffdea5;
+  --chart-5: #5a7360;
+  --sidebar: #ebf6ed;
+  --sidebar-foreground: #141e18;
+  --sidebar-primary: #425a49;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e0ebe2;
+  --sidebar-accent-foreground: #344c3b;
+  --sidebar-border: #d3ded4;
+  --sidebar-ring: #b2cdb7;
 
-  /* playful pastels */
-  --tint-mint: #d9f2e6;
-  --tint-mint-foreground: #1f5c43;
-  --tint-lavender: #e7e0fb;
-  --tint-lavender-foreground: #4a3a85;
-  --tint-peach: #ffe2ce;
-  --tint-peach-foreground: #8a4a22;
-  --tint-rose: #ffdde4;
-  --tint-rose-foreground: #8c3a4d;
-  --tint-sky: #d8e9fb;
-  --tint-sky-foreground: #24506f;
-  --tint-butter: #fbeec4;
-  --tint-butter-foreground: #7a5a1a;
-  --tint-sage: #e0ebdb;
-  --tint-sage-foreground: #3f5c39;
+  /* playful pastels — SatuJanji sage & champagne containers */
+  --tint-mint: #ceead2;
+  --tint-mint-foreground: #344c3b;
+  --tint-lavender: #dae5dc;
+  --tint-lavender-foreground: #344c3b;
+  --tint-peach: #e9c176;
+  --tint-peach-foreground: #5d4201;
+  --tint-rose: #ffdad6;
+  --tint-rose-foreground: #93000a;
+  --tint-sky: #d3e8d4;
+  --tint-sky-foreground: #394b3c;
+  --tint-butter: #ffdea5;
+  --tint-butter-foreground: #5d4201;
+  --tint-sage: #e0ebe2;
+  --tint-sage-foreground: #344c3b;
 
-  --shadow-soft: 0 1px 2px rgba(61, 57, 41, 0.05), 0 8px 20px -12px rgba(61, 57, 41, 0.18);
-  --shadow-lift: 0 2px 4px rgba(61, 57, 41, 0.06), 0 14px 30px -14px rgba(61, 57, 41, 0.24);
+  /* SatuJanji champagne-gold accent */
+  --gold: #775a19;
+
+  --shadow-soft: 0 8px 32px -4px rgba(36, 46, 40, 0.07), 0 1px 2px rgba(36, 46, 40, 0.04);
+  --shadow-lift: 0 16px 40px -12px rgba(36, 46, 40, 0.16);
 }
 
 .dark {
-  --background: #262624;
-  --foreground: #c3c0b6;
-  --card: #262624;
-  --card-foreground: #faf9f5;
-  --popover: #30302e;
-  --popover-foreground: #e5e5e2;
-  --primary: #d97757;
-  --primary-foreground: #ffffff;
-  --secondary: #faf9f5;
-  --secondary-foreground: #30302e;
-  --muted: #1b1b19;
-  --muted-foreground: #b7b5a9;
-  --accent: #1a1915;
-  --accent-foreground: #f5f4ee;
-  --destructive: #ef4444;
+  --background: #0f1512;
+  --foreground: #e2eee3;
+  --card: #17211a;
+  --card-foreground: #e2eee3;
+  --popover: #17211a;
+  --popover-foreground: #e2eee3;
+  --primary: #b2cdb7;
+  --primary-foreground: #082012;
+  --secondary: #22302a;
+  --secondary-foreground: #ceead2;
+  --muted: #1c2822;
+  --muted-foreground: #9fb0a4;
+  --accent: #22352a;
+  --accent-foreground: #ceead2;
+  --destructive: #ff5449;
   --destructive-foreground: #ffffff;
-  --border: #3e3e38;
-  --input: #52514a;
-  --ring: #d97757;
-  --chart-1: #b05730;
-  --chart-2: #9c87f5;
-  --chart-3: #1a1915;
-  --chart-4: #2f2b48;
-  --chart-5: #b4552d;
-  --sidebar: #1f1e1d;
-  --sidebar-foreground: #c3c0b6;
-  --sidebar-primary: #343434;
-  --sidebar-primary-foreground: #fbfbfb;
-  --sidebar-accent: #0f0f0e;
-  --sidebar-accent-foreground: #c3c0b6;
-  --sidebar-border: #ebebeb;
-  --sidebar-ring: #b5b5b5;
+  --border: #2a382f;
+  --input: #3a4a3f;
+  --ring: #b2cdb7;
+  --chart-1: #b2cdb7;
+  --chart-2: #e9c176;
+  --chart-3: #22352a;
+  --chart-4: #3a2f16;
+  --chart-5: #5a7360;
+  --sidebar: #131b16;
+  --sidebar-foreground: #e2eee3;
+  --sidebar-primary: #b2cdb7;
+  --sidebar-primary-foreground: #082012;
+  --sidebar-accent: #22352a;
+  --sidebar-accent-foreground: #ceead2;
+  --sidebar-border: #2a382f;
+  --sidebar-ring: #b2cdb7;
 
   --tint-mint: #22453a;
-  --tint-mint-foreground: #cdeadb;
-  --tint-lavender: #352f52;
-  --tint-lavender-foreground: #ded4fb;
-  --tint-peach: #4a3323;
-  --tint-peach-foreground: #ffd9bf;
+  --tint-mint-foreground: #ceead2;
+  --tint-lavender: #1f332b;
+  --tint-lavender-foreground: #dae5dc;
+  --tint-peach: #4a3a1d;
+  --tint-peach-foreground: #e9c176;
   --tint-rose: #4a2b33;
-  --tint-rose-foreground: #ffd2da;
-  --tint-sky: #23394d;
-  --tint-sky-foreground: #cfe4fa;
-  --tint-butter: #453a1c;
-  --tint-butter-foreground: #f8e6ae;
-  --tint-sage: #2c3d28;
-  --tint-sage-foreground: #d6e8cf;
+  --tint-rose-foreground: #ffdad6;
+  --tint-sky: #213a2e;
+  --tint-sky-foreground: #d3e8d4;
+  --tint-butter: #4a3a1d;
+  --tint-butter-foreground: #ffdea5;
+  --tint-sage: #23392c;
+  --tint-sage-foreground: #d8ead9;
+
+  --gold: #e9c176;
 
   --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 24px -14px rgba(0, 0, 0, 0.6);
   --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.35), 0 16px 32px -16px rgba(0, 0, 0, 0.7);
 }
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-serif: "Playfair Display", ui-serif, Georgia, "Times New Roman", serif;
   --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
@@ -239,9 +245,11 @@
 @layer utilities {
   .clay,
   .panel {
-    background-color: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xl);
+    background-color: color-mix(in srgb, var(--card) 82%, transparent);
+    backdrop-filter: blur(14px) saturate(1.35);
+    -webkit-backdrop-filter: blur(14px) saturate(1.35);
+    border: 1px solid rgba(66, 90, 73, 0.08);
+    border-radius: 1.25rem;
     box-shadow: var(--shadow-soft);
   }
   .clay-inset {
@@ -272,30 +280,34 @@
     color: var(--muted-foreground);
   }
 
-  /* gradients */
+  /* gradients — botanical sage to champagne */
   .grad-warm {
-    background-image: linear-gradient(135deg, #fff4ec 0%, #fdf1e7 45%, #faf9f5 100%);
+    background-image: linear-gradient(135deg, #f7fbf8 0%, #ebf6ed 48%, #fdf3e0 100%);
   }
   .grad-mint {
-    background-image: linear-gradient(135deg, #e9f8f1 0%, #d9f2e6 100%);
+    background-image: linear-gradient(135deg, #f1faf2 0%, #ceead2 100%);
   }
   .grad-lavender {
-    background-image: linear-gradient(135deg, #f2ecff 0%, #e7e0fb 100%);
+    background-image: linear-gradient(135deg, #f4faf5 0%, #dae5dc 100%);
   }
   .grad-peach {
-    background-image: linear-gradient(135deg, #fff0e3 0%, #ffe2ce 100%);
+    background-image: linear-gradient(135deg, #fdf5e6 0%, #e9c176 100%);
   }
   .grad-rose {
-    background-image: linear-gradient(135deg, #ffecf0 0%, #ffdde4 100%);
+    background-image: linear-gradient(135deg, #fff5f4 0%, #ffdad6 100%);
   }
   .grad-sky {
-    background-image: linear-gradient(135deg, #eaf3fd 0%, #d8e9fb 100%);
+    background-image: linear-gradient(135deg, #f2f9f3 0%, #d3e8d4 100%);
   }
   .grad-butter {
-    background-image: linear-gradient(135deg, #fdf6dc 0%, #fbeec4 100%);
+    background-image: linear-gradient(135deg, #fffaef 0%, #ffdea5 100%);
   }
   .grad-sage {
-    background-image: linear-gradient(135deg, #edf4e9 0%, #e0ebdb 100%);
+    background-image: linear-gradient(135deg, #f4faf5 0%, #e0ebe2 100%);
+  }
+  /* sage → champagne dual-tone progress fill (gaya mockup) */
+  .fill-botanical {
+    background-image: linear-gradient(90deg, #425a49 0%, #775a19 100%);
   }
 
   /* readable text over the couple photo on the dashboard */
