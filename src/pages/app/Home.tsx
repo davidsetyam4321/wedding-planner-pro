@@ -83,16 +83,16 @@ function CountdownTimer({ weddingDate }: { weddingDate: number }) {
       {cells.map((cell) => (
         <div
           key={cell.label}
-          className="flex flex-col items-center rounded-2xl bg-card/85 py-2.5 shadow-sm backdrop-blur-md"
+          className="flex flex-col items-center rounded-2xl bg-white/15 py-2.5 shadow-sm backdrop-blur-md"
         >
           <p
             className={`num font-serif text-[1.35rem] font-semibold leading-tight ${
-              cell.gold ? "text-gold" : ""
+              cell.gold ? "text-tint-butter" : "text-white"
             }`}
           >
             {String(cell.value).padStart(2, "0")}
           </p>
-          <p className="label mt-0.5 text-[9px] text-muted-foreground">
+          <p className="label mt-0.5 text-[9px] text-white/70">
             {cell.label}
           </p>
         </div>
@@ -254,12 +254,12 @@ export function HomePage() {
       {!wedding ? (
         <Skeleton className="h-56 w-full rounded-3xl" />
       ) : (
-        <section className="clay grad-warm relative overflow-hidden p-5">
-          <div className="pointer-events-none absolute -bottom-10 -right-10 size-44 rounded-full bg-tint-mint/50 blur-2xl" />
-          <div className="pointer-events-none absolute -left-12 -top-12 size-36 rounded-full bg-tint-butter/40 blur-xl" />
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#39503f] via-[#425a49] to-[#5c7460] p-5 shadow-[0_20px_50px_-12px_rgba(41,58,47,0.45)]">
+          <div className="pointer-events-none absolute -right-10 -top-14 size-44 rounded-full bg-white/10 blur-2xl" />
+          <div className="pointer-events-none absolute -bottom-12 -left-8 size-40 rounded-full bg-tint-butter/25 blur-2xl" />
           <div className="relative z-10 flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-gold">
+              <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-[#e9c176]">
                 <Heart className="size-3.5" />
                 Menuju Janji Suci
               </span>
@@ -269,7 +269,7 @@ export function HomePage() {
               onClick={openPicker}
               disabled={uploading}
               aria-label="Ganti foto pasangan"
-              className="size-11 shrink-0 overflow-hidden rounded-full ring-2 ring-primary/25 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
+              className="size-11 shrink-0 overflow-hidden rounded-full ring-2 ring-white/40 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {uploading ? (
                 <span className="flex size-full items-center justify-center bg-card">
@@ -292,7 +292,7 @@ export function HomePage() {
             </button>
           </div>
 
-          <p className="relative z-10 mt-1 font-serif text-[1.7rem] font-semibold leading-tight text-primary">
+          <p className="relative z-10 mt-1 font-serif text-[1.7rem] font-semibold leading-tight text-white">
             {`${wedding.partnerOneName} & ${wedding.partnerTwoName}`}
           </p>
 
@@ -300,24 +300,24 @@ export function HomePage() {
             <CountdownTimer weddingDate={wedding.weddingDate} />
           </div>
 
-          <div className="relative z-10 mt-4 space-y-1.5 text-[13px] text-muted-foreground">
+          <div className="relative z-10 mt-4 space-y-1.5 text-[13px] text-white/85">
             <p className="flex items-center gap-2">
-              <CalendarDays className="size-4 shrink-0 text-gold" />
-              <span className="font-semibold text-foreground">
+              <CalendarDays className="size-4 shrink-0 text-tint-butter" />
+              <span className="font-semibold text-white">
                 {formatDateLongID(wedding.weddingDate)}
               </span>
             </p>
             {wedding.venueName && (
               <p className="flex items-center gap-2">
-                <MapPin className="size-4 shrink-0 text-primary" />
+                <MapPin className="size-4 shrink-0 text-white/70" />
                 <span>{wedding.venueName}</span>
               </p>
             )}
           </div>
 
-          <div className="relative z-10 mt-4 rounded-2xl bg-tint-mint/40 p-3 backdrop-blur-sm">
-            <p className="flex items-start gap-2 font-serif text-[13px] italic leading-snug text-tint-mint-foreground">
-              <Quote className="mt-0.5 size-4 shrink-0" />
+          <div className="relative z-10 mt-4 rounded-2xl bg-white/12 p-3 backdrop-blur-sm">
+            <p className="flex items-start gap-2 font-serif text-[13px] italic leading-snug text-white/90">
+              <Quote className="mt-0.5 size-4 shrink-0 text-tint-butter" />
               “Dua hati, satu janji — dipersiapkan dengan tenang, dijalani
               dengan bahagia.”
             </p>

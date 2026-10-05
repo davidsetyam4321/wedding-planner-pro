@@ -224,6 +224,15 @@
     box-shadow: var(--shadow-soft);
     transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
   }
+  /* Tombol utama gradient sage berlapis — gaya “Scan Now” pada referensi */
+  [data-slot="button"][data-variant="default"] {
+    background-image: linear-gradient(180deg, #5a7360 0%, #425a49 100%);
+    box-shadow: 0 10px 24px -8px rgba(41, 58, 47, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  }
+  [data-slot="button"][data-variant="default"]:hover {
+    background-image: linear-gradient(180deg, #627d68 0%, #4a6450 100%);
+  }
   [data-slot="button"][data-variant="default"]:hover,
   [data-slot="button"][data-variant="secondary"]:hover {
     transform: translateY(-1px);
