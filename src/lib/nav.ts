@@ -1,12 +1,5 @@
 import { FEATURES } from "@/lib/features";
-import {
-  FolderHeart,
-  Home,
-  ListChecks,
-  PiggyBank,
-  Wallet,
-  type LucideIcon,
-} from "lucide-react";
+import { Grid, Home, ListChecks, Users, Wallet, type LucideIcon } from "lucide-react";
 
 export type NavItem = {
   to: string;
@@ -37,12 +30,6 @@ export const PRIMARY_NAV: NavItem[] = [
     active: "bg-tint-butter/80 text-tint-butter-foreground shadow-sm",
   },
   {
-    to: "/app/tabungan",
-    label: "Tabungan",
-    icon: PiggyBank,
-    active: "bg-tint-lavender/80 text-tint-lavender-foreground shadow-sm",
-  },
-  {
     to: "/app/checklist",
     label: "Checklist",
     icon: ListChecks,
@@ -50,9 +37,15 @@ export const PRIMARY_NAV: NavItem[] = [
     badge: true,
   },
   {
+    to: "/app/tamu",
+    label: "Tamu",
+    icon: Users,
+    active: "bg-tint-sky/80 text-tint-sky-foreground shadow-sm",
+  },
+  {
     to: "/app/lainnya",
-    label: "Lainnya",
-    icon: FolderHeart,
+    label: "Grid",
+    icon: Grid,
     active: "bg-tint-rose/80 text-tint-rose-foreground shadow-sm",
   },
 ];
