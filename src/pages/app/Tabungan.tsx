@@ -26,6 +26,48 @@ import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 
 const QUICK_AMOUNTS = [250_000, 500_000, 1_000_000, 2_000_000];
+
+/** Ring progres SVG dengan gradasi sage → champagne (visualisasi target). */
+function ProgressRing({ pct, size = 88, stroke = 10 }: { pct: number; size?: number; stroke?: number }) {
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const clamped = Math.min(100, Math.max(0, pct));
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      className="-rotate-90"
+      aria-hidden="true"
+    >
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke="var(--tint-sage)"
+        strokeWidth={stroke}
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke="url(#sj-ring-grad)"
+        strokeWidth={stroke}
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        strokeDashoffset={circumference - (clamped / 100) * circumference}
+      />
+      <defs>
+        <linearGradient id="sj-ring-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#425a49" />
+          <stop offset="100%" stopColor="#775a19" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
 const MONTHS = [
   "Januari", "Februari", "Maret", "April", "Mei", "Juni",
   "Juli", "Agustus", "September", "Oktober", "November", "Desember",
@@ -173,18 +215,23 @@ export function TabunganPage() {
           </button>
         </div>
 
-        <p className="num mt-4 text-3xl font-extrabold">
-          {formatRupiah(total)}
-        </p>
-        <div className="mt-3 h-3 overflow-hidden rounded-full bg-tint-sage">
-          <div
-            className="fill-botanical h-full rounded-full transition-all duration-700"
-            style={{ width: `${pct}%` }}
-          />
+        <div className="mt-4 flex items-center gap-4">
+          <div className="min-w-0 flex-1">
+            <p className="num text-3xl font-extrabold">{formatRupiah(total)}</p>
+            <p className="num meta mt-1.5">
+              {pct}% terkumpul · sisa {formatRupiah(Math.max(0, target - total))}
+            </p>
+          </div>
+          <div className="relative shrink-0">
+            <ProgressRing pct={pct} />
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="num text-sm font-extrabold text-primary">{pct}%</span>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+                Target
+              </span>
+            </div>
+          </div>
         </div>
-        <p className="num meta mt-1.5">
-          {pct}% terkumpul · sisa {formatRupiah(Math.max(0, target - total))}
-        </p>
       </section>
 
       <section className="grid grid-cols-3 gap-2">

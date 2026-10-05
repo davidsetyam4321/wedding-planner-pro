@@ -28,9 +28,22 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
+import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import { toast } from "sonner";
 
 type CategoryId = Id<"budgetCategory">;
+
+/** Palet donut SatuJanji: sage → champagne. */
+const DONUT_COLORS = [
+  "#425a49",
+  "#775a19",
+  "#5a7360",
+  "#e9c176",
+  "#8fa694",
+  "#c9a25e",
+  "#a8bfa8",
+  "#d3e8d4",
+];
 
 export function BudgetPage() {
   const budget = useQuery(api.budget.overview);
@@ -72,6 +85,19 @@ export function BudgetPage() {
   const spentPct =
     totalAllocated > 0 ? Math.min(100, Math.round((totalSpent / totalAllocated) * 100)) : 0;
   const isOver = totalSpent > totalAllocated;
+
+  // Donut komposisi alokasi per kategori (maks. 6 irisan + "Lainnya").
+  const donutRaw = categories
+    .map((category) => ({ name: category.name, value: Math.max(0, category.allocated) }))
+    .filter((row) => row.value > 0);
+  const donutTop = donutRaw.slice(0, 6);
+  const donutRest = donutRaw.slice(6).reduce((sum, row) => sum + row.value, 0);
+  const donutData =
+    donutRest > 0 ? [...donutTop, { name: "Lainnya", value: donutRest }] : donutTop;
+  const donutLegend = donutData.map((row, index) => ({
+    ...row,
+    color: DONUT_COLORS[index % DONUT_COLORS.length],
+  }));
 
   const openNewExpense = () => {
     setExpenseForm({
@@ -208,6 +234,65 @@ export function BudgetPage() {
           </div>
         </dl>
       </section>
+
+      {/* Donut komposisi alokasi */}
+      {donutData.length > 0 && (
+        <section className="clay p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <h2 className="h-card">Komposisi alokasi</h2>
+            <span className="meta">{donutRaw.length} kategori</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="relative size-32 shrink-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={donutData}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius={40}
+                    outerRadius={58}
+                    paddingAngle={3}
+                    cornerRadius={6}
+                    strokeWidth={0}
+                  >
+                    {donutData.map((entry, index) => (
+                      <Cell
+                        key={entry.name}
+                        fill={DONUT_COLORS[index % DONUT_COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Alokasi
+                </span>
+                <span className="num text-[11px] font-extrabold">
+                  {formatRupiahShort(totalAllocated)}
+                </span>
+              </div>
+            </div>
+            <ul className="min-w-0 flex-1 space-y-1.5">
+              {donutLegend.map((row) => (
+                <li key={row.name} className="flex items-center gap-2 text-xs">
+                  <span
+                    className="size-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: row.color }}
+                  />
+                  <span className="min-w-0 flex-1 truncate font-semibold">
+                    {row.name}
+                  </span>
+                  <span className="num shrink-0 font-bold text-muted-foreground">
+                    {formatRupiahShort(row.value)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
 
       <div className="flex gap-2">
         <Button className="flex-1 rounded-2xl" onClick={openNewExpense}>

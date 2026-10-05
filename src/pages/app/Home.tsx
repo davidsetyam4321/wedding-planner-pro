@@ -101,6 +101,48 @@ function CountdownTimer({ weddingDate }: { weddingDate: number }) {
   );
 }
 
+/** Ring SVG kecil untuk persentase — visualisasi mini ala dashboard referensi. */
+function MiniRing({ pct, className }: { pct: number; className?: string }) {
+  const size = 38;
+  const stroke = 4;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const clamped = Math.min(100, Math.max(0, pct));
+  return (
+    <div className={`relative shrink-0 ${className ?? ""}`}>
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        className="-rotate-90"
+      >
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="var(--tint-sage)"
+          strokeWidth={stroke}
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={circumference - (clamped / 100) * circumference}
+        />
+      </svg>
+      <span className="num absolute inset-0 flex items-center justify-center text-[9px] font-extrabold">
+        {Math.round(clamped)}%
+      </span>
+    </div>
+  );
+}
+
 /** Kartu progres mini ala SatuJanji: ikon bulat berwarna, angka serif, bar botanical. */
 function ReadinessCard({
   label,
@@ -125,9 +167,7 @@ function ReadinessCard({
         >
           <Icon className="size-4" />
         </span>
-        <span className={`num text-[11px] font-extrabold ${tone.pct}`}>
-          {Math.round(pct)}%
-        </span>
+        <MiniRing pct={pct} className={tone.pct} />
       </div>
       <div>
         <p className="font-serif text-lg font-semibold leading-tight">
