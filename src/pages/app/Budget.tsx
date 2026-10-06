@@ -99,11 +99,34 @@ export function BudgetPage() {
   const fundTarget = budget?.fundTarget ?? 0;
   const tabunganMencapaiTarget = savingsTotal >= fundTarget;
   const sisaTabunganUntukAnggaran = Math.max(0, fundTarget - totalSpent - savingsTotal);
+  /** Sisa anggaran = Tabungan − Terpakai (bisa negatif = kurang). */
+  const sisaDana = savingsTotal - totalSpent;
 
-  // Donut komposisi alokasi per kategori (maks. 6 irisan + "Lainnya").
+  // Donut komposisi pengeluaran — mengikuti pengeluaran tiap kategori
+  // (bukan alokasi mandiri); pembayaran vendor masuk irisan "Vendor".
+  // Maks. 6 irisan + "Lainnya".
+  const spentByCategory = new Map<string, number>();
+  let spentVendor = 0;
+  for (const expense of expenses) {
+    if (expense.source === "vendor") {
+      spentVendor += expense.amount;
+    } else {
+      spentByCategory.set(
+        expense.categoryId,
+        (spentByCategory.get(expense.categoryId) ?? 0) + expense.amount,
+      );
+    }
+  }
   const donutRaw = categories
-    .map((category) => ({ name: category.name, value: Math.max(0, category.allocated) }))
+    .map((category) => ({
+      name: category.name,
+      value: spentByCategory.get(category._id) ?? 0,
+    }))
     .filter((row) => row.value > 0);
+  if (spentVendor > 0) {
+    donutRaw.push({ name: "Vendor", value: spentVendor });
+  }
+  donutRaw.sort((a, b) => b.value - a.value);
   const donutTop = donutRaw.slice(0, 6);
   const donutRest = donutRaw.slice(6).reduce((sum, row) => sum + row.value, 0);
   const donutData =
@@ -314,7 +337,11 @@ export function BudgetPage() {
           </div>
           <div className="stat-tile bg-secondary">
             <dt>Sisa anggaran</dt>
-            <dd>{formatRupiahShort(Math.max(0, totalAllocated - totalSpent))}</dd>
+            <dd className={sisaDana < 0 ? "text-destructive" : undefined}>
+              {sisaDana < 0
+                ? `−${formatRupiahShort(-sisaDana)}`
+                : formatRupiahShort(sisaDana)}
+            </dd>
           </div>
         </dl>
         <div className="mt-3 grid grid-cols-2 gap-2">
@@ -366,8 +393,8 @@ export function BudgetPage() {
       {chartTab === "ikhtisar" && donutData.length > 0 && (
         <section className="clay p-4">
           <div className="mb-2 flex items-center justify-between">
-            <h2 className="h-card">Komposisi alokasi</h2>
-            <span className="meta">{donutRaw.length} kategori</span>
+            <h2 className="h-card">Komposisi pengeluaran</h2>
+            <span className="meta">{donutRaw.length} irisan</span>
           </div>
           <div className="flex items-center gap-4">
             <div className="relative size-32 shrink-0">
@@ -410,10 +437,10 @@ export function BudgetPage() {
               </ResponsiveContainer>
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Alokasi
+                  Terpakai
                 </span>
                 <span className="num text-[11px] font-extrabold">
-                  {formatRupiahShort(totalAllocated)}
+                  {formatRupiahShort(totalSpent)}
                 </span>
               </div>
             </div>
