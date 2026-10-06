@@ -1,44 +1,36 @@
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { api } from "@/convex/_generated/api";
-import { BOTTOM_NAV } from "@/lib/nav";
-import { useEffect, useRef } from "react";
+import { PRIMARY_NAV, TOOL_NAV } from "@/lib/nav";
+import { LayoutGrid } from "lucide-react";
 import { NavLink, useLocation } from "react-router";
 import { useQuery } from "convex/react";
 
+/** Fitur yang disembunyikan di dalam tombol "Lainnya". */
+const GROUPED_PATHS = new Set(TOOL_NAV.map((feature) => feature.to));
+
 /**
- * Bottom navigation mengambang ala SatuJanji: pill kaca rounded-full yang
- * memuat SEMUA fitur dalam satu baris. Item aktif melebar jadi pill berlabel
- * berlatar pastel; item non-aktif hanya ikon (gaya mockup). Track bisa
- * digeser horizontal saat layar sempit, dan item aktif selalu digeser
- * ke tengah agar tidak pernah tersembunyi.
+ * Bottom navigation mengambang ala SatuJanji: pill kaca rounded-full.
+ * Empat tombol utama (Beranda, Budget, Checklist, Tamu) tampil langsung;
+ * sisa fitur terkumpul di tombol "Lainnya" yang membuka daftar ke atas
+ * tanpa berpindah halaman — baru memilih item yang menavigasi.
+ * `key={pathname}` me-remount Popover setiap rute berubah sehingga daftar
+ * tertutup otomatis (tanpa state/effect tambahan), sementara Radix menutup
+ * saat klik di luar atau menekan Escape.
  */
 export function BottomNav() {
   const checklist = useQuery(api.checklist.list);
   const openTasks = (checklist ?? []).filter((item) => !item.done).length;
   const { pathname } = useLocation();
-  const trackRef = useRef<HTMLDivElement>(null);
-
-  // Pusatkan item aktif di dalam track (block "nearest" mencegah scroll vertikal).
-  useEffect(() => {
-    // NavLink otomatis menandai item aktif dengan aria-current="page".
-    const active = trackRef.current?.querySelector<HTMLElement>(
-      '[aria-current="page"]',
-    );
-    active?.scrollIntoView({
-      behavior: "smooth",
-      inline: "center",
-      block: "nearest",
-    });
-  }, [pathname]);
+  const inGroup = GROUPED_PATHS.has(pathname);
 
   return (
-    <nav
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden"
-    >
-      <div
-        ref={trackRef}
-        className="pointer-events-auto mx-auto flex max-w-md items-stretch justify-between gap-0.5 overflow-x-auto rounded-full border border-white/60 bg-card/85 p-1.5 shadow-[0_16px_40px_rgba(36,46,40,0.14)] backdrop-blur-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {BOTTOM_NAV.map(({ to, label, icon: Icon, active, badge }) => (
+    <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
+      <div className="pointer-events-auto mx-auto flex max-w-md items-stretch justify-between gap-0.5 overflow-x-auto rounded-full border border-white/60 bg-card/85 p-1.5 shadow-[0_16px_40px_rgba(36,46,40,0.14)] backdrop-blur-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {PRIMARY_NAV.map(({ to, label, icon: Icon, active, badge }) => (
           <NavLink
             key={to}
             to={to}
@@ -72,6 +64,63 @@ export function BottomNav() {
             )}
           </NavLink>
         ))}
+
+        <Popover key={pathname}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              aria-label="Fitur lainnya"
+              className={`relative flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-2 text-[10px] font-semibold transition-all duration-200 ${
+                inGroup
+                  ? "bg-tint-mint/80 font-bold text-primary shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              } data-[state=open]:bg-tint-mint/80 data-[state=open]:font-bold data-[state=open]:text-primary data-[state=open]:shadow-sm`}
+            >
+              <LayoutGrid
+                className="size-5 shrink-0"
+                strokeWidth={inGroup ? 2.4 : 2}
+              />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent
+            side="top"
+            align="end"
+            className="w-60 rounded-2xl p-2"
+          >
+            <p className="label px-2 pb-1.5 text-muted-foreground">
+              Fitur lainnya
+            </p>
+            <ul className="space-y-0.5">
+              {TOOL_NAV.map((feature) => (
+                <li key={feature.to}>
+                  <NavLink
+                    to={feature.to}
+                    className={({ isActive }) =>
+                      `flex items-center gap-2.5 rounded-xl px-2 py-2 text-sm font-bold transition-colors ${
+                        isActive
+                          ? "bg-tint-mint text-tint-mint-foreground"
+                          : "text-foreground hover:bg-tint-sage"
+                      }`
+                    }
+                  >
+                    <span
+                      className={`flex size-8 shrink-0 items-center justify-center rounded-lg text-sm ${feature.surface}`}
+                    >
+                      {feature.emoji}
+                    </span>
+                    <feature.icon
+                      className="size-4 shrink-0 text-muted-foreground"
+                      aria-hidden
+                    />
+                    <span className="min-w-0 flex-1 truncate">
+                      {feature.label}
+                    </span>
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </PopoverContent>
+        </Popover>
       </div>
     </nav>
   );
