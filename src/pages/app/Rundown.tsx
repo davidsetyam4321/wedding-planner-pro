@@ -143,7 +143,7 @@ export function RundownPage() {
 
   return (
     <div className="space-y-4">
-      <BackLink fallback="/app/lainnya" />
+      <BackLink />
 
       <section className="clay p-5">
         <div className="flex items-start justify-between gap-3">

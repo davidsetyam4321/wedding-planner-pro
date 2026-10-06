@@ -2,7 +2,6 @@ import { FEATURES } from "@/lib/features";
 import {
   CalendarClock,
   FolderHeart,
-  Grid,
   Home,
   ListChecks,
   Mail,
@@ -52,12 +51,6 @@ export const PRIMARY_NAV: NavItem[] = [
     label: "Tamu",
     icon: Users,
     active: "bg-tint-sky/80 text-tint-sky-foreground shadow-sm",
-  },
-  {
-    to: "/app/lainnya",
-    label: "Grid",
-    icon: Grid,
-    active: "bg-tint-rose/80 text-tint-rose-foreground shadow-sm",
   },
 ];
 
@@ -133,11 +126,5 @@ export const BOTTOM_NAV: NavItem[] = [
     label: "Undangan",
     icon: Mail,
     active: "bg-tint-butter/80 text-tint-butter-foreground shadow-sm",
-  },
-  {
-    to: "/app/lainnya",
-    label: "Grid",
-    icon: Grid,
-    active: "bg-tint-rose/80 text-tint-rose-foreground shadow-sm",
   },
 ];

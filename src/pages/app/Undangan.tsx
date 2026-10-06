@@ -12,7 +12,7 @@ export function UndanganPage() {
 
   return (
     <div className="space-y-4">
-      <BackLink fallback="/app/lainnya" />
+      <BackLink />
 
       {/* Bespoke Suite */}
       <section className="clay overflow-hidden">

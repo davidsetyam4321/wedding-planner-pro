@@ -180,7 +180,7 @@ export function MoodboardPage() {
         onChange={handleFiles}
       />
 
-      <BackLink fallback="/app/lainnya" />
+      <BackLink />
 
       <section className="clay p-5">
         <div className="flex items-center gap-3">
