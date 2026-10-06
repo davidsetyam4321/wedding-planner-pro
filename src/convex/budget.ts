@@ -15,8 +15,6 @@ type ManualExpense = Doc<"budgetExpense"> & { source: "manual" };
 type VendorExpense = {
   source: "vendor";
   vendorId: Id<"vendor">;
-  /** null = kategori vendor belum punya pasangan di kategori budget. */
-  categoryId: Id<"budgetCategory"> | null;
   label: string;
   amount: number;
   /** Selalu terisi (uang sudah keluar); dipakai untuk total "Lunas". */
@@ -31,6 +29,8 @@ export const overview = query({
       return {
         categories: [] as Doc<"budgetCategory">[],
         expenses: [] as (ManualExpense | VendorExpense)[],
+        savingsTotal: 0,
+        fundTarget: 0,
       };
     }
     const userId = await workspaceUserId(ctx);
@@ -56,16 +56,12 @@ export const overview = query({
     //   status "dp"    → dpAmount yang sudah dibayar
     //   status "lunas" → seluruh biaya (cost)
     //   status "belum" → 0 (belum ada uang keluar, tidak dihitung)
+    // Vendor tidak lagi dicocokkan ke kategori budget — cukup masuk sebagai
+    // baris pengeluaran dengan label nama vendor.
     const vendors = await ctx.db
       .query("vendor")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
-    const categoryByName = new Map(
-      categories.map((category) => [
-        category.name.trim().toLowerCase(),
-        category._id,
-      ]),
-    );
     const vendorRows: VendorExpense[] = [];
     for (const vendor of vendors) {
       const amount =
@@ -78,8 +74,6 @@ export const overview = query({
       vendorRows.push({
         source: "vendor",
         vendorId: vendor._id,
-        categoryId:
-          categoryByName.get(vendor.category.trim().toLowerCase()) ?? null,
         label: vendor.name,
         amount,
         // Deterministik (query tidak boleh bergantung Date.now()).
@@ -87,7 +81,25 @@ export const overview = query({
       });
     }
 
-    return { categories, expenses: [...manual, ...vendorRows] };
+    // ── Sinkronisasi Tabungan → Budget ───────────────────────────────────
+    const deposits = await ctx.db
+      .query("savingDeposit")
+      .withIndex("by_user_savedAt", (q) => q.eq("userId", userId))
+      .collect();
+    const savingsTotal = deposits.reduce((sum, deposit) => sum + deposit.amount, 0);
+
+    const wedding = await ctx.db
+      .query("wedding")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+    const fundTarget = wedding?.fundTarget ?? 0;
+
+    return {
+      categories,
+      expenses: [...manual, ...vendorRows],
+      savingsTotal,
+      fundTarget,
+    };
   },
 });
 
