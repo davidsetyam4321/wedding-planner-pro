@@ -107,10 +107,13 @@ export function TabunganPage() {
   const [targetValue, setTargetValue] = useState("");
   const [targetBusy, setTargetBusy] = useState(false);
 
+  const budget = useQuery(api.budget.overview);
   const list = deposits ?? [];
   const total = list.reduce((sum, deposit) => sum + deposit.amount, 0);
   const target = wedding?.fundTarget ?? 0;
+  const totalSpent = budget?.expenses.reduce((sum, expense) => sum + expense.amount, 0) ?? 0;
   const pct = target > 0 ? Math.min(100, Math.round((total / target) * 100)) : 0;
+  const anggaranSudahTerbiaya = total >= totalSpent;
 
   const now = new Date();
   const thisMonth = list
@@ -267,6 +270,24 @@ export function TabunganPage() {
                 Target
               </span>
             </div>
+          </div>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <div className={`clay-sm rounded-xl p-3 ${anggaranSudahTerbiaya ? "bg-tint-sky" : "bg-tint-butter"}`}>
+            <p className="meta">Total pengeluaran anggaran</p>
+            <p className="num font-extrabold">{formatRupiahShort(totalSpent)}</p>
+          </div>
+          <div className={`clay-sm rounded-xl p-3 ${anggaranSudahTerbiaya ? "bg-tint-mint" : "bg-tint-butter"}`}>
+            <p className="meta">Tabungan vs anggaran</p>
+            <p className="num font-extrabold">
+              {anggaranSudahTerbiaya ? (
+                <span className="text-tint-mint-foreground">Cukup</span>
+              ) : (
+                <span className="text-tint-sky-foreground">
+                  Butuh {formatRupiahShort(Math.max(0, totalSpent - total))}
+                </span>
+              )}
+            </p>
           </div>
         </div>
       </section>

@@ -95,6 +95,11 @@ export function BudgetPage() {
     totalAllocated > 0 ? Math.min(100, Math.round((totalSpent / totalAllocated) * 100)) : 0;
   const isOver = totalSpent > totalAllocated;
 
+  const savingsTotal = budget?.savingsTotal ?? 0;
+  const fundTarget = budget?.fundTarget ?? 0;
+  const tabunganMencapaiTarget = savingsTotal >= fundTarget;
+  const sisaTabunganUntukAnggaran = Math.max(0, fundTarget - totalSpent - savingsTotal);
+
   // Donut komposisi alokasi per kategori (maks. 6 irisan + "Lainnya").
   const donutRaw = categories
     .map((category) => ({ name: category.name, value: Math.max(0, category.allocated) }))
@@ -139,17 +144,39 @@ export function BudgetPage() {
   });
 
   // Batang per kategori: alokasi vs terbayar (klik → filter daftar).
-  const categoryBarData = categories.map((category) => ({
-    id: category._id as string,
-    name: category.name,
-    alokasi: Math.max(0, category.allocated),
-    terbayar: expenses
-      .filter((expense) => expense.categoryId === category._id)
-      .reduce((sum, expense) => sum + expense.amount, 0),
-  }));
+  // Terbayar dihitung dari pengeluaran manual berdasarkan kategori, ditambah
+  // baris vendor yang sudah pembayarannya selesai.
+  const categoryBarData = categories.map((category) => {
+    const terbayarManual = expenses
+      .filter(
+        (expense): expense is Extract<typeof expense, { source: "manual" }> & {
+          categoryId: Id<"budgetCategory">;
+        } =>
+          expense.source === "manual" && expense.categoryId === category._id,
+      )
+      .reduce((sum, expense) => sum + expense.amount, 0);
+
+    const terbayarVendor = expenses
+      .filter(
+        (expense): expense is Extract<typeof expense, { source: "vendor" }> =>
+          expense.source === "vendor",
+      )
+      .reduce((sum, expense) => sum + expense.amount, 0);
+
+    return {
+      id: category._id as string,
+      name: category.name,
+      alokasi: Math.max(0, category.allocated),
+      terbayar: terbayarManual + terbayarVendor,
+    };
+  });
 
   const filterCategory =
     categories.find((category) => category._id === filterCategoryId) ?? null;
+
+  // Daftar yang tampil saat filter aktif hanya kategori yang diseleksi.
+  // Pengeluaran vendor tetap ikut tampil di bawah kategori yang difilter,
+  // karena vendor tidak punya pemilik kategori.
   const visibleCategories = filterCategory
     ? categories.filter((category) => category._id === filterCategory._id)
     : categories;
@@ -286,10 +313,33 @@ export function BudgetPage() {
             <dd>{formatRupiahShort(totalPaid)}</dd>
           </div>
           <div className="stat-tile bg-secondary">
-            <dt>Sisa</dt>
+            <dt>Sisa anggaran</dt>
             <dd>{formatRupiahShort(Math.max(0, totalAllocated - totalSpent))}</dd>
           </div>
         </dl>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <div className={`clay-sm rounded-xl p-3 ${tabunganMencapaiTarget ? "bg-tint-mint" : "bg-tint-butter"}`}>
+            <p className="meta">Tabungan tercatat</p>
+            <p className="num font-extrabold">{formatRupiahShort(savingsTotal)}</p>
+          </div>
+          <div className={`clay-sm rounded-xl p-3 ${tabunganMencapaiTarget ? "bg-tint-mint" : "bg-tint-sky"}`}>
+            <p className="meta">Target wedding</p>
+            <p className="num font-extrabold">{formatRupiahShort(fundTarget)}</p>
+          </div>
+        </div>
+        {fundTarget > 0 && (
+          <div className="mt-2 flex items-center gap-2 text-xs">
+            {tabunganMencapaiTarget ? (
+              <span className="chip bg-tint-mint text-tint-mint-foreground">
+                Tabungan sudah cukup untuk anggaran
+              </span>
+            ) : (
+              <span className="chip bg-tint-sky text-tint-sky-foreground">
+                Masih perlu {formatRupiahShort(sisaTabunganUntukAnggaran)} dari anggaran
+              </span>
+            )}
+          </div>
+        )}
       </section>
 
       {/* Grafik: Ikhtisar (donut) | Tren (kumulatif + alokasi vs terbayar) */}
@@ -532,9 +582,17 @@ export function BudgetPage() {
 
       <Stagger className="space-y-3">
         {visibleCategories.map((category) => {
-          const categoryExpenses = expenses.filter(
-            (expense) => expense.categoryId === category._id,
+          const manualForCategory = expenses.filter(
+            (expense): expense is Extract<typeof expense, { source: "manual" }> & {
+              categoryId: Id<"budgetCategory">;
+            } =>
+              expense.source === "manual" && expense.categoryId === category._id,
           );
+          const vendorLines = expenses.filter(
+            (expense): expense is Extract<typeof expense, { source: "vendor" }> =>
+              expense.source === "vendor",
+          );
+          const categoryExpenses = [...manualForCategory, ...vendorLines];
           const spent = categoryExpenses.reduce((sum, expense) => sum + expense.amount, 0);
           const over = spent > category.allocated;
           const pct =
@@ -615,7 +673,7 @@ export function BudgetPage() {
                             <span className="min-w-0 flex-1 truncate text-sm">
                               {expense.label}
                             </span>
-                            <span className="chip shrink-0 bg-tint-peach text-tint-peach-foreground">
+                            <span className="chip shrink-0 bg-tint-butter text-tint-butter-foreground">
                               Vendor
                             </span>
                             <span className="num text-sm font-bold">
