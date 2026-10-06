@@ -50,7 +50,7 @@ export function SideNav({ status }: { status: SyncInfo }) {
 
       <div className="flex flex-col gap-0.5">
         <p className="label px-3 pb-1.5 text-muted-foreground">Alat</p>
-        {TOOL_NAV.map(({ to, label, icon: Icon, emoji }) => (
+        {TOOL_NAV.map(({ to, label, emoji }) => (
           <NavLink
             key={to}
             to={to}
@@ -63,7 +63,6 @@ export function SideNav({ status }: { status: SyncInfo }) {
             }
           >
             <span className="text-sm">{emoji}</span>
-            <Icon className="size-3.5 opacity-60" />
             {label}
           </NavLink>
         ))}

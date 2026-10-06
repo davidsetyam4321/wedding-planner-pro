@@ -108,10 +108,6 @@ export function BottomNav() {
                     >
                       {feature.emoji}
                     </span>
-                    <feature.icon
-                      className="size-4 shrink-0 text-muted-foreground"
-                      aria-hidden
-                    />
                     <span className="min-w-0 flex-1 truncate">
                       {feature.label}
                     </span>
