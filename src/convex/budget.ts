@@ -4,12 +4,34 @@ import { mutation, query, type MutationCtx } from "./_generated/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import { workspaceUserId } from "./workspace";
 
+/** Pengeluaran manual yang sudah diberi penanda sumbernya. */
+type ManualExpense = Doc<"budgetExpense"> & { source: "manual" };
+
+/**
+ * Baris pengeluaran turunan dari pembayaran vendor — tidak pernah disimpan,
+ * dihitung ulang tiap kali overview dibuka supaya status DP/lunas di halaman
+ * Vendor langsung tercermin di Budget tanpa pencatatan ganda.
+ */
+type VendorExpense = {
+  source: "vendor";
+  vendorId: Id<"vendor">;
+  /** null = kategori vendor belum punya pasangan di kategori budget. */
+  categoryId: Id<"budgetCategory"> | null;
+  label: string;
+  amount: number;
+  /** Selalu terisi (uang sudah keluar); dipakai untuk total "Lunas". */
+  paidAt: number;
+};
+
 export const overview = query({
   args: {},
   handler: async (ctx) => {
     const authId = await getAuthUserId(ctx);
     if (authId === null) {
-      return { categories: [], expenses: [] as Doc<"budgetExpense">[] };
+      return {
+        categories: [] as Doc<"budgetCategory">[],
+        expenses: [] as (ManualExpense | VendorExpense)[],
+      };
     }
     const userId = await workspaceUserId(ctx);
 
@@ -24,8 +46,48 @@ export const overview = query({
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
     expenses.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+    const manual: ManualExpense[] = expenses.map((expense) => ({
+      ...expense,
+      source: "manual" as const,
+    }));
 
-    return { categories, expenses };
+    // ── Sinkronisasi Vendor → Budget ─────────────────────────────────────
+    // Uang yang benar-benar sudah keluar di halaman Vendor:
+    //   status "dp"    → dpAmount yang sudah dibayar
+    //   status "lunas" → seluruh biaya (cost)
+    //   status "belum" → 0 (belum ada uang keluar, tidak dihitung)
+    const vendors = await ctx.db
+      .query("vendor")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+    const categoryByName = new Map(
+      categories.map((category) => [
+        category.name.trim().toLowerCase(),
+        category._id,
+      ]),
+    );
+    const vendorRows: VendorExpense[] = [];
+    for (const vendor of vendors) {
+      const amount =
+        vendor.status === "lunas"
+          ? vendor.cost
+          : vendor.status === "dp"
+            ? (vendor.dpAmount ?? 0)
+            : 0;
+      if (amount <= 0) continue;
+      vendorRows.push({
+        source: "vendor",
+        vendorId: vendor._id,
+        categoryId:
+          categoryByName.get(vendor.category.trim().toLowerCase()) ?? null,
+        label: vendor.name,
+        amount,
+        // Deterministik (query tidak boleh bergantung Date.now()).
+        paidAt: vendor.createdAt,
+      });
+    }
+
+    return { categories, expenses: [...manual, ...vendorRows] };
   },
 });
 

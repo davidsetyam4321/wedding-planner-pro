@@ -112,6 +112,8 @@ export function BudgetPage() {
   };
 
   const openEditExpense = (expense: (typeof expenses)[number]) => {
+    // Baris vendor turunan dari halaman Vendor — hanya bisa diubah di sana.
+    if (expense.source === "vendor") return;
     setExpenseForm({
       id: expense._id,
       label: expense.label,
@@ -379,40 +381,61 @@ export function BudgetPage() {
 
                   <CollapsibleContent>
                     <ul className="divide-y divide-border">
-                      {categoryExpenses.map((expense) => (
-                        <li key={expense._id} className="flex items-center gap-2.5 px-4 py-2.5">
-                          <button
-                            type="button"
-                            aria-label={expense.paidAt ? "Tandai belum lunas" : "Tandai lunas"}
-                            onClick={() => {
-                              togglePaid({ expenseId: expense._id, paid: !expense.paidAt });
-                              if (!expense.paidAt) bloom();
-                            }}
-                            className={`flex size-6 shrink-0 items-center justify-center rounded-full transition-colors ${
-                              expense.paidAt
-                                ? "bg-primary text-primary-foreground"
-                                : "clay-inset text-muted-foreground hover:text-primary"
-                            }`}
+                      {categoryExpenses.map((expense) =>
+                        expense.source === "vendor" ? (
+                          /* Turunan dari halaman Vendor: selalu terbayar, tanpa aksi edit/hapus. */
+                          <li
+                            key={expense.vendorId}
+                            className="flex items-center gap-2.5 px-4 py-2.5"
                           >
-                            <Check className="size-3" />
-                          </button>
-                          <span
-                            className={`min-w-0 flex-1 truncate text-sm ${
-                              expense.paidAt ? "text-muted-foreground" : ""
-                            }`}
-                          >
-                            {expense.label}
-                          </span>
-                          <span className="num text-sm font-bold">
-                            {formatRupiah(expense.amount)}
-                          </span>
-                          <RowMenu
-                            onEdit={() => openEditExpense(expense)}
-                            onDelete={() => deleteExpense({ expenseId: expense._id })}
-                            deleteTitle={`Hapus "${expense.label}"?`}
-                          />
-                        </li>
-                      ))}
+                            <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                              <Check className="size-3" />
+                            </span>
+                            <span className="min-w-0 flex-1 truncate text-sm">
+                              {expense.label}
+                            </span>
+                            <span className="chip shrink-0 bg-tint-peach text-tint-peach-foreground">
+                              Vendor
+                            </span>
+                            <span className="num text-sm font-bold">
+                              {formatRupiah(expense.amount)}
+                            </span>
+                          </li>
+                        ) : (
+                          <li key={expense._id} className="flex items-center gap-2.5 px-4 py-2.5">
+                            <button
+                              type="button"
+                              aria-label={expense.paidAt ? "Tandai belum lunas" : "Tandai lunas"}
+                              onClick={() => {
+                                togglePaid({ expenseId: expense._id, paid: !expense.paidAt });
+                                if (!expense.paidAt) bloom();
+                              }}
+                              className={`flex size-6 shrink-0 items-center justify-center rounded-full transition-colors ${
+                                expense.paidAt
+                                  ? "bg-primary text-primary-foreground"
+                                  : "clay-inset text-muted-foreground hover:text-primary"
+                              }`}
+                            >
+                              <Check className="size-3" />
+                            </button>
+                            <span
+                              className={`min-w-0 flex-1 truncate text-sm ${
+                                expense.paidAt ? "text-muted-foreground" : ""
+                              }`}
+                            >
+                              {expense.label}
+                            </span>
+                            <span className="num text-sm font-bold">
+                              {formatRupiah(expense.amount)}
+                            </span>
+                            <RowMenu
+                              onEdit={() => openEditExpense(expense)}
+                              onDelete={() => deleteExpense({ expenseId: expense._id })}
+                              deleteTitle={`Hapus "${expense.label}"?`}
+                            />
+                          </li>
+                        ),
+                      )}
                       {categoryExpenses.length === 0 && (
                         <li className="px-4 py-2.5 text-xs text-muted-foreground">
                           Belum ada pengeluaran di kategori ini.
