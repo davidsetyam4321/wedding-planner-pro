@@ -11,7 +11,7 @@ export type NavItem = {
   badge?: boolean;
 };
 
-/**
+/*
  * Single source of truth for the five main destinations — shared by the
  * desktop SideNav and the mobile BottomNav so labels, icons and active
  * colors can never drift apart.
