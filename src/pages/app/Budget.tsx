@@ -1,3 +1,8 @@
+import {
+  CHART_COLORS as DONUT_COLORS,
+  ChartCard,
+  ChartTip,
+} from "@/components/Charts";
 import { EmptyState, PageSkeleton, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,25 +30,27 @@ import {
   Loader2,
   Plus,
   Wallet,
+  X,
 } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
-import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ComposedChart,
+  Line,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { toast } from "sonner";
 
 type CategoryId = Id<"budgetCategory">;
-
-/** Palet donut SatuJanji: sage → champagne. */
-const DONUT_COLORS = [
-  "#425a49",
-  "#775a19",
-  "#5a7360",
-  "#e9c176",
-  "#8fa694",
-  "#c9a25e",
-  "#a8bfa8",
-  "#d3e8d4",
-];
 
 export function BudgetPage() {
   const budget = useQuery(api.budget.overview);
@@ -70,6 +77,8 @@ export function BudgetPage() {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [busy, setBusy] = useState(false);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const [chartTab, setChartTab] = useState<"ikhtisar" | "tren">("ikhtisar");
+  const [filterCategoryId, setFilterCategoryId] = useState<string | null>(null);
 
   const [categoryDialog, setCategoryDialog] = useState<{
     id: CategoryId | null;
@@ -98,6 +107,52 @@ export function BudgetPage() {
     ...row,
     color: DONUT_COLORS[index % DONUT_COLORS.length],
   }));
+
+  // Tren bulanan: total per bulan + garis kumulatif (manual & bayaran vendor).
+  const MONTH_LABELS = [
+    "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+    "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
+  ];
+  const byMonth = new Map<string, number>();
+  for (const expense of expenses) {
+    const ts =
+      ("_creationTime" in expense ? expense._creationTime : 0) ||
+      expense.paidAt ||
+      0;
+    if (!ts) continue;
+    const date = new Date(ts);
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    byMonth.set(key, (byMonth.get(key) ?? 0) + expense.amount);
+  }
+  const sortedMonthKeys = [...byMonth.keys()].sort();
+  const trendData = sortedMonthKeys.map((key, index) => {
+    const baru = byMonth.get(key) ?? 0;
+    const kumulatif = sortedMonthKeys
+      .slice(0, index + 1)
+      .reduce((sum, monthKey) => sum + (byMonth.get(monthKey) ?? 0), 0);
+    const monthIndex = Number(key.slice(5)) - 1;
+    return {
+      month: MONTH_LABELS[monthIndex] ?? key,
+      baru,
+      kumulatif,
+    };
+  });
+
+  // Batang per kategori: alokasi vs terbayar (klik → filter daftar).
+  const categoryBarData = categories.map((category) => ({
+    id: category._id as string,
+    name: category.name,
+    alokasi: Math.max(0, category.allocated),
+    terbayar: expenses
+      .filter((expense) => expense.categoryId === category._id)
+      .reduce((sum, expense) => sum + expense.amount, 0),
+  }));
+
+  const filterCategory =
+    categories.find((category) => category._id === filterCategoryId) ?? null;
+  const visibleCategories = filterCategory
+    ? categories.filter((category) => category._id === filterCategory._id)
+    : categories;
 
   const openNewExpense = () => {
     setExpenseForm({
@@ -237,8 +292,28 @@ export function BudgetPage() {
         </dl>
       </section>
 
-      {/* Donut komposisi alokasi */}
-      {donutData.length > 0 && (
+      {/* Grafik: Ikhtisar (donut) | Tren (kumulatif + alokasi vs terbayar) */}
+      <div className="flex gap-2" role="tablist" aria-label="Tampilan grafik budget">
+        {(["ikhtisar", "tren"] as const).map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            role="tab"
+            aria-selected={chartTab === tab}
+            onClick={() => setChartTab(tab)}
+            className={`flex-1 rounded-full px-3 py-2 text-xs font-bold transition-all ${
+              chartTab === tab
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "bg-secondary text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {tab === "ikhtisar" ? "Ikhtisar" : "Tren"}
+          </button>
+        ))}
+      </div>
+
+      {/* Donut komposisi alokasi — klik irisan untuk filter daftar */}
+      {chartTab === "ikhtisar" && donutData.length > 0 && (
         <section className="clay p-4">
           <div className="mb-2 flex items-center justify-between">
             <h2 className="h-card">Komposisi alokasi</h2>
@@ -258,12 +333,28 @@ export function BudgetPage() {
                     cornerRadius={6}
                     strokeWidth={0}
                   >
-                    {donutData.map((entry, index) => (
-                      <Cell
-                        key={entry.name}
-                        fill={DONUT_COLORS[index % DONUT_COLORS.length]}
-                      />
-                    ))}
+                    {donutData.map((entry, index) => {
+                      const category = categories.find(
+                        (item) => item.name === entry.name,
+                      );
+                      return (
+                        <Cell
+                          key={entry.name}
+                          fill={DONUT_COLORS[index % DONUT_COLORS.length]}
+                          className="cursor-pointer"
+                          onClick={
+                            category
+                              ? () =>
+                                  setFilterCategoryId((previous) =>
+                                    previous === category._id
+                                      ? null
+                                      : category._id,
+                                  )
+                              : undefined
+                          }
+                        />
+                      );
+                    })}
                   </Pie>
                 </PieChart>
               </ResponsiveContainer>
@@ -296,6 +387,126 @@ export function BudgetPage() {
         </section>
       )}
 
+      {chartTab === "tren" && (
+        <ChartCard
+          title="Tren pengeluaran"
+          meta={trendData.length > 0 ? `${trendData.length} bulan` : "belum ada data"}
+        >
+          {trendData.length === 0 ? (
+            <p className="py-6 text-center text-xs text-muted-foreground">
+              Belum ada pengeluaran tercatat untuk tren.
+            </p>
+          ) : (
+            <div className="h-44">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart
+                  data={trendData}
+                  margin={{ top: 8, right: 4, bottom: 0, left: -18 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="rgba(66,90,73,0.12)"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tickFormatter={(value: number | string) => formatRupiahShort(Number(value))}
+                    tick={{ fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={58}
+                  />
+                  <Tooltip
+                    content={<ChartTip format={formatRupiahShort} />}
+                    cursor={{ fill: "rgba(66,90,73,0.06)" }}
+                  />
+                  <Bar
+                    dataKey="baru"
+                    name="Bulan itu"
+                    fill="#8fa694"
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="kumulatif"
+                    name="Kumulatif"
+                    stroke="#775a19"
+                    strokeWidth={2.5}
+                    dot={{ r: 3, fill: "#775a19" }}
+                  />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </ChartCard>
+      )}
+
+      {chartTab === "tren" && categoryBarData.length > 0 && (
+        <ChartCard title="Alokasi vs terbayar" meta="Klik batang untuk filter daftar">
+          <div className="h-52">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={categoryBarData}
+                layout="vertical"
+                margin={{ top: 4, right: 8, bottom: 0, left: 4 }}
+              >
+                <CartesianGrid
+                  horizontal={false}
+                  stroke="rgba(66,90,73,0.12)"
+                />
+                <XAxis
+                  type="number"
+                  tickFormatter={(value: number | string) => formatRupiahShort(Number(value))}
+                  tick={{ fontSize: 10 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  tick={{ fontSize: 9 }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={94}
+                />
+                <Tooltip content={<ChartTip format={formatRupiahShort} />} />
+                <Bar
+                  dataKey="alokasi"
+                  name="Alokasi"
+                  fill="#d3e8d4"
+                  radius={[0, 4, 4, 0]}
+                  barSize={9}
+                />
+                <Bar
+                  dataKey="terbayar"
+                  name="Terbayar"
+                  fill="#425a49"
+                  radius={[0, 4, 4, 0]}
+                  barSize={9}
+                >
+                  {categoryBarData.map((row) => (
+                    <Cell
+                      key={row.id}
+                      className="cursor-pointer"
+                      onClick={() =>
+                        setFilterCategoryId((previous) =>
+                          previous === row.id ? null : row.id,
+                        )
+                      }
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </ChartCard>
+      )}
+
       <div className="flex gap-2">
         <Button className="flex-1 rounded-2xl" onClick={openNewExpense}>
           <Plus className="size-4" /> Catat pengeluaran
@@ -309,8 +520,18 @@ export function BudgetPage() {
         </Button>
       </div>
 
+      {filterCategory && (
+        <button
+          type="button"
+          onClick={() => setFilterCategoryId(null)}
+          className="chip self-start bg-tint-butter text-tint-butter-foreground"
+        >
+          Filter: {filterCategory.name} <X className="size-3" />
+        </button>
+      )}
+
       <Stagger className="space-y-3">
-        {categories.map((category) => {
+        {visibleCategories.map((category) => {
           const categoryExpenses = expenses.filter(
             (expense) => expense.categoryId === category._id,
           );

@@ -99,6 +99,8 @@ const schema = defineSchema(
       userId: v.id("users"),
       label: v.string(),
       done: v.optional(v.boolean()),
+      /** Waktu tugas ditandai selesai (untuk burndown progres). */
+      doneAt: v.optional(v.number()),
       sortOrder: v.number(),
       createdAt: v.optional(v.number()),
       /** Urgency shown on the dashboard agenda; lama = tidak ada (dianggap "sedang"). */

@@ -1,3 +1,4 @@
+import { CHART_COLORS, ChartCard, ChartTip } from "@/components/Charts";
 import {
   EmptyState,
   PageSkeleton,
@@ -23,6 +24,16 @@ import { formatDateTimeID, formatRupiah, formatRupiahShort } from "@/lib/format"
 import { Loader2, Plus, Target, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { toast } from "sonner";
 
 const QUICK_AMOUNTS = [250_000, 500_000, 1_000_000, 2_000_000];
@@ -92,6 +103,7 @@ export function TabunganPage() {
   } | null>(null);
   const [editingBusy, setEditingBusy] = useState(false);
   const [targetOpen, setTargetOpen] = useState(false);
+  const [range, setRange] = useState<3 | 6 | 12>(6);
   const [targetValue, setTargetValue] = useState("");
   const [targetBusy, setTargetBusy] = useState(false);
 
@@ -133,6 +145,31 @@ export function TabunganPage() {
     accumulator[key].push(deposit);
     return accumulator;
   }, {});
+
+  // Proyeksi dana: kumulatif setoran pada akhir tiap bulan + garis target.
+  const projectionData = Array.from({ length: range }, (_, index) => {
+    const monthDate = new Date(
+      now.getFullYear(),
+      now.getMonth() - (range - 1 - index),
+      1,
+    );
+    const monthEnd = new Date(
+      monthDate.getFullYear(),
+      monthDate.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+    );
+    const kumulatif = list
+      .filter((deposit) => deposit.savedAt <= monthEnd.getTime())
+      .reduce((sum, deposit) => sum + deposit.amount, 0);
+    return {
+      label: MONTHS_SHORT[monthDate.getMonth()],
+      kumulatif,
+      target,
+    };
+  });
 
   const submit = async (valueOverride?: number) => {
     const value = valueOverride ?? Number(amount);
@@ -283,6 +320,86 @@ export function TabunganPage() {
           </section>
         </StaggerItem>
       </Stagger>
+
+      <ChartCard
+        title="Proyeksi dana"
+        action={
+          <div className="flex gap-1">
+            {([3, 6, 12] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={range === value}
+                onClick={() => setRange(value)}
+                className={`chip ${
+                  range === value
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-secondary-foreground"
+                }`}
+              >
+                {value} bln
+              </button>
+            ))}
+          </div>
+        }
+      >
+        <div className="h-48">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart
+              data={projectionData}
+              margin={{ top: 8, right: 8, bottom: 0, left: -14 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="rgba(66,90,73,0.12)"
+                vertical={false}
+              />
+              <XAxis
+                dataKey="label"
+                tick={{ fontSize: 10 }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tickFormatter={(value: number | string) =>
+                  formatRupiahShort(Number(value))
+                }
+                tick={{ fontSize: 10 }}
+                axisLine={false}
+                tickLine={false}
+                width={58}
+              />
+              <Tooltip content={<ChartTip format={formatRupiahShort} />} />
+              <Area
+                type="monotone"
+                dataKey="kumulatif"
+                name="Terkumpul"
+                stroke="#425a49"
+                strokeWidth={2.5}
+                fill="#425a49"
+                fillOpacity={0.16}
+              />
+              <Line
+                type="monotone"
+                dataKey="target"
+                name="Target"
+                stroke={CHART_COLORS[1]}
+                strokeWidth={2}
+                strokeDasharray="6 4"
+                dot={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="mt-1 flex items-center gap-3 text-[11px] font-semibold text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-[#425a49]" /> Terkumpul
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-[#775a19]" /> Target
+          </span>
+        </div>
+      </ChartCard>
 
       <section className="clay space-y-3 p-4">
         <SectionHeader title="Setor baru" />

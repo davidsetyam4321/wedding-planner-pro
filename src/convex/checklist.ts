@@ -84,7 +84,10 @@ export const toggle = mutation({
 
     const item = await ctx.db.get(itemId);
     if (!item || item.userId !== userId) throw new Error("Item not found");
-    await ctx.db.patch(itemId, { done });
+    await ctx.db.patch(itemId, {
+      done,
+      doneAt: done ? Date.now() : undefined,
+    });
   },
 });
 

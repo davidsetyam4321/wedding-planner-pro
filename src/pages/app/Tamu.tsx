@@ -1,3 +1,4 @@
+import { CHART_COLORS, ChartCard, ChartTip } from "@/components/Charts";
 import {
   BackLink,
   EmptyState,
@@ -28,6 +29,18 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { toast } from "sonner";
 
 type Rsvp = "pending" | "hadir" | "tidak";
@@ -116,6 +129,31 @@ export function TamuPage() {
   const hadirSeg = Math.round((attendingPax / paxBase) * 100);
   const tidakSeg = Math.round((declinedPax / paxBase) * 100);
   const pendingSeg = Math.max(0, 100 - hadirSeg - tidakSeg);
+
+  // Donut komposisi RSVP (berdasar pax) — klik irisan/legenda → filter daftar.
+  const pendingPax = Math.max(0, totalPax - attendingPax - declinedPax);
+  const rsvpDonut: {
+    key: Rsvp;
+    name: string;
+    value: number;
+    color: string;
+  }[] = [
+    { key: "hadir" as const, name: "Hadir", value: attendingPax, color: "#425a49" },
+    { key: "pending" as const, name: "Menunggu", value: pendingPax, color: "#e9c176" },
+    { key: "tidak" as const, name: "Berhalangan", value: declinedPax, color: "#8fa694" },
+  ].filter((row) => row.value > 0);
+
+  // Sebaran pax per grup (maks 6 teratas) — klik batang → filter grup.
+  const groupBarData = groups
+    .map((group) => ({
+      group,
+      name: group,
+      orang: list
+        .filter((guest) => guest.group === group)
+        .reduce((sum, guest) => sum + guest.pax, 0),
+    }))
+    .sort((a, b) => b.orang - a.orang)
+    .slice(0, 6);
 
   const visible = list.filter((guest) => {
     if (groupFilter && guest.group !== groupFilter) return false;
@@ -258,6 +296,131 @@ export function TamuPage() {
           </div>
         </dl>
       </section>
+
+      {rsvpDonut.length > 0 && (
+        <ChartCard title="Komposisi RSVP" meta="Klik irisan untuk filter">
+          <div className="flex items-center gap-4">
+            <div className="relative size-32 shrink-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={rsvpDonut}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius={40}
+                    outerRadius={58}
+                    paddingAngle={3}
+                    cornerRadius={6}
+                    strokeWidth={0}
+                  >
+                    {rsvpDonut.map((row) => (
+                      <Cell
+                        key={row.key}
+                        fill={row.color}
+                        className="cursor-pointer"
+                        onClick={() =>
+                          setRsvpFilter((previous) =>
+                            previous === row.key ? "semua" : row.key,
+                          )
+                        }
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    content={<ChartTip format={(value) => `${value} orang`} />}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                <span className="num text-sm font-extrabold">{totalPax}</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+                  orang
+                </span>
+              </div>
+            </div>
+            <ul className="min-w-0 flex-1 space-y-1.5">
+              {rsvpDonut.map((row) => (
+                <li key={row.key}>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setRsvpFilter((previous) =>
+                        previous === row.key ? "semua" : row.key,
+                      )
+                    }
+                    className="flex w-full items-center gap-2 rounded-lg px-1 py-0.5 text-xs transition-colors hover:bg-secondary"
+                  >
+                    <span
+                      className="size-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: row.color }}
+                    />
+                    <span className="min-w-0 flex-1 truncate text-left font-semibold">
+                      {row.name}
+                    </span>
+                    <span className="num font-bold">{row.value}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </ChartCard>
+      )}
+
+      {groupBarData.length > 1 && (
+        <ChartCard title="Sebaran per grup" meta="Klik batang untuk filter">
+          <div className="h-44">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={groupBarData}
+                layout="vertical"
+                margin={{ top: 4, right: 8, bottom: 0, left: 4 }}
+              >
+                <CartesianGrid
+                  horizontal={false}
+                  stroke="rgba(66,90,73,0.12)"
+                />
+                <XAxis
+                  type="number"
+                  tick={{ fontSize: 10 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  tick={{ fontSize: 9 }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={94}
+                />
+                <Tooltip
+                  content={<ChartTip format={(value) => `${value} orang`} />}
+                  cursor={{ fill: "rgba(66,90,73,0.06)" }}
+                />
+                <Bar
+                  dataKey="orang"
+                  name="Orang"
+                  radius={[0, 4, 4, 0]}
+                  barSize={12}
+                >
+                  {groupBarData.map((row, index) => (
+                    <Cell
+                      key={row.group}
+                      fill={CHART_COLORS[index % CHART_COLORS.length]}
+                      className="cursor-pointer"
+                      onClick={() =>
+                        setGroupFilter((previous) =>
+                          previous === row.group ? null : row.group,
+                        )
+                      }
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </ChartCard>
+      )}
 
       <div className="flex gap-2">
         <Button className="flex-1 rounded-2xl" onClick={openNew}>

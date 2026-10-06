@@ -1,3 +1,4 @@
+import { CHART_COLORS, ChartCard, ChartTip } from "@/components/Charts";
 import { EmptyState, PageSkeleton, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,9 +20,21 @@ import {
   nextPriority,
   normalizePriority,
 } from "@/lib/priority";
-import { Check, Loader2, Plus, Search, Sparkles, Trash2 } from "lucide-react";
+import { Check, Loader2, Plus, Search, Sparkles, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { toast } from "sonner";
 
 type Filter = "semua" | "belum" | "selesai";
@@ -52,11 +65,17 @@ export function ChecklistPage() {
   const [editing, setEditing] = useState<{ id: Id<"checklistItem">; label: string } | null>(null);
   const [editingBusy, setEditingBusy] = useState(false);
   const [showDone, setShowDone] = useState(true);
+  const [priorityFilter, setPriorityFilter] = useState<
+    "tinggi" | "sedang" | "rendah" | null
+  >(null);
 
   const all = items ?? [];
   const open = all.filter((item) => !item.done);
   const done = all.filter((item) => item.done);
   const pct = all.length > 0 ? Math.round((done.length / all.length) * 100) : 0;
+
+  const filtered =
+    Boolean(query) || filter !== "semua" || priorityFilter !== null;
 
   const matches = (text: string) =>
     query.trim() === "" || text.toLowerCase().includes(query.trim().toLowerCase());
@@ -64,10 +83,66 @@ export function ChecklistPage() {
   const visible = all.filter((item) => {
     if (filter === "belum" && item.done) return false;
     if (filter === "selesai" && !item.done) return false;
+    if (priorityFilter && normalizePriority(item.priority) !== priorityFilter)
+      return false;
     return matches(item.label);
   });
   const visibleOpen = visible.filter((item) => !item.done);
   const visibleDone = visible.filter((item) => item.done);
+
+  // Bar progres per prioritas — klik batang → filter daftar tugas.
+  type PriorityKey = keyof typeof PRIORITY_LABEL;
+  const priorityBarData = (Object.keys(PRIORITY_LABEL) as PriorityKey[])
+    .map((key) => {
+      const rows = all.filter(
+        (item) => normalizePriority(item.priority) === key,
+      );
+      return {
+        key,
+        name: PRIORITY_LABEL[key],
+        selesai: rows.filter((row) => row.done).length,
+        sisa: rows.filter((row) => !row.done).length,
+        total: rows.length,
+      };
+    })
+    .filter((row) => row.total > 0);
+
+  // Burndown: sisa tugas terbuka di akhir tiap pekan (createdAt + doneAt).
+  // Jendela pekan diturunkan murni dari data (tanpa Date.now() saat render).
+  const weekMs = 7 * 24 * 60 * 60 * 1000;
+  const activityBounds = all
+    .flatMap((item) => [item.createdAt ?? 0, item.doneAt ?? 0])
+    .filter((value) => value > 0);
+  const earliest = activityBounds.length > 0 ? Math.min(...activityBounds) : 0;
+  const latest = activityBounds.length > 0 ? Math.max(...activityBounds) : 0;
+  const weekEnds =
+    earliest > 0 && latest >= earliest
+      ? Array.from(
+          {
+            length: Math.min(
+              26,
+              Math.max(2, Math.ceil((latest - earliest) / weekMs) + 1),
+            ),
+          },
+          (_, index) => earliest + (index + 1) * weekMs,
+        )
+      : [];
+  const burndownData = weekEnds.map((weekEnd) => {
+    const created = all.filter(
+      (item) => (item.createdAt ?? 0) <= weekEnd,
+    ).length;
+    const finished = all.filter(
+      (item) =>
+        item.done && (item.doneAt ?? item.createdAt ?? 0) <= weekEnd,
+    ).length;
+    return {
+      label: new Date(weekEnd).toLocaleDateString("id-ID", {
+        day: "2-digit",
+        month: "short",
+      }),
+      sisa: Math.max(0, created - finished),
+    };
+  });
 
   const renderItem = (item: (typeof all)[number]) => (
     <li key={item._id} className="clay flex items-center gap-3 p-3">
@@ -195,6 +270,130 @@ export function ChecklistPage() {
         <p className="num meta mt-1.5">{pct}% selesai</p>
       </section>
 
+      {priorityBarData.length > 0 && (
+        <ChartCard title="Progres per prioritas" meta="Klik batang untuk filter">
+          <div className="h-40">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={priorityBarData}
+                layout="vertical"
+                margin={{ top: 4, right: 8, bottom: 0, left: 4 }}
+              >
+                <CartesianGrid
+                  horizontal={false}
+                  stroke="rgba(66,90,73,0.12)"
+                />
+                <XAxis
+                  type="number"
+                  allowDecimals={false}
+                  tick={{ fontSize: 10 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  tick={{ fontSize: 10 }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={58}
+                />
+                <Tooltip content={<ChartTip />} cursor={{ fill: "rgba(66,90,73,0.06)" }} />
+                <Bar
+                  dataKey="selesai"
+                  name="Selesai"
+                  stackId="progres"
+                  fill="#425a49"
+                  barSize={16}
+                >
+                  {priorityBarData.map((row) => (
+                    <Cell
+                      key={row.key}
+                      className="cursor-pointer"
+                      onClick={() =>
+                        setPriorityFilter((previous) =>
+                          previous === row.key ? null : row.key,
+                        )
+                      }
+                    />
+                  ))}
+                </Bar>
+                <Bar
+                  dataKey="sisa"
+                  name="Sisa"
+                  stackId="progres"
+                  fill="#d3e8d4"
+                  radius={[0, 4, 4, 0]}
+                  barSize={16}
+                >
+                  {priorityBarData.map((row) => (
+                    <Cell
+                      key={row.key}
+                      className="cursor-pointer"
+                      onClick={() =>
+                        setPriorityFilter((previous) =>
+                          previous === row.key ? null : row.key,
+                        )
+                      }
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-1 flex items-center gap-3 text-[11px] font-semibold text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <span className="size-2 rounded-full bg-[#425a49]" /> Selesai
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="size-2 rounded-full bg-[#d3e8d4]" /> Sisa
+            </span>
+          </div>
+        </ChartCard>
+      )}
+
+      {burndownData.length > 1 && (
+        <ChartCard title="Burndown tugas" meta={`${burndownData.length} pekan`}>
+          <div className="h-40">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={burndownData}
+                margin={{ top: 8, right: 8, bottom: 0, left: -18 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(66,90,73,0.12)"
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="label"
+                  tick={{ fontSize: 9 }}
+                  axisLine={false}
+                  tickLine={false}
+                  interval="preserveStartEnd"
+                />
+                <YAxis
+                  allowDecimals={false}
+                  tick={{ fontSize: 10 }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={40}
+                />
+                <Tooltip content={<ChartTip />} />
+                <Line
+                  type="monotone"
+                  dataKey="sisa"
+                  name="Sisa tugas"
+                  stroke={CHART_COLORS[1]}
+                  strokeWidth={2.5}
+                  dot={{ r: 3, fill: CHART_COLORS[1] }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </ChartCard>
+      )}
+
       <section className="clay space-y-3 p-4">
         <form
           className="flex gap-2"
@@ -253,6 +452,16 @@ export function ChecklistPage() {
             </button>
           ))}
         </div>
+
+        {priorityFilter && (
+          <button
+            type="button"
+            onClick={() => setPriorityFilter(null)}
+            className="chip self-start bg-tint-butter text-tint-butter-foreground"
+          >
+            Prioritas: {PRIORITY_LABEL[priorityFilter]} <X className="size-3" />
+          </button>
+        )}
 
         <div className="relative">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -313,19 +522,19 @@ export function ChecklistPage() {
 
         {visible.length === 0 && items !== undefined && (
           <EmptyState
-            emoji={query || filter !== "semua" ? "🔍" : "📝"}
+            emoji={filtered ? "🔍" : "📝"}
             title={
-              query || filter !== "semua"
+              filtered
                 ? "Tidak ada tugas yang cocok"
                 : "Belum ada tugas"
             }
             description={
-              query || filter !== "semua"
+              filtered
                 ? "Coba kata kunci lain atau ganti filter."
                 : "Tuliskan satu per satu, atau tempel daftar tugas sekaligus."
             }
-            actionLabel={query || filter !== "semua" ? undefined : "Tempel banyak tugas"}
-            onAction={query || filter !== "semua" ? undefined : () => setBulkOpen(true)}
+            actionLabel={filtered ? undefined : "Tempel banyak tugas"}
+            onAction={filtered ? undefined : () => setBulkOpen(true)}
           />
         )}
       </section>
