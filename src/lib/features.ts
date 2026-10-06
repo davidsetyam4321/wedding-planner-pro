@@ -3,6 +3,7 @@ import {
   FolderHeart,
   LayoutDashboard,
   ListChecks,
+  Mail,
   PiggyBank,
   Receipt,
   Users,
@@ -24,7 +25,7 @@ export type Feature = {
 };
 
 /**
- * The eight working features of Planner Wedding. Each one gets its own pastel
+ * The nine working features of Planner Wedding. Each one gets its own pastel
  * so the dashboard never looks monotonous (classes are written out literally
  * so Tailwind can see them).
  */
@@ -100,5 +101,14 @@ export const FEATURES: Feature[] = [
     surface: "bg-tint-mint text-tint-mint-foreground",
     gradient: "grad-mint",
     emoji: "⏰",
+  },
+  {
+    to: "/app/undangan",
+    label: "Undangan",
+    desc: "Undangan digital & cetak, musik latar, galeri, dan amplop QRIS.",
+    icon: Mail,
+    surface: "bg-tint-butter text-tint-butter-foreground",
+    gradient: "grad-butter",
+    emoji: "✉️",
   },
 ];

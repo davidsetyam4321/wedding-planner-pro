@@ -31,6 +31,7 @@ export function LainnyaPage() {
     "/app/tamu": `${(guests ?? []).length} tamu`,
     "/app/vendor": `${(vendors ?? []).length} vendor`,
     "/app/rundown": `${(rundown ?? []).length} agenda`,
+    "/app/undangan": "Web & cetak",
   };
 
   const tools = TOOL_NAV.map((tool) => ({
@@ -62,7 +63,7 @@ export function LainnyaPage() {
       <section>
         <SectionHeader
           title="Alat perencanaan"
-          action={<span className="meta">4 alat</span>}
+          action={<span className="meta">{TOOL_NAV.length} alat</span>}
         />
         <div className="grid gap-3 md:grid-cols-2">
           {tools.map((tool) => (

@@ -1,8 +1,8 @@
 import { BackLink, SectionHeader } from "@/components/Shared";
-import { House, Users, Wallet as WalletIcon } from "lucide-react";
+import { Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-import { Egg, FileText, Image, ListChecks, MessageCircle, QrCode, Wifi } from "lucide-react";
+import { Egg, FileText, Image, MessageCircle, QrCode, Wifi } from "lucide-react";
 import { useState } from "react";
 
 export function UndanganPage() {
@@ -293,30 +293,6 @@ export function UndanganPage() {
         </div>
       </section>
 
-      {/* Bottom nav: 5 items with Undangan selected */}
-      <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
-        <div className="pointer-events-auto mx-auto flex max-w-md items-stretch justify-between rounded-full border border-white/60 bg-card/85 p-1.5 shadow-[0_16px_40px_rgba(36,46,40,0.14)] backdrop-blur-2xl">
-          {[              { to: "/app", label: "Beranda", icon: House, active: "bg-tint-mint/80 text-primary shadow-sm" },              { to: "/app/budget", label: "Budget", icon: WalletIcon, active: "bg-tint-butter/80 text-tint-butter-foreground shadow-sm" },
-            { to: "/app/checklist", label: "Checklist", icon: ListChecks, active: "bg-tint-sage/80 text-tint-sage-foreground shadow-sm", badge: true },
-            { to: "/app/tamu", label: "Tamu", icon: Users, active: "bg-tint-sky/80 text-tint-sky-foreground shadow-sm" },
-            { to: "/app/undangan", label: "Undangan", icon: MessageCircle, active: "bg-tint-rose/80 text-tint-rose-foreground shadow-sm", badge: true },
-          ].map(({ to, label, icon: Icon, active, badge }) => (
-            <a
-              key={to}
-              href={to}
-              className={`relative my-0.5 flex min-w-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-full px-1 py-2 text-[10px] font-semibold transition-all duration-200 ${active} font-bold`}
-            >
-              <Icon className="size-5" strokeWidth={2.4} />
-              <span>{label}</span>
-              {badge && (
-                <span className="absolute right-1.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[9px] font-extrabold text-white">
-                  9+
-                </span>
-              )}
-            </a>
-          ))}
-        </div>
-      </nav>
     </div>
   );
 }

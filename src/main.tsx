@@ -43,6 +43,9 @@ const RundownPage = lazy(() =>
 const PengaturanPage = lazy(() =>
   import("./pages/app/Pengaturan.tsx").then((m) => ({ default: m.PengaturanPage })),
 );
+const UndanganPage = lazy(() =>
+  import("./pages/app/Undangan.tsx").then((m) => ({ default: m.UndanganPage })),
+);
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const LandingPage = lazy(() =>
   import("./pages/Landing.tsx").then((m) => ({ default: m.LandingPage })),
@@ -212,6 +215,7 @@ createRoot(document.getElementById("root")!).render(
                   <Route path="tamu" element={<TamuPage />} />
                   <Route path="vendor" element={<VendorPage />} />
                   <Route path="rundown" element={<RundownPage />} />
+                  <Route path="undangan" element={<UndanganPage />} />
                   <Route path="pengaturan" element={<PengaturanPage />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
