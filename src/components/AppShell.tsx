@@ -167,7 +167,7 @@ function NotificationBell({
         <Button
           variant="outline"
           size="icon"
-          className="relative size-9 rounded-full bg-card"
+          className="relative size-9 rounded-full"
           aria-label="Notifikasi"
         >
           <Bell className="size-4" />
@@ -230,6 +230,8 @@ export function AppShell() {
   const workspace = useQuery(api.workspace.status);
   const { pathname } = useLocation();
   const pageTitle = pageTitleFor(pathname);
+  /** Satu aksen warna per fitur — wash ambient & chip header mengikuti rute. */
+  const activeFeature = FEATURES.find((item) => item.to === pathname);
 
   const savingsTotal =
     savings?.reduce((sum, deposit) => sum + deposit.amount, 0) ?? 0;
@@ -281,20 +283,28 @@ export function AppShell() {
     <div className="mx-auto flex w-full max-w-7xl">
       <SideNav status={workspace} />
       <div className="relative min-w-0 flex-1 pb-28 lg:pb-10">
-      {/* Ambient botanical blur blobs — SatuJanji backdrop */}
+      {/* Ambient glow — one accent colour per feature, following the route */}
       <div
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 -z-20 overflow-hidden"
       >
-        <div className="absolute -left-20 -top-24 size-80 rounded-full bg-tint-mint/40 blur-3xl" />
-        <div className="absolute -right-24 top-1/3 size-72 rounded-full bg-tint-butter/30 blur-3xl" />
+        <div
+          className={`absolute -left-24 -top-28 size-[26rem] rounded-full blur-3xl transition-colors duration-700 ${
+            activeFeature?.glow ?? "bg-tint-mint/60"
+          }`}
+        />
+        <div className="absolute -right-28 top-2/3 size-80 rounded-full bg-tint-butter/45 blur-3xl" />
       </div>
       <Petals />
       <BloomOverlay />
       <header className="sticky top-0 z-30 w-full bg-background/80 pb-2.5 pt-4 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3 px-4 lg:max-w-3xl lg:px-10">
           <Link to="/app" className="flex min-w-0 items-center gap-2.5">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-tint-mint shadow-sm lg:hidden">
+            <span
+              className={`flex size-9 shrink-0 items-center justify-center rounded-xl shadow-sm backdrop-blur-md transition-colors duration-500 lg:hidden ${
+                activeFeature?.surface ?? "bg-tint-mint"
+              }`}
+            >
               <FlowerMark className="size-5 text-primary" />
             </span>
             <span className="flex min-w-0 flex-col leading-tight">

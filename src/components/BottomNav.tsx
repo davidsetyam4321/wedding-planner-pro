@@ -98,7 +98,7 @@ export function BottomNav() {
                     className={({ isActive }) =>
                       `flex items-center gap-2.5 rounded-xl px-2 py-2 text-sm font-bold transition-colors ${
                         isActive
-                          ? "bg-tint-mint text-tint-mint-foreground"
+                          ? `${feature.surface} shadow-sm`
                           : "text-foreground hover:bg-tint-sage"
                       }`
                     }

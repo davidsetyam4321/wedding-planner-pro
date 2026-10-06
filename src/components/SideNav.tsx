@@ -50,14 +50,14 @@ export function SideNav({ status }: { status: SyncInfo }) {
 
       <div className="flex flex-col gap-0.5">
         <p className="label px-3 pb-1.5 text-muted-foreground">Alat</p>
-        {TOOL_NAV.map(({ to, label, emoji }) => (
+        {TOOL_NAV.map(({ to, label, emoji, surface }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) =>
               `flex items-center gap-2.5 rounded-full px-3 py-2 text-[13px] font-semibold transition-colors ${
                 isActive
-                  ? "bg-tint-mint text-tint-mint-foreground"
+                  ? `${surface} shadow-sm`
                   : "text-muted-foreground hover:bg-tint-sage hover:text-foreground"
               }`
             }

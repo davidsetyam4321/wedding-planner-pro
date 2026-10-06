@@ -22,6 +22,8 @@ export type Feature = {
   gradient: string;
   /** small emoji for playful headers */
   emoji: string;
+  /** ambient glow wash (fixed background blob) for that feature's page */
+  glow: string;
 };
 
 /**
@@ -38,6 +40,7 @@ export const FEATURES: Feature[] = [
     surface: "bg-tint-mint text-tint-mint-foreground",
     gradient: "grad-warm",
     emoji: "🏠",
+    glow: "bg-tint-mint/60",
   },
   {
     to: "/app/budget",
@@ -47,6 +50,7 @@ export const FEATURES: Feature[] = [
     surface: "bg-tint-butter text-tint-butter-foreground",
     gradient: "grad-butter",
     emoji: "💰",
+    glow: "bg-tint-butter/55",
   },
   {
     to: "/app/tabungan",
@@ -56,6 +60,7 @@ export const FEATURES: Feature[] = [
     surface: "bg-tint-lavender text-tint-lavender-foreground",
     gradient: "grad-lavender",
     emoji: "🐷",
+    glow: "bg-tint-lavender/70",
   },
   {
     to: "/app/checklist",
@@ -65,6 +70,7 @@ export const FEATURES: Feature[] = [
     surface: "bg-tint-sage text-tint-sage-foreground",
     gradient: "grad-sage",
     emoji: "📝",
+    glow: "bg-tint-sage/70",
   },
   {
     to: "/app/moodboard",
@@ -74,6 +80,7 @@ export const FEATURES: Feature[] = [
     surface: "bg-tint-rose text-tint-rose-foreground",
     gradient: "grad-rose",
     emoji: "🎨",
+    glow: "bg-tint-rose/50",
   },
   {
     to: "/app/tamu",
@@ -83,6 +90,7 @@ export const FEATURES: Feature[] = [
     surface: "bg-tint-sky text-tint-sky-foreground",
     gradient: "grad-sky",
     emoji: "💌",
+    glow: "bg-tint-sky/60",
   },
   {
     to: "/app/vendor",
@@ -92,6 +100,7 @@ export const FEATURES: Feature[] = [
     surface: "bg-tint-peach text-tint-peach-foreground",
     gradient: "grad-peach",
     emoji: "📋",
+    glow: "bg-tint-peach/45",
   },
   {
     to: "/app/rundown",
@@ -101,6 +110,7 @@ export const FEATURES: Feature[] = [
     surface: "bg-tint-mint text-tint-mint-foreground",
     gradient: "grad-mint",
     emoji: "⏰",
+    glow: "bg-tint-mint/60",
   },
   {
     to: "/app/undangan",
@@ -110,5 +120,6 @@ export const FEATURES: Feature[] = [
     surface: "bg-tint-butter text-tint-butter-foreground",
     gradient: "grad-butter",
     emoji: "✉️",
+    glow: "bg-tint-butter/55",
   },
 ];

@@ -60,25 +60,26 @@
   --color-tint-sage-foreground: var(--tint-sage-foreground);
 }
 
-/* ── Planner Wedding · Claude theme ───────────────────────────────────────
-   Warm neutral base, terracotta accents, generous padding, gentle rounding.
-   On top of it: a playful pastel per feature so nothing looks monotonous. */
+/* ── SatuJanji theme ──────────────────────────────────────────────────────
+   Sage & champagne base, a clear playful gradient background, one pastel
+   accent per feature, and glass surfaces that fly on hover. */
 :root {
   --radius: 0.75rem;
 
-  --background: #f1fcf3;
+  --background: #f3fbf5;
   --foreground: #141e18;
-  --card: #ffffff;
+  /* translucent glass surfaces — the playful gradient shows through */
+  --card: rgba(255, 255, 255, 0.66);
   --card-foreground: #141e18;
-  --popover: #ffffff;
+  --popover: rgba(255, 255, 255, 0.9);
   --popover-foreground: #141e18;
   --primary: #425a49;
   --primary-foreground: #ffffff;
-  --secondary: #e5f1e7;
+  --secondary: rgba(229, 241, 231, 0.62);
   --secondary-foreground: #344c3b;
-  --muted: #e5f1e7;
+  --muted: rgba(229, 241, 231, 0.55);
   --muted-foreground: #4f5b53;
-  --accent: #ceead2;
+  --accent: rgba(206, 234, 210, 0.6);
   --accent-foreground: #344c3b;
   --destructive: #ba1a1a;
   --destructive-foreground: #ffffff;
@@ -90,29 +91,29 @@
   --chart-3: #ceead2;
   --chart-4: #ffdea5;
   --chart-5: #5a7360;
-  --sidebar: #ebf6ed;
+  --sidebar: rgba(235, 246, 237, 0.72);
   --sidebar-foreground: #141e18;
   --sidebar-primary: #425a49;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e0ebe2;
+  --sidebar-accent: rgba(224, 235, 226, 0.72);
   --sidebar-accent-foreground: #344c3b;
   --sidebar-border: #d3ded4;
   --sidebar-ring: #b2cdb7;
 
-  /* playful pastels — SatuJanji sage & champagne containers */
-  --tint-mint: #ceead2;
+  /* playful pastels — SatuJanji sage & champagne containers (translucent) */
+  --tint-mint: rgba(206, 234, 210, 0.76);
   --tint-mint-foreground: #344c3b;
-  --tint-lavender: #dae5dc;
+  --tint-lavender: rgba(218, 229, 220, 0.76);
   --tint-lavender-foreground: #344c3b;
-  --tint-peach: #e9c176;
+  --tint-peach: rgba(233, 193, 118, 0.7);
   --tint-peach-foreground: #5d4201;
-  --tint-rose: #ffdad6;
+  --tint-rose: rgba(255, 218, 214, 0.7);
   --tint-rose-foreground: #93000a;
-  --tint-sky: #d3e8d4;
+  --tint-sky: rgba(211, 232, 212, 0.76);
   --tint-sky-foreground: #394b3c;
-  --tint-butter: #ffdea5;
+  --tint-butter: rgba(255, 222, 165, 0.7);
   --tint-butter-foreground: #5d4201;
-  --tint-sage: #e0ebe2;
+  --tint-sage: rgba(224, 235, 226, 0.76);
   --tint-sage-foreground: #344c3b;
 
   /* SatuJanji champagne-gold accent */
@@ -120,22 +121,25 @@
 
   --shadow-soft: 0 8px 32px -4px rgba(36, 46, 40, 0.07), 0 1px 2px rgba(36, 46, 40, 0.04);
   --shadow-lift: 0 16px 40px -12px rgba(36, 46, 40, 0.16);
+  --shadow-float: 0 24px 48px -18px rgba(36, 46, 40, 0.3),
+    0 6px 16px -8px rgba(36, 46, 40, 0.14);
 }
 
 .dark {
   --background: #0f1512;
   --foreground: #e2eee3;
-  --card: #17211a;
+  /* translucent glass — the dark gradient glows through */
+  --card: rgba(23, 33, 26, 0.66);
   --card-foreground: #e2eee3;
-  --popover: #17211a;
+  --popover: rgba(20, 29, 23, 0.92);
   --popover-foreground: #e2eee3;
   --primary: #b2cdb7;
   --primary-foreground: #082012;
-  --secondary: #22302a;
+  --secondary: rgba(34, 48, 42, 0.62);
   --secondary-foreground: #ceead2;
-  --muted: #1c2822;
+  --muted: rgba(28, 40, 34, 0.55);
   --muted-foreground: #9fb0a4;
-  --accent: #22352a;
+  --accent: rgba(34, 53, 42, 0.62);
   --accent-foreground: #ceead2;
   --destructive: #ff5449;
   --destructive-foreground: #ffffff;
@@ -147,34 +151,36 @@
   --chart-3: #22352a;
   --chart-4: #3a2f16;
   --chart-5: #5a7360;
-  --sidebar: #131b16;
+  --sidebar: rgba(19, 27, 22, 0.75);
   --sidebar-foreground: #e2eee3;
   --sidebar-primary: #b2cdb7;
   --sidebar-primary-foreground: #082012;
-  --sidebar-accent: #22352a;
+  --sidebar-accent: rgba(34, 53, 42, 0.72);
   --sidebar-accent-foreground: #ceead2;
   --sidebar-border: #2a382f;
   --sidebar-ring: #b2cdb7;
 
-  --tint-mint: #22453a;
+  --tint-mint: rgba(34, 69, 58, 0.68);
   --tint-mint-foreground: #ceead2;
-  --tint-lavender: #1f332b;
+  --tint-lavender: rgba(31, 51, 43, 0.68);
   --tint-lavender-foreground: #dae5dc;
-  --tint-peach: #4a3a1d;
+  --tint-peach: rgba(74, 58, 29, 0.68);
   --tint-peach-foreground: #e9c176;
-  --tint-rose: #4a2b33;
+  --tint-rose: rgba(74, 43, 51, 0.68);
   --tint-rose-foreground: #ffdad6;
-  --tint-sky: #213a2e;
+  --tint-sky: rgba(33, 58, 46, 0.68);
   --tint-sky-foreground: #d3e8d4;
-  --tint-butter: #4a3a1d;
+  --tint-butter: rgba(74, 58, 29, 0.68);
   --tint-butter-foreground: #ffdea5;
-  --tint-sage: #23392c;
+  --tint-sage: rgba(35, 57, 44, 0.68);
   --tint-sage-foreground: #d8ead9;
 
   --gold: #e9c176;
 
   --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 24px -14px rgba(0, 0, 0, 0.6);
   --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.35), 0 16px 32px -16px rgba(0, 0, 0, 0.7);
+  --shadow-float: 0 28px 52px -20px rgba(0, 0, 0, 0.78),
+    0 8px 18px -8px rgba(0, 0, 0, 0.5);
 }
 
 @theme {
@@ -194,6 +200,64 @@
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    /* Clear playful gradient — mint top-left, champagne top-right, sky
+       bottom-left, a warm champagne bloom low-center. Fixed so every glass
+       card glides over one continuous wash. */
+    background-image:
+      radial-gradient(
+        54rem 40rem at 2% -10%,
+        rgba(178, 205, 183, 0.8) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        46rem 34rem at 101% 0%,
+        rgba(255, 222, 165, 0.62) 0%,
+        transparent 55%
+      ),
+      radial-gradient(
+        42rem 36rem at 92% 58%,
+        rgba(206, 234, 210, 0.6) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        48rem 38rem at 6% 102%,
+        rgba(211, 232, 212, 0.7) 0%,
+        transparent 58%
+      ),
+      radial-gradient(
+        34rem 28rem at 55% 112%,
+        rgba(233, 193, 118, 0.34) 0%,
+        transparent 65%
+      ),
+      linear-gradient(180deg, #f7fdf9 0%, #eff8f2 48%, #fdf8ec 100%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+  }
+  .dark body {
+    background-image:
+      radial-gradient(
+        54rem 40rem at 2% -10%,
+        rgba(34, 69, 58, 0.7) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        46rem 34rem at 101% 0%,
+        rgba(74, 58, 29, 0.6) 0%,
+        transparent 55%
+      ),
+      radial-gradient(
+        42rem 36rem at 92% 58%,
+        rgba(35, 57, 44, 0.6) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        48rem 38rem at 6% 102%,
+        rgba(33, 58, 46, 0.65) 0%,
+        transparent 58%
+      ),
+      linear-gradient(180deg, #0f1512 0%, #111814 50%, #16130c 100%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
   }
   h1,
   h2,
@@ -214,71 +278,54 @@
   [data-slot="alert-dialog-content"] {
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(18px) saturate(1.5);
+    -webkit-backdrop-filter: blur(18px) saturate(1.5);
+    border-color: color-mix(in srgb, var(--border) 55%, transparent);
+  }
+  .dark [data-slot="card"],
+  .dark [data-slot="dialog-content"],
+  .dark [data-slot="popover-content"],
+  .dark [data-slot="dropdown-menu-content"],
+  .dark [data-slot="alert-dialog-content"] {
+    border-color: rgba(255, 255, 255, 0.08);
   }
 
+  /* Glass buttons — translucent + blurred; the flying pop-up hover lives in
+     the unlayered block at the end of this file so it always wins. */
   [data-slot="button"][data-variant="default"],
   [data-slot="button"][data-variant="outline"],
   [data-slot="button"][data-variant="secondary"],
   [data-slot="button"][data-variant="destructive"] {
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-soft);
-    transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+    backdrop-filter: blur(10px) saturate(1.35);
+    -webkit-backdrop-filter: blur(10px) saturate(1.35);
   }
-  /* Tombol utama gradient sage berlapis — gaya “Scan Now” pada referensi */
+  /* Tombol utama: sage translucent berlapis kilau kaca */
   [data-slot="button"][data-variant="default"] {
-    background-image: linear-gradient(180deg, #5a7360 0%, #425a49 100%);
-    box-shadow: 0 10px 24px -8px rgba(41, 58, 47, 0.5),
-      inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  }
-  [data-slot="button"][data-variant="default"]:hover {
-    background-image: linear-gradient(180deg, #627d68 0%, #4a6450 100%);
-  }
-  [data-slot="button"][data-variant="default"]:hover,
-  [data-slot="button"][data-variant="secondary"]:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-lift);
-  }
-  [data-slot="button"]:active {
-    transform: translateY(0) scale(0.98);
+    background-image: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.24) 0%,
+      rgba(255, 255, 255, 0.03) 52%,
+      rgba(16, 34, 22, 0.14) 100%
+    );
+    box-shadow:
+      0 10px 24px -8px rgba(41, 58, 47, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.32);
   }
 
   [data-slot="input"],
   [data-slot="textarea"],
   [data-slot="select-trigger"] {
     border-radius: var(--radius-lg);
-    background-color: var(--popover);
+    background-color: color-mix(in srgb, var(--popover) 92%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 }
 
-/* ── Utilities: soft cards, pastel gradients, playful motion ────────────── */
+/* ── Utilities: pastel gradients, playful motion ────────────────────────── */
 @layer utilities {
-  .clay,
-  .panel {
-    background-color: color-mix(in srgb, var(--card) 82%, transparent);
-    backdrop-filter: blur(14px) saturate(1.35);
-    -webkit-backdrop-filter: blur(14px) saturate(1.35);
-    border: 1px solid rgba(66, 90, 73, 0.08);
-    border-radius: 1.25rem;
-    box-shadow: var(--shadow-soft);
-  }
-  .clay-inset {
-    background-color: var(--muted);
-    border-radius: var(--radius-lg);
-  }
-  .clay-sm {
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-soft);
-  }
-  .clay-press {
-    transition: transform 160ms ease, box-shadow 160ms ease;
-  }
-  .clay-press:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lift);
-  }
-  .clay-press:active {
-    transform: translateY(0) scale(0.99);
-  }
   .panel-header {
     display: flex;
     align-items: center;
@@ -419,6 +466,49 @@
 
 /* ── Type scale: one place decides how headings, labels and numbers look ── */
 @layer components {
+  /* ── Flying glass surfaces ──────────────────────────────────────────────
+     Deliberately in @layer components: any bg-* utility (the per-feature
+     pastels) must win over the glass tint, while the blur, hairline border
+     and shadow stay. Hover pop-ups live in the unlayered block at the end. */
+  .clay,
+  .panel {
+    background-color: color-mix(in srgb, var(--card) 88%, transparent);
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow-soft);
+    transition:
+      transform 220ms cubic-bezier(0.22, 0.85, 0.3, 1),
+      box-shadow 220ms ease,
+      background-color 220ms ease,
+      border-color 220ms ease;
+  }
+  .dark .clay,
+  .dark .panel {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  .clay-inset {
+    background-color: color-mix(in srgb, var(--muted) 78%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: var(--radius-lg);
+  }
+  .dark .clay-inset {
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+  .clay-sm {
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(14px) saturate(1.4);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  }
+  .clay-press {
+    transition:
+      transform 180ms cubic-bezier(0.22, 0.85, 0.3, 1),
+      box-shadow 180ms ease;
+  }
   .h-page {
     font-family: var(--font-serif);
     font-size: 1.45rem;
@@ -456,6 +546,10 @@
     padding: 0.35rem 0.75rem;
     font-size: 0.72rem;
     font-weight: 700;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px -3px rgba(36, 46, 40, 0.12);
     transition: transform 140ms ease, background-color 140ms ease;
   }
   .chip:active {
@@ -464,6 +558,14 @@
   .stat-tile {
     border-radius: var(--radius-lg);
     padding: 0.7rem 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 14px -6px rgba(36, 46, 40, 0.1);
+  }
+  .dark .chip,
+  .dark .stat-tile {
+    border-color: rgba(255, 255, 255, 0.07);
   }
   .stat-tile dt {
     font-size: 0.65rem;
@@ -476,5 +578,44 @@
     font-size: 0.9rem;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ── Flying pop-up hovers ─────────────────────────────────────────────────
+   Deliberately UNLAYERED: unlayered rules beat every @layer, so these lifts
+   always win over utility shadows like shadow-sm. Cards and buttons rise,
+   scale a touch, and swap to the float shadow — a playful pop-up feel. */
+@media (hover: hover) {
+  [data-slot="card"]:hover,
+  .clay:hover,
+  .panel:hover {
+    transform: translateY(-4px) scale(1.008);
+    box-shadow: var(--shadow-float);
+  }
+  .clay-press:hover {
+    transform: translateY(-3px) scale(1.012);
+    box-shadow: var(--shadow-float);
+  }
+  [data-slot="button"][data-variant="default"]:hover,
+  [data-slot="button"][data-variant="outline"]:hover,
+  [data-slot="button"][data-variant="secondary"]:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: var(--shadow-float);
+  }
+}
+[data-slot="button"]:active,
+.clay-press:active {
+  transform: translateY(0) scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="card"]:hover,
+  .clay:hover,
+  .panel:hover,
+  .clay-press:hover,
+  [data-slot="button"][data-variant="default"]:hover,
+  [data-slot="button"][data-variant="outline"]:hover,
+  [data-slot="button"][data-variant="secondary"]:hover {
+    transform: none;
   }
 }
