@@ -27,7 +27,7 @@ import {
 } from "@/lib/session";
 import { useAuth } from "@/hooks/use-auth";
 import { SETUP_REFRESH_EVENT } from "@/lib/session";
-import { Bell, LayoutGrid, Settings, Sparkles } from "lucide-react";
+import { Bell, Settings, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { useMutation, useQuery } from "convex/react";
@@ -313,15 +313,6 @@ export function AppShell() {
                 {wedding.partnerOneName} & {wedding.partnerTwoName} ❤️
               </span>
             )}
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-9 rounded-full bg-card"
-              aria-label="Buka menu fitur"
-              onClick={() => setFeaturesOpen(true)}
-            >
-              <LayoutGrid className="size-4" />
-            </Button>
               <NotificationBell
                 wedding={wedding}
                 openTasks={openTasks}
