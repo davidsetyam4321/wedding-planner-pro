@@ -295,6 +295,18 @@ export function HomePage() {
         <Skeleton className="h-56 w-full rounded-3xl" />
       ) : (
         <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#39503f] via-[#425a49] to-[#5c7460] p-5 shadow-[0_20px_50px_-12px_rgba(41,58,47,0.45)]">
+          {couplePhoto && (
+            <>
+              {/* Latar = foto pasangan yang diunggah; overlay sage menjaga teks tetap terbaca. */}
+              <img
+                src={couplePhoto}
+                alt=""
+                aria-hidden
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#39503f]/85 via-[#425a49]/80 to-[#5c7460]/85" />
+            </>
+          )}
           <div className="pointer-events-none absolute -right-10 -top-14 size-44 rounded-full bg-white/10 blur-2xl" />
           <div className="pointer-events-none absolute -bottom-12 -left-8 size-40 rounded-full bg-tint-butter/25 blur-2xl" />
           <div className="relative z-10 flex items-start justify-between gap-3">
@@ -315,12 +327,6 @@ export function HomePage() {
                 <span className="flex size-full items-center justify-center bg-card">
                   <Loader2 className="size-4 animate-spin" />
                 </span>
-              ) : couplePhoto ? (
-                <img
-                  src={couplePhoto}
-                  alt="Foto pasangan"
-                  className="h-full w-full object-cover"
-                />
               ) : (
                 <span className="flex size-full items-center justify-center bg-primary text-[11px] font-extrabold text-primary-foreground">
                   {coupleInitials(
