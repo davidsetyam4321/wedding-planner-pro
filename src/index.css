@@ -196,9 +196,12 @@
     url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='176' height='176' viewBox='0 0 176 176' fill='none'><g fill='none' stroke='rgba(178,205,183,0.16)' stroke-width='1.6'><path transform='translate(20,34) rotate(-28) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(104,24) rotate(40) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(118,96) rotate(18) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(16,138) rotate(66) scale(1.05)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g fill='rgba(178,205,183,0.12)'><path transform='translate(56,92) rotate(-64) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g fill='rgba(233,193,118,0.14)'><path transform='translate(132,140) rotate(-44) scale(1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g transform='translate(78,126) scale(0.95)' fill='rgba(178,205,183,0.13)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.3' fill='rgba(233,193,118,0.2)'/></g><circle cx='154' cy='62' r='3' fill='rgba(233,193,118,0.16)'/></svg>");
 }
 
+/* Font pairing: firm grotesque sans (Archivo) for all reading/UI text +
+   calligraphic script (Dancing Script) for every display slot that used to
+   be Playfair (h1–h3, .h-page, .h-card, and the font-serif utilities). */
 @theme {
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-serif: "Playfair Display", ui-serif, Georgia, "Times New Roman", serif;
+  --font-sans: "Archivo", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif: "Dancing Script", "Segoe Script", cursive;
   --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
