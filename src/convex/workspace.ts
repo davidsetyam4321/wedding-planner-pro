@@ -67,7 +67,7 @@ export async function isSharingWorkspace(
 
   const partner = await ctx.db
     .query("users")
-    .filter((q) => q.eq(q.field("coupleId"), userId))
+    .withIndex("by_coupleId", (q) => q.eq("coupleId", userId))
     .first();
   return partner !== null;
 }
@@ -95,7 +95,7 @@ export const status = query({
     } else {
       const partner = await ctx.db
         .query("users")
-        .filter((q) => q.eq(q.field("coupleId"), userId))
+        .withIndex("by_coupleId", (q) => q.eq("coupleId", userId))
         .first();
       connectedEmail = partner?.email ?? null;
     }
@@ -153,7 +153,7 @@ export const joinByInviteCode = mutation({
 
     const partner = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("coupleId"), target.userId))
+      .withIndex("by_coupleId", (q) => q.eq("coupleId", target.userId))
       .first();
     if (partner) throw new Error("Workspace itu sudah punya pasangan.");
 

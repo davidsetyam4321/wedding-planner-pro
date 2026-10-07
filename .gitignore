@@ -1,4 +1,6 @@
 .env.local
+.env.keys
+.env.*.key
 node_modules
 dist
 src/convex/_generated

@@ -32,7 +32,10 @@ export function useCouplePhotoUpload() {
 
       setUploading(true);
       try {
-        const uploadUrl = await generateUploadUrl({});
+        const uploadUrl = await generateUploadUrl({
+          contentType: file.type,
+          sizeBytes: file.size,
+        });
         const response = await fetch(uploadUrl, {
           method: "POST",
           headers: { "Content-Type": file.type },

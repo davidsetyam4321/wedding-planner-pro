@@ -4,6 +4,7 @@ import { mutation, query, type MutationCtx } from "./_generated/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import { moveWorkspaceData } from "./migration";
 import { workspaceUserId } from "./workspace";
+import { assertValidImageUpload } from "./files";
 
 const DEFAULT_WEDDING_DATE = new Date("2027-08-26T09:00:00+07:00").getTime();
 
@@ -197,6 +198,7 @@ export const setCouplePhoto = mutation({
   args: { storageId: v.id("_storage") },
   handler: async (ctx, { storageId }) => {
     const userId = await workspaceUserId(ctx);
+    await assertValidImageUpload(ctx, storageId);
 
     const wedding = await ctx.db
       .query("wedding")

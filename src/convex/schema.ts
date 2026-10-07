@@ -46,7 +46,9 @@ const schema = defineSchema(
       // ── Planner Wedding ────────────────────────────────────────────────
       /** Workspace pemilik data utama. Null = akun ini adalah pemilik workspace sendiri. */
       coupleId: v.optional(v.id("users")),
-    }).index("email", ["email"]), // index for the email. do not remove or modify
+    })
+      .index("email", ["email"]) // index for the email. do not remove or modify
+      .index("by_coupleId", ["coupleId"]), // lookup pasangan tanpa full scan
 
     // ── Planner Wedding ────────────────────────────────────────────────────
 

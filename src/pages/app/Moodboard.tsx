@@ -137,7 +137,10 @@ export function MoodboardPage() {
     let added = 0;
     for (const file of files.slice(0, MAX_PHOTOS)) {
       try {
-        const uploadUrl = await generateUploadUrl({});
+        const uploadUrl = await generateUploadUrl({
+          contentType: file.type,
+          sizeBytes: file.size,
+        });
         const response = await fetch(uploadUrl, {
           method: "POST",
           headers: { "Content-Type": file.type },

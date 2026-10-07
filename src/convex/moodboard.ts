@@ -2,6 +2,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { workspaceUserId } from "./workspace";
+import { assertValidImageUpload } from "./files";
 
 /** Sane ceiling that keeps a single reference box browsable. */
 const MAX_PHOTOS_PER_BOX = 12;
@@ -211,6 +212,7 @@ export const addPhoto = mutation({
   },
   handler: async (ctx, { boxId, storageId, caption }) => {
     const userId = await workspaceUserId(ctx);
+    await assertValidImageUpload(ctx, storageId);
 
     const box = await ctx.db.get(boxId);
     if (!box || box.userId !== userId) throw new Error("Box not found");
