@@ -1,13 +1,7 @@
-import { BackLink, SectionHeader } from "@/components/Shared";
-import { Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
 import { Egg, FileText, Image, MessageCircle, QrCode, Wifi } from "lucide-react";
 
 export function UndanganPage() {
-  const [tab, setTab] = useState<"digital" | "cetak">("digital");
-  const [copied, setCopied] = useState(false);
-
   return (
     <div className="space-y-4">
       <BackLink />
@@ -45,11 +39,11 @@ export function UndanganPage() {
               size="sm"
               variant="secondary"
               className="rounded-xl"
-              onClick={() => setCopied(true)}
+              
             >
               <span className="sr-only">Salin</span>
               <FileText className="size-3.5" />
-              {copied ? "Tersalin" : "Salin"}
+              Salin
             </Button>
           </div>
 
@@ -68,10 +62,7 @@ export function UndanganPage() {
             
           </div>
 
-          <div className="relative z-10 mt-3 flex gap-2">
-            
-            
-          </div>
+          
         </div>
       </section>
 
@@ -144,20 +135,7 @@ export function UndanganPage() {
                 <p className="meta">Autoplay saat tamu klik "Buka Undangan"</p>
               </div>
             </div>
-            <button
-              type="button"
-              className="relative size-11 shrink-0 rounded-full bg-tint-sage/60 p-1 backdrop-blur-md"
-              onClick={() => setSoundOn(!soundOn)}
-            >
-              <div className={`absolute inset-0 rounded-full transition-all ${soundOn ? "bg-tint-mint" : "bg-white/50"}`} />
-              <span
-                className={`absolute top-1 right-1 flex size-4 items-center justify-center rounded-full text-[9px] font-bold text-white transition-all ${
-                  soundOn ? "translate-x-0" : "translate-x-10"
-                }`}
-              >
-                ON
-              </span>
-            </button>
+            
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
             {[
