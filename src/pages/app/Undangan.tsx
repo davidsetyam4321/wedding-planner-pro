@@ -3,12 +3,10 @@ import { Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { Egg, FileText, Image, MessageCircle, QrCode, Wifi } from "lucide-react";
-import { useState } from "react";
 
 export function UndanganPage() {
   const [tab, setTab] = useState<"digital" | "cetak">("digital");
   const [copied, setCopied] = useState(false);
-  const [soundOn, setSoundOn] = useState(true);
 
   return (
     <div className="space-y-4">
@@ -67,35 +65,12 @@ export function UndanganPage() {
               <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="12" x2="20" y2="12" /><polyline points="14 7 20 12 14 17" /><line x1="16" y1="12" x2="16" y2="12" /></svg>
               Kirim WhatsApp
             </Button>
-            <Button className="rounded-2xl bg-white/15 text-white backdrop-blur-sm border border-white/20" onClick={() => setTab(tab === "digital" ? "cetak" : "digital")}>
-              <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M12 3v3M12 18v3M3 12h3M18 12h3" /></svg>
-              Ubah Desain
-            </Button>
+            
           </div>
 
           <div className="relative z-10 mt-3 flex gap-2">
-            <button
-              type="button"
-              className={`flex-1 rounded-full py-2.5 text-[13px] font-bold transition-all active:scale-95 ${
-                tab === "digital"
-                  ? "bg-white text-[#425a49] shadow-md"
-                  : "bg-white/10 text-white/80 hover:bg-white/15"
-              }`}
-              onClick={() => setTab("digital")}
-            >
-              Undangan Digital (Web)
-            </button>
-            <button
-              type="button"
-              className={`flex-1 rounded-full py-2.5 text-[13px] font-bold transition-all active:scale-95 ${
-                tab === "cetak"
-                  ? "bg-white text-[#425a49] shadow-md"
-                  : "bg-white/10 text-white/80 hover:bg-white/15"
-              }`}
-              onClick={() => setTab("cetak")}
-            >
-              Undangan Cetak (Fisik)
-            </button>
+            
+            
           </div>
         </div>
       </section>
