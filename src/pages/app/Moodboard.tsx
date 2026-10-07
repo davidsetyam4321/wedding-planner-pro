@@ -25,7 +25,9 @@ import {
   Loader2,
   Pencil,
   Plus,
+  Search,
   Trash2,
+  X,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { useAction, useMutation, useQuery } from "convex/react";
@@ -65,6 +67,7 @@ export function MoodboardPage() {
 
   const [lightbox, setLightbox] = useState<{ boxId: BoxId; index: number } | null>(null);
   const [caption, setCaption] = useState("");
+  const [query, setQuery] = useState("");
 
   const activeBox = (boxes ?? []).find((box) => box._id === openBoxId) ?? null;
   const lightboxBox = (boxes ?? []).find((box) => box._id === lightbox?.boxId) ?? null;
@@ -72,6 +75,18 @@ export function MoodboardPage() {
     lightboxBox && lightbox ? lightboxBox.photos[lightbox.index] ?? null : null;
 
   const totalPhotos = (boxes ?? []).reduce((sum, box) => sum + box.photos.length, 0);
+
+  // Pencarian: judul kotak dan caption foto yang cocok, masih di kategori
+  // yang sedang dibuka.
+  const term = query.trim().toLowerCase();
+  const visibleBoxes = (boxes ?? []).filter(
+    (box) =>
+      term === "" ||
+      box.title.toLowerCase().includes(term) ||
+      box.photos.some((photo) =>
+        (photo.caption ?? "").toLowerCase().includes(term),
+      ),
+  );
 
   const submitCategory = async () => {
     if (!categoryName.trim()) return;
@@ -238,8 +253,29 @@ export function MoodboardPage() {
         </button>
       </div>
 
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder={`Cari kotak atau caption di ${current}`}
+          className="pl-9 pr-9"
+          aria-label="Cari kotak mood board"
+        />
+        {query !== "" && (
+          <button
+            type="button"
+            aria-label="Bersihkan pencarian"
+            onClick={() => setQuery("")}
+            className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
+          >
+            <X className="size-3.5" />
+          </button>
+        )}
+      </div>
+
       <Stagger className="grid grid-cols-2 gap-3">
-        {(boxes ?? []).map((box) => {
+        {visibleBoxes.map((box) => {
           const cover = box.photos[0];
           const full = box.photos.length >= MAX_PHOTOS;
           return (
@@ -288,6 +324,16 @@ export function MoodboardPage() {
           description="Buat satu kotak untuk tiap ide: dekorasi panggung, gaun, buket…"
           actionLabel={`Kotak baru di ${current}`}
           onAction={() => setBoxDialog({ title: "" })}
+        />
+      )}
+
+      {boxes !== undefined && boxes.length > 0 && visibleBoxes.length === 0 && (
+        <EmptyState
+          emoji="🔍"
+          title="Tidak ada yang cocok"
+          description={`Tidak ada kotak atau caption di ${current} yang mengandung “${query}”.`}
+          actionLabel="Reset pencarian"
+          onAction={() => setQuery("")}
         />
       )}
 

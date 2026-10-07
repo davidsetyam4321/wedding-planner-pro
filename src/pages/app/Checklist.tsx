@@ -17,6 +17,24 @@ import { bloom } from "@/lib/bloom";
 import { fromDateInputValue, toDateInputValue } from "@/lib/format";
 import { undoableDelete } from "@/lib/undo";
 import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
   PRIORITY_BADGE,
   PRIORITY_LABEL,
   nextPriority,
@@ -24,6 +42,7 @@ import {
 } from "@/lib/priority";
 import {
   Check,
+  GripVertical,
   Loader2,
   Plus,
   Search,
@@ -32,7 +51,7 @@ import {
   UserRound,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import { useMutation, useQuery } from "convex/react";
 import {
   Bar,
@@ -50,6 +69,43 @@ import { toast } from "sonner";
 
 type Filter = "semua" | "belum" | "selesai";
 
+/**
+ * Baris tugas yang bisa diseret. Handle-nya terpisah dari tombol lain supaya
+ * menyeret tidak pernah bentrok dengan mencentang atau mengubah prioritas.
+ */
+function SortableTask({
+  id,
+  children,
+}: {
+  id: string;
+  children: (
+    handle: ReactNode,
+    ref: (node: HTMLLIElement | null) => void,
+    style: CSSProperties,
+  ) => ReactNode;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id });
+  const style: CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.65 : 1,
+  };
+  const handle = (
+    <button
+      type="button"
+      aria-label="Geser untuk mengubah urutan"
+      title="Tahan lalu geser untuk mengubah urutan"
+      className="flex size-6 shrink-0 touch-none items-center justify-center rounded-lg text-muted-foreground/70 hover:text-primary active:cursor-grabbing"
+      {...attributes}
+      {...listeners}
+    >
+      <GripVertical className="size-4" />
+    </button>
+  );
+  return <>{children(handle, setNodeRef, style)}</>;
+}
+
 const FILTERS: { key: Filter; label: string }[] = [
   { key: "semua", label: "Semua" },
   { key: "belum", label: "Belum" },
@@ -65,6 +121,18 @@ export function ChecklistPage() {
   const setPriority = useMutation(api.checklist.setPriority);
   const removeItem = useMutation(api.checklist.remove);
   const clearDone = useMutation(api.checklist.clearDone);
+  const reorderItems = useMutation(api.checklist.reorder);
+  // Jarak 6px sebelum drag dianggap mulai, supaya klik biasa tidak pernah
+  // berubah jadi seretan; di perangkat sentuh pakai tahan lama 160ms.
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 160, tolerance: 6 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
 
   const [label, setLabel] = useState("");
   const [adding, setAdding] = useState(false);
@@ -108,6 +176,19 @@ export function ChecklistPage() {
   });
   const visibleOpen = visible.filter((item) => !item.done);
   const visibleDone = visible.filter((item) => item.done);
+
+  // Seret-untuk-mengurutkan hanya saat daftar utuh (tanpa pencarian/filter):
+  // menyeret di dalam hasil pencarian membuat urutan global jadi kabur.
+  const dragEnabled = !filtered && visibleOpen.length > 1;
+
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over || active.id === over.id) return;
+    const ids = visibleOpen.map((item) => item._id);
+    const from = ids.indexOf(active.id as Id<"checklistItem">);
+    const to = ids.indexOf(over.id as Id<"checklistItem">);
+    if (from < 0 || to < 0) return;
+    void reorderItems({ itemIds: arrayMove(ids, from, to) });
+  };
 
   // Bar progres per prioritas — klik batang → filter daftar tugas.
   type PriorityKey = keyof typeof PRIORITY_LABEL;
@@ -163,8 +244,21 @@ export function ChecklistPage() {
     };
   });
 
-  const renderItem = (item: (typeof all)[number]) => (
-    <li key={item._id} className="clay flex items-center gap-3 p-3">
+  const renderItem = (
+    item: (typeof all)[number],
+    sortable?: {
+      handle: ReactNode;
+      ref: (node: HTMLLIElement | null) => void;
+      style: CSSProperties;
+    },
+  ) => (
+    <li
+      key={item._id}
+      ref={sortable?.ref}
+      style={sortable?.style}
+      className="clay flex items-center gap-3 p-3"
+    >
+      {sortable?.handle}
       <button
         type="button"
         aria-label={item.done ? "Tandai belum selesai" : "Tandai selesai"}
@@ -553,9 +647,35 @@ export function ChecklistPage() {
               <section className="space-y-2">
                 <p className="label px-1 text-muted-foreground">
                   Belum · {visibleOpen.length}
+                  {dragEnabled && (
+                    <span className="ml-2 font-normal normal-case opacity-70">
+                      (tahan untuk geser)
+                    </span>
+                  )}
                 </p>
                 <ul className="space-y-2">
-                  {visibleOpen.map(renderItem)}
+                  {dragEnabled ? (
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleDragEnd}
+                    >
+                      <SortableContext
+                        items={visibleOpen.map((item) => item._id)}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        {visibleOpen.map((item) => (
+                          <SortableTask key={item._id} id={item._id}>
+                            {(handle, ref, style) =>
+                              renderItem(item, { handle, ref, style })
+                            }
+                          </SortableTask>
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  ) : (
+                    visibleOpen.map((item) => renderItem(item))
+                  )}
                 </ul>
               </section>
             </StaggerItem>
@@ -577,7 +697,7 @@ export function ChecklistPage() {
                   )}
                 </div>
                 <ul className="space-y-2">
-                  {visibleDone.map(renderItem)}
+                  {visibleDone.map((item) => renderItem(item))}
                 </ul>
               </section>
             </StaggerItem>

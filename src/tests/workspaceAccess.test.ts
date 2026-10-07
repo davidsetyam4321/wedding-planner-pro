@@ -70,6 +70,18 @@ async function seedWorkspace(t: Test, label: string) {
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .first(),
   );
+  const vendor = await as.run((ctx) =>
+    ctx.db
+      .query("vendor")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first(),
+  );
+  const expense = await as.run((ctx) =>
+    ctx.db
+      .query("budgetExpense")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first(),
+  );
 
   return {
     userId,
@@ -77,6 +89,8 @@ async function seedWorkspace(t: Test, label: string) {
     guestId: guest!._id,
     checklistId,
     categoryId: category!._id,
+    vendorId: vendor!._id,
+    expenseId: expense!._id,
   };
 }
 
@@ -152,17 +166,53 @@ describe("isolasi antar workspace", () => {
     );
   });
 
-  it("menolak mutation yang menyasar id milik workspace lain", async () => {
+  it("menolak membaca, mengubah, dan menghapus data workspace lain", async () => {
     const t = t0();
     const a = await seedWorkspace(t, "A");
     const b = await seedWorkspace(t, "B");
 
+    // Tamu: baca (lewat list) sudah tercakup di atas; di sini sisi tulis.
     await expect(
       b.as.mutation(api.guests.remove, { guestId: a.guestId }),
     ).rejects.toThrow(/not found/i);
     await expect(
+      b.as.mutation(api.guests.update, { guestId: a.guestId, name: "Dibajak" }),
+    ).rejects.toThrow(/not found/i);
+    await expect(
+      b.as.mutation(api.guests.setInvited, { guestId: a.guestId, invited: true }),
+    ).rejects.toThrow(/not found/i);
+
+    // Checklist.
+    await expect(
       b.as.mutation(api.checklist.remove, { itemId: a.checklistId }),
     ).rejects.toThrow(/not found/i);
+    await expect(
+      b.as.mutation(api.checklist.toggle, {
+        itemId: a.checklistId,
+        done: true,
+      }),
+    ).rejects.toThrow(/not found/i);
+    await expect(
+      b.as.mutation(api.checklist.reorder, {
+        itemIds: [b.checklistId, a.checklistId],
+      }),
+    ).rejects.toThrow(/not found/i);
+
+    // Vendor: tidak bisa dihapus maupun diubah status pembayarannya.
+    await expect(
+      b.as.mutation(api.vendors.remove, { vendorId: a.vendorId }),
+    ).rejects.toThrow(/not found/i);
+    await expect(
+      b.as.mutation(api.vendors.setStatus, {
+        vendorId: a.vendorId,
+        status: "lunas",
+      }),
+    ).rejects.toThrow(/not found/i);
+    await expect(
+      b.as.mutation(api.vendors.update, { vendorId: a.vendorId, cost: 1 }),
+    ).rejects.toThrow(/not found/i);
+
+    // Budget: kategori maupun pengeluaran.
     await expect(
       b.as.mutation(api.budget.deleteCategory, { categoryId: a.categoryId }),
     ).rejects.toThrow(/not found/i);
@@ -173,8 +223,16 @@ describe("isolasi antar workspace", () => {
       }),
     ).rejects.toThrow(/not found/i);
     await expect(
-      b.as.mutation(api.guests.update, { guestId: a.guestId, name: "Dibajak" }),
+      b.as.mutation(api.budget.deleteExpense, { expenseId: a.expenseId }),
     ).rejects.toThrow(/not found/i);
+    await expect(
+      b.as.mutation(api.budget.toggleExpensePaid, {
+        expenseId: a.expenseId,
+        paid: true,
+      }),
+    ).rejects.toThrow(/not found/i);
+
+    // Moodboard hanya punya query baca per kategori — hasilnya tetap kosong.
     await expect(
       b.as.query(api.moodboard.listBoxes, { category: "Dekorasi" }),
     ).resolves.toEqual([]);
@@ -182,10 +240,22 @@ describe("isolasi antar workspace", () => {
     // Data A tetap utuh setelah semua percobaan di atas.
     const guestsA = await a.as.query(api.guests.list, {});
     expect(guestsA.map((guest) => guest.name)).toEqual(["Tamu A"]);
+    const vendorsA = await a.as.query(api.vendors.list, {});
+    expect(vendorsA.map((vendor) => vendor.status)).toEqual(["dp"]);
     const overviewA = await a.as.query(api.budget.overview, {});
     expect(overviewA.categories.map((category) => category.name)).toContain(
       "Kategori A",
     );
+    expect(
+      overviewA.expenses.find(
+        (expense) => expense.source === "manual",
+      )?.amount,
+    ).toBe(250_000);
+    expect(
+      (await a.as.query(api.checklist.list, {})).find(
+        (item) => item._id === a.checklistId,
+      )?.done,
+    ).toBeFalsy();
   });
 
   it("menolak akses tanpa identitas", async () => {
