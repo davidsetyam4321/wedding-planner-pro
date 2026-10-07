@@ -28,8 +28,14 @@ async function nextSortOrder(ctx: MutationCtx, userId: Id<"users">): Promise<num
 }
 
 export const create = mutation({
-  args: { label: v.string() },
-  handler: async (ctx, { label }) => {
+  args: {
+    label: v.string(),
+    dueDate: v.optional(v.number()),
+    priority: v.optional(
+      v.union(v.literal("tinggi"), v.literal("sedang"), v.literal("rendah")),
+    ),
+  },
+  handler: async (ctx, { label, dueDate, priority }) => {
     const userId = await workspaceUserId(ctx);
 
     await ctx.db.insert("checklistItem", {
@@ -38,14 +44,16 @@ export const create = mutation({
       done: false,
       sortOrder: await nextSortOrder(ctx, userId),
       createdAt: Date.now(),
+      dueDate: dueDate && dueDate > 0 ? dueDate : undefined,
+      priority,
     });
   },
 });
 
 /** Adds many tasks at once — the UI turns pasted newlines into an array. */
 export const createMany = mutation({
-  args: { labels: v.array(v.string()) },
-  handler: async (ctx, { labels }) => {
+  args: { labels: v.array(v.string()), dueDate: v.optional(v.number()) },
+  handler: async (ctx, { labels, dueDate }) => {
     const userId = await workspaceUserId(ctx);
 
     let order = await nextSortOrder(ctx, userId);
@@ -57,6 +65,7 @@ export const createMany = mutation({
         done: false,
         sortOrder: order++,
         createdAt: Date.now(),
+        dueDate: dueDate && dueDate > 0 ? dueDate : undefined,
       });
     }
     return cleaned.length;
@@ -64,8 +73,12 @@ export const createMany = mutation({
 });
 
 export const update = mutation({
-  args: { itemId: v.id("checklistItem"), label: v.string() },
-  handler: async (ctx, { itemId, label }) => {
+  args: {
+    itemId: v.id("checklistItem"),
+    label: v.string(),
+    dueDate: v.optional(v.union(v.number(), v.null())),
+  },
+  handler: async (ctx, { itemId, label, dueDate }) => {
     const userId = await workspaceUserId(ctx);
 
     const item = await ctx.db.get(itemId);
@@ -73,7 +86,12 @@ export const update = mutation({
 
     const cleaned = label.trim();
     if (!cleaned) throw new Error("Tugas tidak boleh kosong");
-    await ctx.db.patch(itemId, { label: cleaned });
+    const patch: { label: string; dueDate?: number | undefined } = { label: cleaned };
+    if (dueDate !== undefined) {
+      patch.dueDate =
+        dueDate !== null && dueDate > 0 ? dueDate : undefined;
+    }
+    await ctx.db.patch(itemId, patch);
   },
 });
 

@@ -20,14 +20,19 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
+import { WA_TEMPLATES, waLink, type WaContext } from "@/lib/contact";
+import { downloadCsv } from "@/lib/exportCsv";
+import { formatDateLongID } from "@/lib/format";
 import {
+  FileDown,
   Loader2,
   MessageCircle,
   Plus,
   Search,
   Send,
+  Upload,
 } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import {
   Bar,
@@ -42,6 +47,7 @@ import {
   YAxis,
 } from "recharts";
 import { toast } from "sonner";
+import { undoableDelete } from "@/lib/undo";
 
 type Rsvp = "pending" | "hadir" | "tidak";
 
@@ -68,11 +74,6 @@ const EMPTY_FORM: GuestForm = {
   phone: "",
   note: "",
 };
-
-function waLink(phone: string): string {
-  const digits = phone.replace(/[^0-9]/g, "").replace(/^0/, "62");
-  return `https://wa.me/${digits}`;
-}
 
 const AVATAR_TINTS = [
   "bg-tint-rose text-tint-rose-foreground",
@@ -106,6 +107,8 @@ export function TamuPage() {
   const setInvited = useMutation(api.guests.setInvited);
   const setRsvp = useMutation(api.guests.setRsvp);
   const removeGuest = useMutation(api.guests.remove);
+  const importGuests = useMutation(api.guests.createMany);
+  const wedding = useQuery(api.wedding.get);
 
   const [form, setForm] = useState<GuestForm>(EMPTY_FORM);
   const [formOpen, setFormOpen] = useState(false);
@@ -113,6 +116,13 @@ export function TamuPage() {
   const [query, setQuery] = useState("");
   const [groupFilter, setGroupFilter] = useState<string | null>(null);
   const [rsvpFilter, setRsvpFilter] = useState<"semua" | Rsvp>("semua");
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [importing, setImporting] = useState(false);
+  /** Tamu yang sedang dipilih untuk dikirimi pesan WA dari template. */
+  const [waTarget, setWaTarget] = useState<{
+    name: string;
+    phone?: string;
+  } | null>(null);
 
   const list = guests ?? [];
   const groups = Array.from(new Set(list.map((guest) => guest.group)));
@@ -238,6 +248,122 @@ export function TamuPage() {
     toast.success(
       count > 0 ? `${count} undangan ditandai terkirim.` : "Semua sudah terkirim.",
     );
+  };
+
+  /** Unduh daftar tamu (terfilter) sebagai CSV. */
+  const exportCsv = () => {
+    downloadCsv(
+      "tamu-satujanji",
+      ["Nama", "Grup", "Pax", "Telepon", "RSVP", "Terkirim", "Catatan"],
+      visible.map((guest) => [
+        guest.name,
+        guest.group,
+        guest.pax,
+        guest.phone ?? "",
+        guest.rsvp === "hadir" ? "Hadir" : guest.rsvp === "tidak" ? "Tidak" : "Belum",
+        guest.invited ? "Ya" : "Belum",
+        guest.note ?? "",
+      ]),
+    );
+    toast.success("CSV tamu diunduh.");
+  };
+
+  /**
+   * Impor CSV: header wajib punya kolom “Nama” (lainnya opsional):
+   * Nama;Grup;Pax;Telepon;Catatan
+   */
+  const importCsv = async (file: File) => {
+    setImporting(true);
+    try {
+      const text = await file.text();
+      const lines = text
+        .replace(/^\uFEFF/, "")
+        .split(/\r?\n/)
+        .filter((line) => line.trim());
+      if (lines.length < 2) {
+        toast.error("File kosong atau tidak punya baris data.");
+        return;
+      }
+      const split = (line: string) => {
+        const cells: string[] = [];
+        let current = "";
+        let quoted = false;
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          if (quoted) {
+            if (char === '"' && line[i + 1] === '"') {
+              current += '"';
+              i++;
+            } else if (char === '"') {
+              quoted = false;
+            } else {
+              current += char;
+            }
+          } else if (char === '"') {
+            quoted = true;
+          } else if (char === ";" || char === ",") {
+            cells.push(current);
+            current = "";
+          } else {
+            current += char;
+          }
+        }
+        cells.push(current);
+        return cells.map((cell) => cell.trim());
+      };
+
+      const header = split(lines[0]).map((cell) => cell.toLowerCase());
+      const nameIdx = header.findIndex((cell) => cell.includes("nama") || cell === "name");
+      if (nameIdx === -1) {
+        toast.error('CSV harus punya kolom “Nama”. Lihat format: Nama;Grup;Pax;Telepon');
+        return;
+      }
+      const groupIdx = header.findIndex((cell) => cell.includes("grup") || cell.includes("group") || cell.includes("keluarga"));
+      const paxIdx = header.findIndex((cell) => cell.includes("pax") || cell.includes("orang"));
+      const phoneIdx = header.findIndex((cell) => cell.includes("telepon") || cell.includes("phone") || cell.includes("wa"));
+      const noteIdx = header.findIndex((cell) => cell.includes("catatan") || cell.includes("note"));
+
+      const rows = lines.slice(1).map((line) => {
+        const cells = split(line);
+        return {
+          name: cells[nameIdx] ?? "",
+          group: groupIdx >= 0 ? cells[groupIdx] : undefined,
+          pax: paxIdx >= 0 ? Number(cells[paxIdx]) || 1 : undefined,
+          phone: phoneIdx >= 0 ? cells[phoneIdx] : undefined,
+          note: noteIdx >= 0 ? cells[noteIdx] : undefined,
+        };
+      });
+
+      const count = await importGuests({ rows });
+      if (count > 0) bloom();
+      toast.success(
+        count > 0 ? `${count} tamu diimpor.` : "Tidak ada baris valid untuk diimpor.",
+      );
+    } catch {
+      toast.error("Gagal membaca file CSV.");
+    } finally {
+      setImporting(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  /** Konteks personalisasi template pesan dari data pernikahan. */
+  const waContext = (guest: { name: string }): WaContext => ({
+    namaTamu: guest.name,
+    pasangan: wedding
+      ? `${wedding.partnerOneName} & ${wedding.partnerTwoName}`
+      : "pengantin",
+    tanggal: wedding ? formatDateLongID(wedding.weddingDate) : "",
+    venue: wedding?.venueName,
+  });
+
+  const sendTemplate = (templateKey: string) => {
+    if (!waTarget?.phone) return;
+    const template = WA_TEMPLATES.find((item) => item.key === templateKey);
+    if (!template) return;
+    const link = waLink(waTarget.phone, template.build(waContext(waTarget)));
+    if (link) window.open(link, "_blank", "noopener,noreferrer");
+    setWaTarget(null);
   };
 
   if (guests === undefined) return <PageSkeleton />;
@@ -422,7 +548,7 @@ export function TamuPage() {
         </ChartCard>
       )}
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button className="flex-1 rounded-2xl" onClick={openNew}>
           <Plus className="size-4" /> Tamu baru
         </Button>
@@ -433,6 +559,36 @@ export function TamuPage() {
         >
           <Send className="size-4" /> Tandai terkirim
         </Button>
+        <Button
+          variant="outline"
+          className="rounded-2xl"
+          onClick={exportCsv}
+        >
+          <FileDown className="size-4" /> CSV
+        </Button>
+        <Button
+          variant="outline"
+          className="rounded-2xl"
+          disabled={importing}
+          onClick={() => fileRef.current?.click()}
+        >
+          {importing ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Upload className="size-4" />
+          )}
+          Impor
+        </Button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".csv,text/csv"
+          className="hidden"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) void importCsv(file);
+          }}
+        />
       </div>
 
       <div className="relative">
@@ -495,21 +651,42 @@ export function TamuPage() {
                   </div>
                   <div className="flex shrink-0 items-center gap-1.5">
                     {guest.phone && (
-                      <a
-                        href={waLink(guest.phone)}
-                        target="_blank"
-                        rel="noreferrer"
-                        aria-label="Chat WhatsApp"
+                      <button
+                        type="button"
+                        aria-label="Kirim pesan WhatsApp"
+                        title="Kirim pesan WhatsApp"
+                        onClick={() =>
+                          setWaTarget({ name: guest.name, phone: guest.phone })
+                        }
                         className="flex size-7 items-center justify-center rounded-xl text-muted-foreground hover:bg-secondary hover:text-primary"
                       >
                         <MessageCircle className="size-4" />
-                      </a>
+                      </button>
                     )}
                     <RowMenu
                       onEdit={() => openEdit(guest)}
                       onDelete={() => {
                         removeGuest({ guestId: guest._id });
-                        toast.success("Tamu dihapus.");
+                        undoableDelete(
+                          `Tamu "${guest.name}" dihapus.`,
+                          async () => {
+                            const newId = await createGuest({
+                              name: guest.name,
+                              group: guest.group,
+                              pax: guest.pax,
+                              phone: guest.phone,
+                              note: guest.note,
+                            });
+                            // Pulihkan juga status undangan & RSVP-nya.
+                            if (guest.invited) {
+                              await setInvited({ guestId: newId, invited: true });
+                            }
+                            if (guest.rsvp !== "pending") {
+                              await setRsvp({ guestId: newId, rsvp: guest.rsvp });
+                            }
+                          },
+                          { successMessage: `Tamu "${guest.name}" kembali.` },
+                        );
                       }}
                       deleteTitle={`Hapus ${guest.name}?`}
                     />
@@ -650,6 +827,42 @@ export function TamuPage() {
               {busy ? <Loader2 className="size-4 animate-spin" /> : "Simpan tamu"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Template pesan WhatsApp */}
+      <Dialog open={waTarget !== null} onOpenChange={(open) => !open && setWaTarget(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Kirim pesan WhatsApp</DialogTitle>
+          </DialogHeader>
+          <p className="meta">
+            Untuk {waTarget?.name} — pilih template, pesan terisi otomatis lalu
+            terbuka di WhatsApp.
+          </p>
+          <div className="space-y-2">
+            {WA_TEMPLATES.map((template) => (
+              <button
+                key={template.key}
+                type="button"
+                onClick={() => sendTemplate(template.key)}
+                disabled={!waTarget?.phone}
+                className="clay-inset w-full rounded-2xl px-3.5 py-3 text-left transition-colors hover:bg-secondary disabled:opacity-60"
+              >
+                <span className="block text-sm font-bold">{template.label}</span>
+                <span className="meta mt-0.5 block line-clamp-2">
+                  {waTarget
+                    ? template.build(waContext(waTarget)).replace(/\n+/g, " ")
+                    : ""}
+                </span>
+              </button>
+            ))}
+          </div>
+          {!waTarget?.phone && (
+            <p className="text-xs font-semibold text-destructive">
+              Tamu ini belum punya nomor WhatsApp.
+            </p>
+          )}
         </DialogContent>
       </Dialog>
     </div>

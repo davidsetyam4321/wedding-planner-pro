@@ -31,7 +31,9 @@ export const create = mutation({
     const userId = await workspaceUserId(ctx);
     if (!name.trim()) throw new Error("Nama tamu wajib diisi");
 
-    await ctx.db.insert("guest", {
+    // ID-nya dikembalikan supaya alur "urungkan hapus" bisa memulihkan
+    // status undangan/RSVP yang menyertainya.
+    return await ctx.db.insert("guest", {
       userId,
       name: name.trim(),
       group: group.trim() || "Umum",
@@ -89,6 +91,45 @@ export const setInvited = mutation({
     const guest = await ctx.db.get(guestId);
     if (!guest || guest.userId !== userId) throw new Error("Guest not found");
     await ctx.db.patch(guestId, { invited });
+  },
+});
+
+/**
+ * Impor massal dari CSV — sekali panggil, satu transaksi.
+ * Baris yang namanya kosong dilewati; sisa field diformat aman.
+ */
+export const createMany = mutation({
+  args: {
+    rows: v.array(
+      v.object({
+        name: v.string(),
+        group: v.optional(v.string()),
+        pax: v.optional(v.number()),
+        phone: v.optional(v.string()),
+        note: v.optional(v.string()),
+      }),
+    ),
+  },
+  handler: async (ctx, { rows }) => {
+    const userId = await workspaceUserId(ctx);
+    const cleaned = rows.filter((row) => row.name.trim());
+    if (cleaned.length === 0) return 0;
+
+    const now = Date.now();
+    for (const row of cleaned) {
+      await ctx.db.insert("guest", {
+        userId,
+        name: row.name.trim().slice(0, 120),
+        group: (row.group ?? "").trim() || "Umum",
+        pax: Math.max(1, Math.min(50, Math.round(row.pax ?? 1))),
+        phone: row.phone?.trim() || undefined,
+        note: row.note?.trim().slice(0, 300) || undefined,
+        invited: false,
+        rsvp: "pending",
+        createdAt: now,
+      });
+    }
+    return cleaned.length;
   },
 });
 

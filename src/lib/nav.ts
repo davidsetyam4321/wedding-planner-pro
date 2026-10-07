@@ -47,7 +47,7 @@ export const PRIMARY_NAV: NavItem[] = [
 const PRIMARY_PATHS = new Set(PRIMARY_NAV.map((item) => item.to));
 
 /**
- * The remaining features (Tabungan, Mood Board, Vendor, Rundown, Undangan).
+ * The remaining features (Tabungan, Mood Board, Vendor, Rundown).
  * Derived from FEATURES so icon, label and emoji stay identical everywhere:
  * the SideNav "Alat" group and the BottomNav "Lainnya" popup both read it.
  */

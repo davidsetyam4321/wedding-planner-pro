@@ -28,8 +28,9 @@ export const create = mutation({
     dpAmount: v.optional(v.number()),
     note: v.optional(v.string()),
     status: v.optional(vendorStatusValidator),
+    dueDate: v.optional(v.number()),
   },
-  handler: async (ctx, { name, category, contact, cost, dpAmount, note, status }) => {
+  handler: async (ctx, { name, category, contact, cost, dpAmount, note, status, dueDate }) => {
     const userId = await workspaceUserId(ctx);
     if (!name.trim()) throw new Error("Nama vendor wajib diisi");
 
@@ -42,6 +43,7 @@ export const create = mutation({
       dpAmount: dpAmount === undefined ? undefined : Math.max(0, Math.round(dpAmount)),
       note: note?.trim() || undefined,
       status: status ?? "belum",
+      dueDate: dueDate && dueDate > 0 ? dueDate : undefined,
       createdAt: Date.now(),
     });
   },
@@ -57,6 +59,7 @@ export const update = mutation({
     dpAmount: v.optional(v.number()),
     note: v.optional(v.string()),
     status: v.optional(vendorStatusValidator),
+    dueDate: v.optional(v.union(v.number(), v.null())),
   },
   handler: async (ctx, args) => {
     const userId = await workspaceUserId(ctx);
@@ -72,6 +75,7 @@ export const update = mutation({
       dpAmount?: number;
       note?: string;
       status?: "belum" | "dp" | "lunas";
+      dueDate?: number | undefined;
     } = {};
 
     if (args.name !== undefined) {
@@ -87,6 +91,10 @@ export const update = mutation({
     }
     if (args.note !== undefined) patch.note = args.note.trim() || undefined;
     if (args.status !== undefined) patch.status = args.status;
+    if (args.dueDate !== undefined) {
+      patch.dueDate =
+        args.dueDate !== null && args.dueDate > 0 ? args.dueDate : undefined;
+    }
 
     await ctx.db.patch(args.vendorId, patch);
   },

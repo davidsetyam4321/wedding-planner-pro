@@ -23,10 +23,14 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
 import { formatRupiah, formatRupiahShort } from "@/lib/format";
+import { downloadCsv } from "@/lib/exportCsv";
+import { printDocument } from "@/lib/printDoc";
 import {
   AlertTriangle,
   Check,
   ChevronDown,
+  FileDown,
+  FileText,
   Loader2,
   Plus,
   Wallet,
@@ -291,6 +295,87 @@ export function BudgetPage() {
     } finally {
       setBusy(false);
     }
+  };
+
+  /** Ekspor ikhtisar anggaran sebagai CSV (satu baris per kategori). */
+  const exportCsv = () => {
+    const rows = categories.map((category) => {
+      const spent = expenses
+        .filter(
+          (expense) =>
+            expense.source === "manual" && expense.categoryId === category._id,
+        )
+        .reduce((sum, expense) => sum + expense.amount, 0);
+      // Baris vendor hanya dibebankan ke kategori pertama agar tidak dobel.
+      const vendorSpent =
+        category === categories[0]
+          ? expenses
+              .filter((expense) => expense.source === "vendor")
+              .reduce((sum, expense) => sum + expense.amount, 0)
+          : 0;
+      const total = spent + vendorSpent;
+      return [
+        category.name,
+        category.allocated,
+        total,
+        Math.max(0, category.allocated - total),
+      ];
+    });
+    downloadCsv("budget-satujanji", ["Kategori", "Alokasi", "Terpakai", "Sisa"], rows);
+    toast.success("CSV anggaran diunduh.");
+  };
+
+  /** Cetak ringkasan anggaran → dialog “Simpan sebagai PDF” browser. */
+  const exportPdf = () => {
+    printDocument(
+      "Ringkasan Anggaran Pernikahan",
+      `Terpakai ${formatRupiah(totalSpent)} dari ${formatRupiah(totalAllocated)}`,
+      [
+        {
+          title: "Per kategori",
+          headers: ["Kategori", "Alokasi", "Terpakai", "Sisa"],
+          rows: categories.map((category) => {
+            const spent = expenses
+              .filter(
+                (expense) =>
+                  expense.source === "manual" &&
+                  expense.categoryId === category._id,
+              )
+              .reduce((sum, expense) => sum + expense.amount, 0);
+            const vendorSpent =
+              category === categories[0]
+                ? expenses
+                    .filter((expense) => expense.source === "vendor")
+                    .reduce((sum, expense) => sum + expense.amount, 0)
+                : 0;
+            const total = spent + vendorSpent;
+            return [
+              category.name,
+              formatRupiah(category.allocated),
+              formatRupiah(total),
+              formatRupiah(Math.max(0, category.allocated - total)),
+            ];
+          }),
+        },
+        {
+          title: "Rincian pengeluaran",
+          headers: ["Keterangan", "Nominal", "Sumber", "Status"],
+          rows: expenses.map((expense) => [
+            expense.label,
+            formatRupiah(expense.amount),
+            expense.source === "vendor" ? "Vendor" : "Manual",
+            expense.paidAt ? "Lunas" : "Belum",
+          ]),
+        },
+        {
+          title: "Tabungan & target",
+          lines: [
+            `Tabungan terkumpul: ${formatRupiah(savingsTotal)}`,
+            `Target dana: ${formatRupiah(fundTarget)}`,
+          ],
+        },
+      ],
+    );
   };
 
   if (budget === undefined) return <PageSkeleton />;
@@ -584,7 +669,7 @@ export function BudgetPage() {
         </ChartCard>
       )}
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button className="flex-1 rounded-2xl" onClick={openNewExpense}>
           <Plus className="size-4" /> Catat pengeluaran
         </Button>
@@ -594,6 +679,20 @@ export function BudgetPage() {
           onClick={() => setCategoryDialog({ id: null, name: "", allocated: "" })}
         >
           Kategori
+        </Button>
+        <Button
+          variant="outline"
+          className="rounded-2xl"
+          onClick={exportCsv}
+        >
+          <FileDown className="size-4" /> CSV
+        </Button>
+        <Button
+          variant="outline"
+          className="rounded-2xl"
+          onClick={exportPdf}
+        >
+          <FileText className="size-4" /> PDF
         </Button>
       </div>
 

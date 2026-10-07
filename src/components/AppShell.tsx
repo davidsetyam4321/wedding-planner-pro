@@ -1,5 +1,6 @@
 import { BottomNav } from "@/components/BottomNav";
 import { SideNav } from "@/components/SideNav";
+import { OnboardingDialog } from "@/components/Onboarding";
 import { coupleInitials } from "@/components/CouplePhoto";
 import { BloomOverlay, FlowerMark, Petals } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
@@ -97,14 +98,37 @@ function NotificationBell({
   openTasks,
   workspace,
   savingsNote,
+  reminders,
 }: {
   wedding: { weddingDate: number; venueName?: string } | null | undefined;
   openTasks: number;
   workspace: WorkspaceStatus | null | undefined;
   savingsNote: string | null;
+  reminders: {
+    id: string;
+    label: string;
+    dueDate: number;
+    overdue: boolean;
+    daysLeft: number;
+  }[];
 }) {
   const notes = useMemo(() => {
     const list: { id: string; label: string; tone?: "mint" | "amber" }[] = [];
+
+    // Pengingat tenggat — yang terlambat didahulukan.
+    for (const reminder of [...reminders]
+      .sort((a, b) => Number(b.overdue) - Number(a.overdue) || a.dueDate - b.dueDate)
+      .slice(0, 5)) {
+      list.push({
+        id: `due-${reminder.id}`,
+        tone: reminder.overdue ? "amber" : "mint",
+        label: reminder.overdue
+          ? `Terlambat: ${reminder.label} (tenggat lewat ${Math.abs(reminder.daysLeft)} hari)`
+          : reminder.daysLeft === 0
+            ? `Hari ini: ${reminder.label}`
+            : `${reminder.label} — ${reminder.daysLeft} hari lagi`,
+      });
+    }
 
     // Sync status first — this is what makes the bell reflect the shared
     // workspace in real time on both devices.
@@ -159,7 +183,7 @@ function NotificationBell({
       }
     }
     return list;
-  }, [workspace, wedding, openTasks, savingsNote]);
+  }, [workspace, wedding, openTasks, savingsNote, reminders]);
 
   return (
     <Popover>
@@ -210,6 +234,12 @@ function NotificationBell({
 export function AppShell() {
   const { user } = useAuth();
   const [featuresOpen, setFeaturesOpen] = useState(false);
+  // Awal hari ini (stabil selama sesi) — basis hitung H-n pada pengingat.
+  const [reminderNow] = useState(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d.getTime();
+  });
 
   // Remember this device's anonymous user id so a later email sign-in can
   // adopt (migrate) the anonymous workspace atomically inside ensureSetup.
@@ -228,6 +258,8 @@ export function AppShell() {
   const checklist = useQuery(api.checklist.list);
   const couplePhoto = useQuery(api.wedding.getCouplePhoto);
   const workspace = useQuery(api.workspace.status);
+  // Tenggat tugas & vendor; `now` dikirim agar query deterministik.
+  const reminders = useQuery(api.reminders.list, { now: reminderNow }) ?? [];
   const { pathname } = useLocation();
   const pageTitle = pageTitleFor(pathname);
   /** Satu aksen warna per fitur — wash ambient & chip header mengikuti rute. */
@@ -281,6 +313,14 @@ export function AppShell() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl">
+      {/* Onboarding sekali jalan — tampil sekali sampai diselesaikan/dilewati. */}
+      {wedding && !wedding.onboarded && (
+        <OnboardingDialog
+          defaultNames={{ one: wedding.partnerOneName, two: wedding.partnerTwoName }}
+          defaultDate={wedding.weddingDate}
+          defaultTarget={wedding.fundTarget}
+        />
+      )}
       <SideNav status={workspace} />
       <div className="relative min-w-0 flex-1 pb-28 lg:pb-10">
       {/* Ambient glow — one accent colour per feature, following the route */}
@@ -328,6 +368,7 @@ export function AppShell() {
                 openTasks={openTasks}
                 workspace={workspace}
                 savingsNote={savingsNote}
+                reminders={reminders}
               />
             <Link
               to="/app/pengaturan"

@@ -112,14 +112,4 @@ export const FEATURES: Feature[] = [
     emoji: "⏰",
     glow: "bg-tint-mint/60",
   },
-  {
-    to: "/app/undangan",
-    label: "Undangan",
-    desc: "Undangan digital & cetak, musik latar, galeri, dan amplop QRIS.",
-    icon: Mail,
-    surface: "bg-tint-butter text-tint-butter-foreground",
-    gradient: "grad-butter",
-    emoji: "✉️",
-    glow: "bg-tint-butter/55",
-  },
 ];

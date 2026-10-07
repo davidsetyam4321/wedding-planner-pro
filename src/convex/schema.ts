@@ -65,6 +65,8 @@ const schema = defineSchema(
       photoStorageId: v.optional(v.id("_storage")),
       /** Kode 6 karakter untuk mengundang pasangan ke workspace ini. */
       inviteCode: v.optional(v.string()),
+      /** Onboarding awal (nama/tanggal/target) sudah diselesaikan. */
+      onboarded: v.optional(v.boolean()),
     })
       .index("by_user", ["userId"])
       .index("by_inviteCode", ["inviteCode"]),
@@ -105,6 +107,8 @@ const schema = defineSchema(
       doneAt: v.optional(v.number()),
       sortOrder: v.number(),
       createdAt: v.optional(v.number()),
+      /** Tenggat tugas (epoch ms); lewat dari ini dianggap terlambat. */
+      dueDate: v.optional(v.number()),
       /** Urgency shown on the dashboard agenda; lama = tidak ada (dianggap "sedang"). */
       priority: v.optional(
         v.union(v.literal("tinggi"), v.literal("sedang"), v.literal("rendah")),
@@ -165,6 +169,8 @@ const schema = defineSchema(
       dpAmount: v.optional(v.number()),
       note: v.optional(v.string()),
       status: vendorStatusValidator,
+      /** Jatuh tempo pembayaran (epoch ms) — DP atau pelunasan. */
+      dueDate: v.optional(v.number()),
       createdAt: v.number(),
     }).index("by_user", ["userId"]),
 

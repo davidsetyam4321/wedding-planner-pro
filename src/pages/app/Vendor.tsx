@@ -1,6 +1,7 @@
 import { CHART_COLORS, ChartCard, ChartTip } from "@/components/Charts";
 import {
   BackLink,
+  DueChip,
   EmptyState,
   PageSkeleton,
   RowMenu,
@@ -21,8 +22,15 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
 import { waLink } from "@/lib/contact";
-import { formatRupiah, formatRupiahShort } from "@/lib/format";
 import {
+  formatRupiah,
+  formatRupiahShort,
+  fromDateInputValue,
+  toDateInputValue,
+} from "@/lib/format";
+import {
+  FileDown,
+  FileText,
   Loader2,
   MessageCircle,
   Phone,
@@ -30,6 +38,8 @@ import {
   Search,
   X,
 } from "lucide-react";
+import { downloadCsv } from "@/lib/exportCsv";
+import { printDocument } from "@/lib/printDoc";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import {
@@ -45,6 +55,7 @@ import {
   YAxis,
 } from "recharts";
 import { toast } from "sonner";
+import { undoableDelete } from "@/lib/undo";
 
 type VendorStatus = "belum" | "dp" | "lunas";
 
@@ -83,6 +94,8 @@ type VendorForm = {
   dpAmount: string;
   note: string;
   status: VendorStatus;
+  /** nilai input type=date ("" = tanpa jatuh tempo) */
+  due: string;
 };
 
 const EMPTY_FORM: VendorForm = {
@@ -94,6 +107,7 @@ const EMPTY_FORM: VendorForm = {
   dpAmount: "",
   note: "",
   status: "belum",
+  due: "",
 };
 
 /** Total yang benar-benar sudah dibayar untuk satu vendor. */
@@ -179,6 +193,7 @@ export function VendorPage() {
       dpAmount: vendor.dpAmount === undefined ? "" : String(vendor.dpAmount),
       note: vendor.note ?? "",
       status: vendor.status as VendorStatus,
+      due: vendor.dueDate ? toDateInputValue(vendor.dueDate) : "",
     });
     setFormOpen(true);
   };
@@ -202,6 +217,7 @@ export function VendorPage() {
           dpAmount,
           note: form.note,
           status: form.status,
+          dueDate: form.due ? fromDateInputValue(form.due) : null,
         });
         toast.success("Vendor diperbarui.");
       } else {
@@ -213,6 +229,7 @@ export function VendorPage() {
           dpAmount,
           note: form.note,
           status: form.status,
+          dueDate: form.due ? fromDateInputValue(form.due) : undefined,
         });
         bloom();
         toast.success("Vendor ditambahkan.");
@@ -419,9 +436,61 @@ export function VendorPage() {
         </ChartCard>
       )}
 
-      <Button className="w-full rounded-2xl" onClick={openNew}>
-        <Plus className="size-4" /> Tambah vendor
-      </Button>
+      <div className="flex gap-2">
+        <Button className="flex-1 rounded-2xl" onClick={openNew}>
+          <Plus className="size-4" /> Tambah vendor
+        </Button>
+        <Button
+          variant="outline"
+          className="rounded-2xl"
+          onClick={() => {
+            downloadCsv(
+              "vendor-satujanji",
+              ["Nama", "Kategori", "Kontak", "Biaya", "DP", "Terbayar", "Status", "Jatuh tempo", "Catatan"],
+              list.map((vendor) => [
+                vendor.name,
+                vendor.category,
+                vendor.contact ?? "",
+                vendor.cost,
+                vendor.dpAmount ?? 0,
+                paidFor(vendor),
+                STATUS_OPTIONS.find((option) => option.key === vendor.status)?.label ?? vendor.status,
+                vendor.dueDate ? new Date(vendor.dueDate).toLocaleDateString("id-ID") : "",
+                vendor.note ?? "",
+              ]),
+            );
+            toast.success("CSV vendor diunduh.");
+          }}
+        >
+          <FileDown className="size-4" /> CSV
+        </Button>
+        <Button
+          variant="outline"
+          className="rounded-2xl"
+          onClick={() =>
+            printDocument(
+              "Daftar Vendor & Pembayaran",
+              `${list.length} vendor · terbayar ${formatRupiah(paidTotal)} dari ${formatRupiah(totalCost)}`,
+              [
+                {
+                  title: "Pembayaran vendor",
+                  headers: ["Vendor", "Kategori", "Biaya", "Terbayar", "Sisa", "Status"],
+                  rows: list.map((vendor) => [
+                    vendor.name,
+                    vendor.category,
+                    formatRupiah(vendor.cost),
+                    formatRupiah(paidFor(vendor)),
+                    formatRupiah(Math.max(0, vendor.cost - paidFor(vendor))),
+                    STATUS_OPTIONS.find((option) => option.key === vendor.status)?.label ?? vendor.status,
+                  ]),
+                },
+              ],
+            )
+          }
+        >
+          <FileText className="size-4" /> PDF
+        </Button>
+      </div>
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -510,7 +579,21 @@ export function VendorPage() {
                         onEdit={() => openEdit(vendor)}
                         onDelete={() => {
                           removeVendor({ vendorId: vendor._id });
-                          toast.success("Vendor dihapus.");
+                          undoableDelete(
+                            `Vendor "${vendor.name}" dihapus.`,
+                            () =>
+                              createVendor({
+                                name: vendor.name,
+                                category: vendor.category,
+                                contact: vendor.contact,
+                                cost: vendor.cost,
+                                dpAmount: vendor.dpAmount,
+                                note: vendor.note,
+                                status: vendor.status,
+                                dueDate: vendor.dueDate,
+                              }),
+                            { successMessage: `Vendor "${vendor.name}" kembali.` },
+                          );
                         }}
                         deleteTitle={`Hapus ${vendor.name}?`}
                       />
@@ -539,6 +622,10 @@ export function VendorPage() {
                       <span className="chip bg-tint-mint text-tint-mint-foreground">
                         Terbayar {formatRupiahShort(paid)}
                       </span>
+                    )}
+
+                    {vendor.dueDate && status !== "lunas" && (
+                      <DueChip dueDate={vendor.dueDate} />
                     )}
 
                     {vendor.contact &&
@@ -679,6 +766,20 @@ export function VendorPage() {
                   </button>
                 ))}
               </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="vendor-due">Jatuh tempo pembayaran (opsional)</Label>
+              <Input
+                id="vendor-due"
+                type="date"
+                value={form.due}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, due: event.target.value }))
+                }
+              />
+              <p className="meta">
+                Tenggat DP / pelunasan — muncul di pengingat bila mendekati.
+              </p>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="vendor-note">Catatan (opsional)</Label>

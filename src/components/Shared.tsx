@@ -198,6 +198,46 @@ export function EmptyState({
 }
 
 /**
+ * Chip tenggat (due date): “H-3”, “Hari ini”, atau “Terlambat 2 hari”.
+ * Merah bila lewat, amber bila ≤ 3 hari, netral selebihnya.
+ */
+export function DueChip({ dueDate }: { dueDate: number }) {
+  const DAY = 24 * 60 * 60 * 1000;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const days = Math.round((dueDate - today.getTime()) / DAY);
+
+  const tone =
+    days < 0
+      ? "bg-destructive/10 text-destructive"
+      : days <= 3
+        ? "bg-tint-butter text-tint-butter-foreground"
+        : "bg-secondary text-secondary-foreground";
+  const text =
+    days < 0
+      ? `Terlambat ${Math.abs(days)} hr`
+      : days === 0
+        ? "Hari ini"
+        : days === 1
+          ? "Besok"
+          : `H-${days}`;
+
+  return (
+    <span
+      className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider ${tone}`}
+      title={new Date(dueDate).toLocaleDateString("id-ID", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })}
+    >
+      {text}
+    </span>
+  );
+}
+
+/**
  * Judul seksi bergaya VOWCRAFT: huruf kapital kecil di kiri, aksi/meta di
  * kanan. Dipakai di seluruh halaman agar struktur judul seragam.
  */

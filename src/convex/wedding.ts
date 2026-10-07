@@ -256,6 +256,22 @@ export const updateSettings = mutation({
       weddingDate: args.weddingDate,
       fundTarget: Math.max(0, Math.round(args.fundTarget)),
       venueName: args.venueName?.trim() || undefined,
+      // Form pertama kali diisi = onboarding selesai.
+      onboarded: true,
     });
+  },
+});
+
+/** Menandai onboarding selesai tanpa mengubah data (tombol “Lewati”). */
+export const completeOnboarding = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await workspaceUserId(ctx);
+    const wedding = await ctx.db
+      .query("wedding")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+    if (!wedding) throw new Error("Workspace not found");
+    await ctx.db.patch(wedding._id, { onboarded: true });
   },
 });

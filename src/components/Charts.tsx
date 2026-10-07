@@ -98,7 +98,7 @@ export function ChartCard({
 
 /**
  * Gauge cincin SVG (gradien sage → champagne) untuk ringkasan interaktif
- * di Beranda & Undangan. Id gradien unik per instan (aman dipakai banyak).
+ * di Beranda. Id gradien unik per instan (aman dipakai banyak).
  */
 export function RingGauge({
   value,

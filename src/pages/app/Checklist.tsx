@@ -1,5 +1,5 @@
 import { CHART_COLORS, ChartCard, ChartTip } from "@/components/Charts";
-import { EmptyState, PageSkeleton, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
+import { EmptyState, PageSkeleton, RowMenu, Stagger, StaggerItem, DueChip } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
+import { fromDateInputValue, toDateInputValue } from "@/lib/format";
 import {
   PRIORITY_BADGE,
   PRIORITY_LABEL,
@@ -62,7 +63,13 @@ export function ChecklistPage() {
   const [bulkBusy, setBulkBusy] = useState(false);
   const [filter, setFilter] = useState<Filter>("semua");
   const [query, setQuery] = useState("");
-  const [editing, setEditing] = useState<{ id: Id<"checklistItem">; label: string } | null>(null);
+  const [editing, setEditing] = useState<{
+    id: Id<"checklistItem">;
+    label: string;
+    /** nilai input type=date ("" = tanpa tenggat) */
+    due: string;
+  } | null>(null);
+  const [newDue, setNewDue] = useState("");
   const [editingBusy, setEditingBusy] = useState(false);
   const [showDone, setShowDone] = useState(true);
   const [priorityFilter, setPriorityFilter] = useState<
@@ -185,8 +192,17 @@ export function ChecklistPage() {
           {PRIORITY_LABEL[normalizePriority(item.priority)]}
         </button>
       )}
+      {item.dueDate && !item.done && (
+        <DueChip dueDate={item.dueDate} />
+      )}
       <RowMenu
-        onEdit={() => setEditing({ id: item._id, label: item.label })}
+        onEdit={() =>
+          setEditing({
+            id: item._id,
+            label: item.label,
+            due: item.dueDate ? toDateInputValue(item.dueDate) : "",
+          })
+        }
         onDelete={() => removeItem({ itemId: item._id })}
         deleteTitle={`Hapus tugas ini?`}
         deleteDescription={item.label}
@@ -198,9 +214,13 @@ export function ChecklistPage() {
     if (!label.trim()) return;
     setAdding(true);
     try {
-      await createItem({ label });
+      await createItem({
+        label,
+        dueDate: newDue ? fromDateInputValue(newDue) : undefined,
+      });
       bloom();
       setLabel("");
+      setNewDue("");
     } catch {
       toast.error("Gagal menambah tugas.");
     } finally {
@@ -235,7 +255,11 @@ export function ChecklistPage() {
     if (!editing) return;
     setEditingBusy(true);
     try {
-      await updateItem({ itemId: editing.id, label: editing.label });
+      await updateItem({
+        itemId: editing.id,
+        label: editing.label,
+        dueDate: editing.due ? fromDateInputValue(editing.due) : null,
+      });
       setEditing(null);
       toast.success("Tugas diperbarui.");
     } catch {
@@ -407,6 +431,13 @@ export function ChecklistPage() {
             onChange={(event) => setLabel(event.target.value)}
             placeholder="Tambah tugas, tekan Enter"
           />
+          <Input
+            type="date"
+            value={newDue}
+            onChange={(event) => setNewDue(event.target.value)}
+            aria-label="Tenggat tugas (opsional)"
+            className="w-40 shrink-0"
+          />
           <Button type="submit" size="icon" className="rounded-xl" disabled={adding || !label.trim()}>
             {adding ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
           </Button>
@@ -575,6 +606,19 @@ export function ChecklistPage() {
               onChange={(event) =>
                 setEditing((previous) =>
                   previous ? { ...previous, label: event.target.value } : previous,
+                )
+              }
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="edit-due">Tenggat (opsional)</Label>
+            <Input
+              id="edit-due"
+              type="date"
+              value={editing?.due ?? ""}
+              onChange={(event) =>
+                setEditing((previous) =>
+                  previous ? { ...previous, due: event.target.value } : previous,
                 )
               }
             />
