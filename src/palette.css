@@ -115,48 +115,74 @@ body {
   --tint-blush-foreground: #ffdde1;
 }
 
-/* ── Gradien per fitur ───────────────────────────────────────────────────
-   Tanpa layer, jadi menimpa .grad-* lama di index.css. */
+/* ── Gradien per fitur (glossy) ─────────────────────────────────────────
+   Tanpa layer, jadi menimpa .grad-* lama di index.css.
+   Setiap fitur punya gradien lembut + pita highlight putih tipis di atas
+   supaya permukaan halaman terasa licin/kaca, bukan datar/kusam. */
 .grad-warm {
   background-image: linear-gradient(
     135deg,
-    #fdfaf3 0%,
-    #eef4e9 48%,
-    #fbe6ea 100%
+    #fdfcf6 0%,
+    #eef3e8 46%,
+    #fbe4e6 100%
   );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
 }
 .grad-mint {
-  background-image: linear-gradient(135deg, #f1faf2 0%, #bfe0c6 100%);
+  background-image: linear-gradient(135deg, #f2fbf3 0%, #c4e2cb 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
 }
 .grad-sage {
-  background-image: linear-gradient(135deg, #f4faf5 0%, #d3e6d7 100%);
+  background-image: linear-gradient(135deg, #f5fbf6 0%, #d4e7d8 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
 }
 .grad-lavender {
-  background-image: linear-gradient(135deg, #fffdf7 0%, #f1e6d2 100%);
+  background-image: linear-gradient(135deg, #fffdf7 0%, #f1e4d0 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
 }
 .grad-peach {
-  background-image: linear-gradient(135deg, #fdf5e6 0%, #eab884 100%);
+  background-image: linear-gradient(135deg, #fdf4e6 0%, #e9b87a 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
 }
 .grad-rose {
-  background-image: linear-gradient(135deg, #fff7f6 0%, #f6c4cf 100%);
+  background-image: linear-gradient(135deg, #fff5f4 0%, #f4bfd0 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
 }
 .grad-sky {
-  background-image: linear-gradient(135deg, #fffaf0 0%, #ecd08a 100%);
+  background-image: linear-gradient(135deg, #fffaf0 0%, #ecd286 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
 }
 .grad-butter {
-  background-image: linear-gradient(135deg, #fffaef 0%, #ffdea5 100%);
+  background-image: linear-gradient(135deg, #fffaef 0%, #ffde9c 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
 }
 .grad-maroon {
-  background-image: linear-gradient(135deg, #fff8f5 0%, #f3cbd2 100%);
+  background-image: linear-gradient(135deg, #fff7f4 0%, #f2c9cf 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
 }
 .grad-forest {
-  background-image: linear-gradient(135deg, #f5fbf6 0%, #cbe1cf 100%);
+  background-image: linear-gradient(135deg, #f5fbf6 0%, #c8e0cd 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
 }
 .grad-blush {
-  background-image: linear-gradient(135deg, #fff4f2 0%, #f4bcc7 100%);
+  background-image: linear-gradient(135deg, #fff3f1 0%, #f2bcc5 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
 }
 .grad-gold {
-  background-image: linear-gradient(135deg, #fdf6e6 0%, #dcb85f 100%);
+  background-image: linear-gradient(135deg, #fdf5e4 0%, #dcb658 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
 }
 
 /* Isi progres: sage → emas mengikuti seri chart terbaru */
@@ -238,4 +264,82 @@ body {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
     0 8px 20px -10px rgba(0, 0, 0, 0.6);
+}
+
+/* ── Glossy per-feature accent polish ─────────────────────────────────────
+   Semua warna tint dipakai lebih hidup & lebih k원장은 tanpa mengubah class
+   `bg-tint-*` yang sudah ada. Tambahan:
+   - glow lebih menonjol di halaman per fitur supaya aksen berbeda jelas;
+   - permukaan kaca lebih jernih (highlight putih lebih tegas, border lebih
+     samar-samar yang lembut) supaya nuansa tint terbaca lewat permukaan. */
+.glossy {
+  backdrop-filter: blur(22px) saturate(1.85);
+  -webkit-backdrop-filter: blur(22px) saturate(1.85);
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.42) 0%,
+    rgba(255, 255, 255, 0.14) 48%,
+    rgba(255, 255, 255, 0) 100%
+  ) !important;
+  border-color: rgba(255, 255, 255, 0.78) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.45),
+    0 10px 26px -12px rgba(40, 52, 44, 0.3),
+    0 1px 2px rgba(40, 52, 44, 0.06) !important;
+}
+
+.glow-soft {
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.5),
+    0 14px 40px -14px rgba(40, 52, 44, 0.35);
+}
+
+glossy .stat-tile,
+glossy .chip,
+glossy [data-slot="button"],
+glossy [data-slot="toggle"],
+glossy [data-slot="toggle-group-item"] {
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.46) 0%,
+    rgba(255, 255, 255, 0.16) 46%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.82);
+}
+
+/* Tampilkan aksen per fitur lewat glow lingkungan yang lebih luas & lebih
+   lembut tapi lebih kentara daripada blob lama. */
+.feature-glow {
+  box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.45),
+    0 22px 56px -18px rgba(40, 52, 44, 0.4);
+  backdrop-filter: blur(28px) saturate(1.9);
+  -webkit-backdrop-filter: blur(28px) saturate(1.9);
+}
+
+/* Mode gelap: glossy tetap jernih, tapi highlight lebih tenang. */
+.dark .glossy {
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.05) 48%,
+    rgba(255, 255, 255, 0) 100%
+  ) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 26px -12px rgba(0, 0, 0, 0.6),
+    0 1px 2px rgba(0, 0, 0, 0.4) !important;
+}
+.dark glossy .stat-tile,
+.dark glossy .chip,
+.dark glossy [data-slot="button"],
+.dark glossy [data-slot="toggle"],
+.dark glossy [data-slot="toggle-group-item"] {
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.06) 46%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.3);
 }

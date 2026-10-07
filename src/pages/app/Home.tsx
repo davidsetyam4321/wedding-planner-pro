@@ -458,18 +458,22 @@ export function HomePage() {
         <SectionHeader title="Aksi cepat" />
         <Stagger className="-mx-4 flex items-center gap-2.5 overflow-x-auto px-4 pb-1">
           {[
-            { to: "/app/budget", label: "Catat Biaya", icon: Wallet, surface: "bg-tint-butter text-tint-butter-foreground" },
-            { to: "/app/tamu", label: "Tambah Tamu", icon: UserPlus, surface: "bg-tint-mint text-tint-mint-foreground" },
-            { to: "/app/rundown", label: "Rundown Acara", icon: CalendarPlus, surface: "bg-tint-sky text-tint-sky-foreground" },
-            { to: "/app/moodboard", label: "Moodboard", icon: Palette, surface: "bg-tint-rose text-tint-rose-foreground" },
+            { to: "/app/budget", label: "Catat Biaya", icon: Wallet, surface: "bg-tint-butter text-tint-butter-foreground", gradient: "grad-butter" },
+            { to: "/app/tamu", label: "Tambah Tamu", icon: UserPlus, surface: "bg-tint-mint text-tint-mint-foreground", gradient: "grad-mint" },
+            { to: "/app/rundown", label: "Rundown Acara", icon: CalendarPlus, surface: "bg-tint-sky text-tint-sky-foreground", gradient: "grad-sky" },
+            { to: "/app/moodboard", label: "Moodboard", icon: Palette, surface: "bg-tint-rose text-tint-rose-foreground", gradient: "grad-rose" },
           ].map((action) => (
             <StaggerItem key={action.to} className="shrink-0">
               <Link
                 to={action.to}
-                className="clay clay-press flex items-center gap-2 rounded-full py-2.5 pl-2.5 pr-4"
+                className={`clay clay-press flex items-center gap-2 rounded-full py-2.5 pl-2.5 pr-4 overflow-hidden ${
+                  action.gradient ?? "grad-warm"
+                }`}
               >
                 <span
-                  className={`flex size-8 shrink-0 items-center justify-center rounded-full ${action.surface}`}
+                  className={`flex size-8 shrink-0 items-center justify-center rounded-full backdrop-blur-md ${
+                    action.surface
+                  }`}
                 >
                   <action.icon className="size-4" />
                 </span>

@@ -289,45 +289,47 @@
     background-repeat: no-repeat;
   }
   .dark body {
-    /* Non-repeating photographic-style backdrop — dark wedding mood:
-       deeper maroon/forest wash with warmer gold + blush glows. */
+    /* Non-repeating photographic-style backdrop — dark wedding mood, lebih
+       ringan & lebih glossy: dasar lebih hangat/terang, glow maroon/forest/
+       gold/blush lebih besar & lebih transparan, dengan highlight krem di
+       dasar supaya tidak terasa pekat/kering. */
     background-image: linear-gradient(
         180deg,
-        rgba(8, 12, 10, 0.7) 0%,
-        rgba(12, 10, 14, 0.68) 42%,
-        rgba(18, 10, 16, 0.72) 100%
+        rgba(20, 22, 18, 0.62) 0%,
+        rgba(26, 22, 18, 0.6) 46%,
+        rgba(32, 18, 20, 0.64) 100%
       ),
       radial-gradient(
-        70rem 50rem at 35% -18%,
-        rgba(120, 20, 36, 0.55) 0%,
-        transparent 58%
+        80rem 56rem at 38% -22%,
+        rgba(120, 20, 36, 0.4) 0%,
+        transparent 60%
       ),
       radial-gradient(
-        80rem 60rem at 5% 30%,
-        rgba(30, 56, 42, 0.55) 0%,
-        transparent 55%
-      ),
-      radial-gradient(
-        60rem 46rem at 104% 8%,
-        rgba(178, 144, 86, 0.42) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        56rem 42rem at 88% 66%,
-        rgba(120, 56, 70, 0.42) 0%,
-        transparent 58%
-      ),
-      radial-gradient(
-        50rem 38rem at 10% 108%,
-        rgba(56, 96, 78, 0.5) 0%,
+        92rem 66rem at 6% 26%,
+        rgba(30, 56, 42, 0.4) 0%,
         transparent 56%
       ),
       radial-gradient(
-        48rem 36rem at 60% 116%,
-        rgba(178, 144, 86, 0.32) 0%,
-        transparent 62%
+        66rem 50rem at 106% 10%,
+        rgba(178, 144, 86, 0.34) 0%,
+        transparent 52%
       ),
-      linear-gradient(180deg, #0f1512 0%, #121711 50%, #16100c 100%);
+      radial-gradient(
+        60rem 44rem at 90% 62%,
+        rgba(120, 56, 70, 0.34) 0%,
+        transparent 58%
+      ),
+      radial-gradient(
+        56rem 40rem at 8% 112%,
+        rgba(56, 96, 78, 0.42) 0%,
+        transparent 58%
+      ),
+      radial-gradient(
+        52rem 38rem at 62% 118%,
+        rgba(178, 144, 86, 0.28) 0%,
+        transparent 64%
+      ),
+      linear-gradient(180deg, #101612 0%, #151a13 46%, #18120c 100%);
     background-attachment: fixed;
     background-position: center;
     background-size: cover;
