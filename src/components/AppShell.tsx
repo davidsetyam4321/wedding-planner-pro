@@ -333,28 +333,17 @@ export function AppShell() {
       )}
       <SideNav status={workspace} />
       <div className="relative min-w-0 flex-1 pb-28 lg:pb-10">
-      {/* Ambient glow — satu aksen utama per fitur, jadi tiap halaman
-          terasa seperti nuansa berbeda. Lebih besar & lebih lembut daripada
-          versi sebelumnya supaya aksen terbaca tapi tidak melebar kacau. */}
+      {/* Ambient glow — one accent colour per feature, following the route */}
       <div
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 -z-20 overflow-hidden"
       >
         <div
-          className={`absolute -left-32 -top-36 size-[34rem] rounded-full blur-3xl transition-colors duration-700 ${
-            activeFeature?.glow ?? "bg-tint-mint/70"
+          className={`absolute -left-24 -top-28 size-[26rem] rounded-full blur-3xl transition-colors duration-700 ${
+            activeFeature?.glow ?? "bg-tint-mint/60"
           }`}
         />
-        <div
-          className={`absolute -right-36 top-[22%] size-[26rem] rounded-full blur-3xl transition-colors duration-700 ${
-            activeFeature?.glow ?? "bg-tint-mint/55"
-          }`}
-        />
-        <div
-          className={`absolute -right-20 top-[30%] size-72 rounded-full blur-3xl transition-colors duration-700 ${
-            activeFeature?.surface ?? "bg-tint-mint"
-          }/35`}
-        />
+        <div className="absolute -right-28 top-2/3 size-80 rounded-full bg-tint-butter/45 blur-3xl" />
       </div>
       <Petals />
       <BloomOverlay />
@@ -415,20 +404,9 @@ export function AppShell() {
           </div>
       </header>
 
-      <main
-        className={`mx-auto w-full max-w-md px-4 pt-4 lg:max-w-3xl lg:px-10 overflow-hidden ${
-          activeFeature?.gradient ?? "grad-warm"
-        }`}
-      >
+      <main className="mx-auto w-full max-w-md px-4 pt-4 lg:max-w-3xl lg:px-10">
         <SignupBanner show={showSignupBanner} />
         <Outlet />
-        {/* Aksen halus per fitur — garis halus di dalam konten */}
-        <div
-          aria-hidden="true"
-          className={`pointer-events-none fixed right-0 top-0 -z-10 h-full w-1.5 opacity-40 transition-colors duration-700 ${
-            activeFeature?.surface ?? "bg-tint-mint"
-          }`}
-        />
       </main>
 
       <Drawer open={featuresOpen} onOpenChange={setFeaturesOpen}>

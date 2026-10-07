@@ -148,7 +148,7 @@ export function TamuPage() {
     value: number;
     color: string;
   }[] = [
-    { key: "hadir" as const, name: "Hadir", value: attendingPax, color: "#47704f" },
+    { key: "hadir" as const, name: "Hadir", value: attendingPax, color: "#425a49" },
     { key: "pending" as const, name: "Menunggu", value: pendingPax, color: "#e9c176" },
     { key: "tidak" as const, name: "Berhalangan", value: declinedPax, color: "#8fa694" },
   ].filter((row) => row.value > 0);

@@ -73,8 +73,8 @@ function ProgressRing({ pct, size = 88, stroke = 10 }: { pct: number; size?: num
       />
       <defs>
         <linearGradient id="sj-ring-grad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#7b1220" />
-          <stop offset="100%" stopColor="#b58a2a" />
+          <stop offset="0%" stopColor="#425a49" />
+          <stop offset="100%" stopColor="#775a19" />
         </linearGradient>
       </defs>
     </svg>
@@ -396,9 +396,9 @@ export function TabunganPage() {
                 type="monotone"
                 dataKey="kumulatif"
                 name="Terkumpul"
-                stroke="#7b1220"
+                stroke="#425a49"
                 strokeWidth={2.5}
-                fill="#7b1220"
+                fill="#425a49"
                 fillOpacity={0.16}
               />
               <Line
@@ -415,10 +415,10 @@ export function TabunganPage() {
         </div>
         <div className="mt-1 flex items-center gap-3 text-[11px] font-semibold text-muted-foreground">
           <span className="flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-[#7b1220]" /> Terkumpul
+            <span className="size-2 rounded-full bg-[#425a49]" /> Terkumpul
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-[#b58a2a]" /> Target
+            <span className="size-2 rounded-full bg-[#775a19]" /> Target
           </span>
         </div>
       </ChartCard>

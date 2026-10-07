@@ -60,13 +60,11 @@ function encodePng(width, height, rgba) {
 }
 
 // ── Gambar ────────────────────────────────────────────────────────────────
-// Palet sama dengan foto pelaminan: drapery hijau tua → backdrop maroon,
-// dua cincin (emas + blush) sebagai simbol janji.
-const FOREST = [38, 64, 47];
-const MAROON = [112, 18, 32];
+// Palet sama dengan tema aplikasi: hijau sage gelap + emas.
+const GREEN_DARK = [47, 68, 55];
+const GREEN_LIGHT = [92, 124, 101];
 const GOLD = [214, 176, 106];
 const GOLD_LIGHT = [240, 213, 158];
-const BLUSH = [243, 196, 204];
 
 const clamp01 = (value) => Math.min(1, Math.max(0, value));
 const mix = (a, b, t) => [
@@ -100,19 +98,16 @@ function renderMark(width, height, scale) {
         Math.min(x, width - 1 - x) / width,
         Math.min(y, height - 1 - y) / height,
       );
-      let color = mix(FOREST, MAROON, clamp01(diagonal - edge * 0.35));
+      let color = mix(GREEN_DARK, GREEN_LIGHT, clamp01(diagonal - edge * 0.6));
 
-      for (const [index, ring] of rings.entries()) {
+      for (const ring of rings) {
         const distance = Math.hypot(x + 0.5 - ring.x, y + 0.5 - ring.y);
         const coverage = clamp01(
           0.5 - (Math.abs(distance - radius) - thickness / 2),
         );
         if (coverage > 0) {
-          const ink =
-            index === 0
-              ? mix(GOLD, GOLD_LIGHT, clamp01(1 - distance / (radius * 2)))
-              : BLUSH;
-          color = mix(color, ink, coverage * 0.96);
+          const gold = mix(GOLD, GOLD_LIGHT, clamp01(1 - distance / (radius * 2)));
+          color = mix(color, gold, coverage * 0.96);
         }
       }
 

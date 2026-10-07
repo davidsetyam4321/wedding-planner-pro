@@ -58,19 +58,11 @@
   --color-tint-butter-foreground: var(--tint-butter-foreground);
   --color-tint-sage: var(--tint-sage);
   --color-tint-sage-foreground: var(--tint-sage-foreground);
-  --color-tint-maroon: var(--tint-maroon);
-  --color-tint-maroon-foreground: var(--tint-maroon-foreground);
-  --color-tint-blush: var(--tint-blush);
-  --color-tint-blush-foreground: var(--tint-blush-foreground);
-  --color-tint-forest: var(--tint-forest);
-  --color-tint-forest-foreground: var(--tint-forest-foreground);
 }
 
 /* ── SatuJanji theme ──────────────────────────────────────────────────────
-   Palet diambil dari pelaminan: backdrop maroon, drapery hijau hutan, daun
-   sage, keemasan (bordir), peach/kayu, blush, dan krem. Warna-warna itu
-   dipakai bergantian lewat tinta per fitur supaya tiap halaman punya nuansa
-   sendiri, sementara aksen botani (daun, kelopak, bunga) tetap menjaga tema. */
+   Sage & champagne base, a clear playful gradient background, one pastel
+   accent per feature, and glass surfaces that fly on hover. */
 :root {
   --radius: 0.75rem;
 
@@ -81,11 +73,11 @@
   --card-foreground: #141e18;
   --popover: rgba(255, 255, 255, 0.9);
   --popover-foreground: #141e18;
-  --primary: #7b1220;
-  --primary-foreground: #fff6f4;
-  --secondary: rgba(247, 241, 230, 0.68);
-  --secondary-foreground: #5c4a2f;
-  --muted: rgba(243, 238, 227, 0.6);
+  --primary: #425a49;
+  --primary-foreground: #ffffff;
+  --secondary: rgba(229, 241, 231, 0.62);
+  --secondary-foreground: #344c3b;
+  --muted: rgba(229, 241, 231, 0.55);
   --muted-foreground: #4f5b53;
   --accent: rgba(206, 234, 210, 0.6);
   --accent-foreground: #344c3b;
@@ -93,103 +85,52 @@
   --destructive-foreground: #ffffff;
   --border: #c9d4c9;
   --input: #c2c8c1;
-  --ring: #7b1220;
-  --chart-1: #7b1220;
-  --chart-2: #b58a2a;
-  --chart-3: #47704f;
-  --chart-4: #e79fab;
-  --chart-5: #2c4a35;
-  --sidebar: rgba(246, 250, 245, 0.75);
+  --ring: #425a49;
+  --chart-1: #425a49;
+  --chart-2: #775a19;
+  --chart-3: #ceead2;
+  --chart-4: #ffdea5;
+  --chart-5: #5a7360;
+  --sidebar: rgba(235, 246, 237, 0.72);
   --sidebar-foreground: #141e18;
-  --sidebar-primary: #7b1220;
-  --sidebar-primary-foreground: #fff6f4;
-  --sidebar-accent: rgba(247, 241, 230, 0.75);
-  --sidebar-accent-foreground: #5c4a2f;
+  --sidebar-primary: #425a49;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(224, 235, 226, 0.72);
+  --sidebar-accent-foreground: #344c3b;
   --sidebar-border: #d3ded4;
-  --sidebar-ring: #c08b93;
+  --sidebar-ring: #b2cdb7;
 
-  /* tinta per fitur — translusen supaya kaca di bawahnya tetap bernafas */
-  --tint-mint: rgba(206, 234, 210, 0.78);
-  --tint-mint-foreground: #2c4a35;
-  --tint-lavender: rgba(247, 240, 226, 0.82);
-  --tint-lavender-foreground: #6b4a1f;
-  --tint-peach: rgba(243, 204, 152, 0.78);
-  --tint-peach-foreground: #6b4413;
-  --tint-rose: rgba(250, 206, 213, 0.78);
-  --tint-rose-foreground: #7b1220;
-  --tint-sky: rgba(236, 205, 133, 0.7);
-  --tint-sky-foreground: #6b4a1f;
-  --tint-butter: rgba(255, 224, 165, 0.74);
-  --tint-butter-foreground: #6b4a1f;
-  --tint-sage: rgba(224, 235, 226, 0.8);
-  --tint-sage-foreground: #2c4a35;
-  /* backdrop maroon pelaminan — permukaan penuh, teks krem di atasnya */
-  --tint-maroon: rgba(150, 26, 44, 0.9);
-  --tint-maroon-foreground: #fdece7;
-  /* daun pakis hijau tua di depan drapery */
-  --tint-forest: rgba(44, 74, 53, 0.9);
-  --tint-forest-foreground: #e5f2e4;
-  /* bunga blush pada rangkaian */
-  --tint-blush: rgba(247, 208, 214, 0.85);
-  --tint-blush-foreground: #7b1220;
+  /* playful pastels — SatuJanji sage & champagne containers (translucent) */
+  --tint-mint: rgba(206, 234, 210, 0.76);
+  --tint-mint-foreground: #344c3b;
+  --tint-lavender: rgba(218, 229, 220, 0.76);
+  --tint-lavender-foreground: #344c3b;
+  --tint-peach: rgba(233, 193, 118, 0.7);
+  --tint-peach-foreground: #5d4201;
+  --tint-rose: rgba(255, 218, 214, 0.7);
+  --tint-rose-foreground: #93000a;
+  --tint-sky: rgba(211, 232, 212, 0.76);
+  --tint-sky-foreground: #394b3c;
+  --tint-butter: rgba(255, 222, 165, 0.7);
+  --tint-butter-foreground: #5d4201;
+  --tint-sage: rgba(224, 235, 226, 0.76);
+  --tint-sage-foreground: #344c3b;
 
   /* SatuJanji champagne-gold accent */
   --gold: #775a19;
 
-  /* glossy: soft highlight + diffused lift yang lebih jernih */
-  --shadow-soft: 0 10px 36px -6px rgba(60, 70, 64, 0.12),
-    0 1px 2px rgba(255, 255, 255, 0.6);
-  --shadow-lift: 0 20px 48px -14px rgba(60, 70, 64, 0.18),
-    0 2px 6px rgba(255, 255, 255, 0.45);
-  --shadow-float: 0 28px 56px -18px rgba(60, 70, 64, 0.3),
-    0 8px 20px -10px rgba(255, 255, 255, 0.5);
+  --shadow-soft: 0 8px 32px -4px rgba(36, 46, 40, 0.07), 0 1px 2px rgba(36, 46, 40, 0.04);
+  --shadow-lift: 0 16px 40px -12px rgba(36, 46, 40, 0.16);
+  --shadow-float: 0 24px 48px -18px rgba(36, 46, 40, 0.3),
+    0 6px 16px -8px rgba(36, 46, 40, 0.14);
 
-  /* Non-repeating photographic-style backdrop — wedding mood, lebih
-     terang & lebih glossy: dasar cream/sage lembut, plus glow maroon,
-     hijau hutan, emas, dan blush yang lebih besar & lebih transparan
-     supaya tidak mendominasi. Tetap satu foto latar, tidak berpola. */
-  --backdrop: linear-gradient(
-      180deg,
-      rgba(244, 250, 246, 0.55) 0%,
-      rgba(236, 244, 238, 0.5) 48%,
-      rgba(248, 242, 228, 0.55) 100%
-    ),
-    radial-gradient(
-      80rem 54rem at 38% -22%,
-      rgba(123, 18, 32, 0.32) 0%,
-      transparent 60%
-    ),
-    radial-gradient(
-      92rem 64rem at 6% 26%,
-      rgba(44, 74, 53, 0.32) 0%,
-      transparent 56%
-    ),
-    radial-gradient(
-      66rem 50rem at 106% 10%,
-      rgba(201, 161, 58, 0.34) 0%,
-      transparent 52%
-    ),
-    radial-gradient(
-      60rem 44rem at 90% 62%,
-      rgba(196, 120, 132, 0.32) 0%,
-      transparent 58%
-    ),
-    radial-gradient(
-      56rem 40rem at 8% 112%,
-      rgba(206, 234, 210, 0.42) 0%,
-      transparent 58%
-    ),
-    radial-gradient(
-      52rem 38rem at 62% 118%,
-      rgba(233, 193, 118, 0.3) 0%,
-      transparent 64%
-    ),
-    linear-gradient(
-      180deg,
-      #f6fdf8 0%,
-      #eef7f1 46%,
-      #fdf8ec 100%
-    );
+  /* Botanical background accents — a leaf frond anchored top-right, a
+     sprig with the SatuJanji flower bottom-left, and a scatter tile of
+     leaves + petals woven over the gradient. SVGs are inline so they stay
+     crisp and theme-tinted without extra requests. */
+  --botanical-layers: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='300' viewBox='0 0 240 300' fill='none'><path d='M232 6 C198 58 176 118 160 186 C152 222 148 258 147 296' stroke='rgba(66,90,73,0.16)' stroke-width='3' stroke-linecap='round'/><g fill='rgba(66,90,73,0.13)'><path transform='translate(224,34) rotate(-32) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(210,64) rotate(200) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(194,102) rotate(-38) scale(1.3)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(181,140) rotate(206) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(170,180) rotate(-42) scale(1.3)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(160,220) rotate(210) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(152,258) rotate(-48) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><circle cx='147' cy='296' r='5' fill='rgba(119,90,25,0.18)'/><circle cx='232' cy='6' r='4' fill='rgba(119,90,25,0.15)'/></svg>"),
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='260' viewBox='0 0 200 260' fill='none'><path d='M10 252 C44 212 66 166 80 116 C88 86 94 52 96 12' stroke='rgba(66,90,73,0.16)' stroke-width='3' stroke-linecap='round'/><g fill='rgba(66,90,73,0.13)'><path transform='translate(22,232) rotate(215) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(46,200) rotate(-45) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(66,158) rotate(205) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(78,116) rotate(-50) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(88,74) rotate(195) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(95,36) rotate(-58) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><circle cx='96' cy='12' r='4.5' fill='rgba(119,90,25,0.18)'/><g transform='translate(138,196) scale(1.6)' fill='rgba(66,90,73,0.12)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.3' fill='rgba(119,90,25,0.2)'/></g></svg>"),
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='176' height='176' viewBox='0 0 176 176' fill='none'><g fill='none' stroke='rgba(66,90,73,0.15)' stroke-width='1.6'><path transform='translate(20,34) rotate(-28) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(104,24) rotate(40) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(118,96) rotate(18) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(16,138) rotate(66) scale(1.05)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g fill='rgba(66,90,73,0.11)'><path transform='translate(56,92) rotate(-64) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g fill='rgba(119,90,25,0.13)'><path transform='translate(132,140) rotate(-44) scale(1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g transform='translate(78,126) scale(0.95)' fill='rgba(66,90,73,0.12)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.3' fill='rgba(119,90,25,0.18)'/></g><circle cx='154' cy='62' r='3' fill='rgba(119,90,25,0.15)'/></svg>");
 }
 
 .dark {
@@ -244,26 +185,23 @@
 
   --gold: #e9c176;
 
-  /* glossy gelap: highlight putih sangat lembut supaya permukaan
-     tetap jernih, bukan kering/kusam */
-  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.35),
-    0 12px 30px -16px rgba(0, 0, 0, 0.6),
-    0 1px 1px rgba(255, 255, 255, 0.08);
-  --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.4),
-    0 18px 36px -18px rgba(0, 0, 0, 0.7),
-    0 2px 4px rgba(255, 255, 255, 0.05);
-  --shadow-float: 0 30px 56px -22px rgba(0, 0, 0, 0.8),
-    0 10px 22px -12px rgba(0, 0, 0, 0.55),
-    0 2px 4px rgba(255, 255, 255, 0.04);
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 24px -14px rgba(0, 0, 0, 0.6);
+  --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.35), 0 16px 32px -16px rgba(0, 0, 0, 0.7);
+  --shadow-float: 0 28px 52px -20px rgba(0, 0, 0, 0.78),
+    0 8px 18px -8px rgba(0, 0, 0, 0.5);
 
+  /* same botanical accents, lit for the dark gradient */
+  --botanical-layers: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='300' viewBox='0 0 240 300' fill='none'><path d='M232 6 C198 58 176 118 160 186 C152 222 148 258 147 296' stroke='rgba(178,205,183,0.2)' stroke-width='3' stroke-linecap='round'/><g fill='rgba(178,205,183,0.14)'><path transform='translate(224,34) rotate(-32) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(210,64) rotate(200) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(194,102) rotate(-38) scale(1.3)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(181,140) rotate(206) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(170,180) rotate(-42) scale(1.3)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(160,220) rotate(210) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(152,258) rotate(-48) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><circle cx='147' cy='296' r='5' fill='rgba(233,193,118,0.2)'/><circle cx='232' cy='6' r='4' fill='rgba(233,193,118,0.16)'/></svg>"),
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='260' viewBox='0 0 200 260' fill='none'><path d='M10 252 C44 212 66 166 80 116 C88 86 94 52 96 12' stroke='rgba(178,205,183,0.2)' stroke-width='3' stroke-linecap='round'/><g fill='rgba(178,205,183,0.14)'><path transform='translate(22,232) rotate(215) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(46,200) rotate(-45) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(66,158) rotate(205) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(78,116) rotate(-50) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(88,74) rotate(195) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(95,36) rotate(-58) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><circle cx='96' cy='12' r='4.5' fill='rgba(233,193,118,0.2)'/><g transform='translate(138,196) scale(1.6)' fill='rgba(178,205,183,0.13)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.3' fill='rgba(233,193,118,0.22)'/></g></svg>"),
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='176' height='176' viewBox='0 0 176 176' fill='none'><g fill='none' stroke='rgba(178,205,183,0.16)' stroke-width='1.6'><path transform='translate(20,34) rotate(-28) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(104,24) rotate(40) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(118,96) rotate(18) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(16,138) rotate(66) scale(1.05)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g fill='rgba(178,205,183,0.12)'><path transform='translate(56,92) rotate(-64) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g fill='rgba(233,193,118,0.14)'><path transform='translate(132,140) rotate(-44) scale(1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g transform='translate(78,126) scale(0.95)' fill='rgba(178,205,183,0.13)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.3' fill='rgba(233,193,118,0.2)'/></g><circle cx='154' cy='62' r='3' fill='rgba(233,193,118,0.16)'/></svg>");
 }
 
 /* Font pairing: firm grotesque sans (Archivo) for all reading/UI text +
-   elegant serif (Cormorant Garamond / Cormorant) for every display slot that
-   used to be Playfair (h1–h3, .h-page, .h-card, and the font-serif utilities). */
+   calligraphic script (Dancing Script) for every display slot that used to
+   be Playfair (h1–h3, .h-page, .h-card, and the font-serif utilities). */
 @theme {
   --font-sans: "Archivo", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-serif: "Cormorant Garamond", "Cormorant", ui-serif, Georgia, serif;
+  --font-serif: "Dancing Script", "Segoe Script", cursive;
   --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
@@ -278,62 +216,83 @@
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
-    /* Non-repeating photographic-style backdrop — wedding-pelaminan mood: deep
-       maroon drape + forest-green swag + gold/blush glows, then a soft
-       cream/sage wash. Fixed so every glass card glides over one continuous
-       hero image. */
-    background-image: var(--backdrop);
-    background-attachment: fixed;
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
-  }
-  .dark body {
-    /* Non-repeating photographic-style backdrop — dark wedding mood, lebih
-       ringan & lebih glossy: dasar lebih hangat/terang, glow maroon/forest/
-       gold/blush lebih besar & lebih transparan, dengan highlight krem di
-       dasar supaya tidak terasa pekat/kering. */
-    background-image: linear-gradient(
-        180deg,
-        rgba(20, 22, 18, 0.62) 0%,
-        rgba(26, 22, 18, 0.6) 46%,
-        rgba(32, 18, 20, 0.64) 100%
-      ),
+    /* Layer stack, front to back: botanical accents (frond top-right,
+       sprig bottom-left, repeating leaf/petal tile), then the clear playful
+       gradient — mint top-left, champagne top-right, sky bottom-left, a warm
+       champagne bloom low-center. Fixed so every glass card glides over one
+       continuous wash. */
+    background-image:
+      var(--botanical-layers),
       radial-gradient(
-        80rem 56rem at 38% -22%,
-        rgba(120, 20, 36, 0.4) 0%,
+        54rem 40rem at 2% -10%,
+        rgba(178, 205, 183, 0.8) 0%,
         transparent 60%
       ),
       radial-gradient(
-        92rem 66rem at 6% 26%,
-        rgba(30, 56, 42, 0.4) 0%,
-        transparent 56%
+        46rem 34rem at 101% 0%,
+        rgba(255, 222, 165, 0.62) 0%,
+        transparent 55%
       ),
       radial-gradient(
-        66rem 50rem at 106% 10%,
-        rgba(178, 144, 86, 0.34) 0%,
-        transparent 52%
+        42rem 36rem at 92% 58%,
+        rgba(206, 234, 210, 0.6) 0%,
+        transparent 60%
       ),
       radial-gradient(
-        60rem 44rem at 90% 62%,
-        rgba(120, 56, 70, 0.34) 0%,
+        48rem 38rem at 6% 102%,
+        rgba(211, 232, 212, 0.7) 0%,
         transparent 58%
       ),
       radial-gradient(
-        56rem 40rem at 8% 112%,
-        rgba(56, 96, 78, 0.42) 0%,
-        transparent 58%
+        34rem 28rem at 55% 112%,
+        rgba(233, 193, 118, 0.34) 0%,
+        transparent 65%
       ),
-      radial-gradient(
-        52rem 38rem at 62% 118%,
-        rgba(178, 144, 86, 0.28) 0%,
-        transparent 64%
-      ),
-      linear-gradient(180deg, #101612 0%, #151a13 46%, #18120c 100%);
+      linear-gradient(180deg, #f7fdf9 0%, #eff8f2 48%, #fdf8ec 100%);
     background-attachment: fixed;
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
+    /* frond → sprig → tile → five radials → linear (counts must match) */
+    background-position:
+      right top,
+      left bottom,
+      0 0,
+      center,
+      center,
+      center,
+      center,
+      center,
+      center;
+    background-size: auto, auto, 176px 176px, auto, auto, auto, auto, auto, auto;
+    background-repeat: no-repeat, no-repeat, repeat, no-repeat, no-repeat, no-repeat,
+      no-repeat, no-repeat, no-repeat;
+  }
+  .dark body {
+    /* same var + lists as body (8 layers here); do NOT redeclare
+       background-repeat — a single no-repeat would stop the tile from
+       tiling in dark mode. */
+    background-image:
+      var(--botanical-layers),
+      radial-gradient(
+        54rem 40rem at 2% -10%,
+        rgba(34, 69, 58, 0.7) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        46rem 34rem at 101% 0%,
+        rgba(74, 58, 29, 0.6) 0%,
+        transparent 55%
+      ),
+      radial-gradient(
+        42rem 36rem at 92% 58%,
+        rgba(35, 57, 44, 0.6) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        48rem 38rem at 6% 102%,
+        rgba(33, 58, 46, 0.65) 0%,
+        transparent 58%
+      ),
+      linear-gradient(180deg, #0f1512 0%, #111814 50%, #16130c 100%);
+    background-attachment: fixed;
   }
   h1,
   h2,

@@ -456,7 +456,7 @@ export function ChecklistPage() {
                   dataKey="selesai"
                   name="Selesai"
                   stackId="progres"
-                  fill="#47704f"
+                  fill="#425a49"
                   barSize={16}
                 >
                   {priorityBarData.map((row) => (
@@ -496,7 +496,7 @@ export function ChecklistPage() {
           </div>
           <div className="mt-1 flex items-center gap-3 text-[11px] font-semibold text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-[#47704f]" /> Selesai
+              <span className="size-2 rounded-full bg-[#425a49]" /> Selesai
             </span>
             <span className="flex items-center gap-1.5">
               <span className="size-2 rounded-full bg-[#d3e8d4]" /> Sisa
