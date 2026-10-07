@@ -38,7 +38,9 @@ export const create = mutation({
   handler: async (ctx, { label, dueDate, priority }) => {
     const userId = await workspaceUserId(ctx);
 
-    await ctx.db.insert("checklistItem", {
+    // ID dikembalikan supaya alur "urungkan hapus" bisa memulihkan status
+    // selesai yang ikut terhapus.
+    return await ctx.db.insert("checklistItem", {
       userId,
       label: label.trim() || "Tugas baru",
       done: false,
