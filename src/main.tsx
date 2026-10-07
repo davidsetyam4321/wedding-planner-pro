@@ -186,6 +186,19 @@ function RouteSyncer() {
 }
 
 
+/**
+ * Service worker (mode offline) hanya didaftarkan pada build produksi. Di
+ * lingkungan dev/preview service worker sengaja tidak aktif supaya aset yang
+ * di-cache tidak menutupi perubahan kode terbaru.
+ */
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch((error) => {
+      console.warn("[PWA] Service worker gagal didaftarkan:", error);
+    });
+  });
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <RootErrorBoundary>

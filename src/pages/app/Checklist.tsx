@@ -15,13 +15,23 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
 import { fromDateInputValue, toDateInputValue } from "@/lib/format";
+import { undoableDelete } from "@/lib/undo";
 import {
   PRIORITY_BADGE,
   PRIORITY_LABEL,
   nextPriority,
   normalizePriority,
 } from "@/lib/priority";
-import { Check, Loader2, Plus, Search, Sparkles, Trash2, X } from "lucide-react";
+import {
+  Check,
+  Loader2,
+  Plus,
+  Search,
+  Sparkles,
+  Trash2,
+  UserRound,
+  X,
+} from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import {
@@ -68,6 +78,8 @@ export function ChecklistPage() {
     label: string;
     /** nilai input type=date ("" = tanpa tenggat) */
     due: string;
+    /** penanggung jawab ("" = belum ditentukan) */
+    pic: string;
   } | null>(null);
   const [newDue, setNewDue] = useState("");
   const [editingBusy, setEditingBusy] = useState(false);
@@ -192,6 +204,11 @@ export function ChecklistPage() {
           {PRIORITY_LABEL[normalizePriority(item.priority)]}
         </button>
       )}
+      {item.pic && (
+        <span className="chip shrink-0 bg-tint-sky text-tint-sky-foreground">
+          <UserRound className="size-3" /> {item.pic}
+        </span>
+      )}
       {item.dueDate && !item.done && (
         <DueChip dueDate={item.dueDate} />
       )}
@@ -201,14 +218,31 @@ export function ChecklistPage() {
             id: item._id,
             label: item.label,
             due: item.dueDate ? toDateInputValue(item.dueDate) : "",
+            pic: item.pic ?? "",
           })
         }
-        onDelete={() => removeItem({ itemId: item._id })}
+        onDelete={() => deleteItem(item)}
         deleteTitle={`Hapus tugas ini?`}
         deleteDescription={item.label}
       />
     </li>
   );
+
+  /** Pulihkan satu tugas yang dihapus, termasuk status selesainya. */
+  const restoreItem = async (item: (typeof all)[number]) => {
+    const id = await createItem({
+      label: item.label,
+      dueDate: item.dueDate,
+      priority: item.priority,
+      pic: item.pic,
+    });
+    if (item.done) await toggleItem({ itemId: id, done: true });
+  };
+
+  const deleteItem = (item: (typeof all)[number]) => {
+    void removeItem({ itemId: item._id });
+    undoableDelete(`Tugas "${item.label}" dihapus.`, () => restoreItem(item));
+  };
 
   const submit = async () => {
     if (!label.trim()) return;
@@ -259,6 +293,7 @@ export function ChecklistPage() {
         itemId: editing.id,
         label: editing.label,
         dueDate: editing.due ? fromDateInputValue(editing.due) : null,
+        pic: editing.pic,
       });
       setEditing(null);
       toast.success("Tugas diperbarui.");
@@ -454,9 +489,17 @@ export function ChecklistPage() {
             <button
               type="button"
               onClick={() => {
-                if (confirm(`Hapus ${done.length} tugas yang sudah selesai?`)) {
-                  clearDone().then(() => toast.success("Tugas selesai dibersihkan."));
-                }
+                // Tanpa dialog konfirmasi: kekeliruan bisa dibatalkan
+                // langsung dari tombol "Urungkan" pada toast.
+                const removed = done;
+                void clearDone();
+                undoableDelete(
+                  `${removed.length} tugas selesai dibersihkan.`,
+                  async () => {
+                    for (const item of removed) await restoreItem(item);
+                  },
+                  { successMessage: "Tugas selesai dipulihkan." },
+                );
               }}
               className="chip bg-tint-sage text-tint-sage-foreground"
             >
@@ -621,6 +664,19 @@ export function ChecklistPage() {
                   previous ? { ...previous, due: event.target.value } : previous,
                 )
               }
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="edit-pic">Penanggung jawab (opsional)</Label>
+            <Input
+              id="edit-pic"
+              value={editing?.pic ?? ""}
+              onChange={(event) =>
+                setEditing((previous) =>
+                  previous ? { ...previous, pic: event.target.value } : previous,
+                )
+              }
+              placeholder="cth. Rina, WO, keluarga"
             />
           </div>
           <DialogFooter>

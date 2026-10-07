@@ -1,6 +1,7 @@
 import { BottomNav } from "@/components/BottomNav";
 import { SideNav } from "@/components/SideNav";
 import { OnboardingDialog } from "@/components/Onboarding";
+import { SignupBanner } from "@/components/SignupBanner";
 import { coupleInitials } from "@/components/CouplePhoto";
 import { BloomOverlay, FlowerMark, Petals } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
@@ -274,6 +275,15 @@ export function AppShell() {
       : null;
   const openTasks = (checklist ?? []).filter((item) => !item.done).length;
 
+  // Ajakan masuk email: hanya untuk workspace anonim yang sudah benar-benar
+  // dipakai (onboarding selesai + ada data di luar seed default).
+  const DEFAULT_CHECKLIST_ITEMS = 10;
+  const hasOwnData =
+    Boolean(wedding?.onboarded) &&
+    ((checklist?.length ?? 0) > DEFAULT_CHECKLIST_ITEMS ||
+      (savings?.length ?? 0) > 0);
+  const showSignupBanner = workspace?.isAnonymous === true && hasOwnData;
+
   // Themed sync screen while the workspace is being prepared or re-synced
   // (first visit, and right after signing in with an email).
   if (setupState === "pending" && !wedding) {
@@ -395,6 +405,7 @@ export function AppShell() {
       </header>
 
       <main className="mx-auto w-full max-w-md px-4 pt-4 lg:max-w-3xl lg:px-10">
+        <SignupBanner show={showSignupBanner} />
         <Outlet />
       </main>
 

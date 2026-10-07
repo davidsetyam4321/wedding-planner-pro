@@ -23,6 +23,7 @@ import { bloom } from "@/lib/bloom";
 import { formatDateTimeID, formatRupiah, formatRupiahShort } from "@/lib/format";
 import { Loader2, Plus, Target, TrendingUp } from "lucide-react";
 import { useState } from "react";
+import { undoableDelete } from "@/lib/undo";
 import { useMutation, useQuery } from "convex/react";
 import {
   Area,
@@ -499,7 +500,18 @@ export function TabunganPage() {
                           note: deposit.note ?? "",
                         })
                       }
-                      onDelete={() => removeDeposit({ depositId: deposit._id })}
+                      onDelete={() => {
+                        void removeDeposit({ depositId: deposit._id });
+                        undoableDelete(
+                          `Setoran ${formatRupiahShort(deposit.amount)} dihapus.`,
+                          () =>
+                            addDeposit({
+                              amount: deposit.amount,
+                              note: deposit.note,
+                            }),
+                          { successMessage: "Setoran dipulihkan." },
+                        );
+                      }}
                       deleteTitle="Hapus setoran ini?"
                       deleteDescription="Total tabungan akan menyesuaikan."
                     />

@@ -19,7 +19,9 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
-import { Clock, Loader2, Plus } from "lucide-react";
+import { printDocument } from "@/lib/printDoc";
+import { undoableDelete } from "@/lib/undo";
+import { Clock, Loader2, Plus, Printer, Search, UserRound, X } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
@@ -48,6 +50,7 @@ type RundownForm = {
   title: string;
   duration: string;
   note: string;
+  pic: string;
 };
 
 const EMPTY_FORM: RundownForm = {
@@ -56,11 +59,23 @@ const EMPTY_FORM: RundownForm = {
   title: "",
   duration: "",
   note: "",
+  pic: "",
 };
+
+/** Tanggal hari-H dalam format panjang, untuk subtitle dokumen cetak. */
+function formatWeddingDate(ms: number): string {
+  return new Date(ms).toLocaleDateString("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
 
 /** Rundown acara: susunan agenda hari-H urut jam. */
 export function RundownPage() {
   const items = useQuery(api.rundown.list);
+  const wedding = useQuery(api.wedding.get);
   const createItem = useMutation(api.rundown.create);
   const updateItem = useMutation(api.rundown.update);
   const removeItem = useMutation(api.rundown.remove);
@@ -68,8 +83,21 @@ export function RundownPage() {
   const [form, setForm] = useState<RundownForm>(EMPTY_FORM);
   const [formOpen, setFormOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [query, setQuery] = useState("");
 
   const list = items ?? [];
+  const term = query.trim().toLowerCase();
+  // Pencarian menyaring daftar yang tampil; ringkasan tetap dihitung dari
+  // seluruh agenda supaya jam mulai/selesai tidak berubah saat mencari.
+  const visible =
+    term === ""
+      ? list
+      : list.filter(
+          (item) =>
+            item.title.toLowerCase().includes(term) ||
+            (item.note ?? "").toLowerCase().includes(term) ||
+            (item.pic ?? "").toLowerCase().includes(term),
+        );
   const firstTime = list[0]?.startTime;
   const lastItem = list[list.length - 1];
   const lastTime = lastItem
@@ -99,8 +127,58 @@ export function RundownPage() {
       duration:
         item.durationMinutes === undefined ? "" : String(item.durationMinutes),
       note: item.note ?? "",
+      pic: item.pic ?? "",
     });
     setFormOpen(true);
+  };
+
+  /** Cetak / simpan PDF rundown supaya bisa dibagikan ke WO dan keluarga. */
+  const printRundown = () => {
+    if (list.length === 0) {
+      toast.error("Belum ada agenda untuk dicetak.");
+      return;
+    }
+    const couple = wedding
+      ? `${wedding.partnerOneName} & ${wedding.partnerTwoName}`
+      : "Rundown acara";
+    const subtitle = wedding
+      ? `${couple} · ${formatWeddingDate(wedding.weddingDate)}${wedding.venueName ? ` · ${wedding.venueName}` : ""}`
+      : couple;
+    printDocument("Rundown Acara", subtitle, [
+      {
+        title: "Susunan acara",
+        headers: ["Jam", "Acara", "Durasi", "PIC", "Catatan"],
+        rows: list.map((item) => [
+          item.startTime,
+          item.title,
+          item.durationMinutes ? formatDuration(item.durationMinutes) : "—",
+          item.pic ?? "—",
+          item.note ?? "—",
+        ]),
+      },
+      {
+        title: "Ringkasan",
+        lines: [
+          `Jumlah agenda: ${list.length}`,
+          `Mulai: ${firstTime ?? "—"}${lastTime ? ` · Selesai: ${lastTime}` : ""}`,
+          `Total durasi: ${formatDuration(totalMinutes)}`,
+        ],
+      },
+    ]);
+  };
+
+  /** Hapus dengan jendela pembatalan (Undo) — agenda dipulihkan utuh. */
+  const deleteItem = (item: (typeof list)[number]) => {
+    void removeItem({ itemId: item._id });
+    undoableDelete(`Agenda "${item.title}" dihapus.`, async () => {
+      await createItem({
+        startTime: item.startTime,
+        title: item.title,
+        durationMinutes: item.durationMinutes,
+        note: item.note,
+        pic: item.pic,
+      });
+    });
   };
 
   const submit = async () => {
@@ -118,6 +196,7 @@ export function RundownPage() {
           title: form.title,
           note: form.note,
           durationMinutes,
+          pic: form.pic,
         });
         toast.success("Agenda diperbarui.");
       } else {
@@ -126,6 +205,7 @@ export function RundownPage() {
           title: form.title,
           note: form.note,
           durationMinutes,
+          pic: form.pic,
         });
         bloom();
         toast.success("Agenda ditambahkan.");
@@ -174,19 +254,52 @@ export function RundownPage() {
         </dl>
       </section>
 
-      <Button className="w-full rounded-2xl" onClick={openNew}>
-        <Plus className="size-4" /> Tambah agenda
-      </Button>
+      <div className="grid grid-cols-2 gap-2">
+        <Button className="rounded-2xl" onClick={openNew}>
+          <Plus className="size-4" /> Tambah agenda
+        </Button>
+        <Button
+          variant="outline"
+          className="rounded-2xl"
+          onClick={printRundown}
+          disabled={list.length === 0}
+        >
+          <Printer className="size-4" /> Cetak / PDF
+        </Button>
+      </div>
+
+      {list.length > 3 && (
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Cari acara, PIC, atau catatan"
+            className="pl-9 pr-9"
+            aria-label="Cari agenda"
+          />
+          {query !== "" && (
+            <button
+              type="button"
+              aria-label="Bersihkan pencarian"
+              onClick={() => setQuery("")}
+              className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
+            >
+              <X className="size-3.5" />
+            </button>
+          )}
+        </div>
+      )}
 
       <section className="relative">
-        {list.length > 0 && (
+        {visible.length > 0 && (
           <span
             aria-hidden
             className="absolute bottom-4 left-[52px] top-4 w-0.5 rounded-full bg-gradient-to-b from-primary/40 via-primary/25 to-transparent"
           />
         )}
         <Stagger className="space-y-3">
-          {list.map((item) => {
+          {visible.map((item) => {
             const duration = item.durationMinutes ?? 0;
             return (
               <StaggerItem key={item._id}>
@@ -214,15 +327,17 @@ export function RundownPage() {
                       ) : (
                         <span className="meta">Durasi belum diisi</span>
                       )}
+                      {item.pic && (
+                        <span className="chip bg-tint-sky text-tint-sky-foreground">
+                          <UserRound className="size-3" /> {item.pic}
+                        </span>
+                      )}
                     </div>
                     {item.note && <p className="meta mt-1">{item.note}</p>}
                     <div className="absolute right-2 top-2">
                       <RowMenu
                         onEdit={() => openEdit(item)}
-                        onDelete={() => {
-                          removeItem({ itemId: item._id });
-                          toast.success("Agenda dihapus.");
-                        }}
+                        onDelete={() => deleteItem(item)}
                         deleteTitle={`Hapus "${item.title}"?`}
                       />
                     </div>
@@ -240,6 +355,16 @@ export function RundownPage() {
             description="Susun acara hari-H dari persiapan pagi sampai ramah tamah malam."
             actionLabel="Tambah agenda"
             onAction={openNew}
+          />
+        )}
+
+        {list.length > 0 && visible.length === 0 && (
+          <EmptyState
+            emoji="🔍"
+            title="Tidak ada agenda yang cocok"
+            description={`Tidak ada acara yang mengandung “${query}”. Coba kata kunci lain.`}
+            actionLabel="Reset pencarian"
+            onAction={() => setQuery("")}
           />
         )}
       </section>
@@ -293,6 +418,17 @@ export function RundownPage() {
                 Selesai sekitar {addMinutes(form.startTime, Number(form.duration))}
               </p>
             )}
+            <div className="space-y-1.5">
+              <Label htmlFor="rundown-pic">Penanggung jawab (opsional)</Label>
+              <Input
+                id="rundown-pic"
+                value={form.pic}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, pic: event.target.value }))
+                }
+                placeholder="cth. MC, keluarga, WO"
+              />
+            </div>
             <div className="space-y-1.5">
               <Label htmlFor="rundown-note">Catatan (opsional)</Label>
               <Input

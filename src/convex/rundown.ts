@@ -24,12 +24,14 @@ export const create = mutation({
     title: v.string(),
     note: v.optional(v.string()),
     durationMinutes: v.optional(v.number()),
+    pic: v.optional(v.string()),
   },
-  handler: async (ctx, { startTime, title, note, durationMinutes }) => {
+  handler: async (ctx, { startTime, title, note, durationMinutes, pic }) => {
     const userId = await workspaceUserId(ctx);
     if (!title.trim()) throw new Error("Nama acara wajib diisi");
 
-    await ctx.db.insert("rundownItem", {
+    // ID dikembalikan supaya alur "urungkan hapus" bisa memulihkan agenda.
+    return await ctx.db.insert("rundownItem", {
       userId,
       startTime: /^\d{2}:\d{2}$/.test(startTime) ? startTime : "08:00",
       title: title.trim(),
@@ -38,6 +40,7 @@ export const create = mutation({
         durationMinutes === undefined
           ? undefined
           : Math.max(0, Math.round(durationMinutes)),
+      pic: pic?.trim() || undefined,
       createdAt: Date.now(),
     });
   },
@@ -50,6 +53,7 @@ export const update = mutation({
     title: v.optional(v.string()),
     note: v.optional(v.string()),
     durationMinutes: v.optional(v.number()),
+    pic: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const userId = await workspaceUserId(ctx);
@@ -62,6 +66,7 @@ export const update = mutation({
       title?: string;
       note?: string;
       durationMinutes?: number;
+      pic?: string;
     } = {};
 
     if (args.startTime !== undefined && /^\d{2}:\d{2}$/.test(args.startTime)) {
@@ -73,6 +78,7 @@ export const update = mutation({
       patch.title = cleaned;
     }
     if (args.note !== undefined) patch.note = args.note.trim() || undefined;
+    if (args.pic !== undefined) patch.pic = args.pic.trim() || undefined;
     if (args.durationMinutes !== undefined) {
       patch.durationMinutes = Math.max(0, Math.round(args.durationMinutes));
     }

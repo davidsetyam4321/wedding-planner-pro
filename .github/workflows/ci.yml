@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+# Batalkan run lama di branch yang sama supaya tidak menumpuk.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Typecheck · Lint · Test · Build
+    runs-on: ubuntu-latest
+    env:
+      # Build butuh URL Convex yang terbentuk benar; tidak pernah dipanggil
+      # karena hanya dipakai untuk membundel frontend.
+      VITE_CONVEX_URL: https://ci-placeholder.convex.cloud
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Type check
+        run: bun run typecheck
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Test (convex-test)
+        run: bun run test
+
+      - name: Build
+        run: bun run build
+
+  secret-scan:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Riwayat penuh supaya gitleaks bisa memeriksa rentang commit yang di-push.
+          fetch-depth: 0
+
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Catatan: kunci OTP lama yang masih ada di riwayat commit lama
+        # ditangani sekali saja lewat docs/SECRET_ROTATION.md (rotate key +
+        # `git rm --cached .env.keys`). Job ini menjaga agar tidak ada kunci
+        # baru yang ikut ter-commit lagi.

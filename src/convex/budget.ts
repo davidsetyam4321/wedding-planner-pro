@@ -104,8 +104,9 @@ export const overview = query({
 });
 
 async function requireCategory(ctx: MutationCtx, categoryId: Id<"budgetCategory">) {
-  const userId = await getAuthUserId(ctx);
-  if (userId === null) throw new Error("Not signed in");
+  // workspaceUserId (bukan getAuthUserId) supaya pasangan yang tergabung
+  // tetap bisa mengubah kategori milik workspace bersama.
+  const userId = await workspaceUserId(ctx);
   const category = await ctx.db.get(categoryId);
   if (!category || category.userId !== userId) {
     throw new Error("Category not found");
@@ -123,7 +124,9 @@ export const createCategory = mutation({
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
 
-    await ctx.db.insert("budgetCategory", {
+    // ID dikembalikan supaya alur "urungkan hapus" bisa mengembalikan
+    // pengeluaran ke kategori yang baru dipulihkan.
+    return await ctx.db.insert("budgetCategory", {
       userId,
       name: name.trim() || "Kategori baru",
       allocated: Math.max(0, Math.round(allocated)),

@@ -3,7 +3,6 @@ import {
   FolderHeart,
   LayoutDashboard,
   ListChecks,
-  Mail,
   PiggyBank,
   Receipt,
   Users,

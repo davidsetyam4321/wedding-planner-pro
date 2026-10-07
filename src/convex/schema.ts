@@ -109,6 +109,10 @@ const schema = defineSchema(
       createdAt: v.optional(v.number()),
       /** Tenggat tugas (epoch ms); lewat dari ini dianggap terlambat. */
       dueDate: v.optional(v.number()),
+      /** Terakhir kali cron harian mengirim pengingat untuk tugas ini. */
+      lastRemindedAt: v.optional(v.number()),
+      /** Penanggung jawab tugas (nama bebas, mis. "Rina" atau "WO"). */
+      pic: v.optional(v.string()),
       /** Urgency shown on the dashboard agenda; lama = tidak ada (dianggap "sedang"). */
       priority: v.optional(
         v.union(v.literal("tinggi"), v.literal("sedang"), v.literal("rendah")),
@@ -171,6 +175,8 @@ const schema = defineSchema(
       status: vendorStatusValidator,
       /** Jatuh tempo pembayaran (epoch ms) — DP atau pelunasan. */
       dueDate: v.optional(v.number()),
+      /** Terakhir kali cron harian mengirim pengingat untuk vendor ini. */
+      lastRemindedAt: v.optional(v.number()),
       createdAt: v.number(),
     }).index("by_user", ["userId"]),
 
@@ -181,8 +187,31 @@ const schema = defineSchema(
       title: v.string(),
       note: v.optional(v.string()),
       durationMinutes: v.optional(v.number()),
+      /** Penanggung jawab acara (nama bebas, mis. "MC" atau "Keluarga"). */
+      pic: v.optional(v.string()),
       createdAt: v.number(),
     }).index("by_user", ["userId"]),
+
+    /**
+     * Antrean pengingat email yang diisi cron harian. Dipisah dari tabel
+     * sumbernya supaya kegagalan kirim email tidak menghilangkan pengingat:
+     * baris tetap menunggu (`sentAt` kosong) sampai benar-benar terkirim.
+     */
+    reminderOutbox: defineTable({
+      userId: v.id("users"),
+      kind: v.union(v.literal("task"), v.literal("vendor")),
+      /** Nama tugas/vendor agar email bisa disusun tanpa join. */
+      label: v.string(),
+      dueDate: v.number(),
+      /** Hari menuju tenggat saat baris dibuat (negatif = sudah lewat). */
+      daysLeft: v.number(),
+      createdAt: v.number(),
+      sentAt: v.optional(v.number()),
+      attempts: v.optional(v.number()),
+      lastError: v.optional(v.string()),
+    })
+      .index("by_sent", ["sentAt"])
+      .index("by_user", ["userId"]),
 
     /**
      * One-way handshake when an anonymous workspace is migrated to a fresh

@@ -25,6 +25,7 @@ import { bloom } from "@/lib/bloom";
 import { formatRupiah, formatRupiahShort } from "@/lib/format";
 import { downloadCsv } from "@/lib/exportCsv";
 import { printDocument } from "@/lib/printDoc";
+import { undoableDelete } from "@/lib/undo";
 import {
   AlertTriangle,
   Check,
@@ -33,6 +34,7 @@ import {
   FileText,
   Loader2,
   Plus,
+  Search,
   Wallet,
   X,
 } from "lucide-react";
@@ -83,6 +85,11 @@ export function BudgetPage() {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [chartTab, setChartTab] = useState<"ikhtisar" | "tren">("ikhtisar");
   const [filterCategoryId, setFilterCategoryId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const term = query.trim().toLowerCase();
+  /** Cocokkan kata kunci dengan nama kategori atau keterangan pengeluaran. */
+  const matchesQuery = (label: string) =>
+    term === "" || label.toLowerCase().includes(term);
 
   const [categoryDialog, setCategoryDialog] = useState<{
     id: CategoryId | null;
@@ -696,6 +703,27 @@ export function BudgetPage() {
         </Button>
       </div>
 
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Cari pengeluaran atau kategori"
+          className="pl-9 pr-9"
+          aria-label="Cari pengeluaran"
+        />
+        {query !== "" && (
+          <button
+            type="button"
+            aria-label="Bersihkan pencarian"
+            onClick={() => setQuery("")}
+            className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
+          >
+            <X className="size-3.5" />
+          </button>
+        )}
+      </div>
+
       {filterCategory && (
         <button
           type="button"
@@ -719,6 +747,16 @@ export function BudgetPage() {
               expense.source === "vendor",
           );
           const categoryExpenses = [...manualForCategory, ...vendorLines];
+          // Saat mencari: nama kategori yang cocok menampilkan seluruh isinya,
+          // selain itu hanya baris yang cocok. Total tetap dihitung dari
+          // seluruh pengeluaran supaya angka tidak berubah karena pencarian.
+          const categoryMatches = matchesQuery(category.name);
+          const shownExpenses =
+            term === "" || categoryMatches
+              ? categoryExpenses
+              : categoryExpenses.filter((expense) => matchesQuery(expense.label));
+          const hiddenBySearch =
+            term !== "" && !categoryMatches && shownExpenses.length === 0;
           const spent = categoryExpenses.reduce((sum, expense) => sum + expense.amount, 0);
           const over = spent > category.allocated;
           const pct =
@@ -726,6 +764,8 @@ export function BudgetPage() {
               ? Math.min(100, Math.round((spent / category.allocated) * 100))
               : 0;
           const open = !collapsed[category._id];
+
+          if (hiddenBySearch) return null;
 
           return (
             <StaggerItem key={category._id}>
@@ -768,8 +808,32 @@ export function BudgetPage() {
                         })
                       }
                       onDelete={() => {
-                        deleteCategory({ categoryId: category._id });
-                        toast.success("Kategori dihapus.");
+                        // Snapshot dulu: pemulihan butuh nama pengeluaran
+                        // yang ikut terhapus bersama kategorinya.
+                        const removed = manualForCategory.map((expense) => ({
+                          label: expense.label,
+                          amount: expense.amount,
+                          paidAt: expense.paidAt,
+                        }));
+                        void deleteCategory({ categoryId: category._id });
+                        undoableDelete(
+                          `Kategori "${category.name}" dihapus.`,
+                          async () => {
+                            const categoryId = await createCategory({
+                              name: category.name,
+                              allocated: category.allocated,
+                            });
+                            for (const expense of removed) {
+                              await addExpense({
+                                categoryId,
+                                label: expense.label,
+                                amount: expense.amount,
+                                paid: Boolean(expense.paidAt),
+                              });
+                            }
+                          },
+                          { successMessage: "Kategori dipulihkan." },
+                        );
                       }}
                       deleteTitle={`Hapus kategori "${category.name}"?`}
                       deleteDescription="Semua pengeluaran di dalamnya juga akan terhapus."
@@ -786,7 +850,7 @@ export function BudgetPage() {
 
                   <CollapsibleContent>
                     <ul className="divide-y divide-border">
-                      {categoryExpenses.map((expense) =>
+                      {shownExpenses.map((expense) =>
                         expense.source === "vendor" ? (
                           /* Turunan dari halaman Vendor: selalu terbayar, tanpa aksi edit/hapus. */
                           <li
@@ -835,15 +899,30 @@ export function BudgetPage() {
                             </span>
                             <RowMenu
                               onEdit={() => openEditExpense(expense)}
-                              onDelete={() => deleteExpense({ expenseId: expense._id })}
+                              onDelete={() => {
+                                void deleteExpense({ expenseId: expense._id });
+                                undoableDelete(
+                                  `"${expense.label}" dihapus.`,
+                                  () =>
+                                    addExpense({
+                                      categoryId: expense.categoryId,
+                                      label: expense.label,
+                                      amount: expense.amount,
+                                      paid: Boolean(expense.paidAt),
+                                    }),
+                                  { successMessage: "Pengeluaran dipulihkan." },
+                                );
+                              }}
                               deleteTitle={`Hapus "${expense.label}"?`}
                             />
                           </li>
                         ),
                       )}
-                      {categoryExpenses.length === 0 && (
+                      {shownExpenses.length === 0 && (
                         <li className="px-4 py-2.5 text-xs text-muted-foreground">
-                          Belum ada pengeluaran di kategori ini.
+                          {term !== ""
+                            ? "Tidak ada pengeluaran yang cocok."
+                            : "Belum ada pengeluaran di kategori ini."}
                         </li>
                       )}
                     </ul>

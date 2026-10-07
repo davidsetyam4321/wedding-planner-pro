@@ -34,8 +34,9 @@ export const create = mutation({
     priority: v.optional(
       v.union(v.literal("tinggi"), v.literal("sedang"), v.literal("rendah")),
     ),
+    pic: v.optional(v.string()),
   },
-  handler: async (ctx, { label, dueDate, priority }) => {
+  handler: async (ctx, { label, dueDate, priority, pic }) => {
     const userId = await workspaceUserId(ctx);
 
     // ID dikembalikan supaya alur "urungkan hapus" bisa memulihkan status
@@ -48,6 +49,7 @@ export const create = mutation({
       createdAt: Date.now(),
       dueDate: dueDate && dueDate > 0 ? dueDate : undefined,
       priority,
+      pic: pic?.trim() || undefined,
     });
   },
 });
@@ -79,8 +81,10 @@ export const update = mutation({
     itemId: v.id("checklistItem"),
     label: v.string(),
     dueDate: v.optional(v.union(v.number(), v.null())),
+    /** String kosong menghapus penanggung jawab. */
+    pic: v.optional(v.string()),
   },
-  handler: async (ctx, { itemId, label, dueDate }) => {
+  handler: async (ctx, { itemId, label, dueDate, pic }) => {
     const userId = await workspaceUserId(ctx);
 
     const item = await ctx.db.get(itemId);
@@ -88,12 +92,28 @@ export const update = mutation({
 
     const cleaned = label.trim();
     if (!cleaned) throw new Error("Tugas tidak boleh kosong");
-    const patch: { label: string; dueDate?: number | undefined } = { label: cleaned };
+    const patch: {
+      label: string;
+      dueDate?: number | undefined;
+      pic?: string | undefined;
+    } = { label: cleaned };
     if (dueDate !== undefined) {
-      patch.dueDate =
-        dueDate !== null && dueDate > 0 ? dueDate : undefined;
+      patch.dueDate = dueDate !== null && dueDate > 0 ? dueDate : undefined;
     }
+    if (pic !== undefined) patch.pic = pic.trim() || undefined;
     await ctx.db.patch(itemId, patch);
+  },
+});
+
+/** Mengubah penanggung jawab tanpa menyentuh field lain. */
+export const setPic = mutation({
+  args: { itemId: v.id("checklistItem"), pic: v.string() },
+  handler: async (ctx, { itemId, pic }) => {
+    const userId = await workspaceUserId(ctx);
+
+    const item = await ctx.db.get(itemId);
+    if (!item || item.userId !== userId) throw new Error("Item not found");
+    await ctx.db.patch(itemId, { pic: pic.trim() || undefined });
   },
 });
 
@@ -126,6 +146,27 @@ export const setPriority = mutation({
     const item = await ctx.db.get(itemId);
     if (!item || item.userId !== userId) throw new Error("Item not found");
     await ctx.db.patch(itemId, { priority });
+  },
+});
+
+/**
+ * Menyusun ulang tugas secara manual (drag & drop). Urutan mengikuti posisi
+ * dalam array: id pertama jadi `sortOrder` 0, dan seterusnya. Hanya id yang
+ * dikirim yang tersentuh, jadi menyeret sebagian daftar tidak mengacak sisanya.
+ */
+export const reorder = mutation({
+  args: { itemIds: v.array(v.id("checklistItem")) },
+  handler: async (ctx, { itemIds }) => {
+    const userId = await workspaceUserId(ctx);
+
+    for (let index = 0; index < itemIds.length; index++) {
+      const item = await ctx.db.get(itemIds[index]);
+      if (!item || item.userId !== userId) throw new Error("Item not found");
+    }
+    for (let index = 0; index < itemIds.length; index++) {
+      await ctx.db.patch(itemIds[index], { sortOrder: index });
+    }
+    return itemIds.length;
   },
 });
 
