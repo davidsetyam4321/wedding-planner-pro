@@ -136,55 +136,59 @@
   /* SatuJanji champagne-gold accent */
   --gold: #775a19;
 
-  --shadow-soft: 0 8px 32px -4px rgba(36, 46, 40, 0.07), 0 1px 2px rgba(36, 46, 40, 0.04);
-  --shadow-lift: 0 16px 40px -12px rgba(36, 46, 40, 0.16);
-  --shadow-float: 0 24px 48px -18px rgba(36, 46, 40, 0.3),
-    0 6px 16px -8px rgba(36, 46, 40, 0.14);
+  /* glossy: soft highlight + diffused lift yang lebih jernih */
+  --shadow-soft: 0 10px 36px -6px rgba(60, 70, 64, 0.12),
+    0 1px 2px rgba(255, 255, 255, 0.6);
+  --shadow-lift: 0 20px 48px -14px rgba(60, 70, 64, 0.18),
+    0 2px 6px rgba(255, 255, 255, 0.45);
+  --shadow-float: 0 28px 56px -18px rgba(60, 70, 64, 0.3),
+    0 8px 20px -10px rgba(255, 255, 255, 0.5);
 
-  /* Non-repeating photographic-style backdrop — wedding-pelaminan mood:
-     deep maroon drape + forest-green swag + warm gold/blush glows, no
-     tiling. Used as one fixed hero image behind the glass surfaces. */
+  /* Non-repeating photographic-style backdrop — wedding mood, lebih
+     terang & lebih glossy: dasar cream/sage lembut, plus glow maroon,
+     hijau hutan, emas, dan blush yang lebih besar & lebih transparan
+     supaya tidak mendominasi. Tetap satu foto latar, tidak berpola. */
   --backdrop: linear-gradient(
       180deg,
-      rgba(20, 30, 22, 0.55) 0%,
-      rgba(30, 20, 24, 0.5) 42%,
-      rgba(40, 20, 28, 0.55) 100%
+      rgba(244, 250, 246, 0.55) 0%,
+      rgba(236, 244, 238, 0.5) 48%,
+      rgba(248, 242, 228, 0.55) 100%
     ),
     radial-gradient(
-      70rem 50rem at 35% -18%,
-      rgba(123, 18, 32, 0.55) 0%,
-      transparent 58%
+      80rem 54rem at 38% -22%,
+      rgba(123, 18, 32, 0.32) 0%,
+      transparent 60%
     ),
     radial-gradient(
-      80rem 60rem at 5% 30%,
-      rgba(44, 74, 53, 0.5) 0%,
-      transparent 55%
-    ),
-    radial-gradient(
-      60rem 46rem at 104% 8%,
-      rgba(201, 161, 58, 0.42) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      56rem 42rem at 88% 66%,
-      rgba(192, 110, 122, 0.4) 0%,
-      transparent 58%
-    ),
-    radial-gradient(
-      50rem 38rem at 10% 108%,
-      rgba(206, 234, 210, 0.5) 0%,
+      92rem 64rem at 6% 26%,
+      rgba(44, 74, 53, 0.32) 0%,
       transparent 56%
     ),
     radial-gradient(
-      48rem 36rem at 60% 116%,
-      rgba(233, 193, 118, 0.34) 0%,
-      transparent 62%
+      66rem 50rem at 106% 10%,
+      rgba(201, 161, 58, 0.34) 0%,
+      transparent 52%
+    ),
+    radial-gradient(
+      60rem 44rem at 90% 62%,
+      rgba(196, 120, 132, 0.32) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      56rem 40rem at 8% 112%,
+      rgba(206, 234, 210, 0.42) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      52rem 38rem at 62% 118%,
+      rgba(233, 193, 118, 0.3) 0%,
+      transparent 64%
     ),
     linear-gradient(
       180deg,
-      #f3fbf5 0%,
-      #eef6f0 46%,
-      #fdf7ec 100%
+      #f6fdf8 0%,
+      #eef7f1 46%,
+      #fdf8ec 100%
     );
 }
 
@@ -240,56 +244,18 @@
 
   --gold: #e9c176;
 
-  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 24px -14px rgba(0, 0, 0, 0.6);
-  --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.35), 0 16px 32px -16px rgba(0, 0, 0, 0.7);
-  --shadow-float: 0 28px 52px -20px rgba(0, 0, 0, 0.78),
-    0 8px 18px -8px rgba(0, 0, 0, 0.5);
+  /* glossy gelap: highlight putih sangat lembut supaya permukaan
+     tetap jernih, bukan kering/kusam */
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.35),
+    0 12px 30px -16px rgba(0, 0, 0, 0.6),
+    0 1px 1px rgba(255, 255, 255, 0.08);
+  --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.4),
+    0 18px 36px -18px rgba(0, 0, 0, 0.7),
+    0 2px 4px rgba(255, 255, 255, 0.05);
+  --shadow-float: 0 30px 56px -22px rgba(0, 0, 0, 0.8),
+    0 10px 22px -12px rgba(0, 0, 0, 0.55),
+    0 2px 4px rgba(255, 255, 255, 0.04);
 
-  /* Non-repeating photographic-style backdrop — wedding-pelaminan mood:
-     deep maroon drape + forest-green swag + warm gold/blush glows, no
-     tiling. Used as one fixed hero image behind the glass surfaces. */
-  --backdrop: linear-gradient(
-      180deg,
-      rgba(20, 30, 22, 0.55) 0%,
-      rgba(30, 20, 24, 0.5) 42%,
-      rgba(40, 20, 28, 0.55) 100%
-    ),
-    radial-gradient(
-      70rem 50rem at 35% -18%,
-      rgba(123, 18, 32, 0.55) 0%,
-      transparent 58%
-    ),
-    radial-gradient(
-      80rem 60rem at 5% 30%,
-      rgba(44, 74, 53, 0.5) 0%,
-      transparent 55%
-    ),
-    radial-gradient(
-      60rem 46rem at 104% 8%,
-      rgba(201, 161, 58, 0.42) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      56rem 42rem at 88% 66%,
-      rgba(192, 110, 122, 0.4) 0%,
-      transparent 58%
-    ),
-    radial-gradient(
-      50rem 38rem at 10% 108%,
-      rgba(206, 234, 210, 0.5) 0%,
-      transparent 56%
-    ),
-    radial-gradient(
-      48rem 36rem at 60% 116%,
-      rgba(233, 193, 118, 0.34) 0%,
-      transparent 62%
-    ),
-    linear-gradient(
-      180deg,
-      #f3fbf5 0%,
-      #eef6f0 46%,
-      #fdf7ec 100%
-    );
 }
 
 /* Font pairing: firm grotesque sans (Archivo) for all reading/UI text +
