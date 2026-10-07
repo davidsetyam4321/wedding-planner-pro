@@ -58,11 +58,19 @@
   --color-tint-butter-foreground: var(--tint-butter-foreground);
   --color-tint-sage: var(--tint-sage);
   --color-tint-sage-foreground: var(--tint-sage-foreground);
+  --color-tint-maroon: var(--tint-maroon);
+  --color-tint-maroon-foreground: var(--tint-maroon-foreground);
+  --color-tint-blush: var(--tint-blush);
+  --color-tint-blush-foreground: var(--tint-blush-foreground);
+  --color-tint-forest: var(--tint-forest);
+  --color-tint-forest-foreground: var(--tint-forest-foreground);
 }
 
 /* ── SatuJanji theme ──────────────────────────────────────────────────────
-   Sage & champagne base, a clear playful gradient background, one pastel
-   accent per feature, and glass surfaces that fly on hover. */
+   Palet diambil dari pelaminan: backdrop maroon, drapery hijau hutan, daun
+   sage, keemasan (bordir), peach/kayu, blush, dan krem. Warna-warna itu
+   dipakai bergantian lewat tinta per fitur supaya tiap halaman punya nuansa
+   sendiri, sementara aksen botani (daun, kelopak, bunga) tetap menjaga tema. */
 :root {
   --radius: 0.75rem;
 
@@ -73,11 +81,11 @@
   --card-foreground: #141e18;
   --popover: rgba(255, 255, 255, 0.9);
   --popover-foreground: #141e18;
-  --primary: #425a49;
-  --primary-foreground: #ffffff;
-  --secondary: rgba(229, 241, 231, 0.62);
-  --secondary-foreground: #344c3b;
-  --muted: rgba(229, 241, 231, 0.55);
+  --primary: #7b1220;
+  --primary-foreground: #fff6f4;
+  --secondary: rgba(247, 241, 230, 0.68);
+  --secondary-foreground: #5c4a2f;
+  --muted: rgba(243, 238, 227, 0.6);
   --muted-foreground: #4f5b53;
   --accent: rgba(206, 234, 210, 0.6);
   --accent-foreground: #344c3b;
@@ -85,36 +93,45 @@
   --destructive-foreground: #ffffff;
   --border: #c9d4c9;
   --input: #c2c8c1;
-  --ring: #425a49;
-  --chart-1: #425a49;
-  --chart-2: #775a19;
-  --chart-3: #ceead2;
-  --chart-4: #ffdea5;
-  --chart-5: #5a7360;
-  --sidebar: rgba(235, 246, 237, 0.72);
+  --ring: #7b1220;
+  --chart-1: #7b1220;
+  --chart-2: #b58a2a;
+  --chart-3: #47704f;
+  --chart-4: #e79fab;
+  --chart-5: #2c4a35;
+  --sidebar: rgba(246, 250, 245, 0.75);
   --sidebar-foreground: #141e18;
-  --sidebar-primary: #425a49;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(224, 235, 226, 0.72);
-  --sidebar-accent-foreground: #344c3b;
+  --sidebar-primary: #7b1220;
+  --sidebar-primary-foreground: #fff6f4;
+  --sidebar-accent: rgba(247, 241, 230, 0.75);
+  --sidebar-accent-foreground: #5c4a2f;
   --sidebar-border: #d3ded4;
-  --sidebar-ring: #b2cdb7;
+  --sidebar-ring: #c08b93;
 
-  /* playful pastels — SatuJanji sage & champagne containers (translucent) */
-  --tint-mint: rgba(206, 234, 210, 0.76);
-  --tint-mint-foreground: #344c3b;
-  --tint-lavender: rgba(218, 229, 220, 0.76);
-  --tint-lavender-foreground: #344c3b;
-  --tint-peach: rgba(233, 193, 118, 0.7);
-  --tint-peach-foreground: #5d4201;
-  --tint-rose: rgba(255, 218, 214, 0.7);
-  --tint-rose-foreground: #93000a;
-  --tint-sky: rgba(211, 232, 212, 0.76);
-  --tint-sky-foreground: #394b3c;
-  --tint-butter: rgba(255, 222, 165, 0.7);
-  --tint-butter-foreground: #5d4201;
-  --tint-sage: rgba(224, 235, 226, 0.76);
-  --tint-sage-foreground: #344c3b;
+  /* tinta per fitur — translusen supaya kaca di bawahnya tetap bernafas */
+  --tint-mint: rgba(206, 234, 210, 0.78);
+  --tint-mint-foreground: #2c4a35;
+  --tint-lavender: rgba(247, 240, 226, 0.82);
+  --tint-lavender-foreground: #6b4a1f;
+  --tint-peach: rgba(243, 204, 152, 0.78);
+  --tint-peach-foreground: #6b4413;
+  --tint-rose: rgba(250, 206, 213, 0.78);
+  --tint-rose-foreground: #7b1220;
+  --tint-sky: rgba(236, 205, 133, 0.7);
+  --tint-sky-foreground: #6b4a1f;
+  --tint-butter: rgba(255, 224, 165, 0.74);
+  --tint-butter-foreground: #6b4a1f;
+  --tint-sage: rgba(224, 235, 226, 0.8);
+  --tint-sage-foreground: #2c4a35;
+  /* backdrop maroon pelaminan — permukaan penuh, teks krem di atasnya */
+  --tint-maroon: rgba(150, 26, 44, 0.9);
+  --tint-maroon-foreground: #fdece7;
+  /* daun pakis hijau tua di depan drapery */
+  --tint-forest: rgba(44, 74, 53, 0.9);
+  --tint-forest-foreground: #e5f2e4;
+  /* bunga blush pada rangkaian */
+  --tint-blush: rgba(247, 208, 214, 0.85);
+  --tint-blush-foreground: #7b1220;
 
   /* SatuJanji champagne-gold accent */
   --gold: #775a19;

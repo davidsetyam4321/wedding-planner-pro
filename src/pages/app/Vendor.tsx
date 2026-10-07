@@ -82,7 +82,7 @@ const STATUS_ACCENT: Record<VendorStatus, string> = {
 const STATUS_COLORS: Record<VendorStatus, string> = {
   belum: "#d3e8d4",
   dp: "#e9c176",
-  lunas: "#425a49",
+  lunas: "#47704f",
 };
 
 type VendorForm = {
@@ -395,7 +395,7 @@ export function VendorPage() {
                   dataKey="terbayar"
                   name="Terbayar"
                   stackId="bayar"
-                  fill="#425a49"
+                  fill="#47704f"
                   barSize={14}
                 >
                   {paymentBarData.map((row) => (
@@ -427,7 +427,7 @@ export function VendorPage() {
           </div>
           <div className="mt-1 flex items-center gap-3 text-[11px] font-semibold text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-[#425a49]" /> Terbayar
+              <span className="size-2 rounded-full bg-[#47704f]" /> Terbayar
             </span>
             <span className="flex items-center gap-1.5">
               <span className="size-2 rounded-full bg-[#e9c176]" /> Sisa

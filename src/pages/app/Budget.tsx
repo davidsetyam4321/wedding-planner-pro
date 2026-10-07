@@ -604,9 +604,9 @@ export function BudgetPage() {
                     type="monotone"
                     dataKey="kumulatif"
                     name="Kumulatif"
-                    stroke="#775a19"
+                    stroke="#b58a2a"
                     strokeWidth={2.5}
-                    dot={{ r: 3, fill: "#775a19" }}
+                    dot={{ r: 3, fill: "#b58a2a" }}
                   />
                 </ComposedChart>
               </ResponsiveContainer>
@@ -654,7 +654,7 @@ export function BudgetPage() {
                 <Bar
                   dataKey="terbayar"
                   name="Terbayar"
-                  fill="#425a49"
+                  fill="#47704f"
                   radius={[0, 4, 4, 0]}
                   barSize={9}
                 >

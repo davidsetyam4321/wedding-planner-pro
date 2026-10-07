@@ -8,6 +8,9 @@ import React, { StrictMode, useEffect, lazy, Suspense, useRef, useState } from "
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router";
 import "./index.css";
+// Lapis palet (maroon · sage · emas · peach · blush) — harus setelah index.css
+// supaya token & gradien yang di-override di sini menang.
+import "./palette.css";
 
 // Lazy load route components for better code splitting
 const AppShell = lazy(() =>

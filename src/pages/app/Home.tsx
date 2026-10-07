@@ -294,7 +294,7 @@ export function HomePage() {
       {!wedding ? (
         <Skeleton className="h-56 w-full rounded-3xl" />
       ) : (
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#39503f] via-[#425a49] to-[#5c7460] p-5 shadow-[0_20px_50px_-12px_rgba(41,58,47,0.45)]">
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#5d0f1c] via-[#7b1220] to-[#2c4a35] p-5 shadow-[0_20px_50px_-12px_rgba(90,14,26,0.45)]">
           {couplePhoto && (
             <>
               {/* Latar = foto pasangan yang diunggah; overlay sage menjaga teks tetap terbaca. */}
@@ -304,7 +304,7 @@ export function HomePage() {
                 aria-hidden
                 className="absolute inset-0 h-full w-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-br from-[#39503f]/85 via-[#425a49]/80 to-[#5c7460]/85" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#3b0a14]/85 via-[#4b0d16]/80 to-[#24382a]/85" />
             </>
           )}
           <div className="pointer-events-none absolute -right-10 -top-14 size-44 rounded-full bg-white/10 blur-2xl" />

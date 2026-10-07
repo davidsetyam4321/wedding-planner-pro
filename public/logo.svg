@@ -1,8 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="SatuJanji">
   <defs>
     <linearGradient id="sj" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stopColor="#425a49" />
-      <stop offset="100%" stopColor="#775a19" />
+      <stop offset="0%" stopColor="#2c4a35" />
+      <stop offset="52%" stopColor="#7b1220" />
+      <stop offset="100%" stopColor="#5d0f1c" />
     </linearGradient>
   </defs>
   <rect width="512" height="512" rx="112" fill="url(#sj)" />
@@ -13,5 +14,5 @@
     <ellipse cx="256" cy="160" rx="44" ry="62" transform="rotate(288 256 256)" />
   </g>
   <circle cx="256" cy="256" r="34" fill="#fbeec4" />
-  <circle cx="256" cy="256" r="9" fill="#775a19" />
+  <circle cx="256" cy="256" r="9" fill="#b58a2a" />
 </svg>

@@ -1,0 +1,227 @@
+/* ── SatuJanji · lapis palet ──────────────────────────────────────────────
+   Sengaja satu file terpisah yang diimpor SETELAH index.css:
+   - selector tanpa layer selalu menang atas @layer base/utilities di
+     index.css, jadi aturan di sini boleh menimpa tanpa menyentuh file asli;
+   - nilai :root/.dark yang sama di file ini adalah yang dipakai terakhir.
+
+   Paletnya diambil dari foto pelaminan: backdrop maroon, drapery hijau tua,
+   daun sage, bordir emas, kayu/peach, bunga blush, dan krem. */
+
+:root {
+  /* emas bordir — lebih hangat dari sebelumnya */
+  --gold: #8a6a17;
+}
+
+/* ── Mode terang ──────────────────────────────────────────────────────── */
+body {
+  /* 11 lapis, depan → belakang: kelopak maroon/blush, aksen botani (3),
+     enam radial warna, lalu gradien krem–sage sebagai dasar. */
+  background-image:
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='148' height='148' viewBox='0 0 148 148' fill='none'><g transform='translate(30,32) scale(1.4)' fill='rgba(150,26,44,0.15)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.4' fill='rgba(201,161,58,0.34)'/></g><g transform='translate(98,92) scale(1.05)' fill='rgba(231,159,171,0.42)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.2' fill='rgba(201,161,58,0.3)'/></g><path d='M14 128 C30 118 44 112 60 110' stroke='rgba(66,90,73,0.13)' stroke-width='2' stroke-linecap='round'/><circle cx='126' cy='30' r='3.6' fill='rgba(201,161,58,0.22)'/><circle cx='72' cy='74' r='2.6' fill='rgba(150,26,44,0.16)'/></svg>"),
+    var(--botanical-layers),
+    radial-gradient(
+      46rem 30rem at 50% -14%,
+      rgba(123, 18, 32, 0.26) 0%,
+      transparent 62%
+    ),
+    radial-gradient(
+      54rem 40rem at 2% -10%,
+      rgba(178, 205, 183, 0.8) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      46rem 34rem at 101% 0%,
+      rgba(255, 222, 165, 0.66) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      42rem 36rem at 92% 58%,
+      rgba(247, 208, 214, 0.6) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      48rem 38rem at 6% 102%,
+      rgba(206, 234, 210, 0.72) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      34rem 28rem at 55% 112%,
+      rgba(233, 193, 118, 0.42) 0%,
+      transparent 65%
+    ),
+    linear-gradient(180deg, #f8fdf9 0%, #f1f8f3 46%, #fdf8ec 100%);
+  background-position:
+    0 0,
+    right top,
+    left bottom,
+    0 0,
+    center,
+    center,
+    center,
+    center,
+    center,
+    center,
+    center;
+  background-size: 148px 148px, auto, auto, 176px 176px, auto, auto, auto, auto,
+    auto, auto;
+  background-repeat: repeat, no-repeat, no-repeat, repeat, no-repeat, no-repeat,
+    no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  background-attachment: fixed;
+}
+
+/* ── Mode gelap ───────────────────────────────────────────────────────── */
+.dark body {
+  /* struktur identik dengan mode terang (11 lapis) supaya posisi/ukuran/
+     pengulangan di atas tetap berlaku untuk urutan yang sama. */
+  background-image:
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='148' height='148' viewBox='0 0 148 148' fill='none'><g transform='translate(30,32) scale(1.4)' fill='rgba(240,150,164,0.3)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.4' fill='rgba(233,193,118,0.36)'/></g><g transform='translate(98,92) scale(1.05)' fill='rgba(247,208,214,0.26)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.2' fill='rgba(233,193,118,0.32)'/></g><path d='M14 128 C30 118 44 112 60 110' stroke='rgba(178,205,183,0.18)' stroke-width='2' stroke-linecap='round'/><circle cx='126' cy='30' r='3.6' fill='rgba(233,193,118,0.26)'/><circle cx='72' cy='74' r='2.6' fill='rgba(240,150,164,0.24)'/></svg>"),
+    var(--botanical-layers),
+    radial-gradient(
+      46rem 30rem at 50% -14%,
+      rgba(150, 26, 44, 0.4) 0%,
+      transparent 62%
+    ),
+    radial-gradient(
+      54rem 40rem at 2% -10%,
+      rgba(34, 69, 58, 0.7) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      46rem 34rem at 101% 0%,
+      rgba(74, 58, 29, 0.62) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      42rem 36rem at 92% 58%,
+      rgba(96, 42, 52, 0.5) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      48rem 38rem at 6% 102%,
+      rgba(33, 58, 46, 0.65) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      34rem 28rem at 55% 112%,
+      rgba(74, 58, 29, 0.5) 0%,
+      transparent 65%
+    ),
+    linear-gradient(180deg, #0f1512 0%, #141712 50%, #16100c 100%);
+}
+
+.dark {
+  --primary: #eeb0bb;
+  --primary-foreground: #2b0509;
+  --secondary: rgba(58, 51, 38, 0.62);
+  --secondary-foreground: #f2e6cd;
+  --muted: rgba(52, 47, 36, 0.58);
+  --accent: rgba(34, 53, 42, 0.62);
+  --accent-foreground: #ceead2;
+  --ring: #eeb0bb;
+  --chart-1: #eeb0bb;
+  --chart-2: #e9c176;
+  --chart-3: #7fa586;
+  --chart-4: #f4b8c2;
+  --chart-5: #5a7360;
+  --sidebar-primary: #eeb0bb;
+  --sidebar-primary-foreground: #2b0509;
+  --sidebar-accent: rgba(58, 51, 38, 0.72);
+  --sidebar-accent-foreground: #f2e6cd;
+  --sidebar-ring: #eeb0bb;
+  --gold: #e9c176;
+
+  /* tinta gelap — permukaan tetap bisa dibaca di atas latar gelap */
+  --tint-mint: rgba(34, 69, 58, 0.68);
+  --tint-mint-foreground: #ceead2;
+  --tint-lavender: rgba(66, 58, 42, 0.7);
+  --tint-lavender-foreground: #f2e6cd;
+  --tint-peach: rgba(74, 58, 29, 0.7);
+  --tint-peach-foreground: #f0c886;
+  --tint-rose: rgba(66, 28, 36, 0.74);
+  --tint-rose-foreground: #ffcfd6;
+  --tint-sky: rgba(70, 56, 26, 0.72);
+  --tint-sky-foreground: #f4d98f;
+  --tint-butter: rgba(74, 58, 29, 0.7);
+  --tint-butter-foreground: #ffdea5;
+  --tint-sage: rgba(35, 57, 44, 0.72);
+  --tint-sage-foreground: #d8ead9;
+  --tint-maroon: rgba(96, 20, 32, 0.78);
+  --tint-maroon-foreground: #ffd9d4;
+  --tint-forest: rgba(30, 56, 40, 0.78);
+  --tint-forest-foreground: #d9ecda;
+  --tint-blush: rgba(92, 44, 54, 0.76);
+  --tint-blush-foreground: #ffdde1;
+}
+
+/* ── Gradien per fitur ───────────────────────────────────────────────────
+   Tanpa layer, jadi menimpa .grad-* lama di index.css. */
+.grad-warm {
+  background-image: linear-gradient(
+    135deg,
+    #fdfaf3 0%,
+    #eef4e9 48%,
+    #fbe6ea 100%
+  );
+}
+.grad-mint {
+  background-image: linear-gradient(135deg, #f1faf2 0%, #bfe0c6 100%);
+}
+.grad-sage {
+  background-image: linear-gradient(135deg, #f4faf5 0%, #d3e6d7 100%);
+}
+.grad-lavender {
+  background-image: linear-gradient(135deg, #fffdf7 0%, #f1e6d2 100%);
+}
+.grad-peach {
+  background-image: linear-gradient(135deg, #fdf5e6 0%, #eab884 100%);
+}
+.grad-rose {
+  background-image: linear-gradient(135deg, #fff7f6 0%, #f6c4cf 100%);
+}
+.grad-sky {
+  background-image: linear-gradient(135deg, #fffaf0 0%, #ecd08a 100%);
+}
+.grad-butter {
+  background-image: linear-gradient(135deg, #fffaef 0%, #ffdea5 100%);
+}
+.grad-maroon {
+  background-image: linear-gradient(135deg, #fff8f5 0%, #f3cbd2 100%);
+}
+.grad-forest {
+  background-image: linear-gradient(135deg, #f5fbf6 0%, #cbe1cf 100%);
+}
+.grad-blush {
+  background-image: linear-gradient(135deg, #fff4f2 0%, #f4bcc7 100%);
+}
+.grad-gold {
+  background-image: linear-gradient(135deg, #fdf6e6 0%, #dcb85f 100%);
+}
+
+/* Isi progres: sage → emas mengikuti seri chart terbaru */
+.fill-botanical {
+  background-image: linear-gradient(90deg, #47704f 0%, #b58a2a 100%);
+}
+
+/* ── Tombol utama: kaca maroon mengikuti --primary baru ───────────────── */
+[data-slot="button"][data-variant="default"] {
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.04) 52%,
+    rgba(70, 8, 18, 0.3) 100%
+  );
+  box-shadow:
+    0 10px 24px -8px rgba(105, 20, 34, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+.dark [data-slot="button"][data-variant="default"] {
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.04) 52%,
+    rgba(40, 6, 12, 0.34) 100%
+  );
+  box-shadow:
+    0 10px 24px -8px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
+}
