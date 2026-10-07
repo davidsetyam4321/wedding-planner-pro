@@ -14,99 +14,61 @@
 
 /* ── Mode terang ──────────────────────────────────────────────────────── */
 body {
-  /* 11 lapis, depan → belakang: kelopak maroon/blush, aksen botani (3),
-     enam radial warna, lalu gradien krem–sage sebagai dasar. */
-  background-image:
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='148' height='148' viewBox='0 0 148 148' fill='none'><g transform='translate(30,32) scale(1.4)' fill='rgba(150,26,44,0.15)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.4' fill='rgba(201,161,58,0.34)'/></g><g transform='translate(98,92) scale(1.05)' fill='rgba(231,159,171,0.42)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.2' fill='rgba(201,161,58,0.3)'/></g><path d='M14 128 C30 118 44 112 60 110' stroke='rgba(66,90,73,0.13)' stroke-width='2' stroke-linecap='round'/><circle cx='126' cy='30' r='3.6' fill='rgba(201,161,58,0.22)'/><circle cx='72' cy='74' r='2.6' fill='rgba(150,26,44,0.16)'/></svg>"),
-    var(--botanical-layers),
-    radial-gradient(
-      46rem 30rem at 50% -14%,
-      rgba(123, 18, 32, 0.26) 0%,
-      transparent 62%
-    ),
-    radial-gradient(
-      54rem 40rem at 2% -10%,
-      rgba(178, 205, 183, 0.8) 0%,
-      transparent 60%
-    ),
-    radial-gradient(
-      46rem 34rem at 101% 0%,
-      rgba(255, 222, 165, 0.66) 0%,
-      transparent 55%
-    ),
-    radial-gradient(
-      42rem 36rem at 92% 58%,
-      rgba(247, 208, 214, 0.6) 0%,
-      transparent 60%
-    ),
-    radial-gradient(
-      48rem 38rem at 6% 102%,
-      rgba(206, 234, 210, 0.72) 0%,
-      transparent 58%
-    ),
-    radial-gradient(
-      34rem 28rem at 55% 112%,
-      rgba(233, 193, 118, 0.42) 0%,
-      transparent 65%
-    ),
-    linear-gradient(180deg, #f8fdf9 0%, #f1f8f3 46%, #fdf8ec 100%);
-  background-position:
-    0 0,
-    right top,
-    left bottom,
-    0 0,
-    center,
-    center,
-    center,
-    center,
-    center,
-    center,
-    center;
-  background-size: 148px 148px, auto, auto, 176px 176px, auto, auto, auto, auto,
-    auto, auto;
-  background-repeat: repeat, no-repeat, no-repeat, repeat, no-repeat, no-repeat,
-    no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  /* Non-repeating photographic-style backdrop — same wedding-pelaminan mood
+     as src/index.css; declared here so the later (post-index.css) import wins
+     cleanly and dark mode can mirror it without resurrecting the tile. */
+  background-image: var(--backdrop);
   background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 /* ── Mode gelap ───────────────────────────────────────────────────────── */
 .dark body {
-  /* struktur identik dengan mode terang (11 lapis) supaya posisi/ukuran/
-     pengulangan di atas tetap berlaku untuk urutan yang sama. */
-  background-image:
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='148' height='148' viewBox='0 0 148 148' fill='none'><g transform='translate(30,32) scale(1.4)' fill='rgba(240,150,164,0.3)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.4' fill='rgba(233,193,118,0.36)'/></g><g transform='translate(98,92) scale(1.05)' fill='rgba(247,208,214,0.26)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.2' fill='rgba(233,193,118,0.32)'/></g><path d='M14 128 C30 118 44 112 60 110' stroke='rgba(178,205,183,0.18)' stroke-width='2' stroke-linecap='round'/><circle cx='126' cy='30' r='3.6' fill='rgba(233,193,118,0.26)'/><circle cx='72' cy='74' r='2.6' fill='rgba(240,150,164,0.24)'/></svg>"),
-    var(--botanical-layers),
-    radial-gradient(
-      46rem 30rem at 50% -14%,
-      rgba(150, 26, 44, 0.4) 0%,
-      transparent 62%
+  /* Non-repeating photographic-style backdrop — dark wedding mood, mirrors
+     the dark stack in src/index.css. */
+  background-image: linear-gradient(
+      180deg,
+      rgba(8, 12, 10, 0.7) 0%,
+      rgba(12, 10, 14, 0.68) 42%,
+      rgba(18, 10, 16, 0.72) 100%
     ),
     radial-gradient(
-      54rem 40rem at 2% -10%,
-      rgba(34, 69, 58, 0.7) 0%,
-      transparent 60%
-    ),
-    radial-gradient(
-      46rem 34rem at 101% 0%,
-      rgba(74, 58, 29, 0.62) 0%,
-      transparent 55%
-    ),
-    radial-gradient(
-      42rem 36rem at 92% 58%,
-      rgba(96, 42, 52, 0.5) 0%,
-      transparent 60%
-    ),
-    radial-gradient(
-      48rem 38rem at 6% 102%,
-      rgba(33, 58, 46, 0.65) 0%,
+      70rem 50rem at 35% -18%,
+      rgba(120, 20, 36, 0.55) 0%,
       transparent 58%
     ),
     radial-gradient(
-      34rem 28rem at 55% 112%,
-      rgba(74, 58, 29, 0.5) 0%,
-      transparent 65%
+      80rem 60rem at 5% 30%,
+      rgba(30, 56, 42, 0.55) 0%,
+      transparent 55%
     ),
-    linear-gradient(180deg, #0f1512 0%, #141712 50%, #16100c 100%);
+    radial-gradient(
+      60rem 46rem at 104% 8%,
+      rgba(178, 144, 86, 0.42) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      56rem 42rem at 88% 66%,
+      rgba(120, 56, 70, 0.42) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      50rem 38rem at 10% 108%,
+      rgba(56, 96, 78, 0.5) 0%,
+      transparent 56%
+    ),
+    radial-gradient(
+      48rem 36rem at 60% 116%,
+      rgba(178, 144, 86, 0.32) 0%,
+      transparent 62%
+    ),
+    linear-gradient(180deg, #0f1512 0%, #121711 50%, #16100c 100%);
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .dark {

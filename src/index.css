@@ -141,13 +141,51 @@
   --shadow-float: 0 24px 48px -18px rgba(36, 46, 40, 0.3),
     0 6px 16px -8px rgba(36, 46, 40, 0.14);
 
-  /* Botanical background accents — a leaf frond anchored top-right, a
-     sprig with the SatuJanji flower bottom-left, and a scatter tile of
-     leaves + petals woven over the gradient. SVGs are inline so they stay
-     crisp and theme-tinted without extra requests. */
-  --botanical-layers: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='300' viewBox='0 0 240 300' fill='none'><path d='M232 6 C198 58 176 118 160 186 C152 222 148 258 147 296' stroke='rgba(66,90,73,0.16)' stroke-width='3' stroke-linecap='round'/><g fill='rgba(66,90,73,0.13)'><path transform='translate(224,34) rotate(-32) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(210,64) rotate(200) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(194,102) rotate(-38) scale(1.3)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(181,140) rotate(206) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(170,180) rotate(-42) scale(1.3)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(160,220) rotate(210) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(152,258) rotate(-48) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><circle cx='147' cy='296' r='5' fill='rgba(119,90,25,0.18)'/><circle cx='232' cy='6' r='4' fill='rgba(119,90,25,0.15)'/></svg>"),
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='260' viewBox='0 0 200 260' fill='none'><path d='M10 252 C44 212 66 166 80 116 C88 86 94 52 96 12' stroke='rgba(66,90,73,0.16)' stroke-width='3' stroke-linecap='round'/><g fill='rgba(66,90,73,0.13)'><path transform='translate(22,232) rotate(215) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(46,200) rotate(-45) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(66,158) rotate(205) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(78,116) rotate(-50) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(88,74) rotate(195) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(95,36) rotate(-58) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><circle cx='96' cy='12' r='4.5' fill='rgba(119,90,25,0.18)'/><g transform='translate(138,196) scale(1.6)' fill='rgba(66,90,73,0.12)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.3' fill='rgba(119,90,25,0.2)'/></g></svg>"),
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='176' height='176' viewBox='0 0 176 176' fill='none'><g fill='none' stroke='rgba(66,90,73,0.15)' stroke-width='1.6'><path transform='translate(20,34) rotate(-28) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(104,24) rotate(40) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(118,96) rotate(18) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(16,138) rotate(66) scale(1.05)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g fill='rgba(66,90,73,0.11)'><path transform='translate(56,92) rotate(-64) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g fill='rgba(119,90,25,0.13)'><path transform='translate(132,140) rotate(-44) scale(1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g transform='translate(78,126) scale(0.95)' fill='rgba(66,90,73,0.12)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.3' fill='rgba(119,90,25,0.18)'/></g><circle cx='154' cy='62' r='3' fill='rgba(119,90,25,0.15)'/></svg>");
+  /* Non-repeating photographic-style backdrop — wedding-pelaminan mood:
+     deep maroon drape + forest-green swag + warm gold/blush glows, no
+     tiling. Used as one fixed hero image behind the glass surfaces. */
+  --backdrop: linear-gradient(
+      180deg,
+      rgba(20, 30, 22, 0.55) 0%,
+      rgba(30, 20, 24, 0.5) 42%,
+      rgba(40, 20, 28, 0.55) 100%
+    ),
+    radial-gradient(
+      70rem 50rem at 35% -18%,
+      rgba(123, 18, 32, 0.55) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      80rem 60rem at 5% 30%,
+      rgba(44, 74, 53, 0.5) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      60rem 46rem at 104% 8%,
+      rgba(201, 161, 58, 0.42) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      56rem 42rem at 88% 66%,
+      rgba(192, 110, 122, 0.4) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      50rem 38rem at 10% 108%,
+      rgba(206, 234, 210, 0.5) 0%,
+      transparent 56%
+    ),
+    radial-gradient(
+      48rem 36rem at 60% 116%,
+      rgba(233, 193, 118, 0.34) 0%,
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      #f3fbf5 0%,
+      #eef6f0 46%,
+      #fdf7ec 100%
+    );
 }
 
 .dark {
@@ -207,18 +245,59 @@
   --shadow-float: 0 28px 52px -20px rgba(0, 0, 0, 0.78),
     0 8px 18px -8px rgba(0, 0, 0, 0.5);
 
-  /* same botanical accents, lit for the dark gradient */
-  --botanical-layers: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='300' viewBox='0 0 240 300' fill='none'><path d='M232 6 C198 58 176 118 160 186 C152 222 148 258 147 296' stroke='rgba(178,205,183,0.2)' stroke-width='3' stroke-linecap='round'/><g fill='rgba(178,205,183,0.14)'><path transform='translate(224,34) rotate(-32) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(210,64) rotate(200) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(194,102) rotate(-38) scale(1.3)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(181,140) rotate(206) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(170,180) rotate(-42) scale(1.3)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(160,220) rotate(210) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(152,258) rotate(-48) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><circle cx='147' cy='296' r='5' fill='rgba(233,193,118,0.2)'/><circle cx='232' cy='6' r='4' fill='rgba(233,193,118,0.16)'/></svg>"),
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='260' viewBox='0 0 200 260' fill='none'><path d='M10 252 C44 212 66 166 80 116 C88 86 94 52 96 12' stroke='rgba(178,205,183,0.2)' stroke-width='3' stroke-linecap='round'/><g fill='rgba(178,205,183,0.14)'><path transform='translate(22,232) rotate(215) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(46,200) rotate(-45) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(66,158) rotate(205) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(78,116) rotate(-50) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(88,74) rotate(195) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(95,36) rotate(-58) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><circle cx='96' cy='12' r='4.5' fill='rgba(233,193,118,0.2)'/><g transform='translate(138,196) scale(1.6)' fill='rgba(178,205,183,0.13)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.3' fill='rgba(233,193,118,0.22)'/></g></svg>"),
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='176' height='176' viewBox='0 0 176 176' fill='none'><g fill='none' stroke='rgba(178,205,183,0.16)' stroke-width='1.6'><path transform='translate(20,34) rotate(-28) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(104,24) rotate(40) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(118,96) rotate(18) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(16,138) rotate(66) scale(1.05)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g fill='rgba(178,205,183,0.12)'><path transform='translate(56,92) rotate(-64) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g fill='rgba(233,193,118,0.14)'><path transform='translate(132,140) rotate(-44) scale(1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g transform='translate(78,126) scale(0.95)' fill='rgba(178,205,183,0.13)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.3' fill='rgba(233,193,118,0.2)'/></g><circle cx='154' cy='62' r='3' fill='rgba(233,193,118,0.16)'/></svg>");
+  /* Non-repeating photographic-style backdrop — wedding-pelaminan mood:
+     deep maroon drape + forest-green swag + warm gold/blush glows, no
+     tiling. Used as one fixed hero image behind the glass surfaces. */
+  --backdrop: linear-gradient(
+      180deg,
+      rgba(20, 30, 22, 0.55) 0%,
+      rgba(30, 20, 24, 0.5) 42%,
+      rgba(40, 20, 28, 0.55) 100%
+    ),
+    radial-gradient(
+      70rem 50rem at 35% -18%,
+      rgba(123, 18, 32, 0.55) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      80rem 60rem at 5% 30%,
+      rgba(44, 74, 53, 0.5) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      60rem 46rem at 104% 8%,
+      rgba(201, 161, 58, 0.42) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      56rem 42rem at 88% 66%,
+      rgba(192, 110, 122, 0.4) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      50rem 38rem at 10% 108%,
+      rgba(206, 234, 210, 0.5) 0%,
+      transparent 56%
+    ),
+    radial-gradient(
+      48rem 36rem at 60% 116%,
+      rgba(233, 193, 118, 0.34) 0%,
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      #f3fbf5 0%,
+      #eef6f0 46%,
+      #fdf7ec 100%
+    );
 }
 
 /* Font pairing: firm grotesque sans (Archivo) for all reading/UI text +
-   calligraphic script (Dancing Script) for every display slot that used to
-   be Playfair (h1–h3, .h-page, .h-card, and the font-serif utilities). */
+   elegant serif (Cormorant Garamond / Cormorant) for every display slot that
+   used to be Playfair (h1–h3, .h-page, .h-card, and the font-serif utilities). */
 @theme {
   --font-sans: "Archivo", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-serif: "Dancing Script", "Segoe Script", cursive;
+  --font-serif: "Cormorant Garamond", "Cormorant", ui-serif, Georgia, serif;
   --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
@@ -233,83 +312,60 @@
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
-    /* Layer stack, front to back: botanical accents (frond top-right,
-       sprig bottom-left, repeating leaf/petal tile), then the clear playful
-       gradient — mint top-left, champagne top-right, sky bottom-left, a warm
-       champagne bloom low-center. Fixed so every glass card glides over one
-       continuous wash. */
-    background-image:
-      var(--botanical-layers),
-      radial-gradient(
-        54rem 40rem at 2% -10%,
-        rgba(178, 205, 183, 0.8) 0%,
-        transparent 60%
-      ),
-      radial-gradient(
-        46rem 34rem at 101% 0%,
-        rgba(255, 222, 165, 0.62) 0%,
-        transparent 55%
-      ),
-      radial-gradient(
-        42rem 36rem at 92% 58%,
-        rgba(206, 234, 210, 0.6) 0%,
-        transparent 60%
-      ),
-      radial-gradient(
-        48rem 38rem at 6% 102%,
-        rgba(211, 232, 212, 0.7) 0%,
-        transparent 58%
-      ),
-      radial-gradient(
-        34rem 28rem at 55% 112%,
-        rgba(233, 193, 118, 0.34) 0%,
-        transparent 65%
-      ),
-      linear-gradient(180deg, #f7fdf9 0%, #eff8f2 48%, #fdf8ec 100%);
+    /* Non-repeating photographic-style backdrop — wedding-pelaminan mood: deep
+       maroon drape + forest-green swag + gold/blush glows, then a soft
+       cream/sage wash. Fixed so every glass card glides over one continuous
+       hero image. */
+    background-image: var(--backdrop);
     background-attachment: fixed;
-    /* frond → sprig → tile → five radials → linear (counts must match) */
-    background-position:
-      right top,
-      left bottom,
-      0 0,
-      center,
-      center,
-      center,
-      center,
-      center,
-      center;
-    background-size: auto, auto, 176px 176px, auto, auto, auto, auto, auto, auto;
-    background-repeat: no-repeat, no-repeat, repeat, no-repeat, no-repeat, no-repeat,
-      no-repeat, no-repeat, no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
   }
   .dark body {
-    /* same var + lists as body (8 layers here); do NOT redeclare
-       background-repeat — a single no-repeat would stop the tile from
-       tiling in dark mode. */
-    background-image:
-      var(--botanical-layers),
-      radial-gradient(
-        54rem 40rem at 2% -10%,
-        rgba(34, 69, 58, 0.7) 0%,
-        transparent 60%
+    /* Non-repeating photographic-style backdrop — dark wedding mood:
+       deeper maroon/forest wash with warmer gold + blush glows. */
+    background-image: linear-gradient(
+        180deg,
+        rgba(8, 12, 10, 0.7) 0%,
+        rgba(12, 10, 14, 0.68) 42%,
+        rgba(18, 10, 16, 0.72) 100%
       ),
       radial-gradient(
-        46rem 34rem at 101% 0%,
-        rgba(74, 58, 29, 0.6) 0%,
+        70rem 50rem at 35% -18%,
+        rgba(120, 20, 36, 0.55) 0%,
+        transparent 58%
+      ),
+      radial-gradient(
+        80rem 60rem at 5% 30%,
+        rgba(30, 56, 42, 0.55) 0%,
         transparent 55%
       ),
       radial-gradient(
-        42rem 36rem at 92% 58%,
-        rgba(35, 57, 44, 0.6) 0%,
-        transparent 60%
+        60rem 46rem at 104% 8%,
+        rgba(178, 144, 86, 0.42) 0%,
+        transparent 50%
       ),
       radial-gradient(
-        48rem 38rem at 6% 102%,
-        rgba(33, 58, 46, 0.65) 0%,
+        56rem 42rem at 88% 66%,
+        rgba(120, 56, 70, 0.42) 0%,
         transparent 58%
       ),
-      linear-gradient(180deg, #0f1512 0%, #111814 50%, #16130c 100%);
+      radial-gradient(
+        50rem 38rem at 10% 108%,
+        rgba(56, 96, 78, 0.5) 0%,
+        transparent 56%
+      ),
+      radial-gradient(
+        48rem 36rem at 60% 116%,
+        rgba(178, 144, 86, 0.32) 0%,
+        transparent 62%
+      ),
+      linear-gradient(180deg, #0f1512 0%, #121711 50%, #16100c 100%);
     background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
   }
   h1,
   h2,
