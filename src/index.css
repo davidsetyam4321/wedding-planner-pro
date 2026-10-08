@@ -60,149 +60,208 @@
   --color-tint-sage-foreground: var(--tint-sage-foreground);
 }
 
-/* ── SatuJanji theme ──────────────────────────────────────────────────────
-   Sage & champagne base, a clear playful gradient background, one pastel
-   accent per feature, and glass surfaces that fly on hover. */
+/* ── Design tokens ──────────────────────────────────────────────────────
+   Palet inkwell navy + coral emphasis + mint/butter, skala tipografi
+   caption→display-xl, radius 8/16/24, dan bayangan halus — didefinisikan
+   sekali di sini sehingga seluruh halaman ikut berubah.
+
+   Catatan spacing: skala 4px default Tailwind dipertahankan (p-4 = 16px,
+   grid 4px yang sama dengan token --spacing-*, 4/8/12/…) — nilai literal
+   --spacing-* TIDAK di-override agar tata letak halaman yang sudah ada
+   tidak menyusut 4×. Token --spacing-72/100/120 dsb. bisa ditambahkan
+   belakangan bila diperlukan utilitas baru. */
+@theme {
+  /* Colors */
+  --color-inkwell-navy: #151b31;
+  --color-coral-emphasis: #ff5858;
+  --color-mint-pulse: #86e0c1;
+  --color-butter-yellow: #fedf89;
+  --color-graphite: #333333;
+  --color-slate: #6d6f75;
+  --color-ash-canvas: #f2f2f2;
+  --color-paper-white: #ffffff;
+  --color-pure-ink: #000000;
+  --color-warm-stone: #e8e7e5;
+
+  /* Typography */
+  --font-grifter: "GRIFTER", "Archivo", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-inter: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* Judul (h1–h3, .h-page, .h-card, .font-serif) tampil dengan display font */
+  --font-serif: "GRIFTER", "Archivo", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Typography — Scale */
+  --text-caption: 12px;
+  --leading-caption: 1.5;
+  --tracking-caption: -0.12px;
+  --text-body-sm: 14px;
+  --leading-body-sm: 1.55;
+  --tracking-body-sm: -0.14px;
+  --text-body: 16px;
+  --leading-body: 1.55;
+  --tracking-body: -0.16px;
+  --text-body-lg: 18px;
+  --leading-body-lg: 1.5;
+  --tracking-body-lg: -0.18px;
+  --text-subheading: 20px;
+  --leading-subheading: 1.4;
+  --tracking-subheading: -0.2px;
+  --text-heading-sm: 24px;
+  --leading-heading-sm: 1.3;
+  --tracking-heading-sm: -0.24px;
+  --text-heading: 36px;
+  --leading-heading: 1.2;
+  --tracking-heading: -0.36px;
+  --text-heading-lg: 48px;
+  --leading-heading-lg: 1.16;
+  --tracking-heading-lg: 1.44px;
+  --text-display: 64px;
+  --leading-display: 1.1;
+  --tracking-display: 1.92px;
+  --text-display-xl: 108px;
+  --leading-display-xl: 1;
+  --tracking-display-xl: -1.08px;
+
+  /* Border Radius — radius-lg (8px) berasal dari --radius di bridge */
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+
+  /* Shadows */
+  --shadow-subtle: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+  --shadow-sm: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+  --shadow-sm-2: rgba(138, 133, 125, 0.2) 0px 1px 4px 0px;
+}
+
+/* GRIFTER (Hanson Method) adalah display font utama. Untuk pemakaian web,
+   letakkan berkasnya di public/fonts/GRIFTER.woff2 lalu ganti src di
+   @font-face berikut menjadi: url("/fonts/GRIFTER.woff2") format("woff2").
+   Selama berkas itu belum ada, fallback "Archivo" (dimuat dari Google
+   Fonts) dipakai otomatis. */
+@font-face {
+  font-family: "GRIFTER";
+  src: local("GRIFTER"), local("GRIFTER Bold");
+  font-weight: 400 900;
+  font-display: swap;
+}
+
+/* ── Semantic tokens (terhubung ke bridge di atas) ─────────────────────── */
 :root {
-  --radius: 0.75rem;
+  /* radius-lg = 8px, radius-md = 6px, radius-xl = 12px (dari --radius) */
+  --radius: 0.5rem;
 
-  --background: #f3fbf5;
-  --foreground: #141e18;
-  /* translucent glass surfaces — the playful gradient shows through */
-  --card: rgba(255, 255, 255, 0.66);
-  --card-foreground: #141e18;
-  --popover: rgba(255, 255, 255, 0.9);
-  --popover-foreground: #141e18;
-  --primary: #425a49;
+  --background: #f2f2f2; /* ash-canvas */
+  --foreground: #151b31; /* inkwell-navy */
+  --card: #ffffff; /* paper-white */
+  --card-foreground: #151b31;
+  --popover: #ffffff;
+  --popover-foreground: #151b31;
+  --primary: #ff5858; /* coral-emphasis */
   --primary-foreground: #ffffff;
-  --secondary: rgba(229, 241, 231, 0.62);
-  --secondary-foreground: #344c3b;
-  --muted: rgba(229, 241, 231, 0.55);
-  --muted-foreground: #4f5b53;
-  --accent: rgba(206, 234, 210, 0.6);
-  --accent-foreground: #344c3b;
-  --destructive: #ba1a1a;
+  --secondary: #e8e7e5; /* warm-stone */
+  --secondary-foreground: #151b31;
+  --muted: #e8e7e5;
+  --muted-foreground: #6d6f75; /* slate */
+  --accent: #86e0c1; /* mint-pulse */
+  --accent-foreground: #151b31;
+  --destructive: #d92d20;
   --destructive-foreground: #ffffff;
-  --border: #c9d4c9;
-  --input: #c2c8c1;
-  --ring: #425a49;
-  --chart-1: #425a49;
-  --chart-2: #775a19;
-  --chart-3: #ceead2;
-  --chart-4: #ffdea5;
-  --chart-5: #5a7360;
-  --sidebar: rgba(235, 246, 237, 0.72);
-  --sidebar-foreground: #141e18;
-  --sidebar-primary: #425a49;
+  --border: #e8e7e5; /* warm-stone — hairline */
+  --input: #dcdad7;
+  --ring: #ff5858;
+  --chart-1: #151b31;
+  --chart-2: #ff5858;
+  --chart-3: #86e0c1;
+  --chart-4: #fedf89;
+  --chart-5: #6d6f75;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #151b31;
+  --sidebar-primary: #ff5858;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(224, 235, 226, 0.72);
-  --sidebar-accent-foreground: #344c3b;
-  --sidebar-border: #d3ded4;
-  --sidebar-ring: #b2cdb7;
+  --sidebar-accent: #f2f2f2;
+  --sidebar-accent-foreground: #151b31;
+  --sidebar-border: #e8e7e5;
+  --sidebar-ring: #ff5858;
 
-  /* playful pastels — SatuJanji sage & champagne containers (translucent) */
-  --tint-mint: rgba(206, 234, 210, 0.76);
-  --tint-mint-foreground: #344c3b;
-  --tint-lavender: rgba(218, 229, 220, 0.76);
-  --tint-lavender-foreground: #344c3b;
-  --tint-peach: rgba(233, 193, 118, 0.7);
-  --tint-peach-foreground: #5d4201;
-  --tint-rose: rgba(255, 218, 214, 0.7);
-  --tint-rose-foreground: #93000a;
-  --tint-sky: rgba(211, 232, 212, 0.76);
-  --tint-sky-foreground: #394b3c;
-  --tint-butter: rgba(255, 222, 165, 0.7);
-  --tint-butter-foreground: #5d4201;
-  --tint-sage: rgba(224, 235, 226, 0.76);
-  --tint-sage-foreground: #344c3b;
+  /* pastel surfaces — lembut, teks navy di atasnya */
+  --tint-mint: #d1f5e9;
+  --tint-mint-foreground: #151b31;
+  --tint-lavender: #e9ebf3;
+  --tint-lavender-foreground: #151b31;
+  --tint-peach: #ffefdb;
+  --tint-peach-foreground: #151b31;
+  --tint-rose: #ffe4e0;
+  --tint-rose-foreground: #151b31;
+  --tint-sky: #e7edf4;
+  --tint-sky-foreground: #151b31;
+  --tint-butter: #fdecab;
+  --tint-butter-foreground: #151b31;
+  --tint-sage: #e8e7e5;
+  --tint-sage-foreground: #151b31;
 
-  /* SatuJanji champagne-gold accent */
-  --gold: #775a19;
+  /* aksen hangat — butter-yellow digelapkan agar kontras di kanvas terang */
+  --gold: #8f6a00;
 
-  --shadow-soft: 0 8px 32px -4px rgba(36, 46, 40, 0.07), 0 1px 2px rgba(36, 46, 40, 0.04);
-  --shadow-lift: 0 16px 40px -12px rgba(36, 46, 40, 0.16);
-  --shadow-float: 0 24px 48px -18px rgba(36, 46, 40, 0.3),
-    0 6px 16px -8px rgba(36, 46, 40, 0.14);
-
-  /* Botanical background accents — a leaf frond anchored top-right, a
-     sprig with the SatuJanji flower bottom-left, and a scatter tile of
-     leaves + petals woven over the gradient. SVGs are inline so they stay
-     crisp and theme-tinted without extra requests. */
-  --botanical-layers: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='300' viewBox='0 0 240 300' fill='none'><path d='M232 6 C198 58 176 118 160 186 C152 222 148 258 147 296' stroke='rgba(66,90,73,0.16)' stroke-width='3' stroke-linecap='round'/><g fill='rgba(66,90,73,0.13)'><path transform='translate(224,34) rotate(-32) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(210,64) rotate(200) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(194,102) rotate(-38) scale(1.3)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(181,140) rotate(206) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(170,180) rotate(-42) scale(1.3)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(160,220) rotate(210) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(152,258) rotate(-48) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><circle cx='147' cy='296' r='5' fill='rgba(119,90,25,0.18)'/><circle cx='232' cy='6' r='4' fill='rgba(119,90,25,0.15)'/></svg>"),
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='260' viewBox='0 0 200 260' fill='none'><path d='M10 252 C44 212 66 166 80 116 C88 86 94 52 96 12' stroke='rgba(66,90,73,0.16)' stroke-width='3' stroke-linecap='round'/><g fill='rgba(66,90,73,0.13)'><path transform='translate(22,232) rotate(215) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(46,200) rotate(-45) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(66,158) rotate(205) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(78,116) rotate(-50) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(88,74) rotate(195) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(95,36) rotate(-58) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><circle cx='96' cy='12' r='4.5' fill='rgba(119,90,25,0.18)'/><g transform='translate(138,196) scale(1.6)' fill='rgba(66,90,73,0.12)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.3' fill='rgba(119,90,25,0.2)'/></g></svg>"),
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='176' height='176' viewBox='0 0 176 176' fill='none'><g fill='none' stroke='rgba(66,90,73,0.15)' stroke-width='1.6'><path transform='translate(20,34) rotate(-28) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(104,24) rotate(40) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(118,96) rotate(18) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(16,138) rotate(66) scale(1.05)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g fill='rgba(66,90,73,0.11)'><path transform='translate(56,92) rotate(-64) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g fill='rgba(119,90,25,0.13)'><path transform='translate(132,140) rotate(-44) scale(1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g transform='translate(78,126) scale(0.95)' fill='rgba(66,90,73,0.12)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.3' fill='rgba(119,90,25,0.18)'/></g><circle cx='154' cy='62' r='3' fill='rgba(119,90,25,0.15)'/></svg>");
+  --shadow-soft: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+  --shadow-lift: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+  --shadow-float: rgba(21, 27, 49, 0.18) 0px 12px 24px -8px, rgba(21, 27, 49, 0.1) 0px 4px 8px -4px;
 }
 
 .dark {
-  --background: #0f1512;
-  --foreground: #e2eee3;
-  /* translucent glass — the dark gradient glows through */
-  --card: rgba(23, 33, 26, 0.66);
-  --card-foreground: #e2eee3;
-  --popover: rgba(20, 29, 23, 0.92);
-  --popover-foreground: #e2eee3;
-  --primary: #b2cdb7;
-  --primary-foreground: #082012;
-  --secondary: rgba(34, 48, 42, 0.62);
-  --secondary-foreground: #ceead2;
-  --muted: rgba(28, 40, 34, 0.55);
-  --muted-foreground: #9fb0a4;
-  --accent: rgba(34, 53, 42, 0.62);
-  --accent-foreground: #ceead2;
+  --background: #151b31; /* inkwell-navy */
+  --foreground: #f2f2f2;
+  --card: #1c2440;
+  --card-foreground: #f2f2f2;
+  --popover: #1c2440;
+  --popover-foreground: #f2f2f2;
+  --primary: #ff5858;
+  --primary-foreground: #ffffff;
+  --secondary: #26304f;
+  --secondary-foreground: #f2f2f2;
+  --muted: #222b47;
+  --muted-foreground: #9aa3bd;
+  --accent: #86e0c1;
+  --accent-foreground: #151b31;
   --destructive: #ff5449;
   --destructive-foreground: #ffffff;
-  --border: #2a382f;
-  --input: #3a4a3f;
-  --ring: #b2cdb7;
-  --chart-1: #b2cdb7;
-  --chart-2: #e9c176;
-  --chart-3: #22352a;
-  --chart-4: #3a2f16;
-  --chart-5: #5a7360;
-  --sidebar: rgba(19, 27, 22, 0.75);
-  --sidebar-foreground: #e2eee3;
-  --sidebar-primary: #b2cdb7;
-  --sidebar-primary-foreground: #082012;
-  --sidebar-accent: rgba(34, 53, 42, 0.72);
-  --sidebar-accent-foreground: #ceead2;
-  --sidebar-border: #2a382f;
-  --sidebar-ring: #b2cdb7;
+  --border: #2a3352;
+  --input: #374061;
+  --ring: #ff5858;
+  --chart-1: #86e0c1;
+  --chart-2: #ff5858;
+  --chart-3: #fedf89;
+  --chart-4: #e8e7e5;
+  --chart-5: #9aa3bd;
+  --sidebar: #151b31;
+  --sidebar-foreground: #f2f2f2;
+  --sidebar-primary: #ff5858;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #222b47;
+  --sidebar-accent-foreground: #f2f2f2;
+  --sidebar-border: #2a3352;
+  --sidebar-ring: #ff5858;
 
-  --tint-mint: rgba(34, 69, 58, 0.68);
-  --tint-mint-foreground: #ceead2;
-  --tint-lavender: rgba(31, 51, 43, 0.68);
-  --tint-lavender-foreground: #dae5dc;
-  --tint-peach: rgba(74, 58, 29, 0.68);
-  --tint-peach-foreground: #e9c176;
-  --tint-rose: rgba(74, 43, 51, 0.68);
-  --tint-rose-foreground: #ffdad6;
-  --tint-sky: rgba(33, 58, 46, 0.68);
-  --tint-sky-foreground: #d3e8d4;
-  --tint-butter: rgba(74, 58, 29, 0.68);
-  --tint-butter-foreground: #ffdea5;
-  --tint-sage: rgba(35, 57, 44, 0.68);
-  --tint-sage-foreground: #d8ead9;
+  /* bidang gelap + teks terang (pola sama dengan tema sebelumnya) */
+  --tint-mint: #1e3a33;
+  --tint-mint-foreground: #a7f0da;
+  --tint-lavender: #262f4f;
+  --tint-lavender-foreground: #d9ddf0;
+  --tint-peach: #3d3319;
+  --tint-peach-foreground: #fdecab;
+  --tint-rose: #40262b;
+  --tint-rose-foreground: #ffd9d4;
+  --tint-sky: #1f2f4a;
+  --tint-sky-foreground: #cfe0f5;
+  --tint-butter: #403614;
+  --tint-butter-foreground: #fdecab;
+  --tint-sage: #242e4c;
+  --tint-sage-foreground: #dfe3f2;
 
-  --gold: #e9c176;
+  --gold: #fedf89;
 
-  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 24px -14px rgba(0, 0, 0, 0.6);
-  --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.35), 0 16px 32px -16px rgba(0, 0, 0, 0.7);
-  --shadow-float: 0 28px 52px -20px rgba(0, 0, 0, 0.78),
-    0 8px 18px -8px rgba(0, 0, 0, 0.5);
-
-  /* same botanical accents, lit for the dark gradient */
-  --botanical-layers: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='300' viewBox='0 0 240 300' fill='none'><path d='M232 6 C198 58 176 118 160 186 C152 222 148 258 147 296' stroke='rgba(178,205,183,0.2)' stroke-width='3' stroke-linecap='round'/><g fill='rgba(178,205,183,0.14)'><path transform='translate(224,34) rotate(-32) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(210,64) rotate(200) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(194,102) rotate(-38) scale(1.3)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(181,140) rotate(206) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(170,180) rotate(-42) scale(1.3)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(160,220) rotate(210) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(152,258) rotate(-48) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><circle cx='147' cy='296' r='5' fill='rgba(233,193,118,0.2)'/><circle cx='232' cy='6' r='4' fill='rgba(233,193,118,0.16)'/></svg>"),
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='260' viewBox='0 0 200 260' fill='none'><path d='M10 252 C44 212 66 166 80 116 C88 86 94 52 96 12' stroke='rgba(178,205,183,0.2)' stroke-width='3' stroke-linecap='round'/><g fill='rgba(178,205,183,0.14)'><path transform='translate(22,232) rotate(215) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(46,200) rotate(-45) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(66,158) rotate(205) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(78,116) rotate(-50) scale(1.25)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(88,74) rotate(195) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(95,36) rotate(-58) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><circle cx='96' cy='12' r='4.5' fill='rgba(233,193,118,0.2)'/><g transform='translate(138,196) scale(1.6)' fill='rgba(178,205,183,0.13)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.3' fill='rgba(233,193,118,0.22)'/></g></svg>"),
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='176' height='176' viewBox='0 0 176 176' fill='none'><g fill='none' stroke='rgba(178,205,183,0.16)' stroke-width='1.6'><path transform='translate(20,34) rotate(-28) scale(1.15)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(104,24) rotate(40) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(118,96) rotate(18) scale(1.1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/><path transform='translate(16,138) rotate(66) scale(1.05)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g fill='rgba(178,205,183,0.12)'><path transform='translate(56,92) rotate(-64) scale(1.2)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g fill='rgba(233,193,118,0.14)'><path transform='translate(132,140) rotate(-44) scale(1)' d='M0 0 Q9 -8 20 0 Q9 8 0 0 Z'/></g><g transform='translate(78,126) scale(0.95)' fill='rgba(178,205,183,0.13)'><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(72 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(144 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(216 12 12)'/><ellipse cx='12' cy='5.6' rx='3.1' ry='4.9' transform='rotate(288 12 12)'/><circle cx='12' cy='12' r='2.3' fill='rgba(233,193,118,0.2)'/></g><circle cx='154' cy='62' r='3' fill='rgba(233,193,118,0.16)'/></svg>");
-}
-
-/* Font pairing: firm grotesque sans (Archivo) for all reading/UI text +
-   calligraphic script (Dancing Script) for every display slot that used to
-   be Playfair (h1–h3, .h-page, .h-card, and the font-serif utilities). */
-@theme {
-  --font-sans: "Archivo", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-serif: "Dancing Script", "Segoe Script", cursive;
-  --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --shadow-soft: rgba(0, 0, 0, 0.4) 0px 1px 2px 0px, rgba(0, 0, 0, 0.24) 0px 1px 3px 0px;
+  --shadow-lift: rgba(0, 0, 0, 0.45) 0px 4px 6px -1px, rgba(0, 0, 0, 0.28) 0px 2px 4px -1px;
+  --shadow-float: rgba(0, 0, 0, 0.6) 0px 12px 24px -8px, rgba(0, 0, 0, 0.4) 0px 4px 8px -4px;
 }
 
 @layer base {
@@ -216,83 +275,6 @@
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
-    /* Layer stack, front to back: botanical accents (frond top-right,
-       sprig bottom-left, repeating leaf/petal tile), then the clear playful
-       gradient — mint top-left, champagne top-right, sky bottom-left, a warm
-       champagne bloom low-center. Fixed so every glass card glides over one
-       continuous wash. */
-    background-image:
-      var(--botanical-layers),
-      radial-gradient(
-        54rem 40rem at 2% -10%,
-        rgba(178, 205, 183, 0.8) 0%,
-        transparent 60%
-      ),
-      radial-gradient(
-        46rem 34rem at 101% 0%,
-        rgba(255, 222, 165, 0.62) 0%,
-        transparent 55%
-      ),
-      radial-gradient(
-        42rem 36rem at 92% 58%,
-        rgba(206, 234, 210, 0.6) 0%,
-        transparent 60%
-      ),
-      radial-gradient(
-        48rem 38rem at 6% 102%,
-        rgba(211, 232, 212, 0.7) 0%,
-        transparent 58%
-      ),
-      radial-gradient(
-        34rem 28rem at 55% 112%,
-        rgba(233, 193, 118, 0.34) 0%,
-        transparent 65%
-      ),
-      linear-gradient(180deg, #f7fdf9 0%, #eff8f2 48%, #fdf8ec 100%);
-    background-attachment: fixed;
-    /* frond → sprig → tile → five radials → linear (counts must match) */
-    background-position:
-      right top,
-      left bottom,
-      0 0,
-      center,
-      center,
-      center,
-      center,
-      center,
-      center;
-    background-size: auto, auto, 176px 176px, auto, auto, auto, auto, auto, auto;
-    background-repeat: no-repeat, no-repeat, repeat, no-repeat, no-repeat, no-repeat,
-      no-repeat, no-repeat, no-repeat;
-  }
-  .dark body {
-    /* same var + lists as body (8 layers here); do NOT redeclare
-       background-repeat — a single no-repeat would stop the tile from
-       tiling in dark mode. */
-    background-image:
-      var(--botanical-layers),
-      radial-gradient(
-        54rem 40rem at 2% -10%,
-        rgba(34, 69, 58, 0.7) 0%,
-        transparent 60%
-      ),
-      radial-gradient(
-        46rem 34rem at 101% 0%,
-        rgba(74, 58, 29, 0.6) 0%,
-        transparent 55%
-      ),
-      radial-gradient(
-        42rem 36rem at 92% 58%,
-        rgba(35, 57, 44, 0.6) 0%,
-        transparent 60%
-      ),
-      radial-gradient(
-        48rem 38rem at 6% 102%,
-        rgba(33, 58, 46, 0.65) 0%,
-        transparent 58%
-      ),
-      linear-gradient(180deg, #0f1512 0%, #111814 50%, #16130c 100%);
-    background-attachment: fixed;
   }
   h1,
   h2,
@@ -311,55 +293,29 @@
   [data-slot="popover-content"],
   [data-slot="dropdown-menu-content"],
   [data-slot="alert-dialog-content"] {
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-soft);
-    backdrop-filter: blur(18px) saturate(1.5);
-    -webkit-backdrop-filter: blur(18px) saturate(1.5);
-    border-color: color-mix(in srgb, var(--border) 55%, transparent);
-  }
-  .dark [data-slot="card"],
-  .dark [data-slot="dialog-content"],
-  .dark [data-slot="popover-content"],
-  .dark [data-slot="dropdown-menu-content"],
-  .dark [data-slot="alert-dialog-content"] {
-    border-color: rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-subtle);
+    border-color: var(--border);
   }
 
-  /* Glass buttons — translucent + blurred; the flying pop-up hover lives in
-     the unlayered block at the end of this file so it always wins. */
+  /* Tombol — permukaan solid, radius mengikuti skala desain (16px) */
   [data-slot="button"][data-variant="default"],
   [data-slot="button"][data-variant="outline"],
   [data-slot="button"][data-variant="secondary"],
   [data-slot="button"][data-variant="destructive"] {
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-soft);
-    backdrop-filter: blur(10px) saturate(1.35);
-    -webkit-backdrop-filter: blur(10px) saturate(1.35);
-  }
-  /* Tombol utama: sage translucent berlapis kilau kaca */
-  [data-slot="button"][data-variant="default"] {
-    background-image: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.24) 0%,
-      rgba(255, 255, 255, 0.03) 52%,
-      rgba(16, 34, 22, 0.14) 100%
-    );
-    box-shadow:
-      0 10px 24px -8px rgba(41, 58, 47, 0.45),
-      inset 0 1px 0 rgba(255, 255, 255, 0.32);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-sm-2);
   }
 
   [data-slot="input"],
   [data-slot="textarea"],
   [data-slot="select-trigger"] {
     border-radius: var(--radius-lg);
-    background-color: color-mix(in srgb, var(--popover) 92%, transparent);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background-color: var(--card);
   }
 }
 
-/* ── Utilities: pastel gradients, playful motion ────────────────────────── */
+/* ── Utilities: gradasi pastel, gerak playful ─────────────────────────── */
 @layer utilities {
   .panel-header {
     display: flex;
@@ -371,44 +327,44 @@
     color: var(--muted-foreground);
   }
 
-  /* gradients — botanical sage to champagne */
+  /* gradients — navy → coral, mint, butter (mengikuti palet baru) */
   .grad-warm {
-    background-image: linear-gradient(135deg, #f7fbf8 0%, #ebf6ed 48%, #fdf3e0 100%);
+    background-image: linear-gradient(135deg, #ffffff 0%, #f6f6f5 55%, #ffece8 100%);
   }
   .grad-mint {
-    background-image: linear-gradient(135deg, #f1faf2 0%, #ceead2 100%);
+    background-image: linear-gradient(135deg, #ffffff 0%, #d1f5e9 100%);
   }
   .grad-lavender {
-    background-image: linear-gradient(135deg, #f4faf5 0%, #dae5dc 100%);
+    background-image: linear-gradient(135deg, #ffffff 0%, #e9ebf3 100%);
   }
   .grad-peach {
-    background-image: linear-gradient(135deg, #fdf5e6 0%, #e9c176 100%);
+    background-image: linear-gradient(135deg, #fffdf6 0%, #ffefdb 100%);
   }
   .grad-rose {
-    background-image: linear-gradient(135deg, #fff5f4 0%, #ffdad6 100%);
+    background-image: linear-gradient(135deg, #fff8f7 0%, #ffe4e0 100%);
   }
   .grad-sky {
-    background-image: linear-gradient(135deg, #f2f9f3 0%, #d3e8d4 100%);
+    background-image: linear-gradient(135deg, #f8fafc 0%, #e7edf4 100%);
   }
   .grad-butter {
-    background-image: linear-gradient(135deg, #fffaef 0%, #ffdea5 100%);
+    background-image: linear-gradient(135deg, #fffdf5 0%, #fdecab 100%);
   }
   .grad-sage {
-    background-image: linear-gradient(135deg, #f4faf5 0%, #e0ebe2 100%);
+    background-image: linear-gradient(135deg, #ffffff 0%, #e8e7e5 100%);
   }
-  /* sage → champagne dual-tone progress fill (gaya mockup) */
+  /* isian progres dua-nada: inkwell navy → coral emphasis */
   .fill-botanical {
-    background-image: linear-gradient(90deg, #425a49 0%, #775a19 100%);
+    background-image: linear-gradient(90deg, #151b31 0%, #ff5858 100%);
   }
 
   /* readable text over the couple photo on the dashboard */
   .photo-scrim {
     background-image: linear-gradient(
       to top,
-      rgba(20, 20, 19, 0.92) 0%,
-      rgba(20, 20, 19, 0.66) 42%,
-      rgba(20, 20, 19, 0.22) 72%,
-      rgba(20, 20, 19, 0) 100%
+      rgba(12, 15, 26, 0.92) 0%,
+      rgba(12, 15, 26, 0.66) 42%,
+      rgba(12, 15, 26, 0.22) 72%,
+      rgba(12, 15, 26, 0) 100%
     );
   }
 
@@ -501,18 +457,16 @@
 
 /* ── Type scale: one place decides how headings, labels and numbers look ── */
 @layer components {
-  /* ── Flying glass surfaces ──────────────────────────────────────────────
-     Deliberately in @layer components: any bg-* utility (the per-feature
-     pastels) must win over the glass tint, while the blur, hairline border
-     and shadow stay. Hover pop-ups live in the unlayered block at the end. */
+  /* ── Permukaan kartu ───────────────────────────────────────────────────
+     Kanvas bersih: bidang solid, hairline warm-stone, radius 16px, bayangan
+     halus — menggantikan gaya kaca sebelumnya. Hover pop-up ada di blok
+     tanpa layer di akhir berkas ini. */
   .clay,
   .panel {
-    background-color: color-mix(in srgb, var(--card) 88%, transparent);
-    backdrop-filter: blur(20px) saturate(1.5);
-    -webkit-backdrop-filter: blur(20px) saturate(1.5);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    border-radius: 1.25rem;
-    box-shadow: var(--shadow-soft);
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-subtle);
     transition:
       transform 220ms cubic-bezier(0.22, 0.85, 0.3, 1),
       box-shadow 220ms ease,
@@ -524,10 +478,8 @@
     border-color: rgba(255, 255, 255, 0.08);
   }
   .clay-inset {
-    background-color: color-mix(in srgb, var(--muted) 78%, transparent);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    background-color: var(--muted);
+    border: 1px solid var(--border);
     border-radius: var(--radius-lg);
   }
   .dark .clay-inset {
@@ -535,9 +487,7 @@
   }
   .clay-sm {
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-soft);
-    backdrop-filter: blur(14px) saturate(1.4);
-    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    box-shadow: var(--shadow-subtle);
   }
   .clay-press {
     transition:
@@ -547,26 +497,26 @@
   .h-page {
     font-family: var(--font-serif);
     font-size: 1.45rem;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1.22;
     letter-spacing: -0.01em;
   }
   .h-card {
     font-family: var(--font-serif);
     font-size: 1.05rem;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1.3;
     letter-spacing: -0.005em;
   }
   .label {
-    font-size: 0.68rem;
+    font-size: var(--text-caption);
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
   .meta {
-    font-size: 0.72rem;
-    line-height: 1.55;
+    font-size: var(--text-caption);
+    line-height: var(--leading-caption);
     color: var(--muted-foreground);
   }
   .num {
@@ -579,24 +529,20 @@
     gap: 0.375rem;
     border-radius: 9999px;
     padding: 0.35rem 0.75rem;
-    font-size: 0.72rem;
+    font-size: var(--text-caption);
     font-weight: 700;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    box-shadow: 0 2px 8px -3px rgba(36, 46, 40, 0.12);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm-2);
     transition: transform 140ms ease, background-color 140ms ease;
   }
   .chip:active {
     transform: scale(0.97);
   }
   .stat-tile {
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-2xl);
     padding: 0.7rem 0.85rem;
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 4px 14px -6px rgba(36, 46, 40, 0.1);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-subtle);
   }
   .dark .chip,
   .dark .stat-tile {

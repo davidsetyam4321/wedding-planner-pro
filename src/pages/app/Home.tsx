@@ -87,7 +87,7 @@ function CountdownTimer({ weddingDate }: { weddingDate: number }) {
         >
           <p
             className={`num font-serif text-[1.35rem] font-semibold leading-tight ${
-              cell.gold ? "text-tint-butter" : "text-white"
+              cell.gold ? "text-butter-yellow" : "text-white"
             }`}
           >
             {String(cell.value).padStart(2, "0")}
@@ -294,7 +294,7 @@ export function HomePage() {
       {!wedding ? (
         <Skeleton className="h-56 w-full rounded-3xl" />
       ) : (
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#39503f] via-[#425a49] to-[#5c7460] p-5 shadow-[0_20px_50px_-12px_rgba(41,58,47,0.45)]">
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-inkwell-navy via-[#1b2340] to-[#26304f] p-5 shadow-[0_20px_50px_-12px_rgba(21,27,49,0.5)]">
           {couplePhoto && (
             <>
               {/* Latar = foto pasangan yang diunggah; overlay sage menjaga teks tetap terbaca. */}
@@ -304,14 +304,14 @@ export function HomePage() {
                 aria-hidden
                 className="absolute inset-0 h-full w-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-br from-[#39503f]/85 via-[#425a49]/80 to-[#5c7460]/85" />
+              <div className="absolute inset-0 bg-gradient-to-br from-inkwell-navy/85 via-[#1b2340]/80 to-[#26304f]/85" />
             </>
           )}
           <div className="pointer-events-none absolute -right-10 -top-14 size-44 rounded-full bg-white/10 blur-2xl" />
           <div className="pointer-events-none absolute -bottom-12 -left-8 size-40 rounded-full bg-tint-butter/25 blur-2xl" />
           <div className="relative z-10 flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-[#e9c176]">
+              <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-butter-yellow">
                 <Heart className="size-3.5" />
                 Menuju Janji Suci
               </span>

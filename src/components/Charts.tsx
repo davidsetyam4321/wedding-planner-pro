@@ -2,18 +2,18 @@ import { cn } from "@/lib/utils";
 import { useId, type ReactNode } from "react";
 
 /**
- * Palet grafik SatuJanji: sage → champagne (sumber tunggal untuk semua
- * halaman — donut Budget, bar Tabungan, dst).
+ * Palet grafik SatuJanji: inkwell navy → coral emphasis (sumber tunggal
+ * untuk semua halaman — donut Budget, bar Tabungan, dst).
  */
 export const CHART_COLORS = [
-  "#425a49",
-  "#775a19",
-  "#5a7360",
-  "#e9c176",
-  "#8fa694",
-  "#c9a25e",
-  "#a8bfa8",
-  "#d3e8d4",
+  "#151b31",
+  "#ff5858",
+  "#6d6f75",
+  "#fedf89",
+  "#86e0c1",
+  "#ff8f8f",
+  "#3f4d6e",
+  "#d7f5ea",
 ];
 
 type TipRow = {
@@ -126,8 +126,8 @@ export function RingGauge({
         <svg width={size} height={size} className="-rotate-90" aria-hidden>
           <defs>
             <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#425a49" />
-              <stop offset="100%" stopColor="#775a19" />
+              <stop offset="0%" stopColor="#151b31" />
+              <stop offset="100%" stopColor="#ff5858" />
             </linearGradient>
           </defs>
           <circle

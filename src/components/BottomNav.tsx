@@ -56,7 +56,7 @@ export function BottomNav() {
                   <span className="sr-only">{label}</span>
                 )}
                 {badge && openTasks > 0 && (
-                  <span className="absolute right-0.5 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[9px] font-extrabold text-white">
+                  <span className="absolute right-0.5 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[9px] font-extrabold text-background">
                     {openTasks > 9 ? "9+" : openTasks}
                   </span>
                 )}
