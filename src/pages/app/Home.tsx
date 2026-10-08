@@ -7,7 +7,10 @@ import {
 } from "@/components/Shared";
 import { Skeleton } from "@/components/ui/skeleton";
 import AnimatedContent from "@/components/AnimatedContent";
+import { GarlandDivider } from "@/components/Decor";
+import { Bunny, DoodleStar, Squiggle } from "@/components/Doodles";
 import PulseHeart from "@/components/PulseHeart";
+import SpotlightCard from "@/components/SpotlightCard";
 import { api } from "@/convex/_generated/api";
 import { bloom } from "@/lib/bloom";
 import { waLink } from "@/lib/contact";
@@ -162,7 +165,11 @@ function ReadinessCard({
   tone: { icon: string; pct: string };
 }) {
   return (
-    <div className="clay flex flex-col justify-between gap-3 p-4">
+    <div className="clay">
+      <SpotlightCard
+        className="flex h-full flex-col justify-between gap-3 rounded-2xl p-4"
+        spotlightColor="rgba(255, 255, 255, 0.55)"
+      >
       <div className="flex items-center justify-between">
         <span
           className={`flex size-8 items-center justify-center rounded-full ${tone.icon}`}
@@ -184,12 +191,13 @@ function ReadinessCard({
           {label}
         </p>
       </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-tint-sage">
-        <div
-          className="fill-botanical h-full rounded-full transition-all duration-700"
-          style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
-        />
-      </div>
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-tint-sage">
+          <div
+            className="fill-botanical h-full rounded-full transition-all duration-700"
+            style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
+          />
+        </div>
+      </SpotlightCard>
     </div>
   );
 }
@@ -315,6 +323,8 @@ export function HomePage() {
           )}
           <div className="pointer-events-none absolute -right-10 -top-14 size-44 rounded-full bg-white/10 blur-2xl" />
           <div className="pointer-events-none absolute -bottom-12 -left-8 size-40 rounded-full bg-tint-butter/25 blur-2xl" />
+          <Bunny className="pointer-events-none absolute -top-9 right-16 size-16 rotate-[9deg]" />
+          <DoodleStar className="pointer-events-none absolute right-4 top-16 size-5 text-butter-yellow" />
           <div className="relative z-10 flex items-start justify-between gap-3">
             <div className="min-w-0">
               <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-butter-yellow">
@@ -346,6 +356,7 @@ export function HomePage() {
 
           <p className="relative z-10 mt-1 font-serif text-[1.7rem] font-semibold leading-tight text-white">
             {`${wedding.partnerOneName} & ${wedding.partnerTwoName}`}
+            <Squiggle className="absolute -bottom-2 left-0 h-3 w-40 text-coral-emphasis" />
           </p>
 
           <div className="relative z-10 mt-4">
@@ -385,6 +396,8 @@ export function HomePage() {
           </div>
         </AnimatedContent>
       )}
+
+      <GarlandDivider className="mx-auto block h-16 w-full max-w-[14rem]" />
 
       {/* ── Ringkasan kesiapan ────────────────────────────────────────── */}
       <section>

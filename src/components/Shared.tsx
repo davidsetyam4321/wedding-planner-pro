@@ -14,6 +14,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { DoodleStar, Squiggle } from "@/components/Doodles";
+import { FlowerMark } from "@/components/Decor";
 import FadeContent from "@/components/FadeContent";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -182,10 +184,17 @@ export function EmptyState({
         className ?? ""
       }`}
     >
-      <div className="grad-warm clay-sm flex size-14 items-center justify-center rounded-full text-2xl">
-        {emoji}
+      <div className="relative">
+        <div className="grad-warm clay-sm flex size-14 items-center justify-center rounded-full text-2xl">
+          {emoji}
+        </div>
+        <DoodleStar className="absolute -right-2 -top-1 size-4 text-butter-yellow" />
+        <DoodleStar className="absolute -left-1.5 -bottom-1 size-3 text-coral-emphasis" />
       </div>
-      <p className="text-sm font-extrabold">{title}</p>
+      <p className="relative text-sm font-extrabold">
+        {title}
+        <Squiggle className="absolute -bottom-1.5 left-1/2 h-2 w-14 -translate-x-1/2 text-coral-emphasis/70" />
+      </p>
       {description && (
         <p className="meta max-w-[30ch]">{description}</p>
       )}
@@ -254,7 +263,8 @@ export function SectionHeader({
       duration={550}
       className="mb-2.5 flex items-end justify-between gap-2"
     >
-      <h2 className="text-[13px] font-extrabold uppercase tracking-wider leading-tight">
+      <h2 className="flex items-center gap-1.5 font-serif text-[14px] font-semibold uppercase leading-tight tracking-wide">
+        <FlowerMark className="size-3.5 shrink-0 text-primary" />
         {title}
       </h2>
       {action}

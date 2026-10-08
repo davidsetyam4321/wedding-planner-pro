@@ -21,6 +21,7 @@ import {
 import { Stagger, StaggerItem } from "@/components/Shared";
 import BlurText from "@/components/BlurText";
 import FadeContent from "@/components/FadeContent";
+import SoftAurora from "@/components/SoftAurora";
 import { api } from "@/convex/_generated/api";
 import { FEATURES } from "@/lib/features";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -31,7 +32,7 @@ import {
 } from "@/lib/session";
 import { useAuth } from "@/hooks/use-auth";
 import { SETUP_REFRESH_EVENT } from "@/lib/session";
-import { Bell, Settings, Sparkles } from "lucide-react";
+import { Bell, Heart, Settings, Sparkles } from "lucide-react";
 import { useReducedMotion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
@@ -348,6 +349,17 @@ export function AppShell() {
           }`}
         />
         <div className="absolute -right-28 top-2/3 size-80 rounded-full bg-tint-butter/45 blur-3xl" />
+        {/* Atmosfer aurora blush → mint — latar hidup seperti landing page */}
+        {!reducedMotion && (
+          <div className="absolute inset-0 opacity-55">
+            <SoftAurora
+              lightMode
+              speed={0.16}
+              color1="#ff9d94"
+              color2="#9fe8d0"
+            />
+          </div>
+        )}
       </div>
       <Petals />
       <PetalsFront />
@@ -376,7 +388,7 @@ export function AppShell() {
                   text={pageTitle}
                   direction="bottom"
                   delay={12}
-                  className="truncate text-[11px] font-semibold text-muted-foreground"
+                  className="truncate elegant text-[13px] text-muted-foreground"
                 />
               )}
             </span>
@@ -385,7 +397,11 @@ export function AppShell() {
             {wedding && (
               <span className="hidden items-center gap-1.5 rounded-full bg-tint-mint/70 px-3 py-1 text-[11px] font-semibold text-tint-mint-foreground shadow-sm backdrop-blur-md sm:flex">
                 <span className="size-1.5 animate-pulse rounded-full bg-primary" />
-                {wedding.partnerOneName} & {wedding.partnerTwoName} ❤️
+                {wedding.partnerOneName} & {wedding.partnerTwoName}
+                <Heart
+                  className="size-3 shrink-0 text-coral-emphasis"
+                  fill="currentColor"
+                />
               </span>
             )}
               <NotificationBell
