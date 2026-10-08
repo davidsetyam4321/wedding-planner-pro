@@ -6,6 +6,8 @@ import {
   StaggerItem,
 } from "@/components/Shared";
 import { Skeleton } from "@/components/ui/skeleton";
+import AnimatedContent from "@/components/AnimatedContent";
+import PulseHeart from "@/components/PulseHeart";
 import { api } from "@/convex/_generated/api";
 import { bloom } from "@/lib/bloom";
 import { waLink } from "@/lib/contact";
@@ -294,7 +296,11 @@ export function HomePage() {
       {!wedding ? (
         <Skeleton className="h-56 w-full rounded-3xl" />
       ) : (
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-inkwell-navy via-[#1b2340] to-[#26304f] p-5 shadow-[0_20px_50px_-12px_rgba(21,27,49,0.5)]">
+        <AnimatedContent
+          distance={50}
+          threshold={0.05}
+          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-inkwell-navy via-[#1b2340] to-[#26304f] p-5 shadow-[0_20px_50px_-12px_rgba(21,27,49,0.5)]"
+        >
           {couplePhoto && (
             <>
               {/* Latar = foto pasangan yang diunggah; overlay sage menjaga teks tetap terbaca. */}
@@ -361,14 +367,23 @@ export function HomePage() {
             )}
           </div>
 
-          <div className="relative z-10 mt-4 rounded-2xl bg-white/12 p-3 backdrop-blur-sm">
-            <p className="flex items-start gap-2 font-serif text-[13px] italic leading-snug text-white/90">
+          <div className="relative z-10 mt-4 flex items-start gap-3 rounded-2xl bg-white/12 p-3 backdrop-blur-sm">
+            <p className="flex flex-1 items-start gap-2 font-serif text-[13px] italic leading-snug text-white/90">
               <Quote className="mt-0.5 size-4 shrink-0 text-tint-butter" />
               “Dua hati, satu janji — dipersiapkan dengan tenang, dijalani
               dengan bahagia.”
             </p>
+            <PulseHeart
+              showCount={false}
+              size={30}
+              label="Suka"
+              likedColor="#ff5858"
+              idleColor="rgba(255, 255, 255, 0.65)"
+              pillColor="rgba(255, 255, 255, 0.14)"
+              textColor="#ffffff"
+            />
           </div>
-        </section>
+        </AnimatedContent>
       )}
 
       {/* ── Ringkasan kesiapan ────────────────────────────────────────── */}

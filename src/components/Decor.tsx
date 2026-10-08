@@ -19,26 +19,100 @@ export function FlowerMark({ className }: { className?: string }) {
   );
 }
 
-const PETAL_COLORS = [
-  "text-primary",
-  "text-tint-rose-foreground",
-  "text-tint-lavender-foreground",
-  "text-tint-peach-foreground",
-  "text-tint-mint-foreground",
-  "text-tint-butter-foreground",
+/* ── Kembang gugur ala nikahan Jawa ───────────────────────────────────
+   Kuncup melati, melati mekar, kelopak mawar — sekali-sekali tanda bunga
+   merek — ditaburkan jatuh pelan di belakang halaman. */
+
+type FlowerShape = "bud" | "bloom" | "petal" | "mark";
+
+/** Kuncup melati: putih gading dengan pangkal daun hijau. */
+function MelatiBud({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-full">
+      <path
+        d="M12 2.8c2.7 2.6 4.1 5.5 4.1 8.6 0 3.6-1.9 6.2-4.1 7.8-2.2-1.6-4.1-4.2-4.1-7.8 0-3.1 1.4-6 4.1-8.6Z"
+        fill={fill}
+        stroke="#ddd0b8"
+        strokeWidth="0.7"
+      />
+      <path
+        d="M8.3 16.9c1.2 2.2 2.4 3.5 3.7 4.2 1.3-.7 2.5-2 3.7-4.2-2.4 1.1-5 1.1-7.4 0Z"
+        fill="#a9d9bf"
+      />
+    </svg>
+  );
+}
+
+/** Melati mekar: lima kelopak putih dengan inti emas lembut. */
+function MelatiBloom({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-full">
+      <g fill={fill} stroke="#ddd0b8" strokeWidth="0.6">
+        <ellipse cx="12" cy="6.4" rx="2.5" ry="4" />
+        <ellipse cx="12" cy="6.4" rx="2.5" ry="4" transform="rotate(72 12 12)" />
+        <ellipse cx="12" cy="6.4" rx="2.5" ry="4" transform="rotate(144 12 12)" />
+        <ellipse cx="12" cy="6.4" rx="2.5" ry="4" transform="rotate(216 12 12)" />
+        <ellipse cx="12" cy="6.4" rx="2.5" ry="4" transform="rotate(288 12 12)" />
+      </g>
+      <circle cx="12" cy="12" r="2.1" fill="#e9cd8f" />
+    </svg>
+  );
+}
+
+/** Kelopak mawar tunggal: blush melengkung dengan urat samar. */
+function RosePetal({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-full">
+      <path
+        d="M12 2.6c4.7 3.3 7.1 7.1 7.1 10.9 0 4.3-3.2 7.4-7.1 8.4-3.9-1-7.1-4.1-7.1-8.4 0-3.8 2.4-7.6 7.1-10.9Z"
+        fill={fill}
+        stroke="#ddd0b8"
+        strokeWidth="0.7"
+      />
+      <path
+        d="M12 5.8c2.6 2.4 3.9 5 3.9 7.7"
+        stroke="#ffffff"
+        strokeOpacity="0.55"
+        strokeWidth="1.1"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
+/** Palet nikahan Jawa: putih gading, krem, blush kembang, emas, sage. */
+const WEDDING_FILLS = [
+  "#fffdf6", // putih gading
+  "#f7efdd", // krem
+  "#ffd9d2", // blush tipis
+  "#ffb6ab", // blush dalam
+  "#e9cd8f", // emas lembut
+  "#a9d9bf", // sage daun
 ];
 
-const PETALS = Array.from({ length: 14 }, (_, index) => ({
-  left: (index * 7.1 + 3) % 100,
-  delay: (index * 1.9) % 14,
-  duration: 16 + (index % 5) * 3,
-  size: 10 + (index % 4) * 6,
-  drift: (index % 2 === 0 ? 1 : -1) * (24 + (index % 3) * 22),
-  opacity: 0.16 + (index % 4) * 0.06,
-  color: PETAL_COLORS[index % PETAL_COLORS.length],
+const PETAL_SHAPES: FlowerShape[] = [
+  "bud",
+  "petal",
+  "bloom",
+  "bud",
+  "petal",
+  "mark",
+  "bud",
+  "petal",
+];
+
+const PETALS = Array.from({ length: 16 }, (_, index) => ({
+  left: (index * 6.3 + 3) % 100,
+  delay: (index * 2.1) % 16,
+  duration: 18 + (index % 5) * 4,
+  size: 9 + (index % 5) * 4,
+  drift: (index % 2 === 0 ? 1 : -1) * (26 + (index % 3) * 24),
+  opacity: 0.24 + (index % 4) * 0.07,
+  fill: WEDDING_FILLS[index % WEDDING_FILLS.length],
+  shape: PETAL_SHAPES[index % PETAL_SHAPES.length],
 }));
 
-/** Soft petals drifting down behind the app. Purely decorative. */
+/** Kembang gugur (melati & kelopak mawar) menari pelan di belakang halaman. */
 export function Petals() {
   return (
     <div
@@ -48,7 +122,7 @@ export function Petals() {
       {PETALS.map((petal, index) => (
         <span
           key={index}
-          className={`petal absolute top-0 ${petal.color}`}
+          className="petal absolute top-0"
           style={
             {
               left: `${petal.left}%`,
@@ -61,7 +135,15 @@ export function Petals() {
             } as CSSProperties
           }
         >
-          <FlowerMark className="size-full" />
+          {petal.shape === "bud" ? (
+            <MelatiBud fill={petal.fill} />
+          ) : petal.shape === "bloom" ? (
+            <MelatiBloom fill={petal.fill} />
+          ) : petal.shape === "petal" ? (
+            <RosePetal fill={petal.fill} />
+          ) : (
+            <FlowerMark className="size-full text-primary" />
+          )}
         </span>
       ))}
     </div>

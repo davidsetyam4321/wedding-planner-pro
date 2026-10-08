@@ -19,6 +19,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Stagger, StaggerItem } from "@/components/Shared";
+import BlurText from "@/components/BlurText";
+import FadeContent from "@/components/FadeContent";
 import { api } from "@/convex/_generated/api";
 import { FEATURES } from "@/lib/features";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -30,6 +32,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { SETUP_REFRESH_EVENT } from "@/lib/session";
 import { Bell, Settings, Sparkles } from "lucide-react";
+import { useReducedMotion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { useMutation, useQuery } from "convex/react";
@@ -263,6 +266,7 @@ export function AppShell() {
   const reminders = useQuery(api.reminders.list, { now: reminderNow }) ?? [];
   const { pathname } = useLocation();
   const pageTitle = pageTitleFor(pathname);
+  const reducedMotion = useReducedMotion();
   /** Satu aksen warna per fitur — wash ambient & chip header mengikuti rute. */
   const activeFeature = FEATURES.find((item) => item.to === pathname);
 
@@ -361,9 +365,19 @@ export function AppShell() {
               <h1 className="truncate font-serif text-[17px] font-semibold text-primary">
                 SatuJanji
               </h1>
-              <span className="truncate text-[11px] font-semibold text-muted-foreground">
-                {pageTitle}
-              </span>
+              {reducedMotion ? (
+                <span className="truncate text-[11px] font-semibold text-muted-foreground">
+                  {pageTitle}
+                </span>
+              ) : (
+                <BlurText
+                  key={pathname}
+                  text={pageTitle}
+                  direction="bottom"
+                  delay={12}
+                  className="truncate text-[11px] font-semibold text-muted-foreground"
+                />
+              )}
             </span>
           </Link>
           <div className="flex shrink-0 items-center gap-1.5">
@@ -406,7 +420,13 @@ export function AppShell() {
 
       <main className="mx-auto w-full max-w-md px-4 pt-4 lg:max-w-3xl lg:px-10">
         <SignupBanner show={showSignupBanner} />
-        <Outlet />
+        {reducedMotion ? (
+          <Outlet />
+        ) : (
+          <FadeContent key={pathname} duration={450} threshold={0.05}>
+            <Outlet />
+          </FadeContent>
+        )}
       </main>
 
       <Drawer open={featuresOpen} onOpenChange={setFeaturesOpen}>

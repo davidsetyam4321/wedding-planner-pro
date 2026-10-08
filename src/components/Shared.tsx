@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import FadeContent from "@/components/FadeContent";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
@@ -249,12 +250,15 @@ export function SectionHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-2.5 flex items-end justify-between gap-2">
+    <FadeContent
+      duration={550}
+      className="mb-2.5 flex items-end justify-between gap-2"
+    >
       <h2 className="text-[13px] font-extrabold uppercase tracking-wider leading-tight">
         {title}
       </h2>
       {action}
-    </div>
+    </FadeContent>
   );
 }
 
