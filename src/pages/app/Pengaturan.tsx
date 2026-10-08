@@ -92,7 +92,7 @@ export function PengaturanPage() {
               className="h-full w-full object-cover"
             />
           ) : (
-            <div className="grad-warm flex h-full w-full flex-col items-center justify-center gap-1.5">
+            <div className="sky-band flex h-full w-full flex-col items-center justify-center gap-1.5">
               <FlowerMark className="size-9 text-primary/25" />
               <p className="font-serif text-2xl font-semibold text-primary/60">
                 {coupleInitials(wedding?.partnerOneName, wedding?.partnerTwoName)}

@@ -306,7 +306,7 @@
   [data-slot="alert-dialog-content"] {
     border-radius: var(--radius-2xl); /* 12px cards */
     box-shadow: var(--shadow-sm-2);
-    border-color: var(--border);
+    border-color: rgba(255, 255, 255, 0.9);
   }
 
   /* Tombol & pill — radius 9999px di semua variant, sesuai Cora */
@@ -343,20 +343,25 @@
     background-repeat: no-repeat;
   }
 
-  /* Lukisan langit sebagai atmosfer aplikasi: gambar ditutup selaput putih
-     85-92% sehingga konten tetap kontras, tapi halaman dalam tidak polos. */
+  /* Lukisan langit sebagai atmosfer aplikasi — diperlihatkan berani:
+     veal tipis kebiruan di atas, menggelap jadi putih di bawah agar teks
+     tetap kontras, sementara awan tetap terlihat jelas. */
   .sky-wash {
     background-image:
-      linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.93)),
+      linear-gradient(
+        180deg,
+        rgba(234, 243, 251, 0.45) 0%,
+        rgba(255, 255, 255, 0.72) 38%,
+        rgba(255, 255, 255, 0.9) 100%
+      ),
       url("/assets/sky-hero.jpg");
     background-size: cover;
-    background-position: center;
+    background-position: center top;
     background-repeat: no-repeat;
-    background-attachment: fixed;
   }
   .dark .sky-wash {
     background-image:
-      linear-gradient(rgba(11, 30, 48, 0.88), rgba(11, 30, 48, 0.94)),
+      linear-gradient(rgba(11, 30, 48, 0.82), rgba(11, 30, 48, 0.92)),
       url("/assets/sky-hero.jpg");
   }
 
@@ -496,12 +501,14 @@
 
 /* ── Type scale ── */
 @layer components {
-  /* ── Cora surfaces: white card, hairline #dadada, 12px radius,
-     blue-cast shadow ── */
+  /* ── Cora surfaces: kartu KACA — putih tembus pandang + blur, sehingga
+     lukisan langit terasa di balik setiap kartu (floating on a window) ── */
   .clay,
   .panel {
-    background-color: var(--card);
-    border: 1px solid var(--border);
+    background-color: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.9);
     border-radius: var(--radius-2xl);
     box-shadow: var(--shadow-sm-2);
     transition:
@@ -512,14 +519,18 @@
   }
   .dark .clay,
   .dark .panel {
+    background-color: rgba(16, 40, 62, 0.72);
     border-color: rgba(255, 255, 255, 0.08);
   }
   .clay-inset {
-    background-color: var(--muted);
-    border: 1px solid var(--border);
+    background-color: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
     border-radius: 8px;
   }
   .dark .clay-inset {
+    background-color: rgba(16, 40, 62, 0.6);
     border-color: rgba(255, 255, 255, 0.06);
   }
   .clay-sm {
@@ -579,11 +590,14 @@
   .stat-tile {
     border-radius: var(--radius-2xl);
     padding: 0.7rem 0.85rem;
-    border: 1px solid var(--border);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    background-color: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     box-shadow: var(--shadow-sm-2);
   }
-  .dark .chip,
   .dark .stat-tile {
+    background-color: rgba(16, 40, 62, 0.6);
     border-color: rgba(255, 255, 255, 0.07);
   }
   .stat-tile dt {

@@ -299,7 +299,7 @@ export function AppShell() {
     return (
       <main className="flex min-h-screen items-center justify-center">
         <Petals />
-        <div className="clay grad-warm relative overflow-hidden px-8 py-7 text-center">
+        <div className="clay relative overflow-hidden px-8 py-7 text-center">
           <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-16 text-primary/20" />
           <div className="clay-sm relative mx-auto flex size-12 items-center justify-center rounded-full bg-white/70">
             <Sparkles className="size-5 animate-pulse text-primary" />

@@ -40,7 +40,7 @@ export function ChartTip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl border border-white/60 bg-card/95 px-3 py-2 text-xs shadow-[0_12px_28px_-10px_rgba(36,46,40,0.35)] backdrop-blur-md">
+    <div className="rounded-xl border border-white/80 bg-white/85 px-3 py-2 text-xs shadow-[0_12px_28px_-10px_rgba(13,92,150,0.35)] backdrop-blur-md">
       {label !== undefined && label !== "" && (
         <p className="label text-muted-foreground">{label}</p>
       )}

@@ -185,7 +185,7 @@ export function EmptyState({
       }`}
     >
       <div className="relative">
-        <div className="grad-warm clay-sm flex size-14 items-center justify-center rounded-full text-2xl">
+        <div className="sky-tint clay-sm flex size-14 items-center justify-center rounded-full text-2xl">
           {emoji}
         </div>
         <SekarSudut className="absolute -right-2 -top-2 size-5" />

@@ -36,7 +36,7 @@ export function SignupBanner({ show }: { show: boolean }) {
   };
 
   return (
-    <section className="clay grad-warm relative mb-4 overflow-hidden p-4">
+    <section className="clay relative mb-4 overflow-hidden p-4">
       <button
         type="button"
         aria-label="Tutup ajakan"

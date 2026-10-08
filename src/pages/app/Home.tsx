@@ -306,11 +306,15 @@ export function HomePage() {
         <AnimatedContent
           distance={50}
           threshold={0.05}
-          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-midnight-navy via-[#0d5c96] to-midnight-navy p-5 shadow-[0_16px_40px_-12px_rgba(13,92,150,0.5)]"
+          className="sky-band relative overflow-hidden rounded-3xl p-5 shadow-[0_16px_40px_-12px_rgba(13,92,150,0.5)]"
         >
+          {/* Selalu ada lukisan langit di belakang; foto pasangan menimpa jika diunggah */}
+          {!couplePhoto && (
+            <div className="absolute inset-0 bg-gradient-to-br from-midnight-navy/85 via-[#0d5c96]/70 to-midnight-navy/85" />
+          )}
           {couplePhoto && (
             <>
-              {/* Latar = foto pasangan yang diunggah; overlay sage menjaga teks tetap terbaca. */}
+              {/* Latar = foto pasangan yang diunggah; overlay navy menjaga teks tetap terbaca. */}
               <img
                 src={couplePhoto}
                 alt=""
@@ -325,7 +329,7 @@ export function HomePage() {
           <SekarSudut className="pointer-events-none absolute right-4 top-4 size-7" />
           <div className="relative z-10 flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-brass-gold">
+              <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-widest text-atmosphere-blue">
                 <Heart className="size-3.5" />
                 Menuju Janji Suci
               </span>
