@@ -2,10 +2,12 @@ import AnimatedContent from "@/components/AnimatedContent";
 import BlurText from "@/components/BlurText";
 import CountUp from "@/components/CountUp";
 import {
+  Bird,
   Blob,
   Bunny,
   CurvedArrow,
   DoodleStar,
+  MelatiBuddy,
   Squiggle,
 } from "@/components/Doodles";
 import {
@@ -129,6 +131,7 @@ export function LandingPage() {
           <Blob className="pointer-events-none absolute left-2 top-6 hidden size-24 text-mint-pulse opacity-70 md:block" />
           <Blob className="pointer-events-none absolute right-6 top-52 hidden size-14 rotate-45 text-butter-yellow opacity-80 lg:block" />
           <DoodleStar className="pointer-events-none absolute right-16 top-10 size-7 text-coral-emphasis" />
+          <Bird className="bobbing pointer-events-none absolute left-8 top-28 hidden size-16 lg:block" />
 
           <MelatiBandul className="relative mx-auto mt-1 block h-16 w-11" />
 
@@ -404,6 +407,7 @@ export function LandingPage() {
             <div className="relative text-center">
               <DoodleStar className="pointer-events-none absolute left-10 top-2 size-6 text-butter-yellow" />
               <DoodleStar className="pointer-events-none absolute right-14 bottom-24 size-8 text-mint-pulse" />
+              <MelatiBuddy className="bobbing pointer-events-none absolute -left-4 bottom-0 hidden size-24 md:block" />
               <h2 className="mx-auto max-w-3xl font-serif text-[34px] leading-[1.1] md:text-5xl">
                 Siap merencanakan{" "}
                 <span className="elegant relative inline-block text-[1.08em] text-coral-emphasis">

@@ -142,3 +142,126 @@ export function Bunny({ className }: DoodleProps) {
     </svg>
   );
 }
+
+/**
+ * Kawan kedua: kuncup melati berkarakter — badan putih gading, daun sage,
+ * pipi blush, dan kuncup emas di kepala. Maskot utama ala nikahan Jawa.
+ */
+export function MelatiBuddy({ className }: DoodleProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 100 120"
+      fill="none"
+      aria-hidden="true"
+    >
+      {/* kuncup emas di kepala */}
+      <circle cx="50" cy="11" r="6" fill="#e9cd8f" stroke="#151b31" strokeWidth="3" />
+      {/* badan kuncup */}
+      <path
+        d="M50 8 C 72 26, 82 52, 80 74 C 78 98, 66 112, 50 114 C 34 112, 22 98, 20 74 C 18 52, 28 26, 50 8 Z"
+        fill="#fffdf6"
+        stroke="#151b31"
+        strokeWidth="4"
+        strokeLinejoin="round"
+      />
+      {/* lipatan kelopak */}
+      <path
+        d="M34 34 C 42 52, 44 76, 40 98 M66 34 C 58 52, 56 76, 60 98"
+        stroke="#151b31"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        opacity="0.35"
+        fill="none"
+      />
+      {/* daun pangkal */}
+      <path
+        d="M24 96 C 30 111, 42 118, 50 117 C 44 107, 34 99, 24 96 Z"
+        fill="#a9d9bf"
+        stroke="#151b31"
+        strokeWidth="3.5"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M76 96 C 70 111, 58 118, 50 117 C 56 107, 66 99, 76 96 Z"
+        fill="#a9d9bf"
+        stroke="#151b31"
+        strokeWidth="3.5"
+        strokeLinejoin="round"
+      />
+      {/* pipi */}
+      <ellipse cx="30" cy="74" rx="6" ry="4" fill="#ffb6ab" />
+      <ellipse cx="70" cy="74" rx="6" ry="4" fill="#ffb6ab" />
+      {/* mata + senyum */}
+      <circle cx="39" cy="63" r="4.5" fill="#151b31" />
+      <circle cx="61" cy="63" r="4.5" fill="#151b31" />
+      <path
+        d="M43 76 Q50 83, 57 76"
+        stroke="#151b31"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
+/**
+ * Kawan ketiga: burung kecil (perkutut) — paruh emas, sayap blush,
+ * pipi merah muda. Sesuai nuansa nikahan Jawa yang tenang.
+ */
+export function Bird({ className }: DoodleProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 116 104"
+      fill="none"
+      aria-hidden="true"
+    >
+      {/* ekor */}
+      <path
+        d="M26 60 L4 66 L26 74 Z"
+        fill="#ffd9d2"
+        stroke="#151b31"
+        strokeWidth="4"
+        strokeLinejoin="round"
+      />
+      {/* badan */}
+      <path
+        d="M30 58 C 32 38, 50 27, 68 31 C 86 35, 97 50, 93 66 C 89 84, 70 93, 50 89 C 34 85, 28 73, 30 58 Z"
+        fill="#ffffff"
+        stroke="#151b31"
+        strokeWidth="4"
+        strokeLinejoin="round"
+      />
+      {/* kepala */}
+      <circle cx="86" cy="34" r="17" fill="#ffffff" stroke="#151b31" strokeWidth="4" />
+      {/* paruh */}
+      <path
+        d="M101 31 L114 36 L101 42 Z"
+        fill="#e9cd8f"
+        stroke="#151b31"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      {/* mata + pipi */}
+      <circle cx="91" cy="29" r="3.6" fill="#151b31" />
+      <ellipse cx="80" cy="41" rx="5" ry="3.4" fill="#ffb6ab" />
+      {/* sayap */}
+      <path
+        d="M44 55 C 55 46, 72 49, 76 62 C 69 74, 50 73, 44 55 Z"
+        fill="#ffd9d2"
+        stroke="#151b31"
+        strokeWidth="3.5"
+        strokeLinejoin="round"
+      />
+      {/* kaki */}
+      <path
+        d="M54 91 v9 M67 91 v9"
+        stroke="#151b31"
+        strokeWidth="4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}

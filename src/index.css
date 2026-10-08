@@ -661,3 +661,20 @@
 .batik-sogan {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.055' stroke-width='7' stroke-linecap='round'%3E%3Cpath d='M-14 30 L30 -14'/%3E%3Cpath d='M8 52 L52 8'/%3E%3Cpath d='M-14 -14 L8 8' stroke-opacity='0.03'/%3E%3Cpath d='M30 30 L52 52' stroke-opacity='0.03'/%3E%3C/g%3E%3C/svg%3E");
 }
+
+/* ── Karakter doodle: goyang lembut ────────────────────────────────────
+   Dipakai maskot halaman (PageMascot). Berbeda dengan .sway/.float-slow
+   yang ikut display:none saat reduced-motion, karakter TETAP tampil —
+   aturan reduced-motion global hanya menghentikan animasinya. */
+.bobbing {
+  animation: bobbing 3.2s ease-in-out infinite;
+}
+@keyframes bobbing {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(3deg);
+  }
+}

@@ -3,7 +3,15 @@ import { SideNav } from "@/components/SideNav";
 import { OnboardingDialog } from "@/components/Onboarding";
 import { SignupBanner } from "@/components/SignupBanner";
 import { coupleInitials } from "@/components/CouplePhoto";
-import { BloomOverlay, FlowerMark, Petals, PetalsFront } from "@/components/Decor";
+import {
+  BloomOverlay,
+  FlowerMark,
+  GarlandDivider,
+  Petals,
+  PetalsFront,
+} from "@/components/Decor";
+import { DoodleStar } from "@/components/Doodles";
+import { PageMascot } from "@/components/PageMascot";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -363,6 +371,14 @@ export function AppShell() {
       </div>
       <Petals />
       <PetalsFront />
+      {/* Maskot halaman: satu karakter berbeda per rute + stiker H-x */}
+      <PageMascot
+        pathname={pathname}
+        daysLabel={wedding ? countdownLabel(wedding.weddingDate) : undefined}
+      />
+      {/* Kilau bintang di margin lebar (desktop xl) */}
+      <DoodleStar className="float-slow pointer-events-none fixed right-6 top-40 z-10 hidden size-5 text-butter-yellow xl:block" />
+      <DoodleStar className="float-slow pointer-events-none fixed right-20 top-[58%] z-10 hidden size-4 text-coral-emphasis xl:block" />
       <BloomOverlay />
       <header className="sticky top-0 z-30 w-full bg-background/80 pb-2.5 pt-4 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3 px-4 lg:max-w-3xl lg:px-10">
@@ -436,6 +452,8 @@ export function AppShell() {
       </header>
 
       <main className="mx-auto w-full max-w-md px-4 pt-4 lg:max-w-3xl lg:px-10">
+        {/* Rangkaian melati pembuka — tiap halaman app dimulai ala pelaminan */}
+        <GarlandDivider className="mx-auto block h-12 w-44 opacity-90" />
         <SignupBanner show={showSignupBanner} />
         {reducedMotion ? (
           <Outlet />
