@@ -1,3 +1,6 @@
+import BlurText from "@/components/BlurText";
+import CountUp from "@/components/CountUp";
+import SplitText from "@/components/SplitText";
 import { FlowerMark, Petals } from "@/components/Decor";
 import { Stagger, StaggerItem } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
@@ -75,14 +78,28 @@ export function LandingPage() {
                 Perencana pernikahan untuk berdua
               </span>
               <h1 className="mt-4 font-serif text-4xl font-semibold leading-[1.1] md:text-5xl">
-                Rencanakan hari bahagia Anda,{" "}
-                <span className="text-primary">berdua</span>.
+                <SplitText
+                  tag="span"
+                  textAlign="left"
+                  className="pb-1"
+                  text="Rencanakan hari bahagia Anda,"
+                  delay={25}
+                />
+                <br />
+                <SplitText
+                  tag="span"
+                  textAlign="left"
+                  className="text-primary"
+                  text="berdua."
+                  delay={25}
+                />
               </h1>
-              <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground md:text-base">
-                Satu ruang kerja bersama untuk budget, tabungan, checklist,
-                daftar tamu, vendor, dan rundown — tersinkron real-time di kedua
-                perangkat Anda berdua.
-              </p>
+              <BlurText
+                text="Satu ruang kerja bersama untuk budget, tabungan, checklist, daftar tamu, vendor, dan rundown — tersinkron real-time di kedua perangkat Anda berdua."
+                className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground md:text-base"
+                direction="bottom"
+                delay={30}
+              />
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <Button asChild size="lg" className="rounded-2xl">
                   <Link to="/app">
@@ -122,7 +139,7 @@ export function LandingPage() {
                   Menuju hari pernikahan
                 </p>
                 <p className="num mt-1 text-4xl font-extrabold text-primary">
-                  H-328
+                  H-<CountUp to={328} />
                 </p>
                 <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-white/70">
                   <div className="h-full w-2/3 rounded-full bg-primary" />
@@ -139,7 +156,9 @@ export function LandingPage() {
                       className={`clay-sm ${tile.surface} p-2.5 ${tile.text}`}
                     >
                       <p className="label opacity-80">{tile.label}</p>
-                      <p className="num mt-0.5 text-xs font-extrabold">68%</p>
+                      <p className="num mt-0.5 text-xs font-extrabold">
+                        <CountUp to={68} />%
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -153,9 +172,13 @@ export function LandingPage() {
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
               <p className="label text-muted-foreground">Fitur lengkap</p>
-              <h2 className="mt-1 font-serif text-2xl font-semibold md:text-3xl">
-                Semua yang Anda butuhkan dalam satu tempat
-              </h2>
+              <SplitText
+                tag="h2"
+                textAlign="left"
+                className="mt-1 font-serif text-2xl font-semibold md:text-3xl pb-1"
+                text="Semua yang Anda butuhkan dalam satu tempat"
+                delay={25}
+              />
             </div>
             <span className="meta">8 modul siap dipakai</span>
           </div>
@@ -186,9 +209,13 @@ export function LandingPage() {
         {/* ── Cara kerja ────────────────────────────────────────────── */}
         <section id="cara-kerja" className="mx-auto w-full max-w-5xl px-5 pt-16">
           <p className="label text-muted-foreground">Cara kerja</p>
-          <h2 className="mt-1 font-serif text-2xl font-semibold md:text-3xl">
-            Tiga langkah menuju rencana yang rapi
-          </h2>
+          <SplitText
+            tag="h2"
+            textAlign="left"
+            className="mt-1 font-serif text-2xl font-semibold md:text-3xl pb-1"
+            text="Tiga langkah menuju rencana yang rapi"
+            delay={25}
+          />
 
           <Stagger className="mt-6 grid gap-3 md:grid-cols-3">
             {STEPS.map((step) => (
@@ -223,9 +250,13 @@ export function LandingPage() {
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-[11px] font-bold">
                   <RefreshCw className="size-3.5" /> Sinkron real-time
                 </span>
-                <h2 className="mt-3 font-serif text-2xl font-semibold md:text-3xl">
-                  Dua perangkat, satu rencana
-                </h2>
+                <SplitText
+                  tag="h2"
+                  textAlign="left"
+                  className="mt-3 font-serif text-2xl font-semibold md:text-3xl pb-1"
+                  text="Dua perangkat, satu rencana"
+                  delay={25}
+                />
                 <p className="mt-2 text-sm leading-relaxed opacity-85">
                   Setiap perubahan — setoran tabungan, tugas selesai, RSVP
                   tamu — langsung tampil di perangkat pasangan Anda. Tanpa
@@ -255,9 +286,13 @@ export function LandingPage() {
         <section className="mx-auto w-full max-w-5xl px-5 pb-16 pt-16">
           <div className="clay grad-warm relative overflow-hidden p-8 text-center">
             <FlowerMark className="float-slow pointer-events-none absolute -right-4 -top-4 size-24 text-primary/20" />
-            <h2 className="relative font-serif text-2xl font-semibold md:text-3xl">
-              Siap merencanakan hari bahagia?
-            </h2>
+            <SplitText
+              tag="h2"
+              textAlign="center"
+              className="relative font-serif text-2xl font-semibold md:text-3xl pb-1"
+              text="Siap merencanakan hari bahagia?"
+              delay={25}
+            />
             <p className="relative mx-auto mt-2 max-w-md text-sm text-muted-foreground">
               Buka ruang kerja Anda dan mulai susun rencana bersama pasangan
               — hanya butuh semenit.
