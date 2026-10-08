@@ -101,16 +101,24 @@ const PETAL_SHAPES: FlowerShape[] = [
   "petal",
 ];
 
-const PETALS = Array.from({ length: 16 }, (_, index) => ({
-  left: (index * 6.3 + 3) % 100,
-  delay: (index * 2.1) % 16,
-  duration: 18 + (index % 5) * 4,
-  size: 9 + (index % 5) * 4,
-  drift: (index % 2 === 0 ? 1 : -1) * (26 + (index % 3) * 24),
-  opacity: 0.24 + (index % 4) * 0.07,
+const PETALS = Array.from({ length: 24 }, (_, index) => ({
+  left: (index * 4.3 + 2) % 100,
+  delay: (index * 2.7) % 22,
+  duration: 20 + (index % 6) * 4,
+  size: 12 + (index % 5) * 5,
+  drift: (index % 2 === 0 ? 1 : -1) * (30 + (index % 4) * 26),
+  opacity: 0.38 + (index % 4) * 0.07,
+  blur: index % 4 === 0 ? 1.6 : 0,
   fill: WEDDING_FILLS[index % WEDDING_FILLS.length],
   shape: PETAL_SHAPES[index % PETAL_SHAPES.length],
 }));
+
+function renderFlower(shape: FlowerShape, fill: string) {
+  if (shape === "bud") return <MelatiBud fill={fill} />;
+  if (shape === "bloom") return <MelatiBloom fill={fill} />;
+  if (shape === "petal") return <RosePetal fill={fill} />;
+  return <FlowerMark className="size-full text-primary" />;
+}
 
 /** Kembang gugur (melati & kelopak mawar) menari pelan di belakang halaman. */
 export function Petals() {
@@ -130,23 +138,140 @@ export function Petals() {
               height: petal.size,
               animationDelay: `${petal.delay}s`,
               animationDuration: `${petal.duration}s`,
+              filter: petal.blur ? `blur(${petal.blur}px)` : undefined,
               "--petal-drift": `${petal.drift}px`,
               "--petal-opacity": petal.opacity,
             } as CSSProperties
           }
         >
-          {petal.shape === "bud" ? (
-            <MelatiBud fill={petal.fill} />
-          ) : petal.shape === "bloom" ? (
-            <MelatiBloom fill={petal.fill} />
-          ) : petal.shape === "petal" ? (
-            <RosePetal fill={petal.fill} />
-          ) : (
-            <FlowerMark className="size-full text-primary" />
-          )}
+          {renderFlower(petal.shape, petal.fill)}
         </span>
       ))}
     </div>
+  );
+}
+
+const FRONT_PETALS = Array.from({ length: 8 }, (_, index) => ({
+  left: (index * 12.7 + 5) % 100,
+  delay: -(index * 5.5),
+  duration: 30 + (index % 4) * 6,
+  size: 44 + (index % 4) * 14,
+  drift: (index % 2 === 0 ? 1 : -1) * (54 + (index % 3) * 30),
+  opacity: 0.13 + (index % 3) * 0.05,
+  blur: index % 2 === 0 ? 7 : 4,
+  fill: WEDDING_FILLS[(index + 2) % WEDDING_FILLS.length],
+  shape: (["petal", "bud", "bloom", "petal", "bud", "petal", "bloom", "bud"] as FlowerShape[])[index],
+}));
+
+/**
+ * Lapisan bokeh kembang di DEPAN konten — kembang besar yang di-blur dan
+ * sangat transparan, menari lambat seperti foto latar romantis.
+ * pointer-events-none: klik tetap menembus ke konten di bawahnya.
+ */
+export function PetalsFront() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none fixed inset-0 z-20 overflow-hidden"
+    >
+      {FRONT_PETALS.map((petal, index) => (
+        <span
+          key={index}
+          className="petal absolute top-0"
+          style={
+            {
+              left: `${petal.left}%`,
+              width: petal.size,
+              height: petal.size,
+              animationDelay: `${petal.delay}s`,
+              animationDuration: `${petal.duration}s`,
+              filter: `blur(${petal.blur}px)`,
+              "--petal-drift": `${petal.drift}px`,
+              "--petal-opacity": petal.opacity,
+            } as CSSProperties
+          }
+        >
+          {renderFlower(petal.shape, petal.fill)}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Rangkaian melati melengkung dengan bandul di tengah — pembatas section
+ * ala hiasan pelaminan. Tali melengkung: M2010 Q2009438010.
+ */
+export function GarlandDivider({ className }: { className?: string }) {
+  const buds = Array.from({ length: 15 }, (_, index) => {
+    const t = (index + 1) / 16;
+    return { x: 20 + t * 360, y: 10 + 168 * t * (1 - t) };
+  });
+  return (
+    <svg
+      viewBox="0 0 400 100"
+      aria-hidden="true"
+      className={className}
+      fill="none"
+    >
+      <path d="M20 10 Q200 94 380 10" stroke="#cdc1a6" strokeWidth="1.3" />
+      {buds.map((bud, index) => (
+        <g key={index} transform={`translate(${bud.x} ${bud.y})`}>
+          <ellipse
+            cx="0"
+            cy="5.4"
+            rx="2.7"
+            ry="4.3"
+            fill="#fffdf6"
+            stroke="#ddd0b8"
+            strokeWidth="0.6"
+          />
+          <ellipse cx="0" cy="9.6" rx="1.7" ry="1.1" fill="#a9d9bf" />
+        </g>
+      ))}
+      {/* bandul tengah: untaian + kuncup besar + untaian emas */}
+      <path d="M200 52 v14" stroke="#cdc1a6" strokeWidth="1.3" />
+      <circle cx="200" cy="69" r="2.6" fill="#e9cd8f" />
+      <ellipse
+        cx="200"
+        cy="80"
+        rx="5"
+        ry="7.4"
+        fill="#fffdf6"
+        stroke="#ddd0b8"
+        strokeWidth="0.7"
+      />
+      <path d="M200 87.5 v6 M196 87 v5 M204 87 v5" stroke="#cdc1a6" strokeWidth="1.1" strokeLinecap="round" />
+      {/* daun sage di kedua sisi bandul */}
+      <path d="M188 64 q6 4 10 2 M212 64 q-6 4 -10 2" stroke="#a9d9bf" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** Bandul melati menggantung — ornamen vertikal ala pelaminan. */
+export function MelatiBandul({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 64 100"
+      aria-hidden="true"
+      className={className}
+      fill="none"
+    >
+      <path d="M32 3 v14" stroke="#c9bfa8" strokeWidth="1.4" />
+      <ellipse cx="28" cy="24" rx="3" ry="4.8" fill="#fffdf6" stroke="#ddd0b8" strokeWidth="0.6" />
+      <ellipse cx="36" cy="34" rx="3" ry="4.8" fill="#fffdf6" stroke="#ddd0b8" strokeWidth="0.6" />
+      <ellipse cx="28" cy="44" rx="3" ry="4.8" fill="#f7efdd" stroke="#ddd0b8" strokeWidth="0.6" />
+      <ellipse cx="36" cy="54" rx="3" ry="4.8" fill="#ffd9d2" stroke="#ddd0b8" strokeWidth="0.6" />
+      {/* janur melingkar di sisi */}
+      <path d="M22 30 q-4 8 2 14" stroke="#a9d9bf" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M42 30 q4 8 -2 14" stroke="#a9d9bf" strokeWidth="1.5" strokeLinecap="round" />
+      {/* gugusan melati bawah */}
+      <ellipse cx="32" cy="68" rx="4.6" ry="6.8" fill="#fffdf6" stroke="#ddd0b8" strokeWidth="0.7" />
+      <ellipse cx="23" cy="74" rx="3.4" ry="5.2" fill="#f7efdd" stroke="#ddd0b8" strokeWidth="0.6" />
+      <ellipse cx="41" cy="74" rx="3.4" ry="5.2" fill="#fffdf6" stroke="#ddd0b8" strokeWidth="0.6" />
+      <circle cx="32" cy="84" r="2.6" fill="#e9cd8f" />
+      <path d="M32 87 v8 M27 87 v6 M37 87 v6" stroke="#c9bfa8" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
   );
 }
 

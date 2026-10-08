@@ -3,7 +3,7 @@ import { SideNav } from "@/components/SideNav";
 import { OnboardingDialog } from "@/components/Onboarding";
 import { SignupBanner } from "@/components/SignupBanner";
 import { coupleInitials } from "@/components/CouplePhoto";
-import { BloomOverlay, FlowerMark, Petals } from "@/components/Decor";
+import { BloomOverlay, FlowerMark, Petals, PetalsFront } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -350,6 +350,7 @@ export function AppShell() {
         <div className="absolute -right-28 top-2/3 size-80 rounded-full bg-tint-butter/45 blur-3xl" />
       </div>
       <Petals />
+      <PetalsFront />
       <BloomOverlay />
       <header className="sticky top-0 z-30 w-full bg-background/80 pb-2.5 pt-4 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3 px-4 lg:max-w-3xl lg:px-10">

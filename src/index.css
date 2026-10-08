@@ -273,6 +273,13 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Ambient glow romantic — blush, mint, dan butter menyapu lembut di
+       balik seluruh konten (tetap di tempat saat halaman di-scroll). */
+    background-image:
+      radial-gradient(56rem 34rem at 8% -6%, rgba(255, 157, 148, 0.17), transparent 62%),
+      radial-gradient(48rem 34rem at 106% 18%, rgba(159, 216, 182, 0.15), transparent 60%),
+      radial-gradient(46rem 40rem at 50% 116%, rgba(233, 201, 143, 0.17), transparent 64%);
+    background-attachment: fixed;
     font-family: var(--font-sans);
     /* Inter: tracking rapat -0.01em di semua teks UI */
     letter-spacing: -0.01em;
@@ -634,4 +641,23 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ── Aksen elegan ──────────────────────────────────────────────────────
+   Cormorant Garamond italic — serif halus untuk frasa romantic yang
+   kontras dengan font display tebal. Dipakai di headline, kutipan, dan
+   ornamen teks. Unlayered: menang atas utility font lain. */
+.elegant {
+  font-family: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+}
+
+/* ── Motif batik sogan halus ───────────────────────────────────────────
+   Sederet goresan parang diagonal sangat transparan untuk kartu navy —
+   dipasang sebagai background-image milik elemen sendiri, jadi teks dan
+   anak kartu selalu berada DI ATASnya. */
+.batik-sogan {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.055' stroke-width='7' stroke-linecap='round'%3E%3Cpath d='M-14 30 L30 -14'/%3E%3Cpath d='M8 52 L52 8'/%3E%3Cpath d='M-14 -14 L8 8' stroke-opacity='0.03'/%3E%3Cpath d='M30 30 L52 52' stroke-opacity='0.03'/%3E%3C/g%3E%3C/svg%3E");
 }

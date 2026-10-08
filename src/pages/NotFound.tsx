@@ -1,5 +1,5 @@
 import BlurText from "@/components/BlurText";
-import { FlowerMark, Petals } from "@/components/Decor";
+import { FlowerMark, Petals, PetalsFront } from "@/components/Decor";
 import Magnet from "@/components/Magnet";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -14,6 +14,7 @@ export default function NotFound() {
       className="relative flex min-h-screen flex-col items-center justify-center p-6"
     >
       <Petals />
+      <PetalsFront />
       <div className="clay grad-warm relative w-full max-w-sm overflow-hidden p-8 text-center">
         <FlowerMark className="float-slow pointer-events-none absolute -right-4 -top-4 size-24 text-primary/20" />
         <FlowerMark className="sway pointer-events-none absolute -left-4 bottom-2 size-16 text-tint-rose-foreground/20" />

@@ -8,6 +8,11 @@ import {
   DoodleStar,
   Squiggle,
 } from "@/components/Doodles";
+import {
+  GarlandDivider,
+  MelatiBandul,
+  PetalsFront,
+} from "@/components/Decor";
 import { FlowerMark, Petals } from "@/components/Decor";
 import FadeContent from "@/components/FadeContent";
 import Magnet from "@/components/Magnet";
@@ -60,6 +65,7 @@ export function LandingPage() {
   return (
     <div className="relative min-h-screen">
       <Petals />
+      <PetalsFront />
 
       {/* ── Banner pengumuman (Butter Yellow, melebar penuh) ─────────── */}
       {bannerOpen && (
@@ -111,7 +117,7 @@ export function LandingPage() {
         <section className="relative mx-auto w-full max-w-[1200px] px-5 pt-14 text-center md:pt-20">
           {/* atmosfer romantic: sapuan aurora blush → mint (react-bits) */}
           {!reducedMotion && (
-            <div className="pointer-events-none absolute -inset-x-6 -top-16 -z-10 h-[130%] opacity-60">
+            <div className="pointer-events-none absolute -inset-x-6 -top-16 -z-10 h-[130%] opacity-75">
               <SoftAurora
                 lightMode
                 speed={0.25}
@@ -123,6 +129,8 @@ export function LandingPage() {
           <Blob className="pointer-events-none absolute left-2 top-6 hidden size-24 text-mint-pulse opacity-70 md:block" />
           <Blob className="pointer-events-none absolute right-6 top-52 hidden size-14 rotate-45 text-butter-yellow opacity-80 lg:block" />
           <DoodleStar className="pointer-events-none absolute right-16 top-10 size-7 text-coral-emphasis" />
+
+          <MelatiBandul className="relative mx-auto mt-1 block h-16 w-11" />
 
           <FadeContent
             blur
@@ -144,7 +152,7 @@ export function LandingPage() {
           >
             <h1 className="font-serif text-[40px] leading-[1.04] sm:text-[56px] md:text-[64px] lg:text-[76px]">
               Rencanakan hari bahagia Anda,{" "}
-              <span className="relative inline-block text-coral-emphasis">
+              <span className="elegant relative inline-block text-[1.08em] text-coral-emphasis">
                 berdua.
                 <Squiggle className="absolute -bottom-2 left-0 h-3 w-full" />
               </span>
@@ -197,7 +205,7 @@ export function LandingPage() {
         {/* ── Dark feature card + kartu putih miring menumpuk ────────── */}
         <section className="mx-auto w-full max-w-[1200px] px-5">
           <AnimatedContent distance={80} threshold={0.15}>
-            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-inkwell-navy p-8 shadow-[0_1px_4px_rgba(138,133,125,0.2)] md:p-12">
+            <div className="batik-sogan relative overflow-hidden rounded-3xl border border-white/10 bg-inkwell-navy p-8 shadow-[0_1px_4px_rgba(138,133,125,0.2)] md:p-12">
               <Bunny className="absolute -right-1 -top-12 hidden size-24 rotate-[9deg] md:block" />
               <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_1fr]">
                 <div>
@@ -206,7 +214,7 @@ export function LandingPage() {
                   </p>
                   <h2 className="mt-2 font-serif text-3xl leading-tight text-white md:text-4xl">
                     Hitung mundur, dana, dan tugas{" "}
-                    <span className="text-coral-emphasis">
+                    <span className="elegant text-[1.06em] text-coral-emphasis">
                       terlihat sekilas
                     </span>
                   </h2>
@@ -306,6 +314,8 @@ export function LandingPage() {
           </Stagger>
         </section>
 
+        <GarlandDivider className="mx-auto block h-20 w-full max-w-sm" />
+
         {/* ── Cara kerja: tiga langkah, ikon lucide seragam ───────────── */}
         <section id="cara-kerja" className="mx-auto w-full max-w-[1200px] px-5">
           <p className="label text-slate">Cara kerja</p>
@@ -347,7 +357,7 @@ export function LandingPage() {
         {/* ── Dark feature card #2: sinkronisasi ─────────────────────── */}
         <section className="mx-auto w-full max-w-[1200px] px-5">
           <AnimatedContent distance={80} threshold={0.15}>
-            <div className="rounded-3xl border border-white/10 bg-inkwell-navy p-8 shadow-[0_1px_4px_rgba(138,133,125,0.2)] md:p-12">
+            <div className="batik-sogan rounded-3xl border border-white/10 bg-inkwell-navy p-8 shadow-[0_1px_4px_rgba(138,133,125,0.2)] md:p-12">
               <div className="grid items-center gap-8 md:grid-cols-2">
                 <div>
                   <span className="inline-flex items-center gap-1.5 rounded-lg bg-mint-pulse px-3 py-1.5 text-xs font-medium text-inkwell-navy">
@@ -386,6 +396,8 @@ export function LandingPage() {
           </AnimatedContent>
         </section>
 
+        <GarlandDivider className="mx-auto block h-20 w-full max-w-xs" />
+
         {/* ── CTA akhir: display headline + tombol magnetis + hati ────── */}
         <section className="mx-auto w-full max-w-[1200px] px-5">
           <AnimatedContent distance={60} threshold={0.2}>
@@ -394,7 +406,7 @@ export function LandingPage() {
               <DoodleStar className="pointer-events-none absolute right-14 bottom-24 size-8 text-mint-pulse" />
               <h2 className="mx-auto max-w-3xl font-serif text-[34px] leading-[1.1] md:text-5xl">
                 Siap merencanakan{" "}
-                <span className="relative inline-block text-coral-emphasis">
+                <span className="elegant relative inline-block text-[1.08em] text-coral-emphasis">
                   hari bahagia?
                   <Squiggle className="absolute -bottom-2 left-0 h-3 w-full" />
                 </span>

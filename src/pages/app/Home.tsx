@@ -368,7 +368,7 @@ export function HomePage() {
           </div>
 
           <div className="relative z-10 mt-4 flex items-start gap-3 rounded-2xl bg-white/12 p-3 backdrop-blur-sm">
-            <p className="flex flex-1 items-start gap-2 font-serif text-[13px] italic leading-snug text-white/90">
+            <p className="elegant flex flex-1 items-start gap-2 text-[15px] leading-snug text-white/90">
               <Quote className="mt-0.5 size-4 shrink-0 text-tint-butter" />
               “Dua hati, satu janji — dipersiapkan dengan tenang, dijalani
               dengan bahagia.”
