@@ -15,17 +15,14 @@ export function SideNav({ status }: { status: SyncInfo }) {
   return (
     <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col gap-4 px-5 py-6 lg:flex">
       <Link to="/app" className="flex items-center gap-3">
-        <span className="flex size-11 items-center justify-center rounded-full bg-teak-ink">
+        <span className="flex size-11 items-center justify-center rounded-full border border-foreground/10 bg-midnight-navy">
           <FlowerMark className="size-6 text-white" />
         </span>
         <span>
-          <span className="block font-serif text-lg font-semibold leading-tight text-primary">
+          <span className="block font-serif text-xl font-light leading-tight text-primary">
             SatuJanji
           </span>
           <span className="meta block">Rencana pernikahan untuk berdua</span>
-          <span className="aksara block text-[11px] leading-tight text-brass-gold">
-            ꦱꦠꦸꦗꦚ꧀ꦗꦶ
-          </span>
         </span>
       </Link>
 
@@ -36,10 +33,10 @@ export function SideNav({ status }: { status: SyncInfo }) {
             to={to}
             end={to === "/app"}
             className={({ isActive }) =>
-              `flex items-center gap-2.5 rounded-full px-3 py-2.5 text-sm font-bold transition-colors ${
+              `flex items-center gap-2.5 rounded-full px-3 py-2.5 text-sm font-medium transition-colors ${
                 isActive
                   ? `${active}`
-                  : "text-muted-foreground hover:bg-tint-sage hover:text-foreground"
+                  : "text-muted-foreground hover:bg-mist-gray hover:text-foreground"
               }`
             }
           >
@@ -58,10 +55,10 @@ export function SideNav({ status }: { status: SyncInfo }) {
             key={to}
             to={to}
             className={({ isActive }) =>
-              `flex items-center gap-2.5 rounded-full px-3 py-2 text-[13px] font-semibold transition-colors ${
+              `flex items-center gap-2.5 rounded-full px-3 py-2 text-[13px] font-medium transition-colors ${
                 isActive
                   ? `${surface} shadow-sm`
-                  : "text-muted-foreground hover:bg-tint-sage hover:text-foreground"
+                  : "text-muted-foreground hover:bg-mist-gray hover:text-foreground"
               }`
             }
           >
@@ -76,15 +73,15 @@ export function SideNav({ status }: { status: SyncInfo }) {
           <span
             className={`size-2 shrink-0 rounded-full ${
               status?.connectedEmail
-                ? "bg-tint-mint-foreground"
-                : "bg-amber-500"
+                ? "bg-atmosphere-blue"
+                : "bg-berry-red"
             }`}
           />
           <div className="min-w-0 flex-1">
             <p className="label text-muted-foreground">
               {status?.connectedEmail ? "Tersinkron dengan" : "Status akun"}
             </p>
-            <p className="truncate text-xs font-bold">
+            <p className="truncate text-xs font-medium">
               {status?.connectedEmail ??
                 status?.email ??
                 "Masuk dengan email"}
@@ -93,7 +90,7 @@ export function SideNav({ status }: { status: SyncInfo }) {
         </div>
         <Link
           to="/app/pengaturan"
-          className="flex items-center gap-2.5 rounded-full px-3 py-2 text-[13px] font-semibold text-muted-foreground transition-colors hover:bg-tint-sage hover:text-foreground"
+          className="flex items-center gap-2.5 rounded-full px-3 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-mist-gray hover:text-foreground"
         >
           <Settings className="size-4" /> Pengaturan
         </Link>

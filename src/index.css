@@ -43,7 +43,8 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* playful pastel surfaces, one per feature */
+  /* Cora feature surfaces — neutral tiers (sky tiers + mist), same token
+     names so existing class usage keeps compiling */
   --color-tint-mint: var(--tint-mint);
   --color-tint-mint-foreground: var(--tint-mint-foreground);
   --color-tint-lavender: var(--tint-lavender);
@@ -60,226 +61,216 @@
   --color-tint-sage-foreground: var(--tint-sage-foreground);
 }
 
-/* ── Design tokens ──────────────────────────────────────────────────────
-   Palet Jawa tradisional: krem plester, tinta jati, janur, kuningan,
-   terakota — diekstrak dari foto gapura ukiran. Skala tipografi
-   caption→display-xl, radius 8/16/24, dan bayangan hangat — didefinisikan
-   sekali di sini sehingga seluruh halaman ikut berubah.
-
-   Catatan spacing: skala 4px default Tailwind dipertahankan (p-4 = 16px,
-   grid 4px yang sama dengan token --spacing-*, 4/8/12/…) — nilai literal
-   --spacing-* TIDAK di-override agar tata letak halaman yang sudah ada
-   tidak menyusut 4×. Token --spacing-72/100/120 dsb. bisa ditambahkan
-   belakangan bila diperlukan utilitas baru. */
+/* ── Cora design tokens ─────────────────────────────────────────────────
+   Romantic plein-air sky painting as canvas + precision product interface,
+  ▵ named by the reference: cerulean sky #117bc8 (full-bleed hero canvas),
+   midnight navy #09426c (the one filled action), atmosphere blue #60a8dd
+   (outline action + borders on sky), berry red #cf372d (single accent,
+   used sparingly), cloud white surfaces, hairline #dadada.
+   Type: literary serif at weight 300 (Cormorant Garamond as signifier
+   substitute) for headlines ≥24px, Inter (switzer substitute) for UI. */
 @theme {
-  /* Colors — palet Jawa tradisional, diekstrak dari foto gapura ukiran:
-     tinta jati (pengganti navy), bata terakota (pengganti coral),
-     janur (pengganti mint), kuningan (pengganti butter) */
-  --color-teak-ink: #3a2317;
-  --color-brick-accent: #b4553a;
-  --color-janur-green: #8fa756;
-  --color-brass-gold: #b08d4a;
-  --color-graphite: #4a3a2a;
-  --color-slate: #7a6247;
-  --color-ash-canvas: #efe6d6;
-  --color-paper-white: #fffdf7;
-  --color-pure-ink: #241609;
-  --color-warm-stone: #e7dbc6;
+  /* Colors — Cora */
+  --color-cerulean-sky: #117bc8;
+  --color-deep-cerulean: #0d5c96;
+  --color-atmosphere-blue: #60a8dd;
+  --color-midnight-navy: #09426c;
+  --color-berry-red: #cf372d;
+  --color-cloud-white: #ffffff;
+  --color-mist-gray: #ebebeb;
+  --color-fog: #dadada;
+  --color-stone: #a1a1a1;
+  --color-ink: #2b2b2b;
+  --color-obsidian: #1d1b20;
 
-  /* Typography — Marcellus (display klasik) + Plus Jakarta Sans (teks)
-     + Noto Sans Javanese untuk aksara Jawa dekoratif */
-  --font-javanese: "Noto Sans Javanese", "Noto Serif Javanese", serif;
-  --font-grifter: "Marcellus", "GRIFTER", "Cormorant Garamond", ui-serif, Georgia, serif;
-  --font-inter: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  /* Judul (h1–h3, .h-page, .h-card, .font-serif) tampil dengan display font */
-  --font-serif: "Marcellus", "GRIFTER", "Cormorant Garamond", ui-serif, Georgia, serif;
+  /* Legacy aliases kept for compiled class names across pages */
+  --color-paper-white: #ffffff;
+  --color-pure-ink: #2b2b2b;
+  --color-graphite: #7d7d7d;
+  --color-slate: #a1a1a1;
+  --color-fog-line: #dadada;
+  --color-sky-tint: #eaf3fb; /* atmosphere whisper — outlined-surface tier */
+  --color-berry-tint: #fdf2f1; /* berry red at whisper strength */
+
+  /* Legacy class names found across /app pages — remapped to Cora values
+     so every surface renders in the disciplined palette */
+  --color-teak-ink: #09426c;
+  --color-brick-accent: #cf372d;
+  --color-brass-gold: #60a8dd;
+  --color-janur-green: #60a8dd;
+  --color-ash-canvas: #ebebeb;
+  --color-warm-stone: #dadada;
+  --color-butter-yellow: #60a8dd;
+  --color-inkwell-navy: #09426c;
+
+  /* Typography — Cormorant Garamond 300 (signifier) + Inter (switzer) */
+  --font-inter: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-grifter: "Cormorant Garamond", ui-serif, Georgia, serif;
   --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Typography — Scale */
   --text-caption: 12px;
-  --leading-caption: 1.5;
-  --tracking-caption: -0.12px;
+  --leading-caption: 1.2;
+  --tracking-caption: 0;
   --text-body-sm: 14px;
-  --leading-body-sm: 1.55;
-  --tracking-body-sm: -0.14px;
+  --leading-body-sm: 1.24;
+  --tracking-body-sm: 0;
   --text-body: 16px;
-  --leading-body: 1.55;
-  --tracking-body: -0.16px;
+  --leading-body: 1.2;
+  --tracking-body: 0;
   --text-body-lg: 18px;
-  --leading-body-lg: 1.5;
-  --tracking-body-lg: -0.18px;
-  --text-subheading: 20px;
-  --leading-subheading: 1.4;
-  --tracking-subheading: -0.2px;
-  --text-heading-sm: 24px;
-  --leading-heading-sm: 1.3;
-  --tracking-heading-sm: -0.24px;
-  --text-heading: 36px;
-  --leading-heading: 1.2;
-  --tracking-heading: -0.36px;
+  --leading-body-lg: 1.24;
+  --tracking-body-lg: 0;
+  --text-subheading: 22px;
+  --leading-subheading: 1.2;
+  --tracking-subheading: 0;
+  --text-heading-sm: 34px;
+  --leading-heading-sm: 1.18;
+  --tracking-heading-sm: -0.3px;
+  --text-heading: 45px;
+  --leading-heading: 1.02;
+  --tracking-heading: -0.4px;
   --text-heading-lg: 48px;
-  --leading-heading-lg: 1.16;
-  --tracking-heading-lg: 1.44px;
-  --text-display: 64px;
-  --leading-display: 1.1;
-  --tracking-display: 1.92px;
-  --text-display-xl: 108px;
-  --leading-display-xl: 1;
-  --tracking-display-xl: -1.08px;
+  --leading-heading-lg: 1.02;
+  --tracking-heading-lg: -0.4px;
+  --text-display: 55px;
+  --leading-display: 1.02;
+  --tracking-display: -0.5px;
 
-  /* Border Radius — radius-lg (8px) berasal dari --radius di bridge */
-  --radius-2xl: 16px;
-  --radius-3xl: 24px;
+  /* Border Radius — Cora: pill buttons, 12px cards, 8px inputs, 20px modals */
+  --radius-2xl: 12px;
+  --radius-3xl: 20px;
 
-  /* Shadows */
-  --shadow-subtle: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
-  --shadow-sm: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
-  --shadow-sm-2: rgba(90, 64, 42, 0.18) 0px 1px 4px 0px;
-}
-
-/* GRIFTER (Hanson Method) adalah display font lama. Untuk pemakaian web,
-   letakkan berkasnya di public/fonts/GRIFTER.woff2 lalu ganti src di
-   @font-face berikut menjadi: url("/fonts/GRIFTER.woff2") format("woff2").
-   Selama berkas itu belum ada, display font "Marcellus" (Google Fonts)
-   dipakai otomatis sebagai pengganti. */
-@font-face {
-  font-family: "GRIFTER";
-  src: local("GRIFTER"), local("GRIFTER Bold");
-  font-weight: 400 900;
-  font-display: swap;
+  /* Shadows — brand-blue cast (deep cerulean), never neutral gray */
+  --shadow-subtle: rgba(13, 92, 150, 0.12) 0px 1px 3px 0px, rgba(13, 92, 150, 0.08) 0px 1px 2px 0px;
+  --shadow-sm: rgba(13, 92, 150, 0.16) 0px 4px 8px -2px, rgba(13, 92, 150, 0.1) 0px 2px 4px -1px;
+  --shadow-sm-2: rgba(0, 0, 0, 0.1) 0px 4px 4px 0px;
+  --shadow-float: rgba(0, 0, 0, 0.25) 4px 6px 8px -2px, rgba(0, 0, 0, 0.2) -4px -1px 8px -2px;
 }
 
 /* ── Semantic tokens (terhubung ke bridge di atas) ─────────────────────── */
 :root {
   /* radius-lg = 8px, radius-md = 6px, radius-xl = 12px (dari --radius) */
+  /* --radius tetap 0.5rem → lg=8px (input), xl=12px (kartu) */
   --radius: 0.5rem;
 
-  --background: #f6f2e8; /* ivory bersih — kanvas premium */
-  --foreground: #3a2317; /* tinta jati */
-  --card: #fffdf7; /* kertas gading */
-  --card-foreground: #3a2317;
-  --popover: #fffdf7;
-  --popover-foreground: #3a2317;
-  --primary: #5b321f; /* kayu jati — CTA utama */
-  --primary-foreground: #faf3e4;
-  --secondary: #e7dbc6; /* pasir hangat */
-  --secondary-foreground: #3a2317;
-  --muted: #eae0cc;
-  --muted-foreground: #7a6247; /* cokelat berdebu */
-  --accent: #dfe7c4; /* janur muda */
-  --accent-foreground: #3a2317;
-  --destructive: #a63a2b; /* merah bata */
+  --background: #ffffff; /* cloud white — quiet content sections */
+  --foreground: #2b2b2b; /* ink */
+  --card: #ffffff;
+  --card-foreground: #2b2b2b;
+  --popover: #ffffff;
+  --popover-foreground: #2b2b2b;
+  --primary: #09426c; /* midnight navy — the filled action */
+  --primary-foreground: #ffffff;
+  --secondary: #ebebeb; /* mist gray */
+  --secondary-foreground: #2b2b2b;
+  --muted: #ebebeb;
+  --muted-foreground: #7d7d7d; /* graphite */
+  --accent: #eaf3fb; /* sky whisper tint */
+  --accent-foreground: #09426c;
+  --destructive: #cf372d; /* berry red */
   --destructive-foreground: #ffffff;
-  --border: #ded0b6; /* hairline krem */
-  --input: #d5c4a6;
-  --ring: #b4553a; /* terakota */
-  --chart-1: #7b4530; /* jati */
-  --chart-2: #b4553a; /* terakota */
-  --chart-3: #8fa756; /* janur */
-  --chart-4: #d8b45c; /* kuningan */
-  --chart-5: #7b2d26; /* marun wayang */
-  --sidebar: #f7f0e1;
-  --sidebar-foreground: #3a2317;
-  --sidebar-primary: #5b321f;
-  --sidebar-primary-foreground: #faf3e4;
-  --sidebar-accent: #eee4d0;
-  --sidebar-accent-foreground: #3a2317;
-  --sidebar-border: #ded0b6;
-  --sidebar-ring: #b4553a;
+  --border: #dadada; /* fog hairline */
+  --input: #dadada;
+  --ring: #60a8dd; /* atmosphere blue */
+  --chart-1: #117bc8; /* cerulean */
+  --chart-2: #09426c; /* midnight navy */
+  --chart-3: #60a8dd; /* atmosphere */
+  --chart-4: #0d5c96; /* deep cerulean */
+  --chart-5: #cf372d; /* berry */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #2b2b2b;
+  --sidebar-primary: #09426c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eaf3fb;
+  --sidebar-accent-foreground: #09426c;
+  --sidebar-border: #dadada;
+  --sidebar-ring: #60a8dd;
 
-  /* permukaan pastel hangat — satu per fitur, teks tinta jati di atasnya */
-  --tint-mint: #dfe7c4; /* janur */
-  --tint-mint-foreground: #3a2317;
-  --tint-lavender: #eee3d1; /* krem terang */
-  --tint-lavender-foreground: #3a2317;
-  --tint-peach: #f7e2c9; /* kunyit muda */
-  --tint-peach-foreground: #3a2317;
-  --tint-rose: #f4dcd2; /* blush bata */
-  --tint-rose-foreground: #3a2317;
-  --tint-sky: #e9e9db; /* kelabu plester */
-  --tint-sky-foreground: #3a2317;
-  --tint-butter: #f7e7bd; /* kuningan */
-  --tint-butter-foreground: #3a2317;
-  --tint-sage: #e1e6cf; /* hijau daun */
-  --tint-sage-foreground: #3a2317;
+  /* Cora tiers — neutral surface ladder, no per-feature chroma */
+  --tint-mint: #ebebeb;
+  --tint-mint-foreground: #2b2b2b;
+  --tint-lavender: #eaf3fb;
+  --tint-lavender-foreground: #09426c;
+  --tint-peach: #ebebeb;
+  --tint-peach-foreground: #2b2b2b;
+  --tint-rose: #fdf2f1;
+  --tint-rose-foreground: #cf372d;
+  --tint-sky: #eaf3fb;
+  --tint-sky-foreground: #09426c;
+  --tint-butter: #ebebeb;
+  --tint-butter-foreground: #2b2b2b;
+  --tint-sage: #ebebeb;
+  --tint-sage-foreground: #2b2b2b;
 
-  /* aksen emas — digelapkan agar kontras di kanvas krem */
-  --gold: #8a6a1f;
+  /* aksen Emas lama dipetakan ke berry red (dipakai hemat) */
+  --gold: #cf372d;
 
-  --shadow-soft: rgba(58, 35, 23, 0.1) 0px 1px 3px 0px, rgba(58, 35, 23, 0.06) 0px 1px 2px 0px;
-  --shadow-lift: rgba(58, 35, 23, 0.12) 0px 4px 6px -1px, rgba(58, 35, 23, 0.07) 0px 2px 4px -1px;
-  --shadow-float: rgba(58, 35, 23, 0.22) 0px 12px 24px -8px, rgba(58, 35, 23, 0.14) 0px 4px 8px -4px;
+  --shadow-soft: rgba(13, 92, 150, 0.12) 0px 1px 3px 0px, rgba(13, 92, 150, 0.08) 0px 1px 2px 0px;
+  --shadow-lift: rgba(13, 92, 150, 0.16) 0px 4px 8px -2px, rgba(13, 92, 150, 0.1) 0px 2px 4px -1px;
+  --shadow-float: rgba(0, 0, 0, 0.25) 4px 6px 8px -2px, rgba(0, 0, 0, 0.2) -4px -1px 8px -2px;
 }
 
 .dark {
-  --background: #241a12; /* malam jati */
-  --foreground: #f2e9d8;
-  --card: #302417;
-  --card-foreground: #f2e9d8;
-  --popover: #302417;
-  --popover-foreground: #f2e9d8;
-  --primary: #f2e9d8; /* inverse button di kanvas gelap */
-  --primary-foreground: #241a12;
-  --secondary: #3c2f1f;
-  --secondary-foreground: #f2e9d8;
-  --muted: #382b1c;
-  --muted-foreground: #c2b096;
-  --accent: #465526;
-  --accent-foreground: #eef2d6;
-  --destructive: #d4574a;
+  --background: #0b1e30; /* malam di atas langit */
+  --foreground: #eef4f9;
+  --card: #10283e;
+  --card-foreground: #eef4f9;
+  --popover: #10283e;
+  --popover-foreground: #eef4f9;
+  --primary: #60a8dd;
+  --primary-foreground: #06243d;
+  --secondary: #14304a;
+  --secondary-foreground: #eef4f9;
+  --muted: #14304a;
+  --muted-foreground: #9fb9cf;
+  --accent: #14304a;
+  --accent-foreground: #bfe0f5;
+  --destructive: #e05a51;
   --destructive-foreground: #ffffff;
-  --border: #46361f;
-  --input: #4f3d27;
-  --ring: #d4795f;
-  --chart-1: #a9c36b;
-  --chart-2: #d4795f;
-  --chart-3: #d8b45c;
-  --chart-4: #e7dbc6;
-  --chart-5: #c2b096;
-  --sidebar: #241a12;
-  --sidebar-foreground: #f2e9d8;
-  --sidebar-primary: #f2e9d8;
-  --sidebar-primary-foreground: #241a12;
-  --sidebar-accent: #382b1c;
-  --sidebar-accent-foreground: #f2e9d8;
-  --sidebar-border: #46361f;
-  --sidebar-ring: #d4795f;
+  --border: #1d3d5c;
+  --input: #1d3d5c;
+  --ring: #60a8dd;
+  --chart-1: #60a8dd;
+  --chart-2: #117bc8;
+  --chart-3: #bfe0f5;
+  --chart-4: #0d5c96;
+  --chart-5: #e05a51;
+  --sidebar: #0b1e30;
+  --sidebar-foreground: #eef4f9;
+  --sidebar-primary: #60a8dd;
+  --sidebar-primary-foreground: #06243d;
+  --sidebar-accent: #14304a;
+  --sidebar-accent-foreground: #bfe0f5;
+  --sidebar-border: #1d3d5c;
+  --sidebar-ring: #60a8dd;
 
-  /* bidang gelap kayu + teks terang (pola sama dengan tema sebelumnya) */
-  --tint-mint: #2f3a1d;
-  --tint-mint-foreground: #d7e4ac;
-  --tint-lavender: #3a3020;
-  --tint-lavender-foreground: #ecdfc2;
-  --tint-peach: #453219;
-  --tint-peach-foreground: #f5d9b8;
-  --tint-rose: #472b21;
-  --tint-rose-foreground: #f4d0c6;
-  --tint-sky: #363426;
-  --tint-sky-foreground: #e9e6d2;
-  --tint-butter: #463714;
-  --tint-butter-foreground: #f7e7bd;
-  --tint-sage: #343a23;
-  --tint-sage-foreground: #e1e6cf;
+  --tint-mint: #14304a;
+  --tint-mint-foreground: #eef4f9;
+  --tint-lavender: #14304a;
+  --tint-lavender-foreground: #bfe0f5;
+  --tint-peach: #14304a;
+  --tint-peach-foreground: #eef4f9;
+  --tint-rose: #1d2733;
+  --tint-rose-foreground: #f2b8b3;
+  --tint-sky: #14304a;
+  --tint-sky-foreground: #bfe0f5;
+  --tint-butter: #14304a;
+  --tint-butter-foreground: #eef4f9;
+  --tint-sage: #14304a;
+  --tint-sage-foreground: #eef4f9;
 
-  --gold: #f2dfa9;
+  --gold: #e05a51;
 
   --shadow-soft: rgba(0, 0, 0, 0.4) 0px 1px 2px 0px, rgba(0, 0, 0, 0.24) 0px 1px 3px 0px;
   --shadow-lift: rgba(0, 0, 0, 0.45) 0px 4px 6px -1px, rgba(0, 0, 0, 0.28) 0px 2px 4px -1px;
   --shadow-float: rgba(0, 0, 0, 0.6) 0px 12px 24px -8px, rgba(0, 0, 0, 0.4) 0px 4px 8px -4px;
 }
 
-/* Mode gelap: watermark plester tetap sangat halus di atas ivory malam */
-.dark body {
-  background-image:
-    radial-gradient(72rem 44rem at 50% -10%, rgba(212, 150, 110, 0.06), transparent 70%),
-    linear-gradient(rgba(36, 26, 18, 0.95), rgba(36, 26, 18, 0.95)),
-    url("/assets/stucco-wall.jpg");
-  background-size: auto, cover, 720px;
-  background-repeat: no-repeat, no-repeat, repeat;
-  background-attachment: fixed;
-}
-
+/* Latar app: awan putih tenang — gambar langit dipakai lewat utilitas
+   .sky-canvas di section hero/pintas, jadi body tetap putih bersih. */
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -289,33 +280,19 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* Latar elegan: ivory bersih + satu sapuan hangat sangat samar +
-       tekstur plester sebagai watermark tipis (±8%) — tenang ala produk
-       mahal, bukan ramai. */
-    background-image:
-      radial-gradient(72rem 44rem at 50% -10%, rgba(196, 158, 110, 0.07), transparent 70%),
-      linear-gradient(rgba(247, 243, 234, 0.92), rgba(247, 243, 234, 0.92)),
-      url("/assets/stucco-wall.jpg");
-    background-size: auto, cover, 720px;
-    background-repeat: no-repeat, no-repeat, repeat;
-    background-attachment: fixed;
     font-family: var(--font-sans);
     /* Inter: tracking rapat -0.01em di semua teks UI */
     letter-spacing: -0.01em;
-    /* display font pengganti hanya punya satu berat — cegah bold sintetis
-       di mana pun (judul, .h-card, label kartu) */
-    font-synthesis-weight: none;
     -webkit-font-smoothing: antialiased;
   }
   h1,
   h2,
   h3 {
+    /* Literary serif — weight 300, aspirational not commanding */
     font-family: var(--font-serif);
+    font-weight: 300;
     font-optical-sizing: auto;
-    /* GRIFTER display: tracking longgar +0.03em — positif bahkan raksasa */
-    letter-spacing: 0.03em;
-    /* display font pengganti hanya punya satu berat — cegah bold sintetis */
-    font-synthesis-weight: none;
+    letter-spacing: -0.01em;
   }
   button:not([disabled]),
   [role="button"]:not([disabled]) {
@@ -327,30 +304,26 @@
   [data-slot="popover-content"],
   [data-slot="dropdown-menu-content"],
   [data-slot="alert-dialog-content"] {
-    border-radius: var(--radius-2xl);
-    /* bayangan hangus warm-stone — tanda tangan kedalaman Tracky */
+    border-radius: var(--radius-2xl); /* 12px cards */
     box-shadow: var(--shadow-sm-2);
     border-color: var(--border);
   }
 
-  /* Tombol — permukaan solid navy, radius 8px */
-  [data-slot="button"][data-variant="default"],
-  [data-slot="button"][data-variant="outline"],
-  [data-slot="button"][data-variant="secondary"],
-  [data-slot="button"][data-variant="destructive"] {
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-subtle);
+  /* Tombol & pill — radius 9999px di semua variant, sesuai Cora */
+  [data-slot="button"],
+  [data-slot="badge"] {
+    border-radius: 9999px;
   }
 
   [data-slot="input"],
   [data-slot="textarea"],
   [data-slot="select-trigger"] {
-    border-radius: var(--radius-lg);
+    border-radius: 8px;
     background-color: var(--card);
   }
 }
 
-/* ── Utilities: gradasi pastel, gerak playful ─────────────────────────── */
+/* ── Utilities: Cora primitives ─────────────────────────────────────── */
 @layer utilities {
   .panel-header {
     display: flex;
@@ -358,52 +331,59 @@
     gap: 0.5rem;
     padding: 0.85rem 1.15rem;
     font-size: 0.8125rem;
-    font-weight: 700;
+    font-weight: 500;
     color: var(--muted-foreground);
   }
 
-  /* gradients — krem gading, janur, krem, kunyit, blush, kelabu, kuningan */
+  /* Full-bleed painted sky as page canvas — never inside a card */
+  .sky-canvas {
+    background-image: url("/assets/sky-hero.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  /* gradients — mapped to Cora tiers so legacy class names still work */
   .grad-warm {
-    background-image: linear-gradient(135deg, #fffdf7 0%, #f7f1e4 55%, #f6e3d6 100%);
+    background-image: linear-gradient(135deg, #ffffff 0%, #eaf3fb 100%);
   }
-  .grad-mint {
-    background-image: linear-gradient(135deg, #ffffff 0%, #dfe7c4 100%);
-  }
-  .grad-lavender {
-    background-image: linear-gradient(135deg, #ffffff 0%, #eee3d1 100%);
-  }
-  .grad-peach {
-    background-image: linear-gradient(135deg, #fffdf6 0%, #f7e2c9 100%);
+  .grad-mint,
+  .grad-lavender,
+  .grad-peach,
+  .grad-sky,
+  .grad-butter,
+  .grad-sage {
+    background-image: linear-gradient(135deg, #ffffff 0%, #ebf3fa 100%);
   }
   .grad-rose {
-    background-image: linear-gradient(135deg, #fffaf7 0%, #f4dcd2 100%);
+    background-image: linear-gradient(135deg, #ffffff 0%, #fdf2f1 100%);
   }
-  .grad-sky {
-    background-image: linear-gradient(135deg, #f8f7f0 0%, #e9e9db 100%);
-  }
-  .grad-butter {
-    background-image: linear-gradient(135deg, #fffdf5 0%, #f7e7bd 100%);
-  }
-  .grad-sage {
-    background-image: linear-gradient(135deg, #ffffff 0%, #e1e6cf 100%);
-  }
-  /* isian progres dua-nada: tinta jati → bata terakota */
+  /* isian progres dua-nada: cerulean → midnight navy */
   .fill-botanical {
-    background-image: linear-gradient(90deg, #5b321f 0%, #b4553a 100%);
+    background-image: linear-gradient(90deg, #117bc8 0%, #09426c 100%);
+  }
+
+  /* readable text over the sky painting */
+  .sky-scrim {
+    background-image: linear-gradient(
+      to top,
+      rgba(9, 66, 108, 0.55) 0%,
+      rgba(9, 66, 108, 0.28) 45%,
+      rgba(9, 66, 108, 0) 100%
+    );
   }
 
   /* readable text over the couple photo on the dashboard */
   .photo-scrim {
     background-image: linear-gradient(
       to top,
-      rgba(36, 22, 12, 0.92) 0%,
-      rgba(41, 26, 16, 0.66) 42%,
-      rgba(56, 38, 22, 0.22) 72%,
-      rgba(56, 38, 22, 0) 100%
+      rgba(9, 66, 108, 0.55) 0%,
+      rgba(9, 66, 108, 0.22) 55%,
+      rgba(9, 66, 108, 0) 100%
     );
   }
 
-  /* falling petals */
+  /* falling petals — dipertahankan (dipakai halaman moodboard) */
   .petal {
     animation-name: petal-fall;
     animation-timing-function: linear;
@@ -490,12 +470,10 @@
   }
 }
 
-/* ── Type scale: one place decides how headings, labels and numbers look ── */
+/* ── Type scale ── */
 @layer components {
-  /* ── Permukaan kartu ───────────────────────────────────────────────────
-     Kanvas bersih: bidang solid, hairline warm-stone, radius 16px, bayangan
-     halus — menggantikan gaya kaca sebelumnya. Hover pop-up ada di blok
-     tanpa layer di akhir berkas ini. */
+  /* ── Cora surfaces: white card, hairline #dadada, 12px radius,
+     blue-cast shadow ── */
   .clay,
   .panel {
     background-color: var(--card);
@@ -515,13 +493,13 @@
   .clay-inset {
     background-color: var(--muted);
     border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
+    border-radius: 8px;
   }
   .dark .clay-inset {
     border-color: rgba(255, 255, 255, 0.06);
   }
   .clay-sm {
-    border-radius: var(--radius-lg);
+    border-radius: 8px;
     box-shadow: var(--shadow-sm-2);
   }
   .clay-press {
@@ -532,22 +510,23 @@
   .h-page {
     font-family: var(--font-serif);
     font-size: 1.45rem;
-    font-weight: 700;
-    line-height: 1.22;
+    font-weight: 300;
+    line-height: 1.18;
     letter-spacing: -0.01em;
   }
   .h-card {
     font-family: var(--font-serif);
-    font-size: 1.05rem;
-    font-weight: 700;
-    line-height: 1.3;
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1.25;
     letter-spacing: -0.005em;
   }
   .label {
     font-size: var(--text-caption);
-    font-weight: 700;
+    font-weight: 500;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    color: var(--muted-foreground);
   }
   .meta {
     font-size: var(--text-caption);
@@ -562,16 +541,16 @@
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
-    border-radius: var(--radius-lg);
-    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    padding: 0.3rem 0.75rem;
     font-size: var(--text-caption);
-    font-weight: 700;
+    font-weight: 500;
     border: 1px solid var(--border);
-    box-shadow: var(--shadow-sm-2);
-    transition: transform 140ms ease, background-color 140ms ease;
+    box-shadow: none;
+    transition: background-color 140ms ease, border-color 140ms ease;
   }
   .chip:active {
-    transform: scale(0.97);
+    background-color: var(--muted);
   }
   .stat-tile {
     border-radius: var(--radius-2xl);
@@ -585,35 +564,27 @@
   }
   .stat-tile dt {
     font-size: 0.65rem;
-    font-weight: 700;
+    font-weight: 500;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     opacity: 0.7;
   }
   .stat-tile dd {
     font-size: 0.9rem;
-    font-weight: 800;
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
   }
 }
 
-/* ── Tracky: radius 8px untuk semua kontrol interaktif ─────────────────
-   Tanpa layer → mengalahkan utility rounded-md/2xl/xl yang ditulis di
-   halaman, sehingga tombol, badge, dan input seragam 8px di mana pun. */
-[data-slot="button"],
-[data-slot="badge"],
+/* ── Cora: pill radius untuk semua kontrol interaktif ── */
 [data-slot="input"],
 [data-slot="textarea"],
 [data-slot="select-trigger"] {
   border-radius: 8px;
 }
 
-/* ── Flying pop-up hovers ─────────────────────────────────────────────────
-   Deliberately UNLAYERED: unlayered rules beat every @layer, so these lifts
-   always win over utility shadows like shadow-sm. Cards and buttons rise,
-   scale a touch, and swap to the float shadow — a playful pop-up feel. */
 @media (hover: hover) {
-  /* Elegan: tidak ada pantulan/membesar — hanya bayangan yang dalam. */
+  /* Cora: no bounce — shadows deepen only */
   [data-slot="card"]:hover,
   .clay:hover,
   .panel:hover,
@@ -641,10 +612,7 @@
   }
 }
 
-/* ── Reduced motion global ─────────────────────────────────────────────
-   Matikan seluruh animasi CSS (kelopak jatuh, denyut pulse-ring, dsb.)
-   untuk pengguna yang meminta gerak minimal. Efek berbasis JS (gsap)
-   dimatikan lewat useReducedMotion di komponen yang memakainya. */
+/* ── Reduced motion global ── */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -656,97 +624,15 @@
   }
 }
 
-/* ── Aksen elegan ──────────────────────────────────────────────────────
-   Cormorant Garamond italic — serif halus untuk frasa romantic yang
-   kontras dengan font display tebal. Dipakai di headline, kutipan, dan
-   ornamen teks. Unlayered: menang atas utility font lain. */
+/* ── Literary serif accent — light italic for romantic phrases ── */
 .elegant {
-  font-family: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  font-family: "Cormorant Garamond", Georgia, serif;
   font-style: italic;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.005em;
 }
 
-/* ── Motif batik sogan halus ───────────────────────────────────────────
-   Sederet goresan parang diagonal sangat transparan untuk panel gelap —
-   dipasang sebagai background-image milik elemen sendiri, jadi teks dan
-   anak kartu selalu berada DI ATASnya. Warna kuningan emas mengikuti
-   foto ukiran kayu. */
-.batik-sogan {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cg fill='none' stroke='%23e9cd8f' stroke-opacity='0.10' stroke-width='7' stroke-linecap='round'%3E%3Cpath d='M-14 30 L30 -14'/%3E%3Cpath d='M8 52 L52 8'/%3E%3Cpath d='M-14 -14 L8 8' stroke-opacity='0.05'/%3E%3Cpath d='M30 30 L52 52' stroke-opacity='0.05'/%3E%3C/g%3E%3C/svg%3E");
-}
-
-/* ── Material dari aset nyata ────────────────────────────────────────
-   Foto Wikimedia Commons (unduhan, lihat public/assets/CREDITS.md):
-   ukiran pintu gapura & batik parang klithik. Dipakai sebagai lapisan
-   tekstur tipis di balik konten — selalu bersama overlay warna solid
-   agar teks tetap kontras. */
-.wood-carving {
-  background-image: url("/assets/gapura-ukiran.jpg");
-  background-size: cover;
-  background-position: center;
-}
-.batik-photo {
-  background-image: url("/assets/batik-parang.jpg");
-  background-size: 260px;
-}
-/* Serat kertas/plester halus — noise SVG, tanpa request jaringan. */
-.plaster-grain {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-}
-
-/* ── Pita & ornamen bergaya premium ──────────────────────────────────
-   Tanpa foto batik mencolok: garis emas antik 1px + pita tipis tone-
-   on-tone. Motif parang/kawung hanya sebagai pola rambut emas samar. */
-.pita-h {
-  background-repeat: repeat-x;
-  background-position: center;
-  background-size: auto 100%;
-  border-top: 1px solid rgba(165, 133, 74, 0.55);
-  border-bottom: 1px solid rgba(165, 133, 74, 0.28);
-  box-shadow: none;
-}
-.pita-v {
-  background-repeat: repeat-y;
-  background-position: center;
-  background-size: 100% auto;
-  border-left: 1px solid rgba(165, 133, 74, 0.55);
-  border-right: 1px solid rgba(165, 133, 74, 0.28);
-  box-shadow: none;
-}
-.pita-parang {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Cg fill='none' stroke='%23a5854a' stroke-opacity='0.28' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M-6 22 L22 -6'/%3E%3Cpath d='M8 42 L42 8'/%3E%3C/g%3E%3C/svg%3E");
-}
-.pita-kawung {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg fill='none' stroke='%23a5854a' stroke-opacity='0.30' stroke-width='1.2'%3E%3Ccircle cx='15' cy='15' r='7'/%3E%3Ccircle cx='0' cy='0' r='7'/%3E%3Ccircle cx='30' cy='0' r='7'/%3E%3Ccircle cx='0' cy='30' r='7'/%3E%3Ccircle cx='30' cy='30' r='7'/%3E%3C/g%3E%3C/svg%3E");
-}
-
-/* Aksara Jawa dekoratif (Noto Sans Javanese) */
-.aksara {
-  font-family: var(--font-javanese);
-  letter-spacing: 0.04em;
-}
-
-/* Garis ornamen emas antik — penggaris motif di bawah judul */
-.ornamen-bawah {
-  height: 2px;
-  border-radius: 999px;
-  background-image: repeating-linear-gradient(
-    90deg,
-    rgba(165, 133, 74, 0.75) 0 10px,
-    transparent 10px 16px
-  );
-}
-
-/* Vignette emas halus untuk tepi kartu & hero */
-.vignette-emas {
-  box-shadow: inset 0 0 60px rgba(216, 180, 92, 0.3);
-}
-
-/* ── Karakter doodle: goyang lembut ────────────────────────────────────
-   Dipakai maskot halaman (PageMascot). Berbeda dengan .sway/.float-slow
-   yang ikut display:none saat reduced-motion, karakter TETAP tampil —
-   aturan reduced-motion global hanya menghentikan animasinya. */
+/* ── Character doodle: gentle bob (PageMascot) ── */
 .bobbing {
   animation: bobbing 3.2s ease-in-out infinite;
 }

@@ -19,153 +19,138 @@ export function FlowerMark({ className }: { className?: string }) {
   );
 }
 
-/* ── Kembang gugur ala nikahan Jawa ───────────────────────────────────
-   Kuncup melati, melati mekar, kelopak mawar — sekali-sekali tanda bunga
-   merek — ditaburkan jatuh pelan di belakang halaman. */
-
-type FlowerShape = "bud" | "bloom" | "petal" | "mark";
-
-/** Kuncup melati: putih gading dengan pangkal daun hijau. */
-function MelatiBud({ fill }: { fill: string }) {
+/** Burung kecil di angkasa — siluet minimal Cora. */
+export function BirdMark({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-full">
+    <svg
+      viewBox="0 0 32 16"
+      aria-hidden="true"
+      className={className}
+      fill="none"
+    >
       <path
-        d="M12 2.8c2.7 2.6 4.1 5.5 4.1 8.6 0 3.6-1.9 6.2-4.1 7.8-2.2-1.6-4.1-4.2-4.1-7.8 0-3.1 1.4-6 4.1-8.6Z"
-        fill={fill}
-        stroke="#ddd0b8"
-        strokeWidth="0.7"
-      />
-      <path
-        d="M8.3 16.9c1.2 2.2 2.4 3.5 3.7 4.2 1.3-.7 2.5-2 3.7-4.2-2.4 1.1-5 1.1-7.4 0Z"
-        fill="#a9d9bf"
+        d="M2 12 C 8 4, 12 4, 16 9 C 20 4, 24 4, 30 12"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
       />
     </svg>
   );
 }
 
-/** Melati mekar: lima kelopak putih dengan inti emas lembut. */
-function MelatiBloom({ fill }: { fill: string }) {
+/* ── Awan gugur (pengganti kembang gugur) ─────────────────────────────── */
+
+type CloudShape = "cloud" | "petal" | "bird" | "mark";
+
+/** Kubus awan kumul lembut dalam warna solid. */
+function SoftCloud({ fill }: { fill: string }) {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-full">
-      <g fill={fill} stroke="#ddd0b8" strokeWidth="0.6">
-        <ellipse cx="12" cy="6.4" rx="2.5" ry="4" />
-        <ellipse cx="12" cy="6.4" rx="2.5" ry="4" transform="rotate(72 12 12)" />
-        <ellipse cx="12" cy="6.4" rx="2.5" ry="4" transform="rotate(144 12 12)" />
-        <ellipse cx="12" cy="6.4" rx="2.5" ry="4" transform="rotate(216 12 12)" />
-        <ellipse cx="12" cy="6.4" rx="2.5" ry="4" transform="rotate(288 12 12)" />
+    <svg viewBox="0 0 48 28" aria-hidden="true" className="size-full">
+      <g fill={fill}>
+        <ellipse cx="14" cy="18" rx="11" ry="8.5" />
+        <ellipse cx="26" cy="14" rx="13" ry="10" />
+        <ellipse cx="37" cy="19" rx="10" ry="8" />
+        <rect x="6" y="18" width="36" height="9" rx="4.5" />
       </g>
-      <circle cx="12" cy="12" r="2.1" fill="#e9cd8f" />
     </svg>
   );
 }
 
-/** Kelopak mawar tunggal: blush melengkung dengan urat samar. */
-function RosePetal({ fill }: { fill: string }) {
+/** Kelopak putih tunggal — dipertahankan agar ritual "bloom" tetap hidup. */
+function WhitePetal({ fill }: { fill: string }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" className="size-full">
       <path
         d="M12 2.6c4.7 3.3 7.1 7.1 7.1 10.9 0 4.3-3.2 7.4-7.1 8.4-3.9-1-7.1-4.1-7.1-8.4 0-3.8 2.4-7.6 7.1-10.9Z"
         fill={fill}
-        stroke="#ddd0b8"
-        strokeWidth="0.7"
-      />
-      <path
-        d="M12 5.8c2.6 2.4 3.9 5 3.9 7.7"
-        stroke="#ffffff"
-        strokeOpacity="0.55"
-        strokeWidth="1.1"
-        fill="none"
+        fillOpacity="0.85"
       />
     </svg>
   );
 }
 
-/** Palet nikahan Jawa: putih gading, krem, blush kembang, emas, sage. */
-const WEDDING_FILLS = [
-  "#fffdf6", // putih gading
-  "#f7efdd", // krem
-  "#ffd9d2", // blush tipis
-  "#ffb6ab", // blush dalam
-  "#e9cd8f", // emas lembut
-  "#a9d9bf", // sage daun
+/** Palet Cora: putih awan, tint langit, tint berry, putih bersih. */
+const CLOUD_FILLS = [
+  "#ffffff",
+  "#f4f9fd",
+  "#eaf3fb",
+  "#fdf2f1",
 ];
 
-const PETAL_SHAPES: FlowerShape[] = [
-  "bud",
+const FALLER_SHAPES: CloudShape[] = [
+  "cloud",
   "petal",
-  "bloom",
-  "bud",
+  "bird",
+  "cloud",
   "petal",
   "mark",
-  "bud",
+  "cloud",
   "petal",
 ];
 
-const PETALS = Array.from({ length: 24 }, (_, index) => ({
-  left: (index * 4.3 + 2) % 100,
+const FALLERS = Array.from({ length: 18 }, (_, index) => ({
+  left: (index * 5.7 + 2) % 100,
   delay: (index * 2.7) % 22,
-  duration: 20 + (index % 6) * 4,
-  size: 12 + (index % 5) * 5,
+  duration: 22 + (index % 6) * 4,
+  size: 14 + (index % 5) * 5,
   drift: (index % 2 === 0 ? 1 : -1) * (30 + (index % 4) * 26),
-  opacity: 0.38 + (index % 4) * 0.07,
+  opacity: 0.18 + (index % 4) * 0.05,
   blur: index % 4 === 0 ? 1.6 : 0,
-  fill: WEDDING_FILLS[index % WEDDING_FILLS.length],
-  shape: PETAL_SHAPES[index % PETAL_SHAPES.length],
+  fill: CLOUD_FILLS[index % CLOUD_FILLS.length],
+  shape: FALLER_SHAPES[index % FALLER_SHAPES.length],
 }));
 
-function renderFlower(shape: FlowerShape, fill: string) {
-  if (shape === "bud") return <MelatiBud fill={fill} />;
-  if (shape === "bloom") return <MelatiBloom fill={fill} />;
-  if (shape === "petal") return <RosePetal fill={fill} />;
-  return <FlowerMark className="size-full text-primary" />;
+function renderFaller(shape: CloudShape, fill: string) {
+  if (shape === "cloud") return <SoftCloud fill={fill} />;
+  if (shape === "bird") return <BirdMark className="size-full text-deep-cerulean/30" />;
+  if (shape === "petal") return <WhitePetal fill={fill} />;
+  return <FlowerMark className="size-full text-primary/20" />;
 }
 
-/** Kembang gugur (melati & kelopak mawar) menari pelan di belakang halaman. */
+/** Awan kecil & burung jatuh perlahan di belakang halaman — sangat samar. */
 export function Petals() {
   return (
     <div
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
     >
-      {PETALS.map((petal, index) => (
+      {FALLERS.map((faller, index) => (
         <span
           key={index}
           className="petal absolute top-0"
           style={
             {
-              left: `${petal.left}%`,
-              width: petal.size,
-              height: petal.size,
-              animationDelay: `${petal.delay}s`,
-              animationDuration: `${petal.duration}s`,
-              filter: petal.blur ? `blur(${petal.blur}px)` : undefined,
-              "--petal-drift": `${petal.drift}px`,
-              "--petal-opacity": petal.opacity,
+              left: `${faller.left}%`,
+              width: faller.size * 1.4,
+              height: faller.size,
+              animationDelay: `${faller.delay}s`,
+              animationDuration: `${faller.duration}s`,
+              filter: faller.blur ? `blur(${faller.blur}px)` : undefined,
+              "--petal-drift": `${faller.drift}px`,
+              "--petal-opacity": faller.opacity,
             } as CSSProperties
           }
         >
-          {renderFlower(petal.shape, petal.fill)}
+          {renderFaller(faller.shape, faller.fill)}
         </span>
       ))}
     </div>
   );
 }
 
-const FRONT_PETALS = Array.from({ length: 8 }, (_, index) => ({
-  left: (index * 12.7 + 5) % 100,
+const FRONT_FALLERS = Array.from({ length: 6 }, (_, index) => ({
+  left: (index * 16.7 + 5) % 100,
   delay: -(index * 5.5),
-  duration: 30 + (index % 4) * 6,
-  size: 44 + (index % 4) * 14,
+  duration: 34 + (index % 4) * 6,
+  size: 46 + (index % 4) * 14,
   drift: (index % 2 === 0 ? 1 : -1) * (54 + (index % 3) * 30),
-  opacity: 0.13 + (index % 3) * 0.05,
+  opacity: 0.08 + (index % 3) * 0.03,
   blur: index % 2 === 0 ? 7 : 4,
-  fill: WEDDING_FILLS[(index + 2) % WEDDING_FILLS.length],
-  shape: (["petal", "bud", "bloom", "petal", "bud", "petal", "bloom", "bud"] as FlowerShape[])[index],
+  fill: CLOUD_FILLS[(index + 2) % CLOUD_FILLS.length],
 }));
 
 /**
- * Lapisan bokeh kembang di DEPAN konten — kembang besar yang di-blur dan
- * sangat transparan, menari lambat seperti foto latar romantis.
+ * Lapisan bokeh awan di DEPAN konten — besar, blur, sangat transparan.
  * pointer-events-none: klik tetap menembus ke konten di bawahnya.
  */
 export function PetalsFront() {
@@ -174,24 +159,24 @@ export function PetalsFront() {
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 z-20 overflow-hidden"
     >
-      {FRONT_PETALS.map((petal, index) => (
+      {FRONT_FALLERS.map((faller, index) => (
         <span
           key={index}
           className="petal absolute top-0"
           style={
             {
-              left: `${petal.left}%`,
-              width: petal.size,
-              height: petal.size,
-              animationDelay: `${petal.delay}s`,
-              animationDuration: `${petal.duration}s`,
-              filter: `blur(${petal.blur}px)`,
-              "--petal-drift": `${petal.drift}px`,
-              "--petal-opacity": petal.opacity,
+              left: `${faller.left}%`,
+              width: faller.size * 1.6,
+              height: faller.size,
+              animationDelay: `${faller.delay}s`,
+              animationDuration: `${faller.duration}s`,
+              filter: `blur(${faller.blur}px)`,
+              "--petal-drift": `${faller.drift}px`,
+              "--petal-opacity": faller.opacity,
             } as CSSProperties
           }
         >
-          {renderFlower(petal.shape, petal.fill)}
+          {renderFaller("cloud", faller.fill)}
         </span>
       ))}
     </div>
@@ -199,56 +184,25 @@ export function PetalsFront() {
 }
 
 /**
- * Rangkaian melati melengkung dengan bandul di tengah — pembatas section
- * ala hiasan pelaminan. Tali melengkung: M2010 Q2009438010.
+ * Garis pemisah hairline Cora — satu garis #dadada dengan titik atmosphere
+ * biru di tengah. Pengganti GarlandDivider.
  */
 export function GarlandDivider({ className }: { className?: string }) {
-  const buds = Array.from({ length: 15 }, (_, index) => {
-    const t = (index + 1) / 16;
-    return { x: 20 + t * 360, y: 10 + 168 * t * (1 - t) };
-  });
   return (
     <svg
-      viewBox="0 0 400 100"
+      viewBox="0 0 400 40"
       aria-hidden="true"
       className={className}
       fill="none"
     >
-      <path d="M20 10 Q200 94 380 10" stroke="#cdc1a6" strokeWidth="1.3" />
-      {buds.map((bud, index) => (
-        <g key={index} transform={`translate(${bud.x} ${bud.y})`}>
-          <ellipse
-            cx="0"
-            cy="5.4"
-            rx="2.7"
-            ry="4.3"
-            fill="#fffdf6"
-            stroke="#ddd0b8"
-            strokeWidth="0.6"
-          />
-          <ellipse cx="0" cy="9.6" rx="1.7" ry="1.1" fill="#a9d9bf" />
-        </g>
-      ))}
-      {/* bandul tengah: untaian + kuncup besar + untaian emas */}
-      <path d="M200 52 v14" stroke="#cdc1a6" strokeWidth="1.3" />
-      <circle cx="200" cy="69" r="2.6" fill="#e9cd8f" />
-      <ellipse
-        cx="200"
-        cy="80"
-        rx="5"
-        ry="7.4"
-        fill="#fffdf6"
-        stroke="#ddd0b8"
-        strokeWidth="0.7"
-      />
-      <path d="M200 87.5 v6 M196 87 v5 M204 87 v5" stroke="#cdc1a6" strokeWidth="1.1" strokeLinecap="round" />
-      {/* daun sage di kedua sisi bandul */}
-      <path d="M188 64 q6 4 10 2 M212 64 q-6 4 -10 2" stroke="#a9d9bf" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M8 20 H190" stroke="#dadada" strokeWidth="1" />
+      <path d="M210 20 H392" stroke="#dadada" strokeWidth="1" />
+      <circle cx="200" cy="20" r="3" stroke="#60a8dd" strokeWidth="1.4" />
     </svg>
   );
 }
 
-/** Bandul melati menggantung — ornamen vertikal ala pelaminan. */
+/** Awan kecil menggantung — ornamen vertikal minimal. */
 export function MelatiBandul({ className }: { className?: string }) {
   return (
     <svg
@@ -257,20 +211,13 @@ export function MelatiBandul({ className }: { className?: string }) {
       className={className}
       fill="none"
     >
-      <path d="M32 3 v14" stroke="#c9bfa8" strokeWidth="1.4" />
-      <ellipse cx="28" cy="24" rx="3" ry="4.8" fill="#fffdf6" stroke="#ddd0b8" strokeWidth="0.6" />
-      <ellipse cx="36" cy="34" rx="3" ry="4.8" fill="#fffdf6" stroke="#ddd0b8" strokeWidth="0.6" />
-      <ellipse cx="28" cy="44" rx="3" ry="4.8" fill="#f7efdd" stroke="#ddd0b8" strokeWidth="0.6" />
-      <ellipse cx="36" cy="54" rx="3" ry="4.8" fill="#ffd9d2" stroke="#ddd0b8" strokeWidth="0.6" />
-      {/* janur melingkar di sisi */}
-      <path d="M22 30 q-4 8 2 14" stroke="#a9d9bf" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M42 30 q4 8 -2 14" stroke="#a9d9bf" strokeWidth="1.5" strokeLinecap="round" />
-      {/* gugusan melati bawah */}
-      <ellipse cx="32" cy="68" rx="4.6" ry="6.8" fill="#fffdf6" stroke="#ddd0b8" strokeWidth="0.7" />
-      <ellipse cx="23" cy="74" rx="3.4" ry="5.2" fill="#f7efdd" stroke="#ddd0b8" strokeWidth="0.6" />
-      <ellipse cx="41" cy="74" rx="3.4" ry="5.2" fill="#fffdf6" stroke="#ddd0b8" strokeWidth="0.6" />
-      <circle cx="32" cy="84" r="2.6" fill="#e9cd8f" />
-      <path d="M32 87 v8 M27 87 v6 M37 87 v6" stroke="#c9bfa8" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M32 3 v14" stroke="#dadada" strokeWidth="1.2" />
+      <g fill="#eaf3fb">
+        <ellipse cx="24" cy="30" rx="10" ry="7.5" />
+        <ellipse cx="38" cy="40" rx="11" ry="8.5" />
+        <ellipse cx="30" cy="52" rx="12" ry="9" />
+      </g>
+      <path d="M28 62 q4 4 8 0" stroke="#60a8dd" strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   );
 }
@@ -287,12 +234,11 @@ type BloomItem = {
 };
 
 const BLOOM_COLORS = [
-  "text-primary",
-  "text-tint-peach-foreground",
-  "text-tint-rose-foreground",
-  "text-tint-lavender-foreground",
-  "text-tint-mint-foreground",
-  "text-tint-butter-foreground",
+  "text-cerulean-sky",
+  "text-atmosphere-blue",
+  "text-midnight-navy",
+  "text-deep-cerulean",
+  "text-berry-red",
 ];
 
 const BLOOM_EVENT = "planner-bloom";
@@ -359,44 +305,19 @@ export function BloomOverlay() {
   );
 }
 
-/* ── Motif tradisional (bukan doodle) — geometri kawung/ceplok ─────── */
+/* ── Ornamen Cora (pengganti motif Jawa) ─────────────────────────────── */
 
 /**
- * Rosette kawung/ceplok kuningan — ornamen sudut pengganti stiker lama.
- * Murni geometri motif batik: kelopak bulat mengelilingi inti cokelat.
+ * Rosette kawung lama diganti stempel bunga — satu-satunya aksen berry.
+ * Dipakai sebagai badge kecil dan penanda penting.
  */
 export function SekarSudut({ className }: { className?: string }) {
-  const angles = [0, 45, 90, 135, 180, 225, 270, 315];
-  return (
-    <svg
-      viewBox="0 0 40 40"
-      className={className}
-      fill="none"
-      aria-hidden="true"
-    >
-      {angles.map((angle) => (
-        <ellipse
-          key={angle}
-          cx="20"
-          cy="9"
-          rx="4.2"
-          ry="7"
-          fill="none"
-          stroke="#a5854a"
-          strokeWidth="1.1"
-          opacity="0.85"
-          transform={`rotate(${angle} 20 20)`}
-        />
-      ))}
-      <circle cx="20" cy="20" r="5" fill="none" stroke="#a5854a" strokeWidth="1.1" />
-      <circle cx="20" cy="20" r="1.8" fill="#a5854a" />
-    </svg>
-  );
+  return <FlowerMark className={className} />;
 }
 
 /**
- * Pembatas motif — dua garis kuningan dengan deretan kawung kecil dan
- * kuncup melati di tengah. Pembuka tiap halaman ala pelaminan.
+ * Pembatas section: hairline #dadada dengan berlian atmosphere di tengah —
+ * rule premium 1px, tanpa motif.
  */
 export function MotifDivider({ className }: { className?: string }) {
   return (
@@ -407,18 +328,15 @@ export function MotifDivider({ className }: { className?: string }) {
       aria-hidden="true"
       preserveAspectRatio="xMidYMid meet"
     >
-      {/* dua garis emas antik tipis — gaya rule premium */}
-      <path d="M8 14 H392" stroke="#a5854a" strokeWidth="1" opacity="0.7" />
-      <path d="M8 26 H392" stroke="#a5854a" strokeWidth="1" opacity="0.35" />
-      {/* belah ketupat kecil di tengah */}
+      <path d="M8 20 H188" stroke="#dadada" strokeWidth="1" />
+      <path d="M212 20 H392" stroke="#dadada" strokeWidth="1" />
       <path
-        d="M200 10 L206 20 L200 30 L194 20 Z"
+        d="M200 13 L207 20 L200 27 L193 20 Z"
         fill="none"
-        stroke="#a5854a"
+        stroke="#60a8dd"
         strokeWidth="1.2"
         strokeLinejoin="round"
       />
-      <circle cx="200" cy="20" r="1.6" fill="#a5854a" />
     </svg>
   );
 }

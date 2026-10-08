@@ -21,26 +21,26 @@ export const PRIMARY_NAV: NavItem[] = [
     to: "/app",
     label: "Beranda",
     icon: Home,
-    active: "bg-tint-mint/80 text-primary shadow-sm",
+    active: "bg-sky-tint text-midnight-navy shadow-sm",
   },
   {
     to: "/app/budget",
     label: "Budget",
     icon: Wallet,
-    active: "bg-tint-butter/80 text-tint-butter-foreground shadow-sm",
+    active: "bg-sky-tint text-midnight-navy shadow-sm",
   },
   {
     to: "/app/checklist",
     label: "Checklist",
     icon: ListChecks,
-    active: "bg-tint-sage/80 text-tint-sage-foreground shadow-sm",
+    active: "bg-sky-tint text-midnight-navy shadow-sm",
     badge: true,
   },
   {
     to: "/app/tamu",
     label: "Tamu",
     icon: Users,
-    active: "bg-tint-sky/80 text-tint-sky-foreground shadow-sm",
+    active: "bg-sky-tint text-midnight-navy shadow-sm",
   },
 ];
 

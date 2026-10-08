@@ -16,9 +16,9 @@ export type Feature = {
   label: string;
   desc: string;
   icon: LucideIcon;
-  /** pastel surface + matching readable text */
+  /** neutral Cora surface — tier ladder only, no per-feature chroma */
   surface: string;
-  /** gradient used by the hero card of that page */
+  /** quiet sky-tinted wash (hero card of that page) */
   gradient: string;
   /** small emoji for playful headers */
   emoji: string;
@@ -27,9 +27,9 @@ export type Feature = {
 };
 
 /**
- * The nine working features of Planner Wedding. Each one gets its own pastel
- * so the dashboard never looks monotonous (classes are written out literally
- * so Tailwind can see them).
+ * The nine working features of SatuJanji. Cora discipline: the palette stays
+ * white / cerulean / midnight navy / atmosphere blue / one berry accent, so
+ * every feature keeps the same neutral tier and the sky carries the emotion.
  */
 export const FEATURES: Feature[] = [
   {
@@ -37,89 +37,89 @@ export const FEATURES: Feature[] = [
     label: "Beranda",
     desc: "Ringkasan dana, tugas, dan hitung mundur hari-H.",
     icon: LayoutDashboard,
-    surface: "bg-tint-mint text-tint-mint-foreground",
+    surface: "bg-mist-gray text-ink",
     gradient: "grad-warm",
     emoji: "🏠",
-    glow: "bg-tint-mint/60",
+    glow: "bg-atmosphere-blue/25",
   },
   {
     to: "/app/budget",
     label: "Budget",
     desc: "Alokasi anggaran & pengeluaran per kategori.",
     icon: Wallet,
-    surface: "bg-tint-butter text-tint-butter-foreground",
+    surface: "bg-mist-gray text-ink",
     gradient: "grad-butter",
     emoji: "💰",
-    glow: "bg-tint-butter/55",
+    glow: "bg-atmosphere-blue/25",
   },
   {
     to: "/app/tabungan",
     label: "Tabungan",
     desc: "Catat setoran menuju target dana pernikahan.",
     icon: PiggyBank,
-    surface: "bg-tint-lavender text-tint-lavender-foreground",
+    surface: "bg-sky-tint text-midnight-navy",
     gradient: "grad-lavender",
     emoji: "🐷",
-    glow: "bg-tint-lavender/70",
+    glow: "bg-atmosphere-blue/30",
   },
   {
     to: "/app/checklist",
     label: "Checklist",
     desc: "Tugas persiapan dengan progres yang jelas.",
     icon: ListChecks,
-    surface: "bg-tint-sage text-tint-sage-foreground",
+    surface: "bg-mist-gray text-ink",
     gradient: "grad-sage",
     emoji: "📝",
-    glow: "bg-tint-sage/70",
+    glow: "bg-atmosphere-blue/30",
   },
   {
     to: "/app/moodboard",
     label: "Mood Board",
     desc: "Referensi dekorasi, baju & makeup per kotak.",
     icon: FolderHeart,
-    surface: "bg-tint-rose text-tint-rose-foreground",
+    surface: "bg-berry-tint text-berry-red",
     gradient: "grad-rose",
     emoji: "🎨",
-    glow: "bg-tint-rose/50",
+    glow: "bg-berry-red/10",
   },
   {
     to: "/app/tamu",
     label: "Daftar Tamu",
     desc: "Undangan, jumlah orang, dan status RSVP.",
     icon: Users,
-    surface: "bg-tint-sky text-tint-sky-foreground",
+    surface: "bg-sky-tint text-midnight-navy",
     gradient: "grad-sky",
     emoji: "💌",
-    glow: "bg-tint-sky/60",
+    glow: "bg-atmosphere-blue/25",
   },
   {
     to: "/app/vendor",
     label: "Vendor",
     desc: "Kontak, biaya, dan status pembayaran vendor.",
     icon: Receipt,
-    surface: "bg-tint-peach text-tint-peach-foreground",
+    surface: "bg-mist-gray text-ink",
     gradient: "grad-peach",
     emoji: "📋",
-    glow: "bg-tint-peach/45",
+    glow: "bg-atmosphere-blue/20",
   },
   {
     to: "/app/rundown",
     label: "Rundown Acara",
     desc: "Susunan acara hari-H dari persiapan sampai selesai.",
     icon: CalendarClock,
-    surface: "bg-tint-mint text-tint-mint-foreground",
+    surface: "bg-mist-gray text-ink",
     gradient: "grad-mint",
     emoji: "⏰",
-    glow: "bg-tint-mint/60",
+    glow: "bg-atmosphere-blue/25",
   },
   {
     to: "/app/seserahan",
     label: "Seserahan",
     desc: "Daftar hantaran: link toko & status belanja.",
     icon: Gift,
-    surface: "bg-tint-rose text-tint-rose-foreground",
+    surface: "bg-berry-tint text-berry-red",
     gradient: "grad-rose",
     emoji: "🎁",
-    glow: "bg-tint-rose/50",
+    glow: "bg-berry-red/10",
   },
 ];

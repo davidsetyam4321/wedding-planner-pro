@@ -250,17 +250,17 @@ export function SeserahanPage() {
           <span
             className={`chip shrink-0 ${
               total > 0 && pct === 100
-                ? "bg-tint-mint text-tint-mint-foreground"
-                : "bg-tint-butter text-tint-butter-foreground"
+                ? "bg-sky-tint text-midnight-navy"
+                : "bg-mist-gray text-ink"
             }`}
           >
             <Gift className="size-3.5" />
             {pct}%
           </span>
         </div>
-        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-ash-canvas">
+        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-mist-gray">
           <div
-            className="h-full rounded-full bg-teak-ink transition-all duration-700"
+            className="fill-botanical h-full rounded-full transition-all duration-700"
             style={{ width: `${pct}%` }}
           />
         </div>

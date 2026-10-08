@@ -306,7 +306,7 @@ export function HomePage() {
         <AnimatedContent
           distance={50}
           threshold={0.05}
-          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teak-ink via-[#33241a] to-[#46361f] p-5 shadow-[0_20px_50px_-12px_rgba(36,22,12,0.5)]"
+          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-midnight-navy via-[#0d5c96] to-midnight-navy p-5 shadow-[0_16px_40px_-12px_rgba(13,92,150,0.5)]"
         >
           {couplePhoto && (
             <>
@@ -317,11 +317,11 @@ export function HomePage() {
                 aria-hidden
                 className="absolute inset-0 h-full w-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-br from-teak-ink/85 via-[#33241a]/80 to-[#46361f]/85" />
+              <div className="absolute inset-0 bg-gradient-to-br from-midnight-navy/90 via-[#0d5c96]/80 to-midnight-navy/90" />
             </>
           )}
           <div className="pointer-events-none absolute -right-10 -top-14 size-44 rounded-full bg-white/10 blur-2xl" />
-          <div className="pointer-events-none absolute -bottom-12 -left-8 size-40 rounded-full bg-tint-butter/25 blur-2xl" />
+          <div className="pointer-events-none absolute -bottom-12 -left-8 size-40 rounded-full bg-atmosphere-blue/25 blur-2xl" />
           <SekarSudut className="pointer-events-none absolute right-4 top-4 size-7" />
           <div className="relative z-10 flex items-start justify-between gap-3">
             <div className="min-w-0">
@@ -352,9 +352,8 @@ export function HomePage() {
             </button>
           </div>
 
-          <p className="relative z-10 mt-1 font-serif text-[1.7rem] font-semibold leading-tight text-white">
+          <p className="relative z-10 mt-1 font-serif text-[1.7rem] font-light leading-tight text-white">
             {`${wedding.partnerOneName} & ${wedding.partnerTwoName}`}
-            <span className="ornamen-bawah absolute -bottom-2 left-0 block w-40" />
           </p>
 
           <div className="relative z-10 mt-4">
@@ -363,7 +362,7 @@ export function HomePage() {
 
           <div className="relative z-10 mt-4 space-y-1.5 text-[13px] text-white/85">
             <p className="flex items-center gap-2">
-              <CalendarDays className="size-4 shrink-0 text-tint-butter" />
+              <CalendarDays className="size-4 shrink-0 text-atmosphere-blue" />
               <span className="font-semibold text-white">
                 {formatDateLongID(wedding.weddingDate)}
               </span>

@@ -29,7 +29,7 @@ export function BottomNav() {
 
   return (
     <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
-      <div className="pointer-events-auto mx-auto flex max-w-md items-stretch justify-between gap-0.5 overflow-x-auto rounded-full border border-white/60 bg-card/90 p-1.5 shadow-[0_16px_40px_rgba(36,46,40,0.14)] backdrop-blur-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="pointer-events-auto mx-auto flex max-w-md items-stretch justify-between gap-0.5 overflow-x-auto rounded-full border border-border bg-card/90 p-1.5 shadow-[0_8px_24px_rgba(13,92,150,0.12)] backdrop-blur-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {PRIMARY_NAV.map(({ to, label, icon: Icon, active, badge }) => (
           <NavLink
             key={to}
@@ -56,7 +56,7 @@ export function BottomNav() {
                   <span className="sr-only">{label}</span>
                 )}
                 {badge && openTasks > 0 && (
-                  <span className="absolute right-0.5 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[9px] font-extrabold text-background">
+                  <span className="absolute right-0.5 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-berry-red px-1 text-[9px] font-semibold text-white">
                     {openTasks > 9 ? "9+" : openTasks}
                   </span>
                 )}
@@ -70,11 +70,11 @@ export function BottomNav() {
             <button
               type="button"
               aria-label="Fitur lainnya"
-              className={`relative flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-2 text-[10px] font-semibold transition-all duration-200 ${
+              className={`relative flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-2 text-[10px] font-medium transition-all duration-200 ${
                 inGroup
-                  ? "bg-tint-mint/80 font-bold text-primary shadow-sm"
+                  ? "bg-sky-tint font-semibold text-midnight-navy shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
-              } data-[state=open]:bg-tint-mint/80 data-[state=open]:font-bold data-[state=open]:text-primary data-[state=open]:shadow-sm`}
+              } data-[state=open]:bg-sky-tint data-[state=open]:font-semibold data-[state=open]:text-midnight-navy data-[state=open]:shadow-sm`}
             >
               <LayoutGrid
                 className="size-5 shrink-0"

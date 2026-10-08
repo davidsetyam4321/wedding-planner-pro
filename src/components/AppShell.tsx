@@ -6,7 +6,6 @@ import { coupleInitials } from "@/components/CouplePhoto";
 import {
   BloomOverlay,
   FlowerMark,
-  MotifDivider,
   Petals,
   PetalsFront,
 } from "@/components/Decor";
@@ -27,7 +26,6 @@ import {
 import { Stagger, StaggerItem } from "@/components/Shared";
 import BlurText from "@/components/BlurText";
 import FadeContent from "@/components/FadeContent";
-import SoftAurora from "@/components/SoftAurora";
 import { api } from "@/convex/_generated/api";
 import { FEATURES } from "@/lib/features";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -344,28 +342,17 @@ export function AppShell() {
       )}
       <SideNav status={workspace} />
       <div className="relative min-w-0 flex-1 pb-28 lg:pb-10">
-      {/* Ambient glow — one accent colour per feature, following the route */}
+      {/* Ambient wash — atmosphere-blue sky tint mengikuti rute aktif */}
       <div
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 -z-20 overflow-hidden"
       >
         <div
           className={`absolute -left-24 -top-28 size-[26rem] rounded-full blur-3xl transition-colors duration-700 ${
-            activeFeature?.glow ?? "bg-tint-mint/60"
+            activeFeature?.glow ?? "bg-atmosphere-blue/20"
           }`}
         />
-        <div className="absolute -right-28 top-2/3 size-80 rounded-full bg-tint-butter/45 blur-3xl" />
-        {/* Atmosfer aurora terakota → janur — latar hidup seperti landing page */}
-        {!reducedMotion && (
-          <div className="absolute inset-0 opacity-25">
-            <SoftAurora
-              lightMode
-              speed={0.16}
-              color1="#e0c9a6"
-              color2="#d3d9c0"
-            />
-          </div>
-        )}
+        <div className="absolute -right-28 top-2/3 size-80 rounded-full bg-atmosphere-blue/15 blur-3xl" />
       </div>
       <Petals />
       <PetalsFront />
@@ -374,19 +361,12 @@ export function AppShell() {
       <header className="sticky top-0 z-30 w-full bg-background/80 pb-2.5 pt-4 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3 px-4 lg:max-w-3xl lg:px-10">
           <Link to="/app" className="flex min-w-0 items-center gap-2.5">
-            <span
-              className={`flex size-9 shrink-0 items-center justify-center rounded-xl shadow-sm backdrop-blur-md transition-colors duration-500 lg:hidden ${
-                activeFeature?.surface ?? "bg-tint-mint"
-              }`}
-            >
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-foreground/15 shadow-sm backdrop-blur-md lg:hidden">
               <FlowerMark className="size-5 text-primary" />
             </span>
             <span className="flex min-w-0 flex-col leading-tight">
-              <h1 className="truncate font-serif text-[17px] font-semibold text-primary">
+              <h1 className="truncate font-serif text-[19px] font-light text-primary">
                 SatuJanji
-                <span className="aksara ml-1.5 text-[11px] font-normal text-brass-gold">
-                  ꦱꦠꦸꦗꦚ꧀ꦗꦶ
-                </span>
               </h1>
               {reducedMotion ? (
                 <span className="truncate text-[11px] font-semibold text-muted-foreground">
@@ -405,11 +385,11 @@ export function AppShell() {
           </Link>
           <div className="flex shrink-0 items-center gap-1.5">
             {wedding && (
-              <span className="hidden items-center gap-1.5 rounded-full bg-tint-mint/70 px-3 py-1 text-[11px] font-semibold text-tint-mint-foreground shadow-sm backdrop-blur-md sm:flex">
-                <span className="size-1.5 animate-pulse rounded-full bg-primary" />
+              <span className="hidden items-center gap-1.5 rounded-full border border-border px-3 py-1 text-[11px] font-medium text-foreground backdrop-blur-md sm:flex">
+                <span className="size-1.5 animate-pulse rounded-full bg-atmosphere-blue" />
                 {wedding.partnerOneName} & {wedding.partnerTwoName}
                 <Heart
-                  className="size-3 shrink-0 text-brick-accent"
+                  className="size-3 shrink-0 text-berry-red"
                   fill="currentColor"
                 />
               </span>
@@ -424,7 +404,7 @@ export function AppShell() {
             <Link
               to="/app/pengaturan"
               aria-label="Pengaturan"
-              className="block size-9 shrink-0 overflow-hidden rounded-full p-0.5 ring-2 ring-primary/25"
+              className="block size-9 shrink-0 overflow-hidden rounded-full p-0.5 ring-2 ring-atmosphere-blue/40"
             >
               {couplePhoto ? (
                 <img
@@ -443,12 +423,10 @@ export function AppShell() {
             </Link>
             </div>
           </div>
-        <div aria-hidden="true" className="pita-h pita-parang h-2.5 w-full" />
+        <div aria-hidden="true" className="h-px w-full bg-fog-line" />
       </header>
 
       <main className="mx-auto w-full max-w-md px-4 pt-4 lg:max-w-3xl lg:px-10">
-        {/* Pembatas motif kawung — pembuka tiap halaman ala pelaminan */}
-        <MotifDivider className="mx-auto block h-9 w-full max-w-sm" />
         <SignupBanner show={showSignupBanner} />
         {reducedMotion ? (
           <Outlet />
@@ -505,11 +483,6 @@ export function AppShell() {
         </DrawerContent>
       </Drawer>
 
-      {/* Pita batik penutup halaman — kain selendang di kaki konten */}
-      <div
-        aria-hidden="true"
-        className="pita-h pita-kawung mx-auto mt-10 h-4 w-full max-w-md"
-      />
       <BottomNav />
       </div>
     </div>

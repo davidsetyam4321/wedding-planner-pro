@@ -39,3 +39,9 @@ atribusi; hasil turunan dengan modifikasi harus memakai lisensi yang sama.
 
 Aset ini dimodifikasi hanya dalam bentuk pemotongan/pengecilan resolusi
 untuk kebutuhan tampilan web.
+
+## sky-hero.jpg
+John Constable — Cloud Study (Google Art Project)
+Sumber: Wikimedia Commons (public domain)
+https://commons.wikimedia.org/wiki/File:John_Constable_-_Cloud_Study_-_Google_Art_Project.jpg
+Dipakai sebagai: kanvas lukisan langit full-bleed di landing & section pintas.

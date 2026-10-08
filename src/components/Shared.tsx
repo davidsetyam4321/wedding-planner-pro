@@ -190,10 +190,7 @@ export function EmptyState({
         </div>
         <SekarSudut className="absolute -right-2 -top-2 size-5" />
       </div>
-      <p className="relative text-sm font-extrabold">
-        {title}
-        <span className="ornamen-bawah absolute -bottom-1.5 left-1/2 block w-14 -translate-x-1/2" />
-      </p>
+      <p className="relative text-sm font-semibold">{title}</p>
       {description && (
         <p className="meta max-w-[30ch]">{description}</p>
       )}
@@ -220,7 +217,7 @@ export function DueChip({ dueDate }: { dueDate: number }) {
     days < 0
       ? "bg-destructive/10 text-destructive"
       : days <= 3
-        ? "bg-tint-butter text-tint-butter-foreground"
+        ? "bg-sky-tint text-midnight-navy"
         : "bg-secondary text-secondary-foreground";
   const text =
     days < 0
@@ -233,7 +230,7 @@ export function DueChip({ dueDate }: { dueDate: number }) {
 
   return (
     <span
-      className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider ${tone}`}
+      className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-wider ${tone}`}
       title={new Date(dueDate).toLocaleDateString("id-ID", {
         weekday: "long",
         day: "numeric",
@@ -262,8 +259,8 @@ export function SectionHeader({
       duration={550}
       className="mb-2.5 flex items-end justify-between gap-2"
     >
-      <h2 className="flex items-center gap-1.5 font-serif text-[14px] font-semibold uppercase leading-tight tracking-wide">
-        <FlowerMark className="size-3.5 shrink-0 text-primary" />
+      <h2 className="flex items-center gap-1.5 font-serif text-[15px] font-normal uppercase leading-tight tracking-wide text-midnight-navy">
+        <FlowerMark className="size-3.5 shrink-0 text-berry-red" />
         {title}
       </h2>
       {action}
@@ -290,7 +287,7 @@ export function BackLink({
         if ((window.history.state?.idx ?? 0) > 0) navigate(-1);
         else navigate(fallback);
       }}
-      className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground"
+      className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground"
     >
       <ChevronLeft className="size-3.5" /> {label}
     </button>
