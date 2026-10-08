@@ -7,8 +7,7 @@ import {
 } from "@/components/Shared";
 import { Skeleton } from "@/components/ui/skeleton";
 import AnimatedContent from "@/components/AnimatedContent";
-import { GarlandDivider } from "@/components/Decor";
-import { DoodleStar, Semar, Squiggle } from "@/components/Doodles";
+import { GarlandDivider, SekarSudut } from "@/components/Decor";
 import PulseHeart from "@/components/PulseHeart";
 import SpotlightCard from "@/components/SpotlightCard";
 import { api } from "@/convex/_generated/api";
@@ -323,8 +322,7 @@ export function HomePage() {
           )}
           <div className="pointer-events-none absolute -right-10 -top-14 size-44 rounded-full bg-white/10 blur-2xl" />
           <div className="pointer-events-none absolute -bottom-12 -left-8 size-40 rounded-full bg-tint-butter/25 blur-2xl" />
-          <Semar className="pointer-events-none absolute -top-9 right-16 size-16 rotate-[9deg]" />
-          <DoodleStar className="pointer-events-none absolute right-4 top-16 size-5 text-brass-gold" />
+          <SekarSudut className="pointer-events-none absolute right-4 top-4 size-7" />
           <div className="relative z-10 flex items-start justify-between gap-3">
             <div className="min-w-0">
               <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-brass-gold">
@@ -356,7 +354,7 @@ export function HomePage() {
 
           <p className="relative z-10 mt-1 font-serif text-[1.7rem] font-semibold leading-tight text-white">
             {`${wedding.partnerOneName} & ${wedding.partnerTwoName}`}
-            <Squiggle className="absolute -bottom-2 left-0 h-3 w-40 text-brick-accent" />
+            <span className="ornamen-bawah absolute -bottom-2 left-0 block w-40" />
           </p>
 
           <div className="relative z-10 mt-4">

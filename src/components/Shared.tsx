@@ -14,7 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DoodleStar, Squiggle } from "@/components/Doodles";
+import { SekarSudut } from "@/components/Decor";
 import { FlowerMark } from "@/components/Decor";
 import FadeContent from "@/components/FadeContent";
 import { Button } from "@/components/ui/button";
@@ -188,12 +188,11 @@ export function EmptyState({
         <div className="grad-warm clay-sm flex size-14 items-center justify-center rounded-full text-2xl">
           {emoji}
         </div>
-        <DoodleStar className="absolute -right-2 -top-1 size-4 text-brass-gold" />
-        <DoodleStar className="absolute -left-1.5 -bottom-1 size-3 text-brick-accent" />
+        <SekarSudut className="absolute -right-2 -top-2 size-5" />
       </div>
       <p className="relative text-sm font-extrabold">
         {title}
-        <Squiggle className="absolute -bottom-1.5 left-1/2 h-2 w-14 -translate-x-1/2 text-brick-accent/70" />
+        <span className="ornamen-bawah absolute -bottom-1.5 left-1/2 block w-14 -translate-x-1/2" />
       </p>
       {description && (
         <p className="meta max-w-[30ch]">{description}</p>

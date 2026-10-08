@@ -14,6 +14,11 @@ type SyncInfo = {
 export function SideNav({ status }: { status: SyncInfo }) {
   return (
     <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col gap-4 px-5 py-6 lg:flex">
+      {/* Pita batik kawung di tepi sidebar — bingkai kain selendang */}
+      <div
+        aria-hidden="true"
+        className="pita-v pita-kawung pointer-events-none absolute right-0 top-0 h-full w-3"
+      />
       <Link to="/app" className="flex items-center gap-3">
         <span className="flex size-11 items-center justify-center rounded-full bg-teak-ink">
           <FlowerMark className="size-6 text-white" />
@@ -23,6 +28,9 @@ export function SideNav({ status }: { status: SyncInfo }) {
             SatuJanji
           </span>
           <span className="meta block">Rencana pernikahan untuk berdua</span>
+          <span className="aksara block text-[11px] leading-tight text-brass-gold">
+            ꦱꦠꦸꦗꦚ꧀ꦗꦶ
+          </span>
         </span>
       </Link>
 

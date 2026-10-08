@@ -358,3 +358,72 @@ export function BloomOverlay() {
     </div>
   );
 }
+
+/* ── Motif tradisional (bukan doodle) — geometri kawung/ceplok ─────── */
+
+/**
+ * Rosette kawung/ceplok kuningan — ornamen sudut pengganti stiker lama.
+ * Murni geometri motif batik: kelopak bulat mengelilingi inti cokelat.
+ */
+export function SekarSudut({ className }: { className?: string }) {
+  const angles = [0, 45, 90, 135, 180, 225, 270, 315];
+  return (
+    <svg
+      viewBox="0 0 40 40"
+      className={className}
+      fill="none"
+      aria-hidden="true"
+    >
+      {angles.map((angle) => (
+        <ellipse
+          key={angle}
+          cx="20"
+          cy="9"
+          rx="4.2"
+          ry="7"
+          fill="#e9cd8f"
+          stroke="#7b4530"
+          strokeWidth="1.4"
+          transform={`rotate(${angle} 20 20)`}
+        />
+      ))}
+      <circle cx="20" cy="20" r="6" fill="#d8b45c" stroke="#7b4530" strokeWidth="1.6" />
+      <circle cx="20" cy="20" r="2.6" fill="#7b4530" />
+    </svg>
+  );
+}
+
+/**
+ * Pembatas motif — dua garis kuningan dengan deretan kawung kecil dan
+ * kuncup melati di tengah. Pembuka tiap halaman ala pelaminan.
+ */
+export function MotifDivider({ className }: { className?: string }) {
+  const dots = Array.from({ length: 8 }, (_, index) => 30 + index * 48);
+  return (
+    <svg
+      viewBox="0 0 400 40"
+      className={className}
+      fill="none"
+      aria-hidden="true"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <path d="M8 9 H392" stroke="#d8b45c" strokeWidth="2.5" />
+      <path d="M8 31 H392" stroke="#d8b45c" strokeWidth="2.5" />
+      {dots.map((x) => (
+        <g key={x}>
+          <circle cx={x} cy={20} r="7" fill="none" stroke="#b4553a" strokeWidth="2.2" />
+          <circle cx={x} cy={20} r="2.6" fill="#d8b45c" />
+        </g>
+      ))}
+      {/* kuncup melati kuningan di tengah */}
+      <path
+        d="M200 6 L207 20 L200 34 L193 20 Z"
+        fill="#d8b45c"
+        stroke="#7b4530"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <circle cx="200" cy="20" r="2.6" fill="#7b4530" />
+    </svg>
+  );
+}

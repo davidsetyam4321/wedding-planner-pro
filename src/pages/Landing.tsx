@@ -2,19 +2,11 @@ import AnimatedContent from "@/components/AnimatedContent";
 import BlurText from "@/components/BlurText";
 import CountUp from "@/components/CountUp";
 import {
-  Blob,
-  CurvedArrow,
-  DoodleStar,
-  Gunungan,
-  JanurArch,
-  PengantinPria,
-  PengantinWanita,
-  Semar,
-  Squiggle,
-} from "@/components/Doodles";
-import {
   GarlandDivider,
+  MelatiBandul,
+  MotifDivider,
   PetalsFront,
+  SekarSudut,
 } from "@/components/Decor";
 import { FlowerMark, Petals } from "@/components/Decor";
 import FadeContent from "@/components/FadeContent";
@@ -105,6 +97,51 @@ const GALLERY = [
     alt: "Wayang kulit Semar",
     caption: "Wayang Semar",
   },
+  {
+    src: "/assets/wayang-kayon.jpg",
+    alt: "Kayon (gunungan wayang) karya dalang Kedu",
+    caption: "Kayon / gunungan",
+  },
+  {
+    src: "/assets/wayang-sinta.jpg",
+    alt: "Wayang kulit Prinses Sinta",
+    caption: "Wayang Sinta",
+  },
+  {
+    src: "/assets/wayang-perform.jpg",
+    alt: "Pertunjukan wayang kulit bersama dalang",
+    caption: "Pertunjukan wayang",
+  },
+  {
+    src: "/assets/gamelan.jpg",
+    alt: "Memainkan gamelan Jawa",
+    caption: "Gamelan",
+  },
+  {
+    src: "/assets/keris.jpg",
+    alt: "Keris pusaka dalam upacara pejenengan",
+    caption: "Keris pusaka",
+  },
+  {
+    src: "/assets/tumpeng.jpg",
+    alt: "Nasi tumpeng tradisional",
+    caption: "Tumpeng",
+  },
+  {
+    src: "/assets/gebyok.jpg",
+    alt: "Pintu gebyok berukir",
+    caption: "Gebyok ukir",
+  },
+  {
+    src: "/assets/bunga-dekorasi.jpg",
+    alt: "Karangan bunga dekorasi pernikahan",
+    caption: "Dekorasi bunga",
+  },
+  {
+    src: "/assets/jamu.jpg",
+    alt: "Jamu gendong — tradisi jamu Jawa",
+    caption: "Jamu tradisi",
+  },
 ];
 
 /** Halaman publik: memperkenalkan produk lalu mengarahkan ke aplikasi. */
@@ -160,11 +197,21 @@ export function LandingPage() {
             </Link>
           </Button>
         </div>
+        <div aria-hidden="true" className="pita-h pita-kawung h-2.5 w-full" />
       </header>
 
       <main className="space-y-20 pb-24">
         {/* ── Hero: aurora lembut, headline display, anotasi tulis tangan ─ */}
-        <section className="relative mx-auto w-full max-w-[1200px] px-5 pt-14 text-center md:pt-20">
+        <section className="relative w-full px-5 pb-16 pt-24 text-center md:pt-32">
+          {/* Full-bleed foto gapura ukiran — latar hero ala foto inspirasi */}
+          <div aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden">
+            <img
+              src="/assets/gapura-ukiran.jpg"
+              alt=""
+              className="h-full w-full object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/78 to-background" />
+          </div>
           {/* atmosfer romantic: sapuan aurora terakota → janur (react-bits) */}
           {!reducedMotion && (
             <div className="pointer-events-none absolute -inset-x-6 -top-16 -z-10 h-[130%] opacity-75">
@@ -176,12 +223,11 @@ export function LandingPage() {
               />
             </div>
           )}
-          <Blob className="pointer-events-none absolute left-2 top-6 hidden size-24 text-janur-green opacity-70 md:block" />
-          <Blob className="pointer-events-none absolute right-6 top-52 hidden size-14 rotate-45 text-brass-gold opacity-80 lg:block" />
-          <DoodleStar className="pointer-events-none absolute right-16 top-10 size-7 text-brick-accent" />
-          <PengantinPria className="bobbing pointer-events-none absolute left-8 top-28 hidden size-16 lg:block" />
-
-          <JanurArch className="relative mx-auto mt-1 block h-28 w-full max-w-lg" />
+          {/* Aksara Jawa: “Sugeng Rawuh” (selamat datang) + bandul melati */}
+          <p className="aksara relative mx-auto mt-2 text-sm tracking-[0.3em] text-teak-ink/75">
+            ꦱꦸꦒꦼꦁꦫꦮꦸꦃ꧉
+          </p>
+          <MelatiBandul className="relative mx-auto mt-2 block h-16 w-11" />
 
           <FadeContent
             blur
@@ -205,7 +251,7 @@ export function LandingPage() {
               Rencanakan hari bahagia Anda,{" "}
               <span className="elegant relative inline-block text-[1.08em] text-brick-accent">
                 berdua.
-                <Squiggle className="absolute -bottom-2 left-0 h-3 w-full" />
+                <span className="ornamen-bawah absolute -bottom-2 left-0 block w-full" />
               </span>
             </h1>
           </FadeContent>
@@ -222,7 +268,7 @@ export function LandingPage() {
               <span className="-rotate-6 font-serif text-sm text-teak-ink">
                 gratis, lho!
               </span>
-              <CurvedArrow className="size-11 -scale-x-100 rotate-6 text-teak-ink" />
+              <SekarSudut className="size-7" />
             </span>
             <Magnet padding={70} magnetStrength={2.5}>
               <Button asChild size="lg" className="px-7">
@@ -253,6 +299,12 @@ export function LandingPage() {
           </FadeContent>
         </section>
 
+        {/* Pita batik parang — keramaian ala kain selendang */}
+        <div
+          aria-hidden="true"
+          className="pita-h pita-parang mx-auto h-4 w-full max-w-md"
+        />
+
         {/* ── Dark feature card + kartu putih miring menumpuk ────────── */}
         <section className="mx-auto w-full max-w-[1200px] px-5">
           <AnimatedContent distance={80} threshold={0.15}>
@@ -262,7 +314,12 @@ export function LandingPage() {
                 aria-hidden="true"
                 className="wood-carving pointer-events-none absolute inset-0 opacity-30 mix-blend-overlay"
               />
-              <Semar className="absolute -right-1 -top-12 z-10 hidden size-24 rotate-[9deg] md:block" />
+              <img
+                src="/assets/wayang-punokawan.jpg"
+                alt=""
+                aria-hidden
+                className="absolute -right-2 -top-10 hidden size-28 rotate-[6deg] rounded-2xl border-2 border-brass-gold object-cover shadow-lg md:block"
+              />
               <div className="relative z-10 grid items-center gap-10 lg:grid-cols-[1.05fr_1fr]">
                 <div>
                   <p className="label text-janur-green">
@@ -408,7 +465,7 @@ export function LandingPage() {
             ))}
           </Stagger>
 
-          <Gunungan className="mx-auto mt-9 block h-24 w-16" />
+          <MotifDivider className="mx-auto mt-9 block h-9 w-full max-w-sm" />
         </section>
 
         <GarlandDivider className="mx-auto block h-20 w-full max-w-sm" />
@@ -503,15 +560,19 @@ export function LandingPage() {
         <section className="mx-auto w-full max-w-[1200px] px-5">
           <AnimatedContent distance={60} threshold={0.2}>
             <div className="relative text-center">
-              <DoodleStar className="pointer-events-none absolute left-10 top-2 size-6 text-brass-gold" />
-              <DoodleStar className="pointer-events-none absolute right-14 bottom-24 size-8 text-janur-green" />
-              <PengantinWanita className="bobbing pointer-events-none absolute -left-4 bottom-0 hidden size-24 md:block" />
-              <Gunungan className="pointer-events-none absolute -right-2 top-8 hidden h-28 w-16 rotate-[8deg] md:block" />
+              <SekarSudut className="pointer-events-none absolute left-8 top-2 size-7" />
+              <SekarSudut className="pointer-events-none absolute right-10 bottom-24 size-5" />
+              <img
+                src="/assets/pengantin-surakarta.jpg"
+                alt=""
+                aria-hidden
+                className="pointer-events-none absolute -left-6 bottom-0 hidden h-40 w-32 -rotate-6 rounded-2xl border-2 border-brass-gold object-cover shadow-lg md:block"
+              />
               <h2 className="mx-auto max-w-3xl font-serif text-[34px] leading-[1.1] md:text-5xl">
                 Siap merencanakan{" "}
                 <span className="elegant relative inline-block text-[1.08em] text-brick-accent">
                   hari bahagia?
-                  <Squiggle className="absolute -bottom-2 left-0 h-3 w-full" />
+                  <span className="ornamen-bawah absolute -bottom-2 left-0 block w-full" />
                 </span>
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-body-lg text-slate">
@@ -545,6 +606,7 @@ export function LandingPage() {
 
       {/* ── Footer minimal ──────────────────────────────────────────── */}
       <footer className="border-t border-border/60">
+        <div aria-hidden="true" className="pita-h pita-parang h-4 w-full" />
         <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center justify-between gap-3 px-5 py-6 sm:flex-row">
           <div className="flex items-center gap-2.5">
             <span className="flex size-8 items-center justify-center rounded-full bg-teak-ink">
@@ -554,6 +616,7 @@ export function LandingPage() {
               SatuJanji
             </span>
           </div>
+          <p className="aksara text-sm text-brick-accent">ꦩꦠꦸꦂꦤꦸꦮꦸꦤ꧀</p>
           <p className="meta">
             Perencana pernikahan untuk berdua · © 2026 · Foto: Wikimedia
             Commons (CC BY-SA)

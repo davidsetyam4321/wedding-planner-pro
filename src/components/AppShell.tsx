@@ -6,11 +6,11 @@ import { coupleInitials } from "@/components/CouplePhoto";
 import {
   BloomOverlay,
   FlowerMark,
+  MotifDivider,
   Petals,
   PetalsFront,
+  SekarSudut,
 } from "@/components/Decor";
-import { DoodleStar, JanurArch } from "@/components/Doodles";
-import { PageMascot } from "@/components/PageMascot";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -372,14 +372,18 @@ export function AppShell() {
       </div>
       <Petals />
       <PetalsFront />
-      {/* Maskot halaman: satu karakter berbeda per rute + stiker H-x */}
-      <PageMascot
-        pathname={pathname}
-        daysLabel={wedding ? countdownLabel(wedding.weddingDate) : undefined}
+      {/* Bingkai pita batik di tepi layar (desktop xl) — keramaian ala selendang */}
+      <div
+        aria-hidden="true"
+        className="pita-v pita-kawung pointer-events-none fixed left-0 top-0 z-10 hidden h-full w-4 xl:block"
       />
-      {/* Kilau bintang di margin lebar (desktop xl) */}
-      <DoodleStar className="float-slow pointer-events-none fixed right-6 top-40 z-10 hidden size-5 text-brass-gold xl:block" />
-      <DoodleStar className="float-slow pointer-events-none fixed right-20 top-[58%] z-10 hidden size-4 text-brick-accent xl:block" />
+      <div
+        aria-hidden="true"
+        className="pita-v pita-parang pointer-events-none fixed right-0 top-0 z-10 hidden h-full w-4 xl:block"
+      />
+      {/* Ornamen kawung di sudut margin — pengganti stiker lama */}
+      <SekarSudut className="pointer-events-none fixed left-7 top-32 z-10 hidden size-6 opacity-90 xl:block" />
+      <SekarSudut className="pointer-events-none fixed right-7 bottom-44 z-10 hidden size-5 opacity-80 xl:block" />
       <BloomOverlay />
       <header className="sticky top-0 z-30 w-full bg-background/80 pb-2.5 pt-4 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3 px-4 lg:max-w-3xl lg:px-10">
@@ -394,6 +398,9 @@ export function AppShell() {
             <span className="flex min-w-0 flex-col leading-tight">
               <h1 className="truncate font-serif text-[17px] font-semibold text-primary">
                 SatuJanji
+                <span className="aksara ml-1.5 text-[11px] font-normal text-brass-gold">
+                  ꦱꦠꦸꦗꦚ꧀ꦗꦶ
+                </span>
               </h1>
               {reducedMotion ? (
                 <span className="truncate text-[11px] font-semibold text-muted-foreground">
@@ -450,11 +457,12 @@ export function AppShell() {
             </Link>
             </div>
           </div>
+        <div aria-hidden="true" className="pita-h pita-parang h-2.5 w-full" />
       </header>
 
       <main className="mx-auto w-full max-w-md px-4 pt-4 lg:max-w-3xl lg:px-10">
-        {/* Lengkung janur berumbai — pembuka tiap halaman ala gapura */}
-        <JanurArch className="mx-auto block h-20 w-full max-w-xs opacity-95" />
+        {/* Pembatas motif kawung — pembuka tiap halaman ala pelaminan */}
+        <MotifDivider className="mx-auto block h-9 w-full max-w-sm" />
         <SignupBanner show={showSignupBanner} />
         {reducedMotion ? (
           <Outlet />
@@ -511,6 +519,11 @@ export function AppShell() {
         </DrawerContent>
       </Drawer>
 
+      {/* Pita batik penutup halaman — kain selendang di kaki konten */}
+      <div
+        aria-hidden="true"
+        className="pita-h pita-kawung mx-auto mt-10 h-4 w-full max-w-md"
+      />
       <BottomNav />
       </div>
     </div>
