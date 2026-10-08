@@ -1,6 +1,7 @@
 import {
   CalendarClock,
   FolderHeart,
+  Gift,
   LayoutDashboard,
   ListChecks,
   PiggyBank,
@@ -110,5 +111,15 @@ export const FEATURES: Feature[] = [
     gradient: "grad-mint",
     emoji: "⏰",
     glow: "bg-tint-mint/60",
+  },
+  {
+    to: "/app/seserahan",
+    label: "Seserahan",
+    desc: "Daftar hantaran: link toko & status belanja.",
+    icon: Gift,
+    surface: "bg-tint-rose text-tint-rose-foreground",
+    gradient: "grad-rose",
+    emoji: "🎁",
+    glow: "bg-tint-rose/50",
   },
 ];

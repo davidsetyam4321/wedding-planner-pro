@@ -37,6 +37,9 @@ const VendorPage = lazy(() =>
 const RundownPage = lazy(() =>
   import("./pages/app/Rundown.tsx").then((m) => ({ default: m.RundownPage })),
 );
+const SeserahanPage = lazy(() =>
+  import("./pages/app/Seserahan.tsx").then((m) => ({ default: m.SeserahanPage })),
+);
 const PengaturanPage = lazy(() =>
   import("./pages/app/Pengaturan.tsx").then((m) => ({ default: m.PengaturanPage })),
 );
@@ -220,8 +223,9 @@ createRoot(document.getElementById("root")!).render(
                   <Route path="moodboard" element={<MoodboardPage />} />
                   <Route path="tamu" element={<TamuPage />} />
                   <Route path="vendor" element={<VendorPage />} />
-                  <Route path="rundown" element={<RundownPage />} />
-                  <Route path="pengaturan" element={<PengaturanPage />} />
+                <Route path="rundown" element={<RundownPage />} />
+                <Route path="seserahan" element={<SeserahanPage />} />
+                <Route path="pengaturan" element={<PengaturanPage />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>

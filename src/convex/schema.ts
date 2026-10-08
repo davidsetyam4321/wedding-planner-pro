@@ -28,6 +28,16 @@ export const vendorStatusValidator = v.union(
   v.literal("lunas"),
 );
 
+/**
+ * Status belanja seserahan — bisa di-switch cepat dari baris daftar:
+ * "link" baru input link → "cart" masuk keranjang → "bought" sudah dibeli.
+ */
+export const seserahanStatusValidator = v.union(
+  v.literal("link"),
+  v.literal("cart"),
+  v.literal("bought"),
+);
+
 const schema = defineSchema(
   {
     // default auth tables using convex auth.
@@ -190,6 +200,21 @@ const schema = defineSchema(
       /** Penanggung jawab acara (nama bebas, mis. "MC" atau "Keluarga"). */
       pic: v.optional(v.string()),
       createdAt: v.number(),
+    }).index("by_user", ["userId"]),
+
+    /**
+     * Seserahan (hantaran): daftar barang + link toko + status belanja.
+     * Status sengaja dibuat simpel (3 tahap) supaya bisa ditukar sekali ketuk.
+     */
+    seserahanItem: defineTable({
+      userId: v.id("users"),
+      title: v.string(),
+      /** Link produk di marketplace/toko — opsional. */
+      link: v.optional(v.string()),
+      status: seserahanStatusValidator,
+      sortOrder: v.number(),
+      createdAt: v.optional(v.number()),
+      updatedAt: v.optional(v.number()),
     }).index("by_user", ["userId"]),
 
     /**

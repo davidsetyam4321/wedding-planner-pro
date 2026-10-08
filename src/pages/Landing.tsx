@@ -191,7 +191,7 @@ export function LandingPage() {
             delay={600}
             className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2"
           >
-            {["8 modul lengkap", "2 perangkat, 1 data", "Tanpa ribet"].map(
+            {["9 modul lengkap", "2 perangkat, 1 data", "Tanpa ribet"].map(
               (item) => (
                 <span key={item} className="meta flex items-center gap-1.5">
                   <span className="size-1.5 rounded-full bg-inkwell-navy" />
@@ -286,7 +286,7 @@ export function LandingPage() {
                 delay={25}
               />
             </div>
-            <span className="meta">8 modul siap dipakai</span>
+            <span className="meta">9 modul siap dipakai</span>
           </FadeContent>
 
           <Stagger className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
