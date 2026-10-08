@@ -1,13 +1,14 @@
 /**
- * Doodle tangan ala Tracky — motif ilustrasi buku catatan: garis berlekuk,
- * panah melengkung, bintang kilau, blob organik, dan maskot kelinci.
- * Semua SVG inline (tanpa request) berwarna navy/coral/mint/butter.
+ * Ornamen & karakter Jawa — pengganti doodle lama, senada dengan foto
+ * gapura ukiran: pengantin Jawa, Semar, gunungan (kayon), dan lengkung
+ * janur berumbai. Garis tinta jati (#3a2317), aksen kuningan/terakota.
+ * Semua SVG inline (tanpa request) berwarna penuh ala wayang.
  * Murni dekoratif: selalu aria-hidden dan pointer-events-none.
  */
 
 type DoodleProps = { className?: string };
 
-/** Garis berlekuk coral — underline untuk satu frasa di headline. */
+/** Garis berlekuk terakota — underline untuk satu frasa di headline. */
 export function Squiggle({ className }: DoodleProps) {
   return (
     <svg
@@ -19,7 +20,7 @@ export function Squiggle({ className }: DoodleProps) {
     >
       <path
         d="M4 9 C 26 2, 46 13, 68 7 S 112 2, 135 8 S 176 3, 196 7"
-        stroke="#ff5858"
+        stroke="#b4553a"
         strokeWidth="4"
         strokeLinecap="round"
       />
@@ -60,7 +61,7 @@ export function DoodleStar({ className }: DoodleProps) {
   );
 }
 
-/** Blob organik — isi mint/soft blue, dipakai sebagai atmosfer sudut. */
+/** Blob organik — isi satu warna, dipakai sebagai atmosfer sudut. */
 export function Blob({ className }: DoodleProps) {
   return (
     <svg className={className} viewBox="0 0 60 58" fill="none" aria-hidden="true">
@@ -73,132 +74,230 @@ export function Blob({ className }: DoodleProps) {
 }
 
 /**
- * Maskot kelinci — garis navy, telinga dalam coral, pipi rose.
- * Diletakkan mengintip dari tepi kartu (persis pola ilustrasi Tracky).
+ * Gunungan (kayon) — gunung kehidupan khas wayang: daun runcing emas,
+ * pohon di tengah, gerbang merah bata di pangkal. Pembuka section ala
+ * dalang mengangkat kayon.
  */
-export function Bunny({ className }: DoodleProps) {
+export function Gunungan({ className }: DoodleProps) {
   return (
     <svg
       className={className}
-      viewBox="0 0 120 130"
+      viewBox="0 0 100 160"
       fill="none"
       aria-hidden="true"
     >
-      {/* telinga */}
+      {/* daun runcing */}
       <path
-        d="M42 58 C 34 36, 33 14, 44 8 C 55 3, 59 24, 55 50"
-        fill="#ffffff"
-        stroke="#151b31"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      <path
-        d="M78 58 C 86 36, 87 14, 76 8 C 65 3, 61 24, 65 50"
-        fill="#ffffff"
-        stroke="#151b31"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      <path
-        d="M46 50 C 43 34, 43 20, 47 15"
-        stroke="#ff5858"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      <path
-        d="M74 50 C 77 34, 77 20, 73 15"
-        stroke="#ff5858"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      {/* kepala */}
-      <path
-        d="M60 46 C 84 46, 97 63, 95 81 C 93 101, 79 113, 60 113 C 41 113, 27 101, 25 81 C 23 63, 36 46, 60 46 Z"
-        fill="#ffffff"
-        stroke="#151b31"
-        strokeWidth="4"
+        d="M50 5 C 67 33, 87 61, 87 93 C 87 126, 71 150, 50 156 C 29 150, 13 126, 13 93 C 13 61, 33 33, 50 5 Z"
+        fill="#f7e7bd"
+        stroke="#3a2317"
+        strokeWidth="3.5"
         strokeLinejoin="round"
       />
-      {/* pipi */}
-      <circle cx="40" cy="90" r="5.5" fill="#ffe4e0" />
-      <circle cx="80" cy="90" r="5.5" fill="#ffe4e0" />
-      {/* mata + hidung */}
-      <circle cx="48" cy="77" r="4" fill="#151b31" />
-      <circle cx="72" cy="77" r="4" fill="#151b31" />
       <path
-        d="M56 87 L 64 87 L 60 92 Z"
-        fill="#ff5858"
-        stroke="#ff5858"
-        strokeWidth="2"
+        d="M50 14 C 64 38, 80 63, 80 93 C 80 121, 67 142, 50 148 C 33 142, 20 121, 20 93 C 20 63, 36 38, 50 14 Z"
+        fill="#e9cd8f"
+        opacity="0.55"
+      />
+      {/* batang pohon */}
+      <path
+        d="M50 138 V 84"
+        stroke="#7b4530"
+        strokeWidth="5"
+        strokeLinecap="round"
+      />
+      {/* tajuk */}
+      <circle cx="50" cy="70" r="17" fill="#8fa756" stroke="#3a2317" strokeWidth="3" />
+      <circle cx="34" cy="84" r="10" fill="#a9c36b" stroke="#3a2317" strokeWidth="3" />
+      <circle cx="66" cy="84" r="10" fill="#a9c36b" stroke="#3a2317" strokeWidth="3" />
+      {/* bunga kuningan di tajuk */}
+      <circle cx="45" cy="66" r="2.6" fill="#d8b45c" />
+      <circle cx="56" cy="73" r="2.6" fill="#d8b45c" />
+      <circle cx="66" cy="82" r="2.4" fill="#d8b45c" />
+      {/* gerbang merah bata di pangkal */}
+      <path
+        d="M39 138 C 39 126, 44 120, 50 120 C 56 120, 61 126, 61 138 Z"
+        fill="#b4553a"
+        stroke="#3a2317"
+        strokeWidth="3"
         strokeLinejoin="round"
       />
-      {/* kumis */}
+      {/* akar */}
       <path
-        d="M30 84 L 40 86 M30 92 L 40 90 M90 84 L 80 86 M90 92 L 80 90"
-        stroke="#151b31"
-        strokeWidth="2"
+        d="M34 145 Q50 151, 66 145"
+        stroke="#7b4530"
+        strokeWidth="3.5"
         strokeLinecap="round"
+        fill="none"
       />
     </svg>
   );
 }
 
 /**
- * Kawan kedua: kuncup melati berkarakter — badan putih gading, daun sage,
- * pipi blush, dan kuncup emas di kepala. Maskot utama ala nikahan Jawa.
+ * Pengantin Jawa — paes hitam, cunduk mentul emas, ronce melati,
+ * kebaya marun dengan selendang kuningan.
  */
-export function MelatiBuddy({ className }: DoodleProps) {
+export function PengantinWanita({ className }: DoodleProps) {
   return (
     <svg
       className={className}
-      viewBox="0 0 100 120"
+      viewBox="0 0 110 132"
       fill="none"
       aria-hidden="true"
     >
-      {/* kuncup emas di kepala */}
-      <circle cx="50" cy="11" r="6" fill="#e9cd8f" stroke="#151b31" strokeWidth="3" />
-      {/* badan kuncup */}
+      {/* sanggul + rambut */}
+      <ellipse cx="55" cy="50" rx="35" ry="31" fill="#241609" />
+      <ellipse cx="20" cy="44" rx="11" ry="13" fill="#241609" />
+      <ellipse cx="90" cy="44" rx="11" ry="13" fill="#241609" />
+      {/* cunduk mentul emas */}
+      <g stroke="#d8b45c" strokeWidth="3" strokeLinecap="round">
+        <path d="M40 24 V 10" />
+        <path d="M55 20 V 4" />
+        <path d="M70 24 V 10" />
+      </g>
+      <circle cx="40" cy="8" r="4" fill="#d8b45c" stroke="#3a2317" strokeWidth="2" />
+      <circle cx="55" cy="3" r="4.5" fill="#d8b45c" stroke="#3a2317" strokeWidth="2" />
+      <circle cx="70" cy="8" r="4" fill="#d8b45c" stroke="#3a2317" strokeWidth="2" />
+      {/* wajah */}
+      <ellipse cx="55" cy="56" rx="25" ry="24" fill="#fbe8d6" />
+      {/* paes (alis hitam memanjang) */}
       <path
-        d="M50 8 C 72 26, 82 52, 80 74 C 78 98, 66 112, 50 114 C 34 112, 22 98, 20 74 C 18 52, 28 26, 50 8 Z"
-        fill="#fffdf6"
-        stroke="#151b31"
-        strokeWidth="4"
+        d="M33 46 C 42 38, 68 38, 77 46"
+        stroke="#241609"
+        strokeWidth="6"
+        strokeLinecap="round"
+        fill="none"
+      />
+      {/* mata + pipi + senyum */}
+      <circle cx="46" cy="57" r="3.6" fill="#241609" />
+      <circle cx="64" cy="57" r="3.6" fill="#241609" />
+      <ellipse cx="37" cy="66" rx="5" ry="3.4" fill="#f4a891" />
+      <ellipse cx="73" cy="66" rx="5" ry="3.4" fill="#f4a891" />
+      <path
+        d="M50 68 Q55 73, 60 68"
+        stroke="#a63a2b"
+        strokeWidth="3"
+        strokeLinecap="round"
+        fill="none"
+      />
+      {/* ronce melati di sisi sanggul */}
+      <g fill="#fffdf7" stroke="#ddd0b8" strokeWidth="1.4">
+        <circle cx="86" cy="56" r="3.2" />
+        <circle cx="88" cy="65" r="3.2" />
+        <circle cx="88" cy="74" r="3.2" />
+        <circle cx="86" cy="83" r="3.2" />
+        <circle cx="83" cy="91" r="3.2" />
+      </g>
+      {/* badan kebaya */}
+      <path
+        d="M31 94 C 35 80, 44 75, 55 75 C 66 75, 75 80, 79 94 L 87 128 L 23 128 Z"
+        fill="#a63a2b"
+        stroke="#3a2317"
+        strokeWidth="3.5"
         strokeLinejoin="round"
       />
-      {/* lipatan kelopak */}
+      {/* selendang kuningan melintang */}
       <path
-        d="M34 34 C 42 52, 44 76, 40 98 M66 34 C 58 52, 56 76, 60 98"
-        stroke="#151b31"
+        d="M32 99 C 47 108, 63 108, 78 99"
+        stroke="#d8b45c"
+        strokeWidth="6"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <path
+        d="M32 99 C 47 108, 63 108, 78 99"
+        stroke="#3a2317"
+        strokeWidth="1"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.4"
+      />
+      {/* motif jarik emas di bawah */}
+      <path
+        d="M30 116 h50 M34 122 h42"
+        stroke="#d8b45c"
         strokeWidth="2.5"
         strokeLinecap="round"
-        opacity="0.35"
+      />
+    </svg>
+  );
+}
+
+/**
+ * Pengantin pria Jawa — kuluk mahkota emas, beskap putih gading,
+ * motif batik parang di pangkal.
+ */
+export function PengantinPria({ className }: DoodleProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 110 132"
+      fill="none"
+      aria-hidden="true"
+    >
+      {/* kuluk / mahkota emas */}
+      <path
+        d="M32 34 L38 12 L47 24 L55 6 L63 24 L72 12 L78 34 Z"
+        fill="#d8b45c"
+        stroke="#3a2317"
+        strokeWidth="3.5"
+        strokeLinejoin="round"
+      />
+      <circle cx="55" cy="6" r="4" fill="#b4553a" stroke="#3a2317" strokeWidth="2" />
+      {/* rambut */}
+      <ellipse cx="55" cy="50" rx="31" ry="27" fill="#241609" />
+      {/* wajah */}
+      <ellipse cx="55" cy="56" rx="24" ry="23" fill="#fbe8d6" />
+      {/* alis */}
+      <path
+        d="M39 48 Q46 44, 52 48 M58 48 Q64 44, 71 48"
+        stroke="#241609"
+        strokeWidth="3.4"
+        strokeLinecap="round"
         fill="none"
       />
-      {/* daun pangkal */}
+      {/* mata + pipi + senyum */}
+      <circle cx="46" cy="57" r="3.6" fill="#241609" />
+      <circle cx="64" cy="57" r="3.6" fill="#241609" />
+      <ellipse cx="37" cy="65" rx="5" ry="3.4" fill="#f4a891" />
+      <ellipse cx="73" cy="65" rx="5" ry="3.4" fill="#f4a891" />
       <path
-        d="M24 96 C 30 111, 42 118, 50 117 C 44 107, 34 99, 24 96 Z"
-        fill="#a9d9bf"
-        stroke="#151b31"
+        d="M50 67 Q55 72, 60 67"
+        stroke="#3a2317"
+        strokeWidth="3"
+        strokeLinecap="round"
+        fill="none"
+      />
+      {/* beskap putih gading */}
+      <path
+        d="M31 94 C 35 80, 44 75, 55 75 C 66 75, 75 80, 79 94 L 87 128 L 23 128 Z"
+        fill="#fffdf7"
+        stroke="#3a2317"
         strokeWidth="3.5"
         strokeLinejoin="round"
       />
+      {/* kancing & lipatan emas */}
+      <circle cx="55" cy="92" r="3.4" fill="#d8b45c" stroke="#3a2317" strokeWidth="2" />
+      <circle cx="55" cy="104" r="3.4" fill="#d8b45c" stroke="#3a2317" strokeWidth="2" />
       <path
-        d="M76 96 C 70 111, 58 118, 50 117 C 56 107, 66 99, 76 96 Z"
-        fill="#a9d9bf"
-        stroke="#151b31"
-        strokeWidth="3.5"
-        strokeLinejoin="round"
+        d="M55 78 V 90"
+        stroke="#3a2317"
+        strokeWidth="2.5"
+        strokeLinecap="round"
       />
-      {/* pipi */}
-      <ellipse cx="30" cy="74" rx="6" ry="4" fill="#ffb6ab" />
-      <ellipse cx="70" cy="74" rx="6" ry="4" fill="#ffb6ab" />
-      {/* mata + senyum */}
-      <circle cx="39" cy="63" r="4.5" fill="#151b31" />
-      <circle cx="61" cy="63" r="4.5" fill="#151b31" />
+      {/* motif parang di pangkal */}
+      <g stroke="#7b4530" strokeWidth="3.4" strokeLinecap="round">
+        <path d="M32 116 l10 -7" />
+        <path d="M46 122 l10 -7" />
+        <path d="M62 116 l10 -7" />
+        <path d="M72 124 l8 -6" />
+      </g>
+      {/* kalung kuningan */}
       <path
-        d="M43 76 Q50 83, 57 76"
-        stroke="#151b31"
-        strokeWidth="3.5"
+        d="M43 80 Q55 90, 67 80"
+        stroke="#d8b45c"
+        strokeWidth="4"
         strokeLinecap="round"
         fill="none"
       />
@@ -207,61 +306,157 @@ export function MelatiBuddy({ className }: DoodleProps) {
 }
 
 /**
- * Kawan ketiga: burung kecil (perkutut) — paruh emas, sayap blush,
- * pipi merah muda. Sesuai nuansa nikahan Jawa yang tenang.
+ * Semar — semar gendeng: badan putih gading bulat, kuncuk hitam,
+ * jarik cokelat sogan. Pepunden yang lucu tiap halaman.
  */
-export function Bird({ className }: DoodleProps) {
+export function Semar({ className }: DoodleProps) {
   return (
     <svg
       className={className}
-      viewBox="0 0 116 104"
+      viewBox="0 0 120 132"
       fill="none"
       aria-hidden="true"
     >
-      {/* ekor */}
+      {/* kuncuk (jambul) */}
       <path
-        d="M26 60 L4 66 L26 74 Z"
-        fill="#ffd9d2"
-        stroke="#151b31"
-        strokeWidth="4"
-        strokeLinejoin="round"
-      />
-      {/* badan */}
-      <path
-        d="M30 58 C 32 38, 50 27, 68 31 C 86 35, 97 50, 93 66 C 89 84, 70 93, 50 89 C 34 85, 28 73, 30 58 Z"
-        fill="#ffffff"
-        stroke="#151b31"
-        strokeWidth="4"
-        strokeLinejoin="round"
-      />
-      {/* kepala */}
-      <circle cx="86" cy="34" r="17" fill="#ffffff" stroke="#151b31" strokeWidth="4" />
-      {/* paruh */}
-      <path
-        d="M101 31 L114 36 L101 42 Z"
-        fill="#e9cd8f"
-        stroke="#151b31"
+        d="M48 30 C 46 16, 54 6, 64 8 C 74 10, 77 20, 71 28"
+        fill="#241609"
+        stroke="#3a2317"
         strokeWidth="3"
         strokeLinejoin="round"
       />
-      {/* mata + pipi */}
-      <circle cx="91" cy="29" r="3.6" fill="#151b31" />
-      <ellipse cx="80" cy="41" rx="5" ry="3.4" fill="#ffb6ab" />
-      {/* sayap */}
+      {/* badan bulat */}
+      <ellipse cx="60" cy="80" rx="42" ry="40" fill="#fffdf7" stroke="#3a2317" strokeWidth="3.5" />
+      {/* wajah */}
+      <circle cx="47" cy="66" r="4" fill="#241609" />
+      <circle cx="71" cy="66" r="4" fill="#241609" />
       <path
-        d="M44 55 C 55 46, 72 49, 76 62 C 69 74, 50 73, 44 55 Z"
-        fill="#ffd9d2"
-        stroke="#151b31"
+        d="M39 57 Q46 52, 53 56 M65 56 Q73 52, 80 57"
+        stroke="#241609"
+        strokeWidth="3.2"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <ellipse cx="38" cy="76" rx="6" ry="4" fill="#f4a891" />
+      <ellipse cx="82" cy="76" rx="6" ry="4" fill="#f4a891" />
+      <path
+        d="M48 80 Q60 92, 72 80"
+        stroke="#3a2317"
+        strokeWidth="3.6"
+        strokeLinecap="round"
+        fill="none"
+      />
+      {/* jarik sogan melilit badan */}
+      <path
+        d="M22 98 C 40 110, 80 110, 98 98 L 100 118 C 80 130, 40 130, 20 118 Z"
+        fill="#7b4530"
+        stroke="#3a2317"
         strokeWidth="3.5"
         strokeLinejoin="round"
       />
-      {/* kaki */}
+      <g fill="#d8b45c">
+        <circle cx="38" cy="112" r="3" />
+        <circle cx="58" cy="118" r="3" />
+        <circle cx="78" cy="112" r="3" />
+        <circle cx="48" cy="106" r="2.4" />
+        <circle cx="68" cy="106" r="2.4" />
+      </g>
+      {/* lengan memeluk perut */}
       <path
-        d="M54 91 v9 M67 91 v9"
-        stroke="#151b31"
+        d="M24 86 C 34 96, 44 100, 52 100"
+        stroke="#3a2317"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <path
+        d="M96 86 C 86 96, 76 100, 68 100"
+        stroke="#3a2317"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        fill="none"
+      />
+      {/* kaki pendek */}
+      <path
+        d="M44 126 v6 M76 126 v6"
+        stroke="#3a2317"
         strokeWidth="4"
         strokeLinecap="round"
       />
+    </svg>
+  );
+}
+
+/**
+ * Lengkung janur berumbai — dua pelengkap janur saling menyilang seperti
+ * gapura di foto, dengan untaian melati kecil menggantung dan bandul emas.
+ */
+export function JanurArch({ className }: DoodleProps) {
+  const strands = Array.from({ length: 7 }, (_, index) => ({
+    x: 46 + index * 22,
+    y: 52 + Math.abs(3 - index) * 9,
+    len: 34 - Math.abs(3 - index) * 6,
+  }));
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 400 130"
+      fill="none"
+      aria-hidden="true"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      {/* lengkung janur kiri & kanan — saling silang di puncak */}
+      <path
+        d="M10 126 C 26 44, 118 8, 236 18"
+        stroke="#b9c98c"
+        strokeWidth="10"
+        strokeLinecap="round"
+      />
+      <path
+        d="M390 126 C 374 44, 282 8, 164 18"
+        stroke="#cbd9a1"
+        strokeWidth="10"
+        strokeLinecap="round"
+      />
+      {/* untaian melati menggantung di sepanjang lengkung */}
+      <g stroke="#e9cd8f" strokeWidth="3" strokeLinecap="round">
+        {strands.map((strand) => (
+          <path
+            key={`l-${strand.x}`}
+            d={`M${strand.x} ${strand.y} v${strand.len}`}
+          />
+        ))}
+        {strands.map((strand) => (
+          <path
+            key={`r-${400 - strand.x}`}
+            d={`M${400 - strand.x} ${strand.y} v${strand.len}`}
+          />
+        ))}
+      </g>
+      <g fill="#fffdf7" stroke="#ddd0b8" strokeWidth="1.2">
+        {strands.map((strand) => (
+          <circle key={`kl-${strand.x}`} cx={strand.x} cy={strand.y + strand.len} r="3.4" />
+        ))}
+        {strands.map((strand) => (
+          <circle
+            key={`kr-${400 - strand.x}`}
+            cx={400 - strand.x}
+            cy={strand.y + strand.len}
+            r="3.4"
+          />
+        ))}
+      </g>
+      {/* bandul emas di puncak silang */}
+      <path d="M200 14 v14" stroke="#cdc1a6" strokeWidth="3" />
+      <path
+        d="M200 30 L208 42 L200 54 L192 42 Z"
+        fill="#e9cd8f"
+        stroke="#3a2317"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      <path d="M200 56 v10" stroke="#cdc1a6" strokeWidth="3" />
+      <circle cx="200" cy="70" r="4" fill="#d8b45c" />
     </svg>
   );
 }

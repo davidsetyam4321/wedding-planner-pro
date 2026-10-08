@@ -2,17 +2,18 @@ import AnimatedContent from "@/components/AnimatedContent";
 import BlurText from "@/components/BlurText";
 import CountUp from "@/components/CountUp";
 import {
-  Bird,
   Blob,
-  Bunny,
   CurvedArrow,
   DoodleStar,
-  MelatiBuddy,
+  Gunungan,
+  JanurArch,
+  PengantinPria,
+  PengantinWanita,
+  Semar,
   Squiggle,
 } from "@/components/Doodles";
 import {
   GarlandDivider,
-  MelatiBandul,
   PetalsFront,
 } from "@/components/Decor";
 import { FlowerMark, Petals } from "@/components/Decor";
@@ -59,6 +60,53 @@ const STEPS = [
   },
 ];
 
+/**
+ * Galeri nuansa Jawa — foto Wikimedia Commons (CC BY-SA),
+ * daftar kredit lengkap di public/assets/CREDITS.md.
+ */
+const GALLERY = [
+  {
+    src: "/assets/gapura-ukiran.jpg",
+    alt: "Ukiran pintu gapura kayu jati di Kotagede",
+    caption: "Ukiran gapura",
+  },
+  {
+    src: "/assets/pengantin-panggih.jpg",
+    alt: "Prosesi panggih pengantin Jawa",
+    caption: "Prosesi panggih",
+  },
+  {
+    src: "/assets/janur-kuning.jpg",
+    alt: "Detail janur kuning dekorasi",
+    caption: "Janur kuning",
+  },
+  {
+    src: "/assets/joglo.jpg",
+    alt: "Rumah joglo Jawa",
+    caption: "Joglo",
+  },
+  {
+    src: "/assets/upacara-jawa.jpg",
+    alt: "Upacara pernikahan Jawa dengan melati dan ornamen kuningan",
+    caption: "Upacara Jawa",
+  },
+  {
+    src: "/assets/gapura-keraton.jpg",
+    alt: "Gapura Keraton Dermayu",
+    caption: "Gapura keraton",
+  },
+  {
+    src: "/assets/pengantin-resepsi.jpg",
+    alt: "Resepsi pernikahan Jawa di Solo",
+    caption: "Resepsi Solo",
+  },
+  {
+    src: "/assets/wayang-semar.jpg",
+    alt: "Wayang kulit Semar",
+    caption: "Wayang Semar",
+  },
+];
+
 /** Halaman publik: memperkenalkan produk lalu mengarahkan ke aplikasi. */
 export function LandingPage() {
   const [bannerOpen, setBannerOpen] = useState(true);
@@ -71,14 +119,14 @@ export function LandingPage() {
 
       {/* ── Banner pengumuman (Butter Yellow, melebar penuh) ─────────── */}
       {bannerOpen && (
-        <div className="relative z-50 bg-butter-yellow">
-          <div className="mx-auto flex w-full max-w-[1200px] items-center justify-center px-12 py-2.5 text-center text-sm font-medium text-inkwell-navy">
+        <div className="relative z-50 bg-brass-gold">
+          <div className="mx-auto flex w-full max-w-[1200px] items-center justify-center px-12 py-2.5 text-center text-sm font-medium text-teak-ink">
             <span>
               Ruang kerja berdua kini terbuka untuk siapa pun — mulai gratis,
               tanpa kartu.{" "}
               <a
                 href="#cara-kerja"
-                className="font-semibold text-coral-emphasis underline-offset-4 hover:underline"
+                className="font-semibold text-brick-accent underline-offset-4 hover:underline"
               >
                 Lihat caranya
               </a>
@@ -87,7 +135,7 @@ export function LandingPage() {
               type="button"
               aria-label="Tutup pengumuman"
               onClick={() => setBannerOpen(false)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 transition-colors hover:bg-inkwell-navy/10"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 transition-colors hover:bg-teak-ink/10"
             >
               <X className="size-4" />
             </button>
@@ -99,7 +147,7 @@ export function LandingPage() {
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur">
         <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between px-5 py-3">
           <Link to="/" className="flex items-center gap-2.5">
-            <span className="flex size-9 items-center justify-center rounded-full bg-inkwell-navy">
+            <span className="flex size-9 items-center justify-center rounded-full bg-teak-ink">
               <FlowerMark className="size-5 text-white" />
             </span>
             <span className="text-base font-semibold tracking-tight">
@@ -117,23 +165,23 @@ export function LandingPage() {
       <main className="space-y-20 pb-24">
         {/* ── Hero: aurora lembut, headline display, anotasi tulis tangan ─ */}
         <section className="relative mx-auto w-full max-w-[1200px] px-5 pt-14 text-center md:pt-20">
-          {/* atmosfer romantic: sapuan aurora blush → mint (react-bits) */}
+          {/* atmosfer romantic: sapuan aurora terakota → janur (react-bits) */}
           {!reducedMotion && (
             <div className="pointer-events-none absolute -inset-x-6 -top-16 -z-10 h-[130%] opacity-75">
               <SoftAurora
                 lightMode
                 speed={0.25}
-                color1="#ff9d94"
-                color2="#9fe8d0"
+                color1="#d4795f"
+                color2="#b9c98c"
               />
             </div>
           )}
-          <Blob className="pointer-events-none absolute left-2 top-6 hidden size-24 text-mint-pulse opacity-70 md:block" />
-          <Blob className="pointer-events-none absolute right-6 top-52 hidden size-14 rotate-45 text-butter-yellow opacity-80 lg:block" />
-          <DoodleStar className="pointer-events-none absolute right-16 top-10 size-7 text-coral-emphasis" />
-          <Bird className="bobbing pointer-events-none absolute left-8 top-28 hidden size-16 lg:block" />
+          <Blob className="pointer-events-none absolute left-2 top-6 hidden size-24 text-janur-green opacity-70 md:block" />
+          <Blob className="pointer-events-none absolute right-6 top-52 hidden size-14 rotate-45 text-brass-gold opacity-80 lg:block" />
+          <DoodleStar className="pointer-events-none absolute right-16 top-10 size-7 text-brick-accent" />
+          <PengantinPria className="bobbing pointer-events-none absolute left-8 top-28 hidden size-16 lg:block" />
 
-          <MelatiBandul className="relative mx-auto mt-1 block h-16 w-11" />
+          <JanurArch className="relative mx-auto mt-1 block h-28 w-full max-w-lg" />
 
           <FadeContent
             blur
@@ -141,7 +189,7 @@ export function LandingPage() {
             delay={150}
             className="relative inline-block"
           >
-            <span className="chip bg-tint-rose text-inkwell-navy">
+            <span className="chip bg-tint-rose text-teak-ink">
               <Sparkles className="size-3.5" /> Perencana pernikahan untuk
               berdua
             </span>
@@ -155,7 +203,7 @@ export function LandingPage() {
           >
             <h1 className="font-serif text-[40px] leading-[1.04] sm:text-[56px] md:text-[64px] lg:text-[76px]">
               Rencanakan hari bahagia Anda,{" "}
-              <span className="elegant relative inline-block text-[1.08em] text-coral-emphasis">
+              <span className="elegant relative inline-block text-[1.08em] text-brick-accent">
                 berdua.
                 <Squiggle className="absolute -bottom-2 left-0 h-3 w-full" />
               </span>
@@ -171,10 +219,10 @@ export function LandingPage() {
 
           <div className="relative mt-9 flex flex-wrap items-center justify-center gap-3">
             <span className="pointer-events-none absolute right-4 -top-14 hidden items-end gap-1.5 md:flex">
-              <span className="-rotate-6 font-serif text-sm text-inkwell-navy">
+              <span className="-rotate-6 font-serif text-sm text-teak-ink">
                 gratis, lho!
               </span>
-              <CurvedArrow className="size-11 -scale-x-100 rotate-6 text-inkwell-navy" />
+              <CurvedArrow className="size-11 -scale-x-100 rotate-6 text-teak-ink" />
             </span>
             <Magnet padding={70} magnetStrength={2.5}>
               <Button asChild size="lg" className="px-7">
@@ -197,7 +245,7 @@ export function LandingPage() {
             {["9 modul lengkap", "2 perangkat, 1 data", "Tanpa ribet"].map(
               (item) => (
                 <span key={item} className="meta flex items-center gap-1.5">
-                  <span className="size-1.5 rounded-full bg-inkwell-navy" />
+                  <span className="size-1.5 rounded-full bg-teak-ink" />
                   {item}
                 </span>
               ),
@@ -208,16 +256,21 @@ export function LandingPage() {
         {/* ── Dark feature card + kartu putih miring menumpuk ────────── */}
         <section className="mx-auto w-full max-w-[1200px] px-5">
           <AnimatedContent distance={80} threshold={0.15}>
-            <div className="batik-sogan relative overflow-hidden rounded-3xl border border-white/10 bg-inkwell-navy p-8 shadow-[0_1px_4px_rgba(138,133,125,0.2)] md:p-12">
-              <Bunny className="absolute -right-1 -top-12 hidden size-24 rotate-[9deg] md:block" />
-              <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_1fr]">
+            <div className="batik-sogan relative overflow-hidden rounded-3xl border border-white/10 bg-teak-ink p-8 shadow-[0_1px_4px_rgba(138,133,125,0.2)] md:p-12">
+              {/* material foto ukiran kayu — tekstur gapura di balik konten */}
+              <div
+                aria-hidden="true"
+                className="wood-carving pointer-events-none absolute inset-0 opacity-30 mix-blend-overlay"
+              />
+              <Semar className="absolute -right-1 -top-12 z-10 hidden size-24 rotate-[9deg] md:block" />
+              <div className="relative z-10 grid items-center gap-10 lg:grid-cols-[1.05fr_1fr]">
                 <div>
-                  <p className="label text-mint-pulse">
+                  <p className="label text-janur-green">
                     Satu layar untuk semuanya
                   </p>
                   <h2 className="mt-2 font-serif text-3xl leading-tight text-white md:text-4xl">
                     Hitung mundur, dana, dan tugas{" "}
-                    <span className="elegant text-[1.06em] text-coral-emphasis">
+                    <span className="elegant text-[1.06em] text-brick-accent">
                       terlihat sekilas
                     </span>
                   </h2>
@@ -227,7 +280,7 @@ export function LandingPage() {
                   </p>
                   <Button
                     asChild
-                    className="mt-7 bg-paper-white text-inkwell-navy shadow-none hover:bg-white/90"
+                    className="mt-7 bg-paper-white text-teak-ink shadow-none hover:bg-white/90"
                   >
                     <Link to="/app">
                       Buka ruang kerja <ArrowRight className="size-4" />
@@ -239,11 +292,11 @@ export function LandingPage() {
                 <div className="relative">
                   <div className="rotate-[-4deg] rounded-2xl bg-paper-white p-5 shadow-[0_1px_4px_rgba(138,133,125,0.2)] lg:-mr-10">
                     <p className="label text-slate">Menuju hari pernikahan</p>
-                    <p className="num mt-1 text-4xl font-extrabold text-inkwell-navy">
+                    <p className="num mt-1 text-4xl font-extrabold text-teak-ink">
                       H-<CountUp to={328} />
                     </p>
                     <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-ash-canvas">
-                      <div className="h-full w-2/3 rounded-full bg-inkwell-navy" />
+                      <div className="h-full w-2/3 rounded-full bg-teak-ink" />
                     </div>
                     <p className="mt-2 text-sm text-slate">
                       Rp 42 jt dari target Rp 64 jt
@@ -256,7 +309,7 @@ export function LandingPage() {
                       ].map((tile) => (
                         <div
                           key={tile.label}
-                          className={`clay-sm ${tile.surface} p-2.5 text-inkwell-navy`}
+                          className={`clay-sm ${tile.surface} p-2.5 text-teak-ink`}
                         >
                           <p className="label opacity-70">{tile.label}</p>
                           <p className="num mt-0.5 text-xs font-extrabold">
@@ -317,6 +370,47 @@ export function LandingPage() {
           </Stagger>
         </section>
 
+        {/* ── Galeri nuansa: aset foto Jawa (Wikimedia Commons, CC BY-SA) ─ */}
+        <section className="mx-auto w-full max-w-[1200px] px-5">
+          <FadeContent
+            blur
+            duration={900}
+            className="flex flex-wrap items-end justify-between gap-2"
+          >
+            <div>
+              <p className="label text-slate">Nuansa hari-H</p>
+              <SplitText
+                tag="h2"
+                textAlign="left"
+                className="mt-2 font-serif text-3xl md:text-4xl pb-1"
+                text="Gapura, janur, dan pengantin Jawa"
+                delay={25}
+              />
+            </div>
+            <span className="meta">Foto: Wikimedia Commons · CC BY-SA</span>
+          </FadeContent>
+
+          <Stagger className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+            {GALLERY.map((item) => (
+              <StaggerItem key={item.src}>
+                <figure className="clay group relative block overflow-hidden rounded-2xl">
+                  <img
+                    src={item.src}
+                    alt={item.alt}
+                    loading="lazy"
+                    className="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105 md:h-52"
+                  />
+                  <figcaption className="photo-scrim absolute inset-x-0 bottom-0 px-3 py-2 text-[11px] font-bold text-white">
+                    {item.caption}
+                  </figcaption>
+                </figure>
+              </StaggerItem>
+            ))}
+          </Stagger>
+
+          <Gunungan className="mx-auto mt-9 block h-24 w-16" />
+        </section>
+
         <GarlandDivider className="mx-auto block h-20 w-full max-w-sm" />
 
         {/* ── Cara kerja: tiga langkah, ikon lucide seragam ───────────── */}
@@ -339,10 +433,10 @@ export function LandingPage() {
                     spotlightColor="rgba(255, 255, 255, 0.5)"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="flex size-10 items-center justify-center rounded-lg bg-ash-canvas text-inkwell-navy">
+                      <span className="flex size-10 items-center justify-center rounded-lg bg-ash-canvas text-teak-ink">
                         <step.icon className="size-5" />
                       </span>
-                      <span className="num text-2xl font-extrabold text-inkwell-navy/15">
+                      <span className="num text-2xl font-extrabold text-teak-ink/15">
                         {step.step}
                       </span>
                     </div>
@@ -360,10 +454,14 @@ export function LandingPage() {
         {/* ── Dark feature card #2: sinkronisasi ─────────────────────── */}
         <section className="mx-auto w-full max-w-[1200px] px-5">
           <AnimatedContent distance={80} threshold={0.15}>
-            <div className="batik-sogan rounded-3xl border border-white/10 bg-inkwell-navy p-8 shadow-[0_1px_4px_rgba(138,133,125,0.2)] md:p-12">
-              <div className="grid items-center gap-8 md:grid-cols-2">
+            <div className="batik-sogan relative overflow-hidden rounded-3xl border border-white/10 bg-teak-ink p-8 shadow-[0_1px_4px_rgba(138,133,125,0.2)] md:p-12">
+              <div
+                aria-hidden="true"
+                className="wood-carving pointer-events-none absolute inset-0 opacity-30 mix-blend-overlay"
+              />
+              <div className="relative z-10 grid items-center gap-8 md:grid-cols-2">
                 <div>
-                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-mint-pulse px-3 py-1.5 text-xs font-medium text-inkwell-navy">
+                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-janur-green px-3 py-1.5 text-xs font-medium text-teak-ink">
                     <RefreshCw className="size-3.5" /> Sinkron real-time
                   </span>
                   <SplitText
@@ -389,7 +487,7 @@ export function LandingPage() {
                       key={event}
                       className="flex items-center gap-2.5 rounded-lg bg-white/10 px-4 py-3 text-sm font-medium text-white/90"
                     >
-                      <span className="size-1.5 shrink-0 rounded-full bg-mint-pulse" />
+                      <span className="size-1.5 shrink-0 rounded-full bg-janur-green" />
                       {event}
                     </div>
                   ))}
@@ -405,12 +503,13 @@ export function LandingPage() {
         <section className="mx-auto w-full max-w-[1200px] px-5">
           <AnimatedContent distance={60} threshold={0.2}>
             <div className="relative text-center">
-              <DoodleStar className="pointer-events-none absolute left-10 top-2 size-6 text-butter-yellow" />
-              <DoodleStar className="pointer-events-none absolute right-14 bottom-24 size-8 text-mint-pulse" />
-              <MelatiBuddy className="bobbing pointer-events-none absolute -left-4 bottom-0 hidden size-24 md:block" />
+              <DoodleStar className="pointer-events-none absolute left-10 top-2 size-6 text-brass-gold" />
+              <DoodleStar className="pointer-events-none absolute right-14 bottom-24 size-8 text-janur-green" />
+              <PengantinWanita className="bobbing pointer-events-none absolute -left-4 bottom-0 hidden size-24 md:block" />
+              <Gunungan className="pointer-events-none absolute -right-2 top-8 hidden h-28 w-16 rotate-[8deg] md:block" />
               <h2 className="mx-auto max-w-3xl font-serif text-[34px] leading-[1.1] md:text-5xl">
                 Siap merencanakan{" "}
-                <span className="elegant relative inline-block text-[1.08em] text-coral-emphasis">
+                <span className="elegant relative inline-block text-[1.08em] text-brick-accent">
                   hari bahagia?
                   <Squiggle className="absolute -bottom-2 left-0 h-3 w-full" />
                 </span>
@@ -434,8 +533,8 @@ export function LandingPage() {
                   showCount={false}
                   size={38}
                   label="Suka"
-                  likedColor="#ff5858"
-                  pillColor="#151b31"
+                  likedColor="#b4553a"
+                  pillColor="#3a2317"
                   textColor="#ffffff"
                 />
               </div>
@@ -448,14 +547,17 @@ export function LandingPage() {
       <footer className="border-t border-border/60">
         <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center justify-between gap-3 px-5 py-6 sm:flex-row">
           <div className="flex items-center gap-2.5">
-            <span className="flex size-8 items-center justify-center rounded-full bg-inkwell-navy">
+            <span className="flex size-8 items-center justify-center rounded-full bg-teak-ink">
               <FlowerMark className="size-4 text-white" />
             </span>
             <span className="text-sm font-semibold tracking-tight">
               SatuJanji
             </span>
           </div>
-          <p className="meta">Perencana pernikahan untuk berdua · © 2026</p>
+          <p className="meta">
+            Perencana pernikahan untuk berdua · © 2026 · Foto: Wikimedia
+            Commons (CC BY-SA)
+          </p>
         </div>
       </footer>
     </div>

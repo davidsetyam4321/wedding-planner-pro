@@ -8,7 +8,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import AnimatedContent from "@/components/AnimatedContent";
 import { GarlandDivider } from "@/components/Decor";
-import { Bunny, DoodleStar, Squiggle } from "@/components/Doodles";
+import { DoodleStar, Semar, Squiggle } from "@/components/Doodles";
 import PulseHeart from "@/components/PulseHeart";
 import SpotlightCard from "@/components/SpotlightCard";
 import { api } from "@/convex/_generated/api";
@@ -92,7 +92,7 @@ function CountdownTimer({ weddingDate }: { weddingDate: number }) {
         >
           <p
             className={`num font-serif text-[1.35rem] font-semibold leading-tight ${
-              cell.gold ? "text-butter-yellow" : "text-white"
+              cell.gold ? "text-brass-gold" : "text-white"
             }`}
           >
             {String(cell.value).padStart(2, "0")}
@@ -307,7 +307,7 @@ export function HomePage() {
         <AnimatedContent
           distance={50}
           threshold={0.05}
-          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-inkwell-navy via-[#1b2340] to-[#26304f] p-5 shadow-[0_20px_50px_-12px_rgba(21,27,49,0.5)]"
+          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teak-ink via-[#33241a] to-[#46361f] p-5 shadow-[0_20px_50px_-12px_rgba(36,22,12,0.5)]"
         >
           {couplePhoto && (
             <>
@@ -318,16 +318,16 @@ export function HomePage() {
                 aria-hidden
                 className="absolute inset-0 h-full w-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-br from-inkwell-navy/85 via-[#1b2340]/80 to-[#26304f]/85" />
+              <div className="absolute inset-0 bg-gradient-to-br from-teak-ink/85 via-[#33241a]/80 to-[#46361f]/85" />
             </>
           )}
           <div className="pointer-events-none absolute -right-10 -top-14 size-44 rounded-full bg-white/10 blur-2xl" />
           <div className="pointer-events-none absolute -bottom-12 -left-8 size-40 rounded-full bg-tint-butter/25 blur-2xl" />
-          <Bunny className="pointer-events-none absolute -top-9 right-16 size-16 rotate-[9deg]" />
-          <DoodleStar className="pointer-events-none absolute right-4 top-16 size-5 text-butter-yellow" />
+          <Semar className="pointer-events-none absolute -top-9 right-16 size-16 rotate-[9deg]" />
+          <DoodleStar className="pointer-events-none absolute right-4 top-16 size-5 text-brass-gold" />
           <div className="relative z-10 flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-butter-yellow">
+              <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-brass-gold">
                 <Heart className="size-3.5" />
                 Menuju Janji Suci
               </span>
@@ -356,7 +356,7 @@ export function HomePage() {
 
           <p className="relative z-10 mt-1 font-serif text-[1.7rem] font-semibold leading-tight text-white">
             {`${wedding.partnerOneName} & ${wedding.partnerTwoName}`}
-            <Squiggle className="absolute -bottom-2 left-0 h-3 w-40 text-coral-emphasis" />
+            <Squiggle className="absolute -bottom-2 left-0 h-3 w-40 text-brick-accent" />
           </p>
 
           <div className="relative z-10 mt-4">
@@ -388,7 +388,7 @@ export function HomePage() {
               showCount={false}
               size={30}
               label="Suka"
-              likedColor="#ff5858"
+              likedColor="#b4553a"
               idleColor="rgba(255, 255, 255, 0.65)"
               pillColor="rgba(255, 255, 255, 0.14)"
               textColor="#ffffff"

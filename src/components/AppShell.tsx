@@ -6,11 +6,10 @@ import { coupleInitials } from "@/components/CouplePhoto";
 import {
   BloomOverlay,
   FlowerMark,
-  GarlandDivider,
   Petals,
   PetalsFront,
 } from "@/components/Decor";
-import { DoodleStar } from "@/components/Doodles";
+import { DoodleStar, JanurArch } from "@/components/Doodles";
 import { PageMascot } from "@/components/PageMascot";
 import { Button } from "@/components/ui/button";
 import {
@@ -357,17 +356,19 @@ export function AppShell() {
           }`}
         />
         <div className="absolute -right-28 top-2/3 size-80 rounded-full bg-tint-butter/45 blur-3xl" />
-        {/* Atmosfer aurora blush → mint — latar hidup seperti landing page */}
+        {/* Atmosfer aurora terakota → janur — latar hidup seperti landing page */}
         {!reducedMotion && (
           <div className="absolute inset-0 opacity-55">
             <SoftAurora
               lightMode
               speed={0.16}
-              color1="#ff9d94"
-              color2="#9fe8d0"
+              color1="#d4795f"
+              color2="#b9c98c"
             />
           </div>
         )}
+        {/* Serat plester krem — tekstur dinding gapura di seluruh halaman */}
+        <div className="plaster-grain absolute inset-0 opacity-70" />
       </div>
       <Petals />
       <PetalsFront />
@@ -377,8 +378,8 @@ export function AppShell() {
         daysLabel={wedding ? countdownLabel(wedding.weddingDate) : undefined}
       />
       {/* Kilau bintang di margin lebar (desktop xl) */}
-      <DoodleStar className="float-slow pointer-events-none fixed right-6 top-40 z-10 hidden size-5 text-butter-yellow xl:block" />
-      <DoodleStar className="float-slow pointer-events-none fixed right-20 top-[58%] z-10 hidden size-4 text-coral-emphasis xl:block" />
+      <DoodleStar className="float-slow pointer-events-none fixed right-6 top-40 z-10 hidden size-5 text-brass-gold xl:block" />
+      <DoodleStar className="float-slow pointer-events-none fixed right-20 top-[58%] z-10 hidden size-4 text-brick-accent xl:block" />
       <BloomOverlay />
       <header className="sticky top-0 z-30 w-full bg-background/80 pb-2.5 pt-4 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3 px-4 lg:max-w-3xl lg:px-10">
@@ -415,7 +416,7 @@ export function AppShell() {
                 <span className="size-1.5 animate-pulse rounded-full bg-primary" />
                 {wedding.partnerOneName} & {wedding.partnerTwoName}
                 <Heart
-                  className="size-3 shrink-0 text-coral-emphasis"
+                  className="size-3 shrink-0 text-brick-accent"
                   fill="currentColor"
                 />
               </span>
@@ -452,8 +453,8 @@ export function AppShell() {
       </header>
 
       <main className="mx-auto w-full max-w-md px-4 pt-4 lg:max-w-3xl lg:px-10">
-        {/* Rangkaian melati pembuka — tiap halaman app dimulai ala pelaminan */}
-        <GarlandDivider className="mx-auto block h-12 w-44 opacity-90" />
+        {/* Lengkung janur berumbai — pembuka tiap halaman ala gapura */}
+        <JanurArch className="mx-auto block h-20 w-full max-w-xs opacity-95" />
         <SignupBanner show={showSignupBanner} />
         {reducedMotion ? (
           <Outlet />

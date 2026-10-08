@@ -260,7 +260,7 @@ export function SeserahanPage() {
         </div>
         <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-ash-canvas">
           <div
-            className="h-full rounded-full bg-inkwell-navy transition-all duration-700"
+            className="h-full rounded-full bg-teak-ink transition-all duration-700"
             style={{ width: `${pct}%` }}
           />
         </div>

@@ -574,7 +574,7 @@ export function BudgetPage() {
                 >
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="rgba(21,27,49,0.12)"
+                    stroke="rgba(58,35,23,0.12)"
                     vertical={false}
                   />
                   <XAxis
@@ -592,21 +592,21 @@ export function BudgetPage() {
                   />
                   <Tooltip
                     content={<ChartTip format={formatRupiahShort} />}
-                    cursor={{ fill: "rgba(21,27,49,0.06)" }}
+                    cursor={{ fill: "rgba(58,35,23,0.06)" }}
                   />
                   <Bar
                     dataKey="baru"
                     name="Bulan itu"
-                    fill="#86e0c1"
+                    fill="#8fa756"
                     radius={[4, 4, 0, 0]}
                   />
                   <Line
                     type="monotone"
                     dataKey="kumulatif"
                     name="Kumulatif"
-                    stroke="#ff5858"
+                    stroke="#b4553a"
                     strokeWidth={2.5}
-                    dot={{ r: 3, fill: "#ff5858" }}
+                    dot={{ r: 3, fill: "#b4553a" }}
                   />
                 </ComposedChart>
               </ResponsiveContainer>
@@ -626,7 +626,7 @@ export function BudgetPage() {
               >
                 <CartesianGrid
                   horizontal={false}
-                  stroke="rgba(21,27,49,0.12)"
+                  stroke="rgba(58,35,23,0.12)"
                 />
                 <XAxis
                   type="number"
@@ -647,14 +647,14 @@ export function BudgetPage() {
                 <Bar
                   dataKey="alokasi"
                   name="Alokasi"
-                  fill="#e8e7e5"
+                  fill="#e7dbc6"
                   radius={[0, 4, 4, 0]}
                   barSize={9}
                 />
                 <Bar
                   dataKey="terbayar"
                   name="Terbayar"
-                  fill="#151b31"
+                  fill="#3a2317"
                   radius={[0, 4, 4, 0]}
                   barSize={9}
                 >

@@ -56,15 +56,15 @@ export function printDocument(
 <style>
   @page { margin: 18mm 14mm; }
   * { box-sizing: border-box; }
-  body { font-family: "Inter", Arial, sans-serif; color: #151b31; margin: 0; }
-  header { border-bottom: 3px double #151b31; padding-bottom: 12px; margin-bottom: 20px; }
-  h1 { font-family: "GRIFTER", "Bagel Fat One", "Inter", Arial, sans-serif; font-size: 22px; margin: 0 0 4px; color: #151b31; letter-spacing: .02em; }
-  .subtitle { font-size: 12px; color: #6d6f75; margin: 0; }
+  body { font-family: "Plus Jakarta Sans", Arial, sans-serif; color: #3a2317; margin: 0; }
+  header { border-bottom: 3px double #3a2317; padding-bottom: 12px; margin-bottom: 20px; }
+  h1 { font-family: "Marcellus", "GRIFTER", Georgia, serif; font-size: 22px; margin: 0 0 4px; color: #3a2317; letter-spacing: .02em; }
+  .subtitle { font-size: 12px; color: #7a6247; margin: 0; }
   h2 { font-family: "GRIFTER", "Bagel Fat One", "Inter", Arial, sans-serif; font-size: 14px; text-transform: uppercase; letter-spacing: .08em;
-       color: #151b31; margin: 22px 0 8px; }
+       color: #3a2317; margin: 22px 0 8px; }
   table { width: 100%; border-collapse: collapse; font-size: 12px; }
   th, td { border: 1px solid #dcdad7; padding: 6px 8px; text-align: left; }
-  th { background: #f2f2f2; font-weight: 700; }
+  th { background: #efe6d6; font-weight: 700; }
   tr:nth-child(even) td { background: #f7f7f8; }
   .line { font-size: 12px; margin: 4px 0; }
   footer { margin-top: 28px; font-size: 10px; color: #8b8d93; text-align: center; }

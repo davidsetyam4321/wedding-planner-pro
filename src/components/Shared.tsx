@@ -188,12 +188,12 @@ export function EmptyState({
         <div className="grad-warm clay-sm flex size-14 items-center justify-center rounded-full text-2xl">
           {emoji}
         </div>
-        <DoodleStar className="absolute -right-2 -top-1 size-4 text-butter-yellow" />
-        <DoodleStar className="absolute -left-1.5 -bottom-1 size-3 text-coral-emphasis" />
+        <DoodleStar className="absolute -right-2 -top-1 size-4 text-brass-gold" />
+        <DoodleStar className="absolute -left-1.5 -bottom-1 size-3 text-brick-accent" />
       </div>
       <p className="relative text-sm font-extrabold">
         {title}
-        <Squiggle className="absolute -bottom-1.5 left-1/2 h-2 w-14 -translate-x-1/2 text-coral-emphasis/70" />
+        <Squiggle className="absolute -bottom-1.5 left-1/2 h-2 w-14 -translate-x-1/2 text-brick-accent/70" />
       </p>
       {description && (
         <p className="meta max-w-[30ch]">{description}</p>

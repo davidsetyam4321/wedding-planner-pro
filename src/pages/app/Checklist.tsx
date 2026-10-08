@@ -434,7 +434,7 @@ export function ChecklistPage() {
               >
                 <CartesianGrid
                   horizontal={false}
-                  stroke="rgba(21,27,49,0.12)"
+                  stroke="rgba(58,35,23,0.12)"
                 />
                 <XAxis
                   type="number"
@@ -451,12 +451,12 @@ export function ChecklistPage() {
                   tickLine={false}
                   width={58}
                 />
-                <Tooltip content={<ChartTip />} cursor={{ fill: "rgba(21,27,49,0.06)" }} />
+                <Tooltip content={<ChartTip />} cursor={{ fill: "rgba(58,35,23,0.06)" }} />
                 <Bar
                   dataKey="selesai"
                   name="Selesai"
                   stackId="progres"
-                  fill="#ff5858"
+                  fill="#b4553a"
                   barSize={16}
                 >
                   {priorityBarData.map((row) => (
@@ -475,7 +475,7 @@ export function ChecklistPage() {
                   dataKey="sisa"
                   name="Sisa"
                   stackId="progres"
-                  fill="#e8e7e5"
+                  fill="#e7dbc6"
                   radius={[0, 4, 4, 0]}
                   barSize={16}
                 >
@@ -496,10 +496,10 @@ export function ChecklistPage() {
           </div>
           <div className="mt-1 flex items-center gap-3 text-[11px] font-semibold text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-[#ff5858]" /> Selesai
+              <span className="size-2 rounded-full bg-[#b4553a]" /> Selesai
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-[#e8e7e5]" /> Sisa
+              <span className="size-2 rounded-full bg-[#e7dbc6]" /> Sisa
             </span>
           </div>
         </ChartCard>
@@ -515,7 +515,7 @@ export function ChecklistPage() {
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="rgba(21,27,49,0.12)"
+                  stroke="rgba(58,35,23,0.12)"
                   vertical={false}
                 />
                 <XAxis

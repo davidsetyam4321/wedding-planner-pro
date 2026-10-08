@@ -6,11 +6,11 @@ import { useId, type ReactNode } from "react";
  * untuk semua halaman — donut Budget, bar Tabungan, dst).
  */
 export const CHART_COLORS = [
-  "#151b31",
-  "#ff5858",
-  "#6d6f75",
-  "#fedf89",
-  "#86e0c1",
+  "#3a2317",
+  "#b4553a",
+  "#7a6247",
+  "#d8b45c",
+  "#8fa756",
   "#ff8f8f",
   "#3f4d6e",
   "#d7f5ea",
@@ -126,8 +126,8 @@ export function RingGauge({
         <svg width={size} height={size} className="-rotate-90" aria-hidden>
           <defs>
             <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#151b31" />
-              <stop offset="100%" stopColor="#ff5858" />
+              <stop offset="0%" stopColor="#3a2317" />
+              <stop offset="100%" stopColor="#b4553a" />
             </linearGradient>
           </defs>
           <circle
