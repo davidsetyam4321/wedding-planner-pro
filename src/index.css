@@ -620,3 +620,18 @@
     transform: none;
   }
 }
+
+/* ── Reduced motion global ─────────────────────────────────────────────
+   Matikan seluruh animasi CSS (kelopak jatuh, denyut pulse-ring, dsb.)
+   untuk pengguna yang meminta gerak minimal. Efek berbasis JS (gsap)
+   dimatikan lewat useReducedMotion di komponen yang memakainya. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
