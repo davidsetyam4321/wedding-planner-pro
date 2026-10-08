@@ -6,7 +6,6 @@ import {
   MelatiBandul,
   MotifDivider,
   PetalsFront,
-  SekarSudut,
 } from "@/components/Decor";
 import { FlowerMark, Petals } from "@/components/Decor";
 import FadeContent from "@/components/FadeContent";
@@ -156,14 +155,14 @@ export function LandingPage() {
 
       {/* ── Banner pengumuman (Butter Yellow, melebar penuh) ─────────── */}
       {bannerOpen && (
-        <div className="relative z-50 bg-brass-gold">
-          <div className="mx-auto flex w-full max-w-[1200px] items-center justify-center px-12 py-2.5 text-center text-sm font-medium text-teak-ink">
+        <div className="relative z-50 bg-teak-ink">
+          <div className="mx-auto flex w-full max-w-[1200px] items-center justify-center px-12 py-2.5 text-center text-sm font-medium text-paper-white">
             <span>
               Ruang kerja berdua kini terbuka untuk siapa pun — mulai gratis,
               tanpa kartu.{" "}
               <a
                 href="#cara-kerja"
-                className="font-semibold text-brick-accent underline-offset-4 hover:underline"
+                className="font-semibold text-brass-gold underline-offset-4 hover:underline"
               >
                 Lihat caranya
               </a>
@@ -172,7 +171,7 @@ export function LandingPage() {
               type="button"
               aria-label="Tutup pengumuman"
               onClick={() => setBannerOpen(false)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 transition-colors hover:bg-teak-ink/10"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 transition-colors hover:bg-white/10"
             >
               <X className="size-4" />
             </button>
@@ -197,7 +196,6 @@ export function LandingPage() {
             </Link>
           </Button>
         </div>
-        <div aria-hidden="true" className="pita-h pita-kawung h-2.5 w-full" />
       </header>
 
       <main className="space-y-20 pb-24">
@@ -224,7 +222,7 @@ export function LandingPage() {
             </div>
           )}
           {/* Aksara Jawa: “Sugeng Rawuh” (selamat datang) + bandul melati */}
-          <p className="aksara relative mx-auto mt-2 text-sm tracking-[0.3em] text-teak-ink/75">
+          <p className="aksara relative mx-auto mt-2 text-sm tracking-[0.3em] text-teak-ink/60">
             ꦱꦸꦒꦼꦁꦫꦮꦸꦃ꧉
           </p>
           <MelatiBandul className="relative mx-auto mt-2 block h-16 w-11" />
@@ -264,12 +262,6 @@ export function LandingPage() {
           />
 
           <div className="relative mt-9 flex flex-wrap items-center justify-center gap-3">
-            <span className="pointer-events-none absolute right-4 -top-14 hidden items-end gap-1.5 md:flex">
-              <span className="-rotate-6 font-serif text-sm text-teak-ink">
-                gratis, lho!
-              </span>
-              <SekarSudut className="size-7" />
-            </span>
             <Magnet padding={70} magnetStrength={2.5}>
               <Button asChild size="lg" className="px-7">
                 <Link to="/app">
@@ -299,12 +291,6 @@ export function LandingPage() {
           </FadeContent>
         </section>
 
-        {/* Pita batik parang — keramaian ala kain selendang */}
-        <div
-          aria-hidden="true"
-          className="pita-h pita-parang mx-auto h-4 w-full max-w-md"
-        />
-
         {/* ── Dark feature card + kartu putih miring menumpuk ────────── */}
         <section className="mx-auto w-full max-w-[1200px] px-5">
           <AnimatedContent distance={80} threshold={0.15}>
@@ -313,12 +299,6 @@ export function LandingPage() {
               <div
                 aria-hidden="true"
                 className="wood-carving pointer-events-none absolute inset-0 opacity-30 mix-blend-overlay"
-              />
-              <img
-                src="/assets/wayang-punokawan.jpg"
-                alt=""
-                aria-hidden
-                className="absolute -right-2 -top-10 hidden size-28 rotate-[6deg] rounded-2xl border-2 border-brass-gold object-cover shadow-lg md:block"
               />
               <div className="relative z-10 grid items-center gap-10 lg:grid-cols-[1.05fr_1fr]">
                 <div>
@@ -447,17 +427,17 @@ export function LandingPage() {
             <span className="meta">Foto: Wikimedia Commons · CC BY-SA</span>
           </FadeContent>
 
-          <Stagger className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-            {GALLERY.map((item) => (
+          <Stagger className="mt-10 grid grid-cols-2 gap-5 md:grid-cols-4">
+            {GALLERY.slice(0, 8).map((item) => (
               <StaggerItem key={item.src}>
-                <figure className="clay group relative block overflow-hidden rounded-2xl">
+                <figure className="clay group relative block overflow-hidden rounded-xl border border-border">
                   <img
                     src={item.src}
                     alt={item.alt}
                     loading="lazy"
-                    className="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105 md:h-52"
+                    className="h-64 w-full object-cover transition-opacity duration-500 group-hover:opacity-90 md:h-72"
                   />
-                  <figcaption className="photo-scrim absolute inset-x-0 bottom-0 px-3 py-2 text-[11px] font-bold text-white">
+                  <figcaption className="photo-scrim absolute inset-x-0 bottom-0 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white">
                     {item.caption}
                   </figcaption>
                 </figure>
@@ -560,14 +540,6 @@ export function LandingPage() {
         <section className="mx-auto w-full max-w-[1200px] px-5">
           <AnimatedContent distance={60} threshold={0.2}>
             <div className="relative text-center">
-              <SekarSudut className="pointer-events-none absolute left-8 top-2 size-7" />
-              <SekarSudut className="pointer-events-none absolute right-10 bottom-24 size-5" />
-              <img
-                src="/assets/pengantin-surakarta.jpg"
-                alt=""
-                aria-hidden
-                className="pointer-events-none absolute -left-6 bottom-0 hidden h-40 w-32 -rotate-6 rounded-2xl border-2 border-brass-gold object-cover shadow-lg md:block"
-              />
               <h2 className="mx-auto max-w-3xl font-serif text-[34px] leading-[1.1] md:text-5xl">
                 Siap merencanakan{" "}
                 <span className="elegant relative inline-block text-[1.08em] text-brick-accent">
@@ -606,7 +578,6 @@ export function LandingPage() {
 
       {/* ── Footer minimal ──────────────────────────────────────────── */}
       <footer className="border-t border-border/60">
-        <div aria-hidden="true" className="pita-h pita-parang h-4 w-full" />
         <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center justify-between gap-3 px-5 py-6 sm:flex-row">
           <div className="flex items-center gap-2.5">
             <span className="flex size-8 items-center justify-center rounded-full bg-teak-ink">
@@ -616,7 +587,7 @@ export function LandingPage() {
               SatuJanji
             </span>
           </div>
-          <p className="aksara text-sm text-brick-accent">ꦩꦠꦸꦂꦤꦸꦮꦸꦤ꧀</p>
+          <p className="aksara text-sm text-brass-gold">ꦩꦠꦸꦂꦤꦸꦮꦸꦤ꧀</p>
           <p className="meta">
             Perencana pernikahan untuk berdua · © 2026 · Foto: Wikimedia
             Commons (CC BY-SA)

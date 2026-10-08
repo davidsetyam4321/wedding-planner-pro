@@ -381,14 +381,15 @@ export function SekarSudut({ className }: { className?: string }) {
           cy="9"
           rx="4.2"
           ry="7"
-          fill="#e9cd8f"
-          stroke="#7b4530"
-          strokeWidth="1.4"
+          fill="none"
+          stroke="#a5854a"
+          strokeWidth="1.1"
+          opacity="0.85"
           transform={`rotate(${angle} 20 20)`}
         />
       ))}
-      <circle cx="20" cy="20" r="6" fill="#d8b45c" stroke="#7b4530" strokeWidth="1.6" />
-      <circle cx="20" cy="20" r="2.6" fill="#7b4530" />
+      <circle cx="20" cy="20" r="5" fill="none" stroke="#a5854a" strokeWidth="1.1" />
+      <circle cx="20" cy="20" r="1.8" fill="#a5854a" />
     </svg>
   );
 }
@@ -398,7 +399,6 @@ export function SekarSudut({ className }: { className?: string }) {
  * kuncup melati di tengah. Pembuka tiap halaman ala pelaminan.
  */
 export function MotifDivider({ className }: { className?: string }) {
-  const dots = Array.from({ length: 8 }, (_, index) => 30 + index * 48);
   return (
     <svg
       viewBox="0 0 400 40"
@@ -407,23 +407,18 @@ export function MotifDivider({ className }: { className?: string }) {
       aria-hidden="true"
       preserveAspectRatio="xMidYMid meet"
     >
-      <path d="M8 9 H392" stroke="#d8b45c" strokeWidth="2.5" />
-      <path d="M8 31 H392" stroke="#d8b45c" strokeWidth="2.5" />
-      {dots.map((x) => (
-        <g key={x}>
-          <circle cx={x} cy={20} r="7" fill="none" stroke="#b4553a" strokeWidth="2.2" />
-          <circle cx={x} cy={20} r="2.6" fill="#d8b45c" />
-        </g>
-      ))}
-      {/* kuncup melati kuningan di tengah */}
+      {/* dua garis emas antik tipis — gaya rule premium */}
+      <path d="M8 14 H392" stroke="#a5854a" strokeWidth="1" opacity="0.7" />
+      <path d="M8 26 H392" stroke="#a5854a" strokeWidth="1" opacity="0.35" />
+      {/* belah ketupat kecil di tengah */}
       <path
-        d="M200 6 L207 20 L200 34 L193 20 Z"
-        fill="#d8b45c"
-        stroke="#7b4530"
-        strokeWidth="1.8"
+        d="M200 10 L206 20 L200 30 L194 20 Z"
+        fill="none"
+        stroke="#a5854a"
+        strokeWidth="1.2"
         strokeLinejoin="round"
       />
-      <circle cx="200" cy="20" r="2.6" fill="#7b4530" />
+      <circle cx="200" cy="20" r="1.6" fill="#a5854a" />
     </svg>
   );
 }

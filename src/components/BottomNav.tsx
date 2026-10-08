@@ -29,12 +29,7 @@ export function BottomNav() {
 
   return (
     <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
-      <div className="pointer-events-auto relative mx-auto flex max-w-md items-stretch justify-between gap-0.5 overflow-x-auto rounded-full border border-white/60 bg-card/85 p-1.5 shadow-[0_16px_40px_rgba(36,46,40,0.14)] backdrop-blur-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {/* Motif kawung samar di balik tombol — biar nav ikut meriah */}
-        <span
-          aria-hidden="true"
-          className="pita-kawung pointer-events-none absolute inset-0 rounded-full opacity-[0.12]"
-        />
+      <div className="pointer-events-auto mx-auto flex max-w-md items-stretch justify-between gap-0.5 overflow-x-auto rounded-full border border-white/60 bg-card/90 p-1.5 shadow-[0_16px_40px_rgba(36,46,40,0.14)] backdrop-blur-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {PRIMARY_NAV.map(({ to, label, icon: Icon, active, badge }) => (
           <NavLink
             key={to}

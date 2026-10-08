@@ -9,7 +9,6 @@ import {
   MotifDivider,
   Petals,
   PetalsFront,
-  SekarSudut,
 } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
 import {
@@ -358,32 +357,19 @@ export function AppShell() {
         <div className="absolute -right-28 top-2/3 size-80 rounded-full bg-tint-butter/45 blur-3xl" />
         {/* Atmosfer aurora terakota → janur — latar hidup seperti landing page */}
         {!reducedMotion && (
-          <div className="absolute inset-0 opacity-55">
+          <div className="absolute inset-0 opacity-25">
             <SoftAurora
               lightMode
               speed={0.16}
-              color1="#d4795f"
-              color2="#b9c98c"
+              color1="#e0c9a6"
+              color2="#d3d9c0"
             />
           </div>
         )}
-        {/* Serat plester krem — tekstur dinding gapura di seluruh halaman */}
-        <div className="plaster-grain absolute inset-0 opacity-70" />
       </div>
       <Petals />
       <PetalsFront />
-      {/* Bingkai pita batik di tepi layar (desktop xl) — keramaian ala selendang */}
-      <div
-        aria-hidden="true"
-        className="pita-v pita-kawung pointer-events-none fixed left-0 top-0 z-10 hidden h-full w-4 xl:block"
-      />
-      <div
-        aria-hidden="true"
-        className="pita-v pita-parang pointer-events-none fixed right-0 top-0 z-10 hidden h-full w-4 xl:block"
-      />
-      {/* Ornamen kawung di sudut margin — pengganti stiker lama */}
-      <SekarSudut className="pointer-events-none fixed left-7 top-32 z-10 hidden size-6 opacity-90 xl:block" />
-      <SekarSudut className="pointer-events-none fixed right-7 bottom-44 z-10 hidden size-5 opacity-80 xl:block" />
+
       <BloomOverlay />
       <header className="sticky top-0 z-30 w-full bg-background/80 pb-2.5 pt-4 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3 px-4 lg:max-w-3xl lg:px-10">
