@@ -15,8 +15,8 @@ export function SideNav({ status }: { status: SyncInfo }) {
   return (
     <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col gap-4 px-5 py-6 lg:flex">
       <Link to="/app" className="flex items-center gap-3">
-        <span className="flex size-11 items-center justify-center rounded-2xl bg-tint-mint shadow-sm">
-          <FlowerMark className="size-6 text-primary" />
+        <span className="flex size-11 items-center justify-center rounded-full bg-inkwell-navy">
+          <FlowerMark className="size-6 text-white" />
         </span>
         <span>
           <span className="block font-serif text-lg font-semibold leading-tight text-primary">
@@ -50,7 +50,7 @@ export function SideNav({ status }: { status: SyncInfo }) {
 
       <div className="flex flex-col gap-0.5">
         <p className="label px-3 pb-1.5 text-muted-foreground">Alat</p>
-        {TOOL_NAV.map(({ to, label, emoji, surface }) => (
+        {TOOL_NAV.map(({ to, label, icon: Icon, surface }) => (
           <NavLink
             key={to}
             to={to}
@@ -62,7 +62,7 @@ export function SideNav({ status }: { status: SyncInfo }) {
               }`
             }
           >
-            <span className="text-sm">{emoji}</span>
+            <Icon className="size-4" />
             {label}
           </NavLink>
         ))}

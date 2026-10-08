@@ -426,9 +426,8 @@ export function AppShell() {
                     to={feature.to}
                     className={`clay clay-press block p-4 ${feature.surface}`}
                   >
-                    <span className="flex items-center justify-between">
+                    <span className="flex items-center">
                       <feature.icon className="size-5" />
-                      <span className="text-lg">{feature.emoji}</span>
                     </span>
                     <span className="mt-2.5 block text-sm font-extrabold leading-tight">
                       {feature.label}

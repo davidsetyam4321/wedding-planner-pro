@@ -1,181 +1,228 @@
 import BlurText from "@/components/BlurText";
 import CountUp from "@/components/CountUp";
-import SplitText from "@/components/SplitText";
+import {
+  Blob,
+  Bunny,
+  CurvedArrow,
+  DoodleStar,
+  Squiggle,
+} from "@/components/Doodles";
 import { FlowerMark, Petals } from "@/components/Decor";
 import { Stagger, StaggerItem } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import { FEATURES } from "@/lib/features";
-import { ArrowRight, RefreshCw, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  DoorOpen,
+  HeartHandshake,
+  Mail,
+  RefreshCw,
+  Sparkles,
+  X,
+} from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router";
+import SplitText from "@/components/SplitText";
 
 const STEPS = [
   {
     step: "01",
     title: "Buka ruang kerja",
     desc: "Aplikasi langsung menyiapkan ruang kerja privat untuk Anda — tanpa pendaftaran yang rumit.",
-    emoji: "🌸",
+    icon: DoorOpen,
   },
   {
     step: "02",
     title: "Undang pasangan",
     desc: "Bagikan kode undangan 6 karakter agar pasangan bergabung ke ruang kerja yang sama.",
-    emoji: "💌",
+    icon: Mail,
   },
   {
     step: "03",
     title: "Rencanakan bersama",
     desc: "Budget, checklist, tamu, vendor, dan rundown diperbarui real-time di kedua perangkat.",
-    emoji: "✨",
+    icon: HeartHandshake,
   },
 ];
 
 /** Halaman publik: memperkenalkan produk lalu mengarahkan ke aplikasi. */
 export function LandingPage() {
+  const [bannerOpen, setBannerOpen] = useState(true);
+
   return (
     <div className="relative min-h-screen">
       <Petals />
 
-      {/* ── Top bar ─────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-5 py-3">
-          <Link to="/" className="flex items-center gap-2.5">
-            <span className="clay grad-warm clay-sm flex size-9 items-center justify-center rounded-xl">
-              <FlowerMark className="size-5 text-primary" />
+      {/* ── Banner pengumuman (Butter Yellow, melebar penuh) ─────────── */}
+      {bannerOpen && (
+        <div className="relative z-50 bg-butter-yellow">
+          <div className="mx-auto flex w-full max-w-[1200px] items-center justify-center px-12 py-2.5 text-center text-sm font-medium text-inkwell-navy">
+            <span>
+              Ruang kerja berdua kini terbuka untuk siapa pun — mulai gratis,
+              tanpa kartu.{" "}
+              <a
+                href="#cara-kerja"
+                className="font-semibold text-coral-emphasis underline-offset-4 hover:underline"
+              >
+                Lihat caranya
+              </a>
             </span>
-            <span className="font-serif text-base font-semibold">
-              Planner Wedding
+            <button
+              type="button"
+              aria-label="Tutup pengumuman"
+              onClick={() => setBannerOpen(false)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 transition-colors hover:bg-inkwell-navy/10"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Header minimal: logo kiri, satu tombol kanan ─────────────── */}
+      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between px-5 py-3">
+          <Link to="/" className="flex items-center gap-2.5">
+            <span className="flex size-9 items-center justify-center rounded-full bg-inkwell-navy">
+              <FlowerMark className="size-5 text-white" />
+            </span>
+            <span className="text-base font-semibold tracking-tight">
+              SatuJanji
             </span>
           </Link>
-          <div className="flex items-center gap-4">
-            <a
-              href="#fitur"
-              className="hidden text-[13px] font-semibold text-muted-foreground transition-colors hover:text-foreground sm:block"
-            >
-              Fitur
-            </a>
-            <a
-              href="#cara-kerja"
-              className="hidden text-[13px] font-semibold text-muted-foreground transition-colors hover:text-foreground sm:block"
-            >
-              Cara kerja
-            </a>
-            <Button asChild size="sm" className="rounded-2xl">
-              <Link to="/app">
-                Buka aplikasi <ArrowRight className="size-3.5" />
-              </Link>
-            </Button>
-          </div>
+          <Button asChild variant="outline" size="sm">
+            <Link to="/app">
+              Buka aplikasi <ArrowRight className="size-3.5" />
+            </Link>
+          </Button>
         </div>
       </header>
 
-      <main>
-        {/* ── Hero ──────────────────────────────────────────────────── */}
-        <section className="mx-auto w-full max-w-5xl px-5 pb-4 pt-12 md:pt-20">
-          <div className="grid items-center gap-8 md:grid-cols-2">
-            <div>
-              <span className="clay-inset inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold text-muted-foreground">
-                <Sparkles className="size-3.5 text-primary" />
-                Perencana pernikahan untuk berdua
+      <main className="space-y-20 pb-24">
+        {/* ── Hero: headline display di tengah + anotasi tulis tangan ── */}
+        <section className="relative mx-auto w-full max-w-[1200px] px-5 pt-14 text-center md:pt-20">
+          <Blob className="pointer-events-none absolute left-2 top-6 hidden size-24 text-mint-pulse opacity-70 md:block" />
+          <Blob className="pointer-events-none absolute right-6 top-52 hidden size-14 rotate-45 text-butter-yellow opacity-80 lg:block" />
+          <DoodleStar className="pointer-events-none absolute right-16 top-10 size-7 text-coral-emphasis" />
+
+          <span className="chip bg-mint-pulse text-inkwell-navy">
+            <Sparkles className="size-3.5" /> Perencana pernikahan untuk berdua
+          </span>
+
+          <h1 className="relative mx-auto mt-7 max-w-4xl font-serif text-[40px] leading-[1.04] sm:text-[56px] md:text-[64px] lg:text-[76px]">
+            Rencanakan hari bahagia Anda,{" "}
+            <span className="relative inline-block text-coral-emphasis">
+              berdua.
+              <Squiggle className="absolute -bottom-2 left-0 h-3 w-full" />
+            </span>
+          </h1>
+
+          <BlurText
+            text="Satu ruang kerja bersama untuk budget, tabungan, checklist, daftar tamu, vendor, dan rundown — tersinkron real-time di kedua perangkat Anda berdua."
+            className="mx-auto mt-7 max-w-2xl text-body-lg leading-normal text-slate"
+            direction="bottom"
+            delay={30}
+          />
+
+          <div className="relative mt-9 flex flex-wrap items-center justify-center gap-3">
+            <span className="pointer-events-none absolute right-4 -top-14 hidden items-end gap-1.5 md:flex">
+              <span className="-rotate-6 font-serif text-sm text-inkwell-navy">
+                gratis, lho!
               </span>
-              <h1 className="mt-4 font-serif text-4xl font-semibold leading-[1.1] md:text-5xl">
-                <SplitText
-                  tag="span"
-                  textAlign="left"
-                  className="pb-1"
-                  text="Rencanakan hari bahagia Anda,"
-                  delay={25}
-                />
-                <br />
-                <SplitText
-                  tag="span"
-                  textAlign="left"
-                  className="text-primary"
-                  text="berdua."
-                  delay={25}
-                />
-              </h1>
-              <BlurText
-                text="Satu ruang kerja bersama untuk budget, tabungan, checklist, daftar tamu, vendor, dan rundown — tersinkron real-time di kedua perangkat Anda berdua."
-                className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground md:text-base"
-                direction="bottom"
-                delay={30}
-              />
-              <div className="mt-6 flex flex-wrap items-center gap-3">
-                <Button asChild size="lg" className="rounded-2xl">
-                  <Link to="/app">
-                    Mulai merencanakan <ArrowRight className="size-4" />
-                  </Link>
-                </Button>
+              <CurvedArrow className="size-11 -scale-x-100 rotate-6 text-inkwell-navy" />
+            </span>
+            <Button asChild size="lg" className="px-7">
+              <Link to="/app">
+                Mulai merencanakan <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="px-6">
+              <a href="#cara-kerja">Lihat cara kerja</a>
+            </Button>
+          </div>
+
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            {["8 modul lengkap", "2 perangkat, 1 data", "Tanpa ribet"].map(
+              (item) => (
+                <span key={item} className="meta flex items-center gap-1.5">
+                  <span className="size-1.5 rounded-full bg-inkwell-navy" />
+                  {item}
+                </span>
+              ),
+            )}
+          </div>
+        </section>
+
+        {/* ── Dark feature card + kartu putih miring menumpuk ────────── */}
+        <section className="mx-auto w-full max-w-[1200px] px-5">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-inkwell-navy p-8 shadow-[0_1px_4px_rgba(138,133,125,0.2)] md:p-12">
+            <Bunny className="absolute -right-1 -top-12 hidden size-24 rotate-[9deg] md:block" />
+            <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_1fr]">
+              <div>
+                <p className="label text-mint-pulse">Satu layar untuk semuanya</p>
+                <h2 className="mt-2 font-serif text-3xl leading-tight text-white md:text-4xl">
+                  Hitung mundur, dana, dan tugas{" "}
+                  <span className="text-coral-emphasis">terlihat sekilas</span>
+                </h2>
+                <p className="mt-4 max-w-md text-white/70">
+                  Ringkasan hari-H, progres budget, dan sisa tugas diperbarui
+                  real-time — sama persis di layar Anda dan pasangan.
+                </p>
                 <Button
                   asChild
-                  size="lg"
-                  variant="outline"
-                  className="rounded-2xl"
+                  className="mt-7 bg-paper-white text-inkwell-navy shadow-none hover:bg-white/90"
                 >
-                  <a href="#cara-kerja">Lihat cara kerja</a>
+                  <Link to="/app">
+                    Buka ruang kerja <ArrowRight className="size-4" />
+                  </Link>
                 </Button>
               </div>
-              <div className="mt-6 flex flex-wrap gap-x-5 gap-y-1.5">
-                {["8 modul lengkap", "2 perangkat, 1 data", "Tanpa ribet"].map(
-                  (item) => (
-                    <span
-                      key={item}
-                      className="meta flex items-center gap-1.5"
-                    >
-                      <span className="size-1.5 rounded-full bg-tint-mint-foreground" />
-                      {item}
-                    </span>
-                  ),
-                )}
-              </div>
-            </div>
 
-            {/* Preview mini dashboard */}
-            <div className="clay grad-warm relative overflow-hidden p-5">
-              <FlowerMark className="float-slow pointer-events-none absolute -right-4 -top-4 size-24 text-primary/15" />
-              <FlowerMark className="sway pointer-events-none absolute -left-4 bottom-2 size-16 text-tint-rose-foreground/20" />
+              {/* Preview mini dashboard — kartu putih miring (-4°) */}
               <div className="relative">
-                <p className="label text-muted-foreground">
-                  Menuju hari pernikahan
-                </p>
-                <p className="num mt-1 text-4xl font-extrabold text-primary">
-                  H-<CountUp to={328} />
-                </p>
-                <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-white/70">
-                  <div className="h-full w-2/3 rounded-full bg-primary" />
-                </div>
-                <p className="meta mt-1.5">Rp 42 jt dari target Rp 64 jt</p>
-                <div className="mt-4 grid grid-cols-3 gap-2">
-                  {[
-                    { label: "Budget", surface: "grad-mint", text: "text-tint-mint-foreground" },
-                    { label: "Tabungan", surface: "grad-lavender", text: "text-tint-lavender-foreground" },
-                    { label: "Checklist", surface: "grad-peach", text: "text-tint-peach-foreground" },
-                  ].map((tile) => (
-                    <div
-                      key={tile.label}
-                      className={`clay-sm ${tile.surface} p-2.5 ${tile.text}`}
-                    >
-                      <p className="label opacity-80">{tile.label}</p>
-                      <p className="num mt-0.5 text-xs font-extrabold">
-                        <CountUp to={68} />%
-                      </p>
-                    </div>
-                  ))}
+                <div className="rotate-[-4deg] rounded-2xl bg-paper-white p-5 shadow-[0_1px_4px_rgba(138,133,125,0.2)] lg:-mr-10">
+                  <p className="label text-slate">Menuju hari pernikahan</p>
+                  <p className="num mt-1 text-4xl font-extrabold text-inkwell-navy">
+                    H-<CountUp to={328} />
+                  </p>
+                  <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-ash-canvas">
+                    <div className="h-full w-2/3 rounded-full bg-inkwell-navy" />
+                  </div>
+                  <p className="mt-2 text-sm text-slate">
+                    Rp 42 jt dari target Rp 64 jt
+                  </p>
+                  <div className="mt-4 grid grid-cols-3 gap-2">
+                    {[
+                      { label: "Budget", surface: "grad-mint" },
+                      { label: "Tabungan", surface: "grad-lavender" },
+                      { label: "Checklist", surface: "grad-peach" },
+                    ].map((tile) => (
+                      <div
+                        key={tile.label}
+                        className={`clay-sm ${tile.surface} p-2.5 text-inkwell-navy`}
+                      >
+                        <p className="label opacity-70">{tile.label}</p>
+                        <p className="num mt-0.5 text-xs font-extrabold">
+                          <CountUp to={68} />%
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ── Fitur ─────────────────────────────────────────────────── */}
-        <section id="fitur" className="mx-auto w-full max-w-5xl px-5 pt-14">
+        {/* ── Fitur: kartu putih, ikon lucide seragam ────────────────── */}
+        <section id="fitur" className="mx-auto w-full max-w-[1200px] px-5">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
-              <p className="label text-muted-foreground">Fitur lengkap</p>
+              <p className="label text-slate">Fitur lengkap</p>
               <SplitText
                 tag="h2"
                 textAlign="left"
-                className="mt-1 font-serif text-2xl font-semibold md:text-3xl pb-1"
+                className="mt-2 font-serif text-3xl md:text-4xl pb-1"
                 text="Semua yang Anda butuhkan dalam satu tempat"
                 delay={25}
               />
@@ -183,18 +230,15 @@ export function LandingPage() {
             <span className="meta">8 modul siap dipakai</span>
           </div>
 
-          <Stagger className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+          <Stagger className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
             {FEATURES.map((feature) => (
               <StaggerItem key={feature.to}>
                 <Link
                   to="/app"
-                  className={`clay clay-press block h-full p-4 ${feature.surface}`}
+                  className={`clay clay-press block h-full p-5 ${feature.surface}`}
                 >
-                  <div className="flex items-center justify-between">
-                    <feature.icon className="size-5" />
-                    <span className="text-lg">{feature.emoji}</span>
-                  </div>
-                  <p className="mt-2.5 text-sm font-extrabold leading-tight">
+                  <feature.icon className="size-5" />
+                  <p className="mt-3 text-sm font-extrabold leading-tight">
                     {feature.label}
                   </p>
                   <p className="mt-1 text-[11px] leading-snug opacity-80">
@@ -206,33 +250,31 @@ export function LandingPage() {
           </Stagger>
         </section>
 
-        {/* ── Cara kerja ────────────────────────────────────────────── */}
-        <section id="cara-kerja" className="mx-auto w-full max-w-5xl px-5 pt-16">
-          <p className="label text-muted-foreground">Cara kerja</p>
+        {/* ── Cara kerja: tiga langkah, ikon tulis-tangan-free ────────── */}
+        <section id="cara-kerja" className="mx-auto w-full max-w-[1200px] px-5">
+          <p className="label text-slate">Cara kerja</p>
           <SplitText
             tag="h2"
             textAlign="left"
-            className="mt-1 font-serif text-2xl font-semibold md:text-3xl pb-1"
+            className="mt-2 font-serif text-3xl md:text-4xl pb-1"
             text="Tiga langkah menuju rencana yang rapi"
             delay={25}
           />
 
-          <Stagger className="mt-6 grid gap-3 md:grid-cols-3">
+          <Stagger className="mt-8 grid gap-4 md:grid-cols-3">
             {STEPS.map((step) => (
               <StaggerItem key={step.step}>
                 <div className="clay h-full p-5">
                   <div className="flex items-center justify-between">
-                    <span className="clay-sm flex size-10 items-center justify-center rounded-2xl bg-white/70 text-lg">
-                      {step.emoji}
+                    <span className="flex size-10 items-center justify-center rounded-lg bg-ash-canvas text-inkwell-navy">
+                      <step.icon className="size-5" />
                     </span>
-                    <span className="num text-2xl font-extrabold text-primary/25">
+                    <span className="num text-2xl font-extrabold text-inkwell-navy/15">
                       {step.step}
                     </span>
                   </div>
-                  <p className="mt-3 font-serif text-lg font-semibold">
-                    {step.title}
-                  </p>
-                  <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
+                  <p className="mt-3 text-base font-semibold">{step.title}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-slate">
                     {step.desc}
                   </p>
                 </div>
@@ -241,29 +283,28 @@ export function LandingPage() {
           </Stagger>
         </section>
 
-        {/* ── Sinkronisasi ──────────────────────────────────────────── */}
-        <section className="mx-auto w-full max-w-5xl px-5 pt-16">
-          <div className="clay grad-mint relative overflow-hidden p-6 text-tint-mint-foreground md:p-8">
-            <FlowerMark className="sway pointer-events-none absolute -right-5 -top-5 size-28 text-white/30" />
-            <div className="relative grid items-center gap-6 md:grid-cols-2">
+        {/* ── Dark feature card #2: sinkronisasi ─────────────────────── */}
+        <section className="mx-auto w-full max-w-[1200px] px-5">
+          <div className="rounded-3xl border border-white/10 bg-inkwell-navy p-8 shadow-[0_1px_4px_rgba(138,133,125,0.2)] md:p-12">
+            <div className="grid items-center gap-8 md:grid-cols-2">
               <div>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-[11px] font-bold">
+                <span className="inline-flex items-center gap-1.5 rounded-lg bg-mint-pulse px-3 py-1.5 text-xs font-medium text-inkwell-navy">
                   <RefreshCw className="size-3.5" /> Sinkron real-time
                 </span>
                 <SplitText
                   tag="h2"
                   textAlign="left"
-                  className="mt-3 font-serif text-2xl font-semibold md:text-3xl pb-1"
+                  className="mt-4 font-serif text-3xl leading-tight text-white md:text-4xl pb-1"
                   text="Dua perangkat, satu rencana"
                   delay={25}
                 />
-                <p className="mt-2 text-sm leading-relaxed opacity-85">
+                <p className="mt-4 text-sm leading-relaxed text-white/70">
                   Setiap perubahan — setoran tabungan, tugas selesai, RSVP
                   tamu — langsung tampil di perangkat pasangan Anda. Tanpa
                   refresh, tanpa kirim ulang.
                 </p>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {[
                   "Andra menambah setoran Rp 2.000.000",
                   "Rina menandai “Pesan katering” selesai",
@@ -271,9 +312,9 @@ export function LandingPage() {
                 ].map((event) => (
                   <div
                     key={event}
-                    className="flex items-center gap-2.5 rounded-2xl bg-white/75 px-3.5 py-2.5 text-xs font-semibold text-foreground"
+                    className="flex items-center gap-2.5 rounded-lg bg-white/10 px-4 py-3 text-sm font-medium text-white/90"
                   >
-                    <span className="size-1.5 shrink-0 rounded-full bg-tint-mint-foreground" />
+                    <span className="size-1.5 shrink-0 rounded-full bg-mint-pulse" />
                     {event}
                   </div>
                 ))}
@@ -282,41 +323,37 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* ── CTA akhir ─────────────────────────────────────────────── */}
-        <section className="mx-auto w-full max-w-5xl px-5 pb-16 pt-16">
-          <div className="clay grad-warm relative overflow-hidden p-8 text-center">
-            <FlowerMark className="float-slow pointer-events-none absolute -right-4 -top-4 size-24 text-primary/20" />
-            <SplitText
-              tag="h2"
-              textAlign="center"
-              className="relative font-serif text-2xl font-semibold md:text-3xl pb-1"
-              text="Siap merencanakan hari bahagia?"
-              delay={25}
-            />
-            <p className="relative mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-              Buka ruang kerja Anda dan mulai susun rencana bersama pasangan
-              — hanya butuh semenit.
-            </p>
-            <div className="relative mt-5 flex justify-center">
-              <Button asChild size="lg" className="rounded-2xl">
-                <Link to="/app">
-                  Buka Planner Wedding <ArrowRight className="size-4" />
-                </Link>
-              </Button>
-            </div>
+        {/* ── CTA akhir: display headline + tombol navy ──────────────── */}
+        <section className="relative mx-auto w-full max-w-[1200px] px-5 text-center">
+          <DoodleStar className="pointer-events-none absolute left-10 top-2 size-6 text-butter-yellow" />
+          <DoodleStar className="pointer-events-none absolute right-14 bottom-16 size-8 text-mint-pulse" />
+          <h2 className="mx-auto max-w-3xl font-serif text-[34px] leading-[1.1] md:text-5xl">
+            Siap merencanakan{" "}
+            <span className="text-coral-emphasis">hari bahagia?</span>
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-body-lg text-slate">
+            Buka ruang kerja Anda dan mulai susun rencana bersama pasangan
+            — hanya butuh semenit.
+          </p>
+          <div className="mt-8 flex justify-center">
+            <Button asChild size="lg" className="px-7">
+              <Link to="/app">
+                Buka SatuJanji <ArrowRight className="size-4" />
+              </Link>
+            </Button>
           </div>
         </section>
       </main>
 
-      {/* ── Footer ───────────────────────────────────────────────── */}
+      {/* ── Footer minimal ──────────────────────────────────────────── */}
       <footer className="border-t border-border/60">
-        <div className="mx-auto flex w-full max-w-5xl flex-col items-center justify-between gap-3 px-5 py-6 sm:flex-row">
+        <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center justify-between gap-3 px-5 py-6 sm:flex-row">
           <div className="flex items-center gap-2.5">
-            <span className="clay grad-warm clay-sm flex size-8 items-center justify-center rounded-lg">
-              <FlowerMark className="size-4 text-primary" />
+            <span className="flex size-8 items-center justify-center rounded-full bg-inkwell-navy">
+              <FlowerMark className="size-4 text-white" />
             </span>
-            <span className="font-serif text-sm font-semibold">
-              Planner Wedding
+            <span className="text-sm font-semibold tracking-tight">
+              SatuJanji
             </span>
           </div>
           <p className="meta">Perencana pernikahan untuk berdua · © 2026</p>

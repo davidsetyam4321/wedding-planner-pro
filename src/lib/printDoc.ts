@@ -58,9 +58,9 @@ export function printDocument(
   * { box-sizing: border-box; }
   body { font-family: "Inter", Arial, sans-serif; color: #151b31; margin: 0; }
   header { border-bottom: 3px double #151b31; padding-bottom: 12px; margin-bottom: 20px; }
-  h1 { font-family: "GRIFTER", "Archivo", "Inter", Arial, sans-serif; font-size: 22px; margin: 0 0 4px; color: #151b31; letter-spacing: .02em; }
+  h1 { font-family: "GRIFTER", "Bagel Fat One", "Inter", Arial, sans-serif; font-size: 22px; margin: 0 0 4px; color: #151b31; letter-spacing: .02em; }
   .subtitle { font-size: 12px; color: #6d6f75; margin: 0; }
-  h2 { font-family: "GRIFTER", "Archivo", "Inter", Arial, sans-serif; font-size: 14px; text-transform: uppercase; letter-spacing: .08em;
+  h2 { font-family: "GRIFTER", "Bagel Fat One", "Inter", Arial, sans-serif; font-size: 14px; text-transform: uppercase; letter-spacing: .08em;
        color: #151b31; margin: 22px 0 8px; }
   table { width: 100%; border-collapse: collapse; font-size: 12px; }
   th, td { border: 1px solid #dcdad7; padding: 6px 8px; text-align: left; }

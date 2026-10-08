@@ -104,9 +104,9 @@ export function BottomNav() {
                     }
                   >
                     <span
-                      className={`flex size-8 shrink-0 items-center justify-center rounded-lg text-sm ${feature.surface}`}
+                      className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${feature.surface}`}
                     >
-                      {feature.emoji}
+                      <feature.icon className="size-4" />
                     </span>
                     <span className="min-w-0 flex-1 truncate">
                       {feature.label}
