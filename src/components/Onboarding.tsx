@@ -111,7 +111,7 @@ export function OnboardingDialog({
       <div className="absolute inset-0 bg-background/85 backdrop-blur-md" />
       <div className="clay relative w-full max-w-sm overflow-hidden p-6">
         <div className="flex items-center justify-between">
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-tint-mint">
+          <span className="flex size-11 items-center justify-center rounded-full bg-sky-tint">
             <FlowerMark className="size-6 text-primary" />
           </span>
           <span className="flex gap-1.5" aria-hidden>

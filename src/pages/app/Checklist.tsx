@@ -414,7 +414,7 @@ export function ChecklistPage() {
             📝
           </div>
         </div>
-        <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-tint-sage">
+        <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-mist-gray">
           <div
             className="fill-botanical h-full rounded-full transition-all duration-700"
             style={{ width: `${pct}%` }}

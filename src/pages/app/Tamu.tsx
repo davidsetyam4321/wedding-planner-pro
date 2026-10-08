@@ -384,7 +384,7 @@ export function TamuPage() {
             💌
           </div>
         </div>
-        <div className="relative mt-4 flex h-2 w-full overflow-hidden rounded-full bg-tint-sage">
+        <div className="relative mt-4 flex h-2 w-full overflow-hidden rounded-full bg-mist-gray">
           <div
             className="h-full bg-primary transition-all duration-700"
             style={{ width: `${hadirSeg}%` }}

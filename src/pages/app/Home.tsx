@@ -125,7 +125,7 @@ function MiniRing({ pct, className }: { pct: number; className?: string }) {
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="var(--tint-sage)"
+          stroke="var(--tint-sage)" /* chart track — Cora mist */
           strokeWidth={stroke}
         />
         <circle
@@ -190,7 +190,7 @@ function ReadinessCard({
           {label}
         </p>
       </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-tint-sage">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-mist-gray">
           <div
             className="fill-botanical h-full rounded-full transition-all duration-700"
             style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
@@ -282,9 +282,9 @@ export function HomePage() {
 
       {/* ── Pill sinkronisasi ────────────────────────────────── */}
       {wedding && (
-        <div className="flex items-center justify-between rounded-full bg-tint-sage/60 px-3 py-1.5 text-[11px] font-semibold text-muted-foreground backdrop-blur-md">
+        <div className="flex items-center justify-between rounded-full border border-atmosphere-blue/30 bg-white/60 px-3 py-1.5 text-[11px] font-medium text-muted-foreground backdrop-blur-md">
           <span className="flex items-center gap-1.5">
-            <span className="size-2 animate-pulse rounded-full bg-primary" />
+            <span className="size-2 animate-pulse rounded-full bg-atmosphere-blue" />
             Sinkronisasi otomatis
           </span>
           <span className="text-tint-sky-foreground">
@@ -377,7 +377,7 @@ export function HomePage() {
 
           <div className="relative z-10 mt-4 flex items-start gap-3 rounded-2xl bg-white/12 p-3 backdrop-blur-sm">
             <p className="elegant flex flex-1 items-start gap-2 text-[15px] leading-snug text-white/90">
-              <Quote className="mt-0.5 size-4 shrink-0 text-tint-butter" />
+              <Quote className="mt-0.5 size-4 shrink-0 text-atmosphere-blue" />
               “Dua hati, satu janji — dipersiapkan dengan tenang, dijalani
               dengan bahagia.”
             </p>
@@ -404,8 +404,8 @@ export function HomePage() {
             <span
               className={`chip ${
                 onSchedule
-                  ? "bg-tint-mint text-tint-mint-foreground"
-                  : "bg-tint-butter text-tint-butter-foreground"
+                  ? "bg-sky-tint text-midnight-navy"
+                  : "bg-berry-tint text-berry-red"
               }`}
             >
               <TrendingUp className="size-3.5" />
@@ -430,8 +430,8 @@ export function HomePage() {
                 suffix={readinessNote}
                 pct={readiness}
                 tone={{
-                  icon: "bg-tint-mint text-tint-mint-foreground",
-                  pct: "text-primary",
+                  icon: "bg-sky-tint text-midnight-navy",
+                  pct: "text-cerulean-sky",
                 }}
               />
             </StaggerItem>
@@ -443,8 +443,8 @@ export function HomePage() {
                 suffix="Tugas"
                 pct={taskPct}
                 tone={{
-                  icon: "bg-tint-mint/60 text-tint-mint-foreground",
-                  pct: "text-primary",
+                  icon: "bg-sky-tint/70 text-midnight-navy",
+                  pct: "text-cerulean-sky",
                 }}
               />
             </StaggerItem>
@@ -456,8 +456,8 @@ export function HomePage() {
                 suffix="Hadir"
                 pct={guestTotal > 0 ? Math.round((guestHadir / guestTotal) * 100) : 0}
                 tone={{
-                  icon: "bg-tint-butter text-tint-butter-foreground",
-                  pct: "text-gold",
+                  icon: "bg-sky-tint text-midnight-navy",
+                  pct: "text-cerulean-sky",
                 }}
               />
             </StaggerItem>
@@ -469,8 +469,8 @@ export function HomePage() {
                 suffix="Terkendali"
                 pct={spentPct}
                 tone={{
-                  icon: "bg-tint-sky text-tint-sky-foreground",
-                  pct: "text-gold",
+                  icon: "bg-sky-tint text-midnight-navy",
+                  pct: "text-cerulean-sky",
                 }}
               />
             </StaggerItem>
@@ -483,10 +483,10 @@ export function HomePage() {
         <SectionHeader title="Aksi cepat" />
         <Stagger className="-mx-4 flex items-center gap-2.5 overflow-x-auto px-4 pb-1">
           {[
-            { to: "/app/budget", label: "Catat Biaya", icon: Wallet, surface: "bg-tint-butter text-tint-butter-foreground" },
-            { to: "/app/tamu", label: "Tambah Tamu", icon: UserPlus, surface: "bg-tint-mint text-tint-mint-foreground" },
-            { to: "/app/rundown", label: "Rundown Acara", icon: CalendarPlus, surface: "bg-tint-sky text-tint-sky-foreground" },
-            { to: "/app/moodboard", label: "Moodboard", icon: Palette, surface: "bg-tint-rose text-tint-rose-foreground" },
+            { to: "/app/budget", label: "Catat Biaya", icon: Wallet, surface: "bg-sky-tint text-midnight-navy" },
+            { to: "/app/tamu", label: "Tambah Tamu", icon: UserPlus, surface: "bg-sky-tint text-midnight-navy" },
+            { to: "/app/rundown", label: "Rundown Acara", icon: CalendarPlus, surface: "bg-mist-gray text-ink" },
+            { to: "/app/moodboard", label: "Moodboard", icon: Palette, surface: "bg-berry-tint text-berry-red" },
           ].map((action) => (
             <StaggerItem key={action.to} className="shrink-0">
               <Link

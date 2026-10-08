@@ -341,11 +341,11 @@ export function AppShell() {
         />
       )}
       <SideNav status={workspace} />
-      <div className="relative min-w-0 flex-1 pb-28 lg:pb-10">
+      <div className="sky-wash relative min-w-0 flex-1 pb-28 lg:pb-10">
       {/* Ambient wash — atmosphere-blue sky tint mengikuti rute aktif */}
       <div
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 -z-20 overflow-hidden"
+        className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
       >
         <div
           className={`absolute -left-24 -top-28 size-[26rem] rounded-full blur-3xl transition-colors duration-700 ${
@@ -358,7 +358,7 @@ export function AppShell() {
       <PetalsFront />
 
       <BloomOverlay />
-      <header className="sticky top-0 z-30 w-full bg-background/80 pb-2.5 pt-4 backdrop-blur-xl">
+      <header className="sticky top-0 z-30 w-full bg-white/70 pb-2.5 pt-4 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3 px-4 lg:max-w-3xl lg:px-10">
           <Link to="/app" className="flex min-w-0 items-center gap-2.5">
             <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-foreground/15 shadow-sm backdrop-blur-md lg:hidden">

@@ -274,11 +274,11 @@ export function TabunganPage() {
           </div>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2">
-          <div className={`clay-sm rounded-xl p-3 ${anggaranSudahTerbiaya ? "bg-tint-sky" : "bg-tint-butter"}`}>
+          <div className={`clay-sm rounded-xl p-3 ${anggaranSudahTerbiaya ? "bg-sky-tint" : "bg-mist-gray"}`}>
             <p className="meta">Total pengeluaran anggaran</p>
             <p className="num font-extrabold">{formatRupiahShort(totalSpent)}</p>
           </div>
-          <div className={`clay-sm rounded-xl p-3 ${anggaranSudahTerbiaya ? "bg-tint-mint" : "bg-tint-butter"}`}>
+          <div className={`clay-sm rounded-xl p-3 ${anggaranSudahTerbiaya ? "bg-sky-tint" : "bg-mist-gray"}`}>
             <p className="meta">Tabungan vs anggaran</p>
             <p className="num font-extrabold">
               {anggaranSudahTerbiaya ? (
@@ -327,7 +327,7 @@ export function TabunganPage() {
                   </p>
                   <div
                     className={`w-full max-w-9 rounded-t-lg transition-all ${
-                      bar.sum > 0 ? "bg-primary" : "bg-tint-sage"
+                      bar.sum > 0 ? "bg-primary" : "bg-mist-gray"
                     }`}
                     style={{
                       height: bar.sum > 0 ? `${Math.max(10, (bar.sum / chartMax) * 72)}px` : 6,

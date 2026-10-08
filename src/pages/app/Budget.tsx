@@ -402,7 +402,7 @@ export function BudgetPage() {
             <Wallet className="size-5" />
           </div>
         </div>
-        <div className="mt-4 h-3 overflow-hidden rounded-full bg-tint-sage">
+        <div className="mt-4 h-3 overflow-hidden rounded-full bg-mist-gray">
           <div
             className={`h-full rounded-full transition-all duration-700 ${
               isOver ? "bg-destructive" : "fill-botanical"
@@ -437,11 +437,11 @@ export function BudgetPage() {
           </div>
         </dl>
         <div className="mt-3 grid grid-cols-2 gap-2">
-          <div className={`clay-sm rounded-xl p-3 ${tabunganMencapaiTarget ? "bg-tint-mint" : "bg-tint-butter"}`}>
+          <div className={`clay-sm rounded-xl p-3 ${tabunganMencapaiTarget ? "bg-sky-tint" : "bg-mist-gray"}`}>
             <p className="meta">Tabungan tercatat</p>
             <p className="num font-extrabold">{formatRupiahShort(savingsTotal)}</p>
           </div>
-          <div className={`clay-sm rounded-xl p-3 ${tabunganMencapaiTarget ? "bg-tint-mint" : "bg-tint-sky"}`}>
+          <div className={`clay-sm rounded-xl p-3 ${tabunganMencapaiTarget ? "bg-sky-tint" : "bg-mist-gray"}`}>
             <p className="meta">Target wedding</p>
             <p className="num font-extrabold">{formatRupiahShort(fundTarget)}</p>
           </div>

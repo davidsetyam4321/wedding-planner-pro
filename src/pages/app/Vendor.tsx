@@ -280,7 +280,7 @@ export function VendorPage() {
             <dd>{formatRupiahShort(remaining)}</dd>
           </div>
         </dl>
-        <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-tint-sage">
+        <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-mist-gray">
           <div
             className="fill-botanical h-full rounded-full transition-all duration-700"
             style={{

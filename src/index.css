@@ -343,6 +343,30 @@
     background-repeat: no-repeat;
   }
 
+  /* Lukisan langit sebagai atmosfer aplikasi: gambar ditutup selaput putih
+     85-92% sehingga konten tetap kontras, tapi halaman dalam tidak polos. */
+  .sky-wash {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.93)),
+      url("/assets/sky-hero.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+  .dark .sky-wash {
+    background-image:
+      linear-gradient(rgba(11, 30, 48, 0.88), rgba(11, 30, 48, 0.94)),
+      url("/assets/sky-hero.jpg");
+  }
+
+  /* Pita langit tipis — strip lukisan asli 8rem untuk pembuka halaman */
+  .sky-band {
+    background-image: url("/assets/sky-hero.jpg");
+    background-size: cover;
+    background-position: center 30%;
+  }
+
   /* gradients — mapped to Cora tiers so legacy class names still work */
   .grad-warm {
     background-image: linear-gradient(135deg, #ffffff 0%, #eaf3fb 100%);

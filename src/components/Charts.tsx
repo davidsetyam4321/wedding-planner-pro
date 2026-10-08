@@ -136,7 +136,7 @@ export function RingGauge({
             r={radius}
             fill="none"
             strokeWidth={stroke}
-            className="stroke-tint-sage"
+            className="stroke-fog"
           />
           <circle
             cx={size / 2}
