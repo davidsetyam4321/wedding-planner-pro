@@ -9,7 +9,6 @@ import {
 import { FlowerMark, Petals } from "@/components/Decor";
 import FadeContent from "@/components/FadeContent";
 import PulseHeart from "@/components/PulseHeart";
-import { PlantRow, SunlitWall } from "@/components/SunlitGarden";
 import { Stagger, StaggerItem } from "@/components/Shared";
 import SpotlightCard from "@/components/SpotlightCard";
 import { Button } from "@/components/ui/button";
@@ -71,9 +70,9 @@ const VOICES = [
 ];
 
 /**
- * Halaman publik Cora: hero bertema nature ala Hero-28 — dinding bersinar
- * dengan deretan tanaman yang membuang bayangan panjangnya — lalu ritme
- * selang-seling langit → putih → langit → putih → langit CTA.
+ * Halaman publik Cora: hero bertema nature — foto asli tanaman & bayangannya
+ * di dinding, lalu ritme floral → putih → floral → putih → floral CTA.
+ * Palet selalu default (Burgundy Garden); palet kustom hanya untuk /app.
  */
 export function LandingPage() {
   const [bannerOpen, setBannerOpen] = useState(true);
@@ -110,10 +109,9 @@ export function LandingPage() {
       )}
 
       <main>
-        {/* ── Hero "dinding bersinar": dinding krem memantulkan cahaya pagi,
-             deretan tanaman membuang bayangan panjangnya ke dinding ─────── */}
-        <section className="relative flex min-h-screen w-full items-center justify-center px-5 pb-44 pt-24 text-center sm:pb-52 md:pb-56">
-          <SunlitWall />
+        {/* ── Hero nature: foto asli tanaman membuang bayangan di dinding ── */}
+        <section className="plant-hero relative flex min-h-screen w-full items-center justify-center px-5 pb-28 pt-24 text-center">
+          <div aria-hidden="true" className="photo-veil absolute inset-0 -z-10" />
 
           {/* Header menempel di atas dinding — persis di bawah pita pengumuman */}
           <header className="absolute inset-x-0 top-0 z-40">
@@ -122,8 +120,8 @@ export function LandingPage() {
                 to="/"
                 className="flex items-center gap-2.5 rounded-full border border-ink/10 bg-white/60 px-3 py-1.5 backdrop-blur-sm"
               >
-                <span className="flex size-7 items-center justify-center rounded-full border border-[#3c6b45]/30">
-                  <FlowerMark className="size-4 text-[#3c6b45]" />
+                <span className="flex size-7 items-center justify-center rounded-full border border-leaf/30">
+                  <FlowerMark className="size-4 text-leaf" />
                 </span>
                 <span className="text-base font-semibold tracking-tight text-midnight-navy">
                   SatuJanji
@@ -141,7 +139,7 @@ export function LandingPage() {
                 <Button
                   asChild
                   size="sm"
-                  className="bg-[#2f5d3f] text-white shadow-none hover:bg-[#254a33]"
+                  className="bg-primary text-primary-foreground shadow-none hover:bg-deep-cerulean"
                 >
                   <Link to="/app">
                     Buka aplikasi <ArrowRight className="size-3.5" />
@@ -158,7 +156,7 @@ export function LandingPage() {
               delay={150}
               className="relative inline-block"
             >
-              <span className="chip border-[#2f5d3f]/25 bg-white/70 text-[#25462e] backdrop-blur-sm">
+              <span className="chip border-primary/25 bg-white/75 text-primary backdrop-blur-sm">
                 <Sparkles className="size-3.5" /> Perencana pernikahan untuk
                 berdua
               </span>
@@ -172,7 +170,7 @@ export function LandingPage() {
             >
               <h1 className="font-serif text-[44px] font-light leading-[1.02] text-midnight-navy sm:text-[56px] md:text-[68px]">
                 Rencanakan hari bahagia Anda,{" "}
-                <span className="elegant relative inline-block text-[1.06em] italic text-[#3c6b45]">
+                <span className="elegant relative inline-block text-[1.06em] italic text-leaf">
                   berdua.
                 </span>
               </h1>
@@ -189,7 +187,7 @@ export function LandingPage() {
               <Button
                 asChild
                 size="lg"
-                className="bg-[#2f5d3f] px-7 text-white shadow-none hover:bg-[#254a33]"
+                className="bg-primary px-7 text-primary-foreground shadow-none hover:bg-deep-cerulean"
               >
                 <Link to="/app">
                   Mulai merencanakan <ArrowRight className="size-4" />
@@ -199,7 +197,7 @@ export function LandingPage() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="border-[#2f5d3f]/45 bg-transparent px-6 text-[#2f5d3f] hover:bg-[#2f5d3f]/10 hover:text-[#25462e]"
+                className="border-primary/45 bg-transparent px-6 text-primary hover:bg-primary/10 hover:text-primary"
               >
                 <a href="#cara-kerja">Lihat cara kerja</a>
               </Button>
@@ -217,7 +215,7 @@ export function LandingPage() {
                     key={item}
                     className="meta flex items-center gap-1.5 text-ink/70"
                   >
-                    <span className="size-1.5 rounded-full bg-[#4f7d52]" />
+                    <span className="size-1.5 rounded-full bg-leaf" />
                     {item}
                   </span>
                 ),
@@ -225,8 +223,6 @@ export function LandingPage() {
             </FadeContent>
           </div>
 
-          {/* deretan tanaman + bayangan panjangnya di dinding */}
-          <PlantRow />
         </section>
 
         {/* ── Section putih: testimonial mengambang ─────────────────────── */}
@@ -271,16 +267,9 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* ── Kembali ke langit: headline mengambang + preview produk ──── */}
-        <section className="relative w-full px-5 py-28 text-center">
-          <div
-            aria-hidden="true"
-            className="sky-canvas absolute inset-0 -z-10"
-          />
-          <div
-            aria-hidden="true"
-            className="sky-scrim absolute inset-0 -z-10"
-          />
+        {/* ── Foto floral asli: headline mengambang + preview produk ──── */}
+        <section className="floral-canvas relative w-full px-5 py-28 text-center">
+          <div aria-hidden="true" className="photo-dim absolute inset-0 -z-10" />
 
           <FadeContent blur duration={900}>
             <h2 className="mx-auto max-w-3xl font-serif text-3xl font-light leading-tight text-white md:text-[45px]">
@@ -350,7 +339,7 @@ export function LandingPage() {
                   >
                     <SpotlightCard
                       className="h-full rounded-xl p-5"
-                      spotlightColor="rgba(17, 123, 200, 0.08)"
+                      spotlightColor="color-mix(in srgb, var(--color-bloom) 10%, transparent)"
                     >
                       <span className="flex size-9 items-center justify-center rounded-full bg-sky-tint">
                         <feature.icon className="size-4.5 text-midnight-navy" />
@@ -389,7 +378,7 @@ export function LandingPage() {
                   <div className="clay h-full rounded-xl">
                     <SpotlightCard
                       className="h-full rounded-xl p-6"
-                      spotlightColor="rgba(17, 123, 200, 0.08)"
+                      spotlightColor="color-mix(in srgb, var(--color-bloom) 10%, transparent)"
                     >
                       <div className="flex items-center justify-between">
                         <span className="flex size-10 items-center justify-center rounded-full bg-sky-tint text-midnight-navy">
@@ -451,16 +440,9 @@ export function LandingPage() {
 
         <GarlandDivider className="mx-auto block h-10 w-full max-w-sm" />
 
-        {/* ── CTA akhir: kembali ke langit ─────────────────────────────── */}
-        <section className="relative w-full px-5 py-32 text-center">
-          <div
-            aria-hidden="true"
-            className="sky-canvas absolute inset-0 -z-10"
-          />
-          <div
-            aria-hidden="true"
-            className="sky-scrim absolute inset-0 -z-10"
-          />
+        {/* ── CTA akhir: latar buket floral asli ───────────────────────── */}
+        <section className="bouquet-canvas relative w-full px-5 py-32 text-center">
+          <div aria-hidden="true" className="photo-dim absolute inset-0 -z-10" />
           <AnimatedContent distance={60} threshold={0.2}>
             <h2 className="mx-auto max-w-3xl font-serif text-4xl font-light leading-[1.05] text-white md:text-[55px]">
               Siap merencanakan{" "}
@@ -486,8 +468,8 @@ export function LandingPage() {
                 showCount={false}
                 size={38}
                 label="Suka"
-                likedColor="#cf372d"
-                pillColor="#09426c"
+                likedColor="var(--color-bloom)"
+                pillColor="var(--color-midnight-navy)"
                 textColor="#ffffff"
               />
             </div>
@@ -495,12 +477,8 @@ export function LandingPage() {
         </section>
       </main>
 
-      {/* ── Footer di atas langit ─────────────────────────────────────── */}
-      <footer className="sky-canvas relative border-t border-white/20">
-        <div
-          aria-hidden="true"
-          className="sky-scrim absolute inset-0 -z-10"
-        />
+      {/* ── Footer solid di atas burgundy ────────────────────────────── */}
+      <footer className="relative border-t border-white/20 bg-midnight-navy">
         <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center justify-between gap-3 px-5 py-8 sm:flex-row">
           <div className="flex items-center gap-2.5">
             <span className="flex size-8 items-center justify-center rounded-full border border-white/50">

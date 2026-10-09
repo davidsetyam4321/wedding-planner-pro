@@ -40,8 +40,18 @@ atribusi; hasil turunan dengan modifikasi harus memakai lisensi yang sama.
 Aset ini dimodifikasi hanya dalam bentuk pemotongan/pengecilan resolusi
 untuk kebutuhan tampilan web.
 
+## Batch 3 — foto nature (folder `nature/`, Pexels License)
+
+| Berkas | Sumber (halaman foto) | Lisensi |
+| --- | --- | --- |
+| `nature/plant-shadow.jpg` | [Sunlit Indoor Plant Casting Shadows](https://www.pexels.com/photo/sunlit-indoor-plant-casting-shadows-31024987/) | Pexels License |
+| `nature/floral-backdrop.jpg` | [Umbrellas and Flowers Decoration of Wedding Bed](https://www.pexels.com/photo/umbrellas-and-flowers-decoration-of-wedding-bed-18836899/) | Pexels License |
+
+Lisensi Pexels (https://www.pexels.com/license/) membebaskan pemakaian tanpa
+atribusi wajib; pencatatan sumber dilakukan di sini untuk transparansi.
+
 ## sky-hero.jpg
 John Constable — Cloud Study (Google Art Project)
 Sumber: Wikimedia Commons (public domain)
 https://commons.wikimedia.org/wiki/File:John_Constable_-_Cloud_Study_-_Google_Art_Project.jpg
-Dipakai sebagai: kanvas lukisan langit full-bleed di landing & section pintas.
+Dahulu dipakai sebagai kanvas langit; kini tidak lagi dipakai (diganti wash nature).

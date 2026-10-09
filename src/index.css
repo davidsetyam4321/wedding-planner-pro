@@ -278,8 +278,8 @@
   --shadow-float: rgba(0, 0, 0, 0.6) 0px 12px 24px -8px, rgba(0, 0, 0, 0.4) 0px 4px 8px -4px;
 }
 
-/* Latar app: awan putih tenang — gambar langit dipakai lewat utilitas
-   .sky-canvas di section hero/pintas, jadi body tetap putih bersih. */
+/* Latar app: wash nature (ivory → petal → putih hangat) lewat utilitas
+   .sky-wash; body memakai --background yang mengikuti palet. */
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -344,41 +344,67 @@
     color: var(--muted-foreground);
   }
 
-  /* Full-bleed painted sky as page canvas — never inside a card */
-  .sky-canvas {
-    background-image: url("/assets/sky-hero.jpg");
+  /* Foto asli sebagai kanvas halaman — gambar asli, bukan buatan */
+  .plant-hero {
+    background-image: url("/assets/nature/plant-shadow.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
   }
-
-  /* Lukisan langit sebagai atmosfer aplikasi — diperlihatkan berani:
-     veal tipis kebiruan di atas, menggelap jadi putih di bawah agar teks
-     tetap kontras, sementara awan tetap terlihat jelas. */
-  .sky-wash {
-    background-image:
-      linear-gradient(
-        180deg,
-        rgba(240, 246, 252, 0.62) 0%,
-        rgba(255, 255, 255, 0.8) 38%,
-        rgba(255, 255, 255, 0.94) 100%
-      ),
-      url("/assets/sky-hero.jpg");
+  .floral-canvas {
+    background-image: url("/assets/bunga-dekorasi.jpg");
     background-size: cover;
-    background-position: center top;
+    background-position: center;
     background-repeat: no-repeat;
   }
-  .dark .sky-wash {
-    background-image:
-      linear-gradient(rgba(11, 30, 48, 0.82), rgba(11, 30, 48, 0.92)),
-      url("/assets/sky-hero.jpg");
+  .bouquet-canvas {
+    background-image: url("/assets/nature/floral-backdrop.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  /* veil ivory agar teks gelap di atas foto hero tetap terbaca */
+  .photo-veil {
+    background: linear-gradient(
+      180deg,
+      rgba(250, 243, 228, 0.58) 0%,
+      rgba(250, 243, 228, 0.46) 45%,
+      rgba(250, 243, 228, 0.66) 100%
+    );
+  }
+  /* redupkan foto floral agar teks putih di atasnya tetap terbaca */
+  .photo-dim {
+    background: linear-gradient(
+      180deg,
+      rgba(28, 12, 16, 0.55) 0%,
+      rgba(28, 12, 16, 0.66) 55%,
+      rgba(28, 12, 16, 0.78) 100%
+    );
   }
 
-  /* Pita langit tipis — strip lukisan asli 8rem untuk pembuka halaman */
+  /* Wash nature — ivory memanas ke petal lembut di atas, putih hangat di
+     bawah; tanpa foto langit lagi. */
+  .sky-wash {
+    background-color: var(--background);
+    background-image: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-petal) 32%, transparent) 0%,
+      color-mix(in srgb, var(--color-cloud-white) 78%, transparent) 34%,
+      var(--color-cloud-white) 100%
+    );
+  }
+  .dark .sky-wash {
+    background-image: linear-gradient(rgba(11, 30, 48, 0.82), rgba(11, 30, 48, 0.92));
+  }
+
+  /* Pita nature tipis — gradasi brand, bukan foto langit */
   .sky-band {
-    background-image: url("/assets/sky-hero.jpg");
-    background-size: cover;
-    background-position: center 30%;
+    background-image: linear-gradient(
+      135deg,
+      var(--color-midnight-navy) 0%,
+      color-mix(in srgb, var(--color-cerulean-sky) 78%, var(--color-bloom)) 55%,
+      var(--color-bloom) 100%
+    );
   }
 
   /* gradients — mapped to Cora tiers so legacy class names still work */
@@ -394,124 +420,19 @@
     background-image: linear-gradient(135deg, #ffffff 0%, #ebf3fa 100%);
   }
   .grad-rose {
-    background-image: linear-gradient(135deg, #ffffff 0%, #fdf2f1 100%);
-  }
-  /* isian progres dua-nada: cerulean → midnight navy */
-  .fill-botanical {
-    background-image: linear-gradient(90deg, #117bc8 0%, #09426c 100%);
-  }
-
-  /* readable text over the sky painting */
-  .sky-scrim {
     background-image: linear-gradient(
-      to top,
-      rgba(9, 66, 108, 0.55) 0%,
-      rgba(9, 66, 108, 0.28) 45%,
-      rgba(9, 66, 108, 0) 100%
+      135deg,
+      var(--color-cloud-white) 0%,
+      var(--color-petal) 100%
     );
   }
-
-  /* ── Hero "dinding bersinar" (gaya Hero-28, tema nature) ────────────────
-     Dinding krem memantulkan cahaya pagi: pijaran matahari di kanan atas,
-     dua berkas cahaya miring, dan pita lantai hangat di dasar tempat
-     deretan tanaman membuang bayangan panjangnya. */
-  .sunlit-wall {
-    background-color: #f4ecdc;
-    background-image:
-      radial-gradient(
-        46rem 30rem at 78% -4%,
-        rgba(255, 226, 150, 0.95),
-        rgba(255, 226, 150, 0) 65%
-      ),
-      radial-gradient(
-        30rem 20rem at 92% 6%,
-        rgba(255, 247, 222, 0.9),
-        rgba(255, 247, 222, 0) 70%
-      ),
-      linear-gradient(
-        112deg,
-        rgba(255, 255, 255, 0) 30%,
-        rgba(255, 255, 255, 0.5) 37%,
-        rgba(255, 255, 255, 0) 45%,
-        rgba(255, 255, 255, 0) 57%,
-        rgba(255, 252, 238, 0.45) 64%,
-        rgba(255, 255, 255, 0) 71%
-      ),
-      linear-gradient(
-        180deg,
-        #f7f0e2 0%,
-        #f2e9d8 55%,
-        #eadfca 80%,
-        #e0d3b6 100%
-      );
-  }
-
-  /* pita lantai hangat di dasar dinding */
-  .sunlit-wall::after {
-    content: "";
-    position: absolute;
-    inset: auto 0 0 0;
-    height: 4rem;
-    background: linear-gradient(
-      180deg,
-      rgba(178, 152, 108, 0) 0%,
-      rgba(178, 152, 108, 0.32) 100%
+  /* isian progres dua-nada: primary → primary-deep (mengikuti palet) */
+  .fill-botanical {
+    background-image: linear-gradient(
+      90deg,
+      var(--color-cerulean-sky) 0%,
+      var(--color-midnight-navy) 100%
     );
-  }
-
-  /* deretan tanaman di dasar hero (dekoratif) */
-  .nature-plants {
-    pointer-events: none;
-  }
-
-  /* bayangan panjang tiap tanaman di dinding — arah cahaya dari kanan atas */
-  .plant-cast {
-    position: absolute;
-    inset: 0;
-    transform: skewX(34deg) translateX(-6%) scaleY(1.06);
-    transform-origin: bottom right;
-    filter: blur(6px);
-    opacity: 0.22;
-    --pl-leaf: #44512e;
-    --pl-leaf2: #44512e;
-    --pl-pot: #44512e;
-    --pl-pot2: #44512e;
-    --pl-pot3: #44512e;
-    --pl-soil: #44512e;
-    --pl-berry: #44512e;
-    animation: plant-cast-sway 7s ease-in-out infinite alternate;
-  }
-
-  /* goyangan lembut per tanaman — durasi & delay diatur inline */
-  .plant-body {
-    transform-box: fill-box;
-    transform-origin: 50% 100%;
-    animation: plant-sway 7s ease-in-out infinite alternate;
-  }
-
-  @keyframes plant-sway {
-    from {
-      transform: rotate(-1.6deg);
-    }
-    to {
-      transform: rotate(1.8deg);
-    }
-  }
-
-  @keyframes plant-cast-sway {
-    from {
-      transform: skewX(34deg) translateX(-6%) scaleY(1.06) rotate(-2.6deg);
-    }
-    to {
-      transform: skewX(34deg) translateX(-6%) scaleY(1.06) rotate(3deg);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .plant-body,
-    .plant-cast {
-      animation: none;
-    }
   }
 
   /* readable text over the couple photo on the dashboard */

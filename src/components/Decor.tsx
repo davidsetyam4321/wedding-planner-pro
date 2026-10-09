@@ -137,7 +137,7 @@ const FALLERS = Array.from({ length: 18 }, (_, index) => ({
   drift: (index % 2 === 0 ? 1 : -1) * (30 + (index % 4) * 26),
   opacity: 0.18 + (index % 4) * 0.05,
   blur: index % 4 === 0 ? 1.6 : 0,
-  fill: CLOUD_FILLS[index % CLOUD_FILLS.length],
+  fill: NATURE_FILLS[index % NATURE_FILLS.length],
   shape: FALLER_SHAPES[index % FALLER_SHAPES.length],
 }));
 
