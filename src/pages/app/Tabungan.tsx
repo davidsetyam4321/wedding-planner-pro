@@ -73,8 +73,8 @@ function ProgressRing({ pct, size = 88, stroke = 10 }: { pct: number; size?: num
       />
       <defs>
         <linearGradient id="sj-ring-grad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stopColor="#3a2317" />
-      <stop offset="100%" stopColor="#b4553a" />
+      <stop offset="0%" stopColor="var(--chart-1)" />
+      <stop offset="100%" stopColor="var(--chart-2)" />
         </linearGradient>
       </defs>
     </svg>
@@ -373,7 +373,7 @@ export function TabunganPage() {
             >
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="rgba(21,27,49,0.12)"
+                stroke="var(--color-fog)"
                 vertical={false}
               />
               <XAxis
@@ -396,9 +396,9 @@ export function TabunganPage() {
                 type="monotone"
                 dataKey="kumulatif"
                 name="Terkumpul"
-                stroke="#3a2317"
+                stroke="var(--chart-1)"
                 strokeWidth={2.5}
-                fill="#3a2317"
+                fill="var(--chart-1)"
                 fillOpacity={0.16}
               />
               <Line
@@ -415,10 +415,10 @@ export function TabunganPage() {
         </div>
         <div className="mt-1 flex items-center gap-3 text-[11px] font-semibold text-muted-foreground">
           <span className="flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-[#3a2317]" /> Terkumpul
+            <span className="size-2 rounded-full bg-[var(--chart-1)]" /> Terkumpul
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="size-2 rounded-full bg-[#b4553a]" /> Target
+            <span className="size-2 rounded-full bg-[var(--chart-2)]" /> Target
           </span>
         </div>
       </ChartCard>

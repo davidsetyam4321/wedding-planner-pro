@@ -306,11 +306,11 @@ export function HomePage() {
         <AnimatedContent
           distance={50}
           threshold={0.05}
-          className="sky-band relative overflow-hidden rounded-3xl p-5 shadow-[0_16px_40px_-12px_rgba(13,92,150,0.5)]"
+          className="sky-band relative overflow-hidden rounded-3xl p-5 shadow-float"
         >
           {/* Selalu ada lukisan langit di belakang; foto pasangan menimpa jika diunggah */}
           {!couplePhoto && (
-            <div className="absolute inset-0 bg-gradient-to-br from-midnight-navy/85 via-[#0d5c96]/70 to-midnight-navy/85" />
+            <div className="absolute inset-0 bg-gradient-to-br from-midnight-navy/85 via-deep-cerulean/70 to-midnight-navy/85" />
           )}
           {couplePhoto && (
             <>
@@ -321,7 +321,7 @@ export function HomePage() {
                 aria-hidden
                 className="absolute inset-0 h-full w-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-br from-midnight-navy/90 via-[#0d5c96]/80 to-midnight-navy/90" />
+              <div className="absolute inset-0 bg-gradient-to-br from-midnight-navy/90 via-deep-cerulean/80 to-midnight-navy/90" />
             </>
           )}
           <div className="pointer-events-none absolute -right-10 -top-14 size-44 rounded-full bg-white/10 blur-2xl" />
@@ -389,7 +389,7 @@ export function HomePage() {
               showCount={false}
               size={30}
               label="Suka"
-              likedColor="#b4553a"
+              likedColor="var(--color-bloom)"
               idleColor="rgba(255, 255, 255, 0.65)"
               pillColor="rgba(255, 255, 255, 0.14)"
               textColor="#ffffff"

@@ -197,7 +197,7 @@ export function EmptyState({
       }`}
     >
       <div className="relative">
-        <div className="sky-tint clay-sm flex size-14 items-center justify-center rounded-full text-2xl shadow-[0_6px_16px_-6px_rgba(13,92,150,0.35)]">
+        <div className="sky-tint clay-sm flex size-14 items-center justify-center rounded-full text-2xl shadow-lift">
           {emoji}
         </div>
         <FlowerMark className="absolute -right-2 -top-2 size-5 text-berry-red" />

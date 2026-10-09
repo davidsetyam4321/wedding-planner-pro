@@ -2,6 +2,7 @@ import { AccountSection } from "@/components/AccountSection";
 import { BackLink, SectionHeader } from "@/components/Shared";
 import { coupleInitials, useCouplePhotoUpload } from "@/components/CouplePhoto";
 import { FlowerMark } from "@/components/Decor";
+import { PaletteSection } from "@/components/PaletteSettings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -137,6 +138,8 @@ export function PengaturanPage() {
           </div>
         </div>
       </section>
+
+      <PaletteSection />
 
       <input type="file" accept="image/*" className="hidden" {...inputProps} />
 

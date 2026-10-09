@@ -14,7 +14,7 @@ export function FlowerMark({ className }: { className?: string }) {
       <ellipse cx="12" cy="5.6" rx="3.1" ry="4.9" transform="rotate(144 12 12)" />
       <ellipse cx="12" cy="5.6" rx="3.1" ry="4.9" transform="rotate(216 12 12)" />
       <ellipse cx="12" cy="5.6" rx="3.1" ry="4.9" transform="rotate(288 12 12)" />
-      <circle cx="12" cy="12" r="2.3" fill="#ffffff" fillOpacity="0.75" />
+      <circle cx="12" cy="12" r="2.3" fill="var(--color-cloud-white)" fillOpacity="0.75" />
     </svg>
   );
 }
@@ -38,20 +38,60 @@ export function BirdMark({ className }: { className?: string }) {
   );
 }
 
-/* ── Awan gugur (pengganti kembang gugur) ─────────────────────────────── */
+/* ── Kembang & daun gugur (tema nature) ─────────────────────────── */
 
-type CloudShape = "cloud" | "petal" | "bird" | "mark";
+type FallerShape = "bloom" | "leaf" | "bouquet" | "petal" | "mark";
 
-/** Kubus awan kumul lembut dalam warna solid. */
-function SoftCloud({ fill }: { fill: string }) {
+/** Kembang lima kelopak dalam warna solid — pengganti awan. */
+function SoftBloom({ fill }: { fill: string }) {
   return (
-    <svg viewBox="0 0 48 28" aria-hidden="true" className="size-full">
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-full">
       <g fill={fill}>
-        <ellipse cx="14" cy="18" rx="11" ry="8.5" />
-        <ellipse cx="26" cy="14" rx="13" ry="10" />
-        <ellipse cx="37" cy="19" rx="10" ry="8" />
-        <rect x="6" y="18" width="36" height="9" rx="4.5" />
+        <ellipse cx="12" cy="6.4" rx="3.4" ry="4.6" />
+        <ellipse cx="12" cy="6.4" rx="3.4" ry="4.6" transform="rotate(72 12 12)" />
+        <ellipse cx="12" cy="6.4" rx="3.4" ry="4.6" transform="rotate(144 12 12)" />
+        <ellipse cx="12" cy="6.4" rx="3.4" ry="4.6" transform="rotate(216 12 12)" />
+        <ellipse cx="12" cy="6.4" rx="3.4" ry="4.6" transform="rotate(288 12 12)" />
       </g>
+      <circle cx="12" cy="12" r="2.6" fill="var(--color-bloom)" fillOpacity="0.55" />
+    </svg>
+  );
+}
+
+/** Daun runcing dengan tulang daun tipis. */
+function LeafMark({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-full">
+      <path d="M12 2 C 18 7, 19 14, 12 22 C 5 14, 6 7, 12 2 Z" fill={fill} />
+      <path
+        d="M12 4 L12 20"
+        stroke="var(--color-cloud-white)"
+        strokeOpacity="0.55"
+        strokeWidth="1.1"
+        strokeLinecap="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
+/** Buket mini — tiga kembang kecil bertangkai daun. */
+function MiniBouquet({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-full">
+      <g fill="var(--color-leaf)" fillOpacity="0.9">
+        <path d="M9 14 C 6 16, 5 19, 6 21 C 8 20, 9 17, 9 14 Z" />
+        <path d="M15 14 C 18 16, 19 19, 18 21 C 16 20, 15 17, 15 14 Z" />
+      </g>
+      <path
+        d="M12 13 L12 20"
+        stroke="var(--color-leaf)"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <circle cx="8" cy="9" r="3.4" fill={fill} />
+      <circle cx="16" cy="9.5" r="3" fill={fill} />
+      <circle cx="12" cy="6" r="3.6" fill={fill} />
     </svg>
   );
 }
@@ -69,22 +109,23 @@ function WhitePetal({ fill }: { fill: string }) {
   );
 }
 
-/** Palet Cora: putih awan, tint langit, tint berry, putih bersih. */
-const CLOUD_FILLS = [
-  "#ffffff",
-  "#f4f9fd",
-  "#eaf3fb",
-  "#fdf2f1",
+/** Warna kembang gugur — tint palet lewat CSS variable. */
+const NATURE_FILLS = [
+  "var(--color-petal)",
+  "var(--color-berry-tint)",
+  "var(--color-cloud-white)",
+  "var(--color-sky-tint)",
+  "var(--color-tint-mint)",
 ];
 
-const FALLER_SHAPES: CloudShape[] = [
-  "cloud",
+const FALLER_SHAPES: FallerShape[] = [
+  "bloom",
   "petal",
-  "bird",
-  "cloud",
-  "petal",
+  "leaf",
+  "bloom",
+  "bouquet",
   "mark",
-  "cloud",
+  "leaf",
   "petal",
 ];
 
@@ -100,14 +141,15 @@ const FALLERS = Array.from({ length: 18 }, (_, index) => ({
   shape: FALLER_SHAPES[index % FALLER_SHAPES.length],
 }));
 
-function renderFaller(shape: CloudShape, fill: string) {
-  if (shape === "cloud") return <SoftCloud fill={fill} />;
-  if (shape === "bird") return <BirdMark className="size-full text-deep-cerulean/30" />;
+function renderFaller(shape: FallerShape, fill: string) {
+  if (shape === "bloom") return <SoftBloom fill={fill} />;
+  if (shape === "leaf") return <LeafMark fill={fill} />;
+  if (shape === "bouquet") return <MiniBouquet fill={fill} />;
   if (shape === "petal") return <WhitePetal fill={fill} />;
   return <FlowerMark className="size-full text-primary/20" />;
 }
 
-/** Awan kecil & burung jatuh perlahan di belakang halaman — sangat samar. */
+/** Kembang & daun jatuh perlahan di belakang halaman — sangat samar. */
 export function Petals() {
   return (
     <div
@@ -146,11 +188,11 @@ const FRONT_FALLERS = Array.from({ length: 6 }, (_, index) => ({
   drift: (index % 2 === 0 ? 1 : -1) * (54 + (index % 3) * 30),
   opacity: 0.08 + (index % 3) * 0.03,
   blur: index % 2 === 0 ? 7 : 4,
-  fill: CLOUD_FILLS[(index + 2) % CLOUD_FILLS.length],
+  fill: NATURE_FILLS[(index + 2) % NATURE_FILLS.length],
 }));
 
 /**
- * Lapisan bokeh awan di DEPAN konten — besar, blur, sangat transparan.
+ * Lapisan bokeh kembang di DEPAN konten — besar, blur, sangat transparan.
  * pointer-events-none: klik tetap menembus ke konten di bawahnya.
  */
 export function PetalsFront() {
@@ -176,7 +218,7 @@ export function PetalsFront() {
             } as CSSProperties
           }
         >
-          {renderFaller("cloud", faller.fill)}
+          {renderFaller("bouquet", faller.fill)}
         </span>
       ))}
     </div>
@@ -195,9 +237,9 @@ export function GarlandDivider({ className }: { className?: string }) {
       className={className}
       fill="none"
     >
-      <path d="M8 20 H190" stroke="#dadada" strokeWidth="1" />
-      <path d="M210 20 H392" stroke="#dadada" strokeWidth="1" />
-      <circle cx="200" cy="20" r="3" stroke="#60a8dd" strokeWidth="1.4" />
+      <path d="M8 20 H190" stroke="var(--color-fog)" strokeWidth="1" />
+      <path d="M210 20 H392" stroke="var(--color-fog)" strokeWidth="1" />
+      <circle cx="200" cy="20" r="3" stroke="var(--color-atmosphere-blue)" strokeWidth="1.4" />
     </svg>
   );
 }
@@ -211,13 +253,13 @@ export function MelatiBandul({ className }: { className?: string }) {
       className={className}
       fill="none"
     >
-      <path d="M32 3 v14" stroke="#dadada" strokeWidth="1.2" />
-      <g fill="#eaf3fb">
+      <path d="M32 3 v14" stroke="var(--color-fog)" strokeWidth="1.2" />
+      <g fill="var(--color-sky-tint)">
         <ellipse cx="24" cy="30" rx="10" ry="7.5" />
         <ellipse cx="38" cy="40" rx="11" ry="8.5" />
         <ellipse cx="30" cy="52" rx="12" ry="9" />
       </g>
-      <path d="M28 62 q4 4 8 0" stroke="#60a8dd" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M28 62 q4 4 8 0" stroke="var(--color-atmosphere-blue)" strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   );
 }
@@ -328,12 +370,12 @@ export function MotifDivider({ className }: { className?: string }) {
       aria-hidden="true"
       preserveAspectRatio="xMidYMid meet"
     >
-      <path d="M8 20 H188" stroke="#dadada" strokeWidth="1" />
-      <path d="M212 20 H392" stroke="#dadada" strokeWidth="1" />
+      <path d="M8 20 H188" stroke="var(--color-fog)" strokeWidth="1" />
+      <path d="M212 20 H392" stroke="var(--color-fog)" strokeWidth="1" />
       <path
         d="M200 13 L207 20 L200 27 L193 20 Z"
         fill="none"
-        stroke="#60a8dd"
+        stroke="var(--color-atmosphere-blue)"
         strokeWidth="1.2"
         strokeLinejoin="round"
       />

@@ -7,6 +7,7 @@ import { ConvexReactClient, useConvexAuth } from "convex/react";
 import React, { StrictMode, useEffect, lazy, Suspense, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router";
+import { AppPalette, DefaultPalette } from "@/components/PaletteProvider";
 import "./index.css";
 
 // Lazy load route components for better code splitting
@@ -164,6 +165,15 @@ class RootErrorBoundary extends React.Component<
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
+/**
+ * Pemasang palet per rute: /app memakai palet workspace (sinkron ke pasangan),
+ * halaman publik (landing, 404) selalu palet default Burgundy Garden.
+ */
+function RoutePalette() {
+  const location = useLocation();
+  return location.pathname.startsWith("/app") ? <AppPalette /> : <DefaultPalette />;
+}
+
 
 function RouteSyncer() {
   const location = useLocation();
@@ -211,6 +221,7 @@ createRoot(document.getElementById("root")!).render(
       <ConvexAuthProvider client={convex}>
         <BrowserRouter>
           <RouteSyncer />
+          <RoutePalette />
           <Suspense fallback={<RouteLoading />}>
             <AutoSession>
               <Routes>

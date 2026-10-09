@@ -148,9 +148,9 @@ export function TamuPage() {
     value: number;
     color: string;
   }[] = [
-    { key: "hadir" as const, name: "Hadir", value: attendingPax, color: "#b4553a" },
-    { key: "pending" as const, name: "Menunggu", value: pendingPax, color: "#d8b45c" },
-    { key: "tidak" as const, name: "Berhalangan", value: declinedPax, color: "#7a6247" },
+    { key: "hadir" as const, name: "Hadir", value: attendingPax, color: "var(--chart-1)" },
+    { key: "pending" as const, name: "Menunggu", value: pendingPax, color: "var(--chart-3)" },
+    { key: "tidak" as const, name: "Berhalangan", value: declinedPax, color: "var(--color-stone)" },
   ].filter((row) => row.value > 0);
 
   // Sebaran pax per grup (maks 6 teratas) — klik batang → filter grup.
@@ -503,7 +503,7 @@ export function TamuPage() {
               >
                 <CartesianGrid
                   horizontal={false}
-                  stroke="rgba(58,35,23,0.12)"
+                  stroke="var(--color-fog)"
                 />
                 <XAxis
                   type="number"
@@ -521,7 +521,7 @@ export function TamuPage() {
                 />
                 <Tooltip
                   content={<ChartTip format={(value) => `${value} orang`} />}
-                  cursor={{ fill: "rgba(58,35,23,0.06)" }}
+                  cursor={{ fill: "var(--color-mist-gray)" }}
                 />
                 <Bar
                   dataKey="orang"

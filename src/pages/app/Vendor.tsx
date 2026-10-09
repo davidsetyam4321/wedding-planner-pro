@@ -81,9 +81,9 @@ const STATUS_ACCENT: Record<VendorStatus, string> = {
 
 /** Warna status pembayaran (inkwell navy → coral emphasis). */
 const STATUS_COLORS: Record<VendorStatus, string> = {
-  belum: "#e7dbc6",
-  dp: "#d8b45c",
-  lunas: "#3a2317",
+  belum: "var(--color-mist-gray)",
+  dp: "var(--chart-3)",
+  lunas: "var(--chart-1)",
 };
 
 type VendorForm = {
@@ -387,7 +387,7 @@ export function VendorPage() {
               >
                 <CartesianGrid
                   horizontal={false}
-                  stroke="rgba(58,35,23,0.12)"
+                  stroke="var(--color-fog)"
                 />
                 <XAxis
                   type="number"
@@ -408,13 +408,13 @@ export function VendorPage() {
                 />
                 <Tooltip
                   content={<ChartTip format={formatRupiahShort} />}
-                  cursor={{ fill: "rgba(58,35,23,0.06)" }}
+                  cursor={{ fill: "var(--color-mist-gray)" }}
                 />
                 <Bar
                   dataKey="terbayar"
                   name="Terbayar"
                   stackId="bayar"
-                  fill="#3a2317"
+                  fill="var(--chart-1)"
                   barSize={14}
                 >
                   {paymentBarData.map((row) => (
@@ -446,10 +446,10 @@ export function VendorPage() {
           </div>
           <div className="mt-1 flex items-center gap-3 text-[11px] font-semibold text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-[#3a2317]" /> Terbayar
+              <span className="size-2 rounded-full bg-chart-1" /> Terbayar
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-[#d8b45c]" /> Sisa
+              <span className="size-2 rounded-full bg-chart-3" /> Sisa
             </span>
           </div>
         </ChartCard>

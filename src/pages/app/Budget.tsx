@@ -694,7 +694,7 @@ export function BudgetPage() {
                 >
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="rgba(58,35,23,0.12)"
+                    stroke="var(--color-fog)"
                     vertical={false}
                   />
                   <XAxis
@@ -712,21 +712,21 @@ export function BudgetPage() {
                   />
                   <Tooltip
                     content={<ChartTip format={formatRupiahShort} />}
-                    cursor={{ fill: "rgba(58,35,23,0.06)" }}
+                    cursor={{ fill: "var(--color-mist-gray)" }}
                   />
                   <Bar
                     dataKey="baru"
                     name="Bulan itu"
-                    fill="#8fa756"
+                    fill="var(--chart-3)"
                     radius={[4, 4, 0, 0]}
                   />
                   <Line
                     type="monotone"
                     dataKey="kumulatif"
                     name="Kumulatif"
-                    stroke="#b4553a"
+                    stroke="var(--chart-2)"
                     strokeWidth={2.5}
-                    dot={{ r: 3, fill: "#b4553a" }}
+                    dot={{ r: 3, fill: "var(--chart-2)" }}
                   />
                 </ComposedChart>
               </ResponsiveContainer>
@@ -746,7 +746,7 @@ export function BudgetPage() {
               >
                 <CartesianGrid
                   horizontal={false}
-                  stroke="rgba(58,35,23,0.12)"
+                  stroke="var(--color-fog)"
                 />
                 <XAxis
                   type="number"
@@ -767,7 +767,7 @@ export function BudgetPage() {
                 <Bar
                   dataKey="alokasi"
                   name="Alokasi"
-                  fill="#e7dbc6"
+                  fill="var(--color-mist-gray)"
                   radius={[0, 4, 4, 0]}
                   barSize={9}
                 >
@@ -784,7 +784,7 @@ export function BudgetPage() {
                 <Bar
                   dataKey="terbayar"
                   name="Terbayar"
-                  fill="#3a2317"
+                  fill="var(--chart-1)"
                   radius={[0, 4, 4, 0]}
                   barSize={9}
                 >

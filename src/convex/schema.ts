@@ -82,6 +82,20 @@ const schema = defineSchema(
        * halaman Pengaturan. Absen = memakai daftar bawaan.
        */
       vendorCategories: v.optional(v.array(v.string())),
+      /**
+       * Palet warna ruang kerja: id preset dari `@/lib/palettes`, atau
+       * "custom" disertai nilai lima slot di `paletteCustom`.
+       */
+      paletteId: v.optional(v.string()),
+      paletteCustom: v.optional(
+        v.object({
+          primary: v.string(),
+          secondary: v.string(),
+          soft: v.string(),
+          nature: v.string(),
+          background: v.string(),
+        }),
+      ),
     })
       .index("by_user", ["userId"])
       .index("by_inviteCode", ["inviteCode"]),

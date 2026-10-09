@@ -278,6 +278,40 @@ export const updateSettings = mutation({
 });
 
 /**
+ * Simpan palet warna ruang kerja — preset (id saja) atau kustom
+ * (id "custom" + lima slot warna). Tidak ada input hex dari pengguna;
+ * slot kustom selalu berisi nilai dari library swatch `@/lib/palettes`.
+ */
+export const updatePalette = mutation({
+  args: {
+    paletteId: v.string(),
+    paletteCustom: v.optional(
+      v.object({
+        primary: v.string(),
+        secondary: v.string(),
+        soft: v.string(),
+        nature: v.string(),
+        background: v.string(),
+      }),
+    ),
+  },
+  handler: async (ctx, args) => {
+    const userId = await workspaceUserId(ctx);
+
+    const wedding = await ctx.db
+      .query("wedding")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+    if (!wedding) throw new Error("Workspace not found");
+
+    await ctx.db.patch(wedding._id, {
+      paletteId: args.paletteId,
+      paletteCustom: args.paletteCustom,
+    });
+  },
+});
+
+/**
  * Daftar jenis vendor efektif untuk dropdown (halaman Vendor) dan pengelolaan
  * di Pengaturan: daftar pengaturan (atau bawaan) plus jenis yang masih dipakai
  * vendor lama — supaya data free-text sebelumnya tetap tampil & bisa dikelola.

@@ -2,18 +2,18 @@ import { cn } from "@/lib/utils";
 import { useId, type ReactNode } from "react";
 
 /**
- * Palet grafik SatuJanji: inkwell navy → coral emphasis (sumber tunggal
- * untuk semua halaman — donut Budget, bar Tabungan, dst).
+ * Palet grafik SatuJanji — semua entri memakai CSS variable palet,
+ * jadi ikut berganti saat pengguna mengganti palet di Pengaturan.
  */
 export const CHART_COLORS = [
-  "#3a2317",
-  "#b4553a",
-  "#7a6247",
-  "#d8b45c",
-  "#8fa756",
-  "#ff8f8f",
-  "#3f4d6e",
-  "#d7f5ea",
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--color-stone)",
+  "var(--chart-3)",
+  "var(--color-leaf)",
+  "var(--color-petal)",
+  "var(--chart-4)",
+  "var(--color-sky-tint)",
 ];
 
 type TipRow = {
@@ -40,7 +40,7 @@ export function ChartTip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl border border-white/80 bg-white/85 px-3 py-2 text-xs shadow-[0_12px_28px_-10px_rgba(13,92,150,0.35)] backdrop-blur-md">
+    <div className="rounded-xl border border-white/80 bg-white/85 px-3 py-2 text-xs shadow-float backdrop-blur-md">
       {label !== undefined && label !== "" && (
         <p className="label text-muted-foreground">{label}</p>
       )}
@@ -126,8 +126,8 @@ export function RingGauge({
         <svg width={size} height={size} className="-rotate-90" aria-hidden>
           <defs>
             <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#3a2317" />
-              <stop offset="100%" stopColor="#b4553a" />
+              <stop offset="0%" stopColor="var(--chart-1)" />
+              <stop offset="100%" stopColor="var(--chart-2)" />
             </linearGradient>
           </defs>
           <circle

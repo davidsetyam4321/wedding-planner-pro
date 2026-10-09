@@ -70,38 +70,47 @@
    Type: literary serif at weight 300 (Cormorant Garamond as signifier
    substitute) for headlines ≥24px, Inter (switzer substitute) for UI. */
 @theme {
-  /* Colors — Cora */
-  --color-cerulean-sky: #117bc8;
-  --color-deep-cerulean: #0d5c96;
-  --color-atmosphere-blue: #60a8dd;
-  --color-midnight-navy: #09426c;
-  --color-berry-red: #cf372d;
-  --color-cloud-white: #ffffff;
-  --color-mist-gray: #ebebeb;
-  --color-fog: #dadada;
-  --color-stone: #a1a1a1;
-  --color-ink: #2b2b2b;
-  --color-obsidian: #1d1b20;
+  /* Colors — Burgundy Garden (palet default) — dihasilkan dari
+     paletteVars(@/lib/palettes); nilai runtime meng-override ini saat pengguna
+     mengganti palet di Pengaturan → seluruh utilitas ikut berubah. */
+  --color-cerulean-sky: #5e1a26;
+  --color-deep-cerulean: #521823;
+  --color-atmosphere-blue: #b24a55;
+  --color-midnight-navy: #481720;
+  --color-berry-red: #8c3c45;
+  --color-cloud-white: #fefdfb;
+  --color-mist-gray: #f2e7d5;
+  --color-fog: #e1d4c8;
+  --color-stone: #afa098;
+  --color-ink: #2f2628;
+  --color-obsidian: #251d1f;
 
   /* Legacy aliases kept for compiled class names across pages */
-  --color-paper-white: #ffffff;
-  --color-pure-ink: #2b2b2b;
-  --color-graphite: #7d7d7d;
-  --color-slate: #a1a1a1;
-  --color-fog-line: #dadada;
-  --color-sky-tint: #eaf3fb; /* atmosphere whisper — outlined-surface tier */
-  --color-berry-tint: #fdf2f1; /* berry red at whisper strength */
+  --color-paper-white: #fefdfb;
+  --color-pure-ink: #2f2628;
+  --color-graphite: #80756f;
+  --color-slate: #afa098;
+  --color-fog-line: #e1d4c8;
+  --color-sky-tint: #f4d4ca; /* aksen lembut — tier permukaan */
+  --color-berry-tint: #f4e6e7; /* aksen rose — tier whisper */
 
-  /* Legacy class names found across /app pages — remapped to Cora values
+  /* Legacy class names found across /app pages — remapped to palet values
      so every surface renders in the disciplined palette */
-  --color-teak-ink: #09426c;
-  --color-brick-accent: #cf372d;
-  --color-brass-gold: #60a8dd;
-  --color-janur-green: #60a8dd;
-  --color-ash-canvas: #ebebeb;
-  --color-warm-stone: #dadada;
-  --color-butter-yellow: #60a8dd;
-  --color-inkwell-navy: #09426c;
+  --color-teak-ink: #481720;
+  --color-brick-accent: #8c3c45;
+  --color-brass-gold: #b24a55;
+  --color-janur-green: #6b7a38;
+  --color-ash-canvas: #f2e7d5;
+  --color-warm-stone: #e1d4c8;
+  --color-butter-yellow: #b24a55;
+  --color-inkwell-navy: #481720;
+
+  /* Token nature — peran palet, ikut berganti saat palet diubah */
+  --color-leaf: #6b7a38;
+  --color-leaf-deep: #515a2c;
+  --color-petal: #f2c9ce;
+  --color-bloom: #b24a55;
+  --color-ivory: #f7e9c3;
 
   /* Typography — Cormorant Garamond 300 (signifier) + Inter (switzer) */
   --font-inter: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -143,11 +152,11 @@
   --radius-2xl: 12px;
   --radius-3xl: 20px;
 
-  /* Shadows — brand-blue cast (deep cerulean), never neutral gray */
-  --shadow-subtle: rgba(13, 92, 150, 0.12) 0px 1px 3px 0px, rgba(13, 92, 150, 0.08) 0px 1px 2px 0px;
-  --shadow-sm: rgba(13, 92, 150, 0.16) 0px 4px 8px -2px, rgba(13, 92, 150, 0.1) 0px 2px 4px -1px;
-  --shadow-sm-2: rgba(0, 0, 0, 0.1) 0px 4px 4px 0px;
-  --shadow-float: rgba(0, 0, 0, 0.25) 4px 6px 8px -2px, rgba(0, 0, 0, 0.2) -4px -1px 8px -2px;
+  /* Shadows — brand-cast dari warna utama palet, never neutral gray */
+  --shadow-subtle: rgba(94, 26, 38, 0.12) 0px 1px 3px 0px, rgba(94, 26, 38, 0.08) 0px 1px 2px 0px;
+  --shadow-sm: rgba(94, 26, 38, 0.16) 0px 4px 8px -2px, rgba(94, 26, 38, 0.1) 0px 2px 4px -1px;
+  --shadow-sm-2: rgba(94, 26, 38, 0.1) 0px 4px 4px 0px;
+  --shadow-float: rgba(94, 26, 38, 0.22) 4px 6px 8px -2px, rgba(94, 26, 38, 0.16) -4px -1px 8px -2px;
 }
 
 /* ── Semantic tokens (terhubung ke bridge di atas) ─────────────────────── */
@@ -156,62 +165,61 @@
   /* --radius tetap 0.5rem → lg=8px (input), xl=12px (kartu) */
   --radius: 0.5rem;
 
-  --background: #ffffff; /* cloud white — quiet content sections */
-  --foreground: #2b2b2b; /* ink */
-  --card: #ffffff;
-  --card-foreground: #2b2b2b;
-  --popover: #ffffff;
-  --popover-foreground: #2b2b2b;
-  --primary: #09426c; /* midnight navy — the filled action */
+  --background: #f7e9c3; /* ivory — latar halaman */
+  --foreground: #2f2628; /* ink hangat */
+  --card: #fdfbf3;
+  --card-foreground: #2f2628;
+  --popover: #fefdfb;
+  --popover-foreground: #2f2628;
+  --primary: #5e1a26; /* burgundy — aksi terisi */
   --primary-foreground: #ffffff;
-  --secondary: #ebebeb; /* mist gray */
-  --secondary-foreground: #2b2b2b;
-  --muted: #ebebeb;
-  --muted-foreground: #6a6a6a; /* graphite — diangkat ke gelap agar teks sekunder
-     kontras cukup (5.5:1 di atas putih) tanpa berhenti selaras dengan ink */
-  --accent: #eaf3fb; /* sky whisper tint */
-  --accent-foreground: #09426c;
-  --destructive: #cf372d; /* berry red */
+  --secondary: #f4d4ca; /* tint lembut */
+  --secondary-foreground: #2f2628;
+  --muted: #f2e7d5;
+  --muted-foreground: #80756f; /* netral hangat — kontras 4.6:1 di atas ivory */
+  --accent: #f4e6e7; /* rose whisper */
+  --accent-foreground: #703138;
+  --destructive: #8c3c45; /* dusty rose tua */
   --destructive-foreground: #ffffff;
-  --border: #dadada; /* fog hairline */
-  --input: #dadada;
-  --ring: #60a8dd; /* atmosphere blue */
-  --chart-1: #117bc8; /* cerulean */
-  --chart-2: #09426c; /* midnight navy */
-  --chart-3: #60a8dd; /* atmosphere */
-  --chart-4: #0d5c96; /* deep cerulean */
-  --chart-5: #cf372d; /* berry */
-  --sidebar: #ffffff;
-  --sidebar-foreground: #2b2b2b;
-  --sidebar-primary: #09426c;
+  --border: #e1d4c8; /* hangat hairline */
+  --input: #e1d4c8;
+  --ring: #b24a55; /* dusty rose */
+  --chart-1: #5e1a26; /* burgundy */
+  --chart-2: #b24a55; /* dusty rose */
+  --chart-3: #6b7a38; /* olive */
+  --chart-4: #521823; /* burgundy hover */
+  --chart-5: #8c3c45; /* rose tua */
+  --sidebar: #fefdfb;
+  --sidebar-foreground: #2f2628;
+  --sidebar-primary: #5e1a26;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #eaf3fb;
-  --sidebar-accent-foreground: #09426c;
-  --sidebar-border: #dadada;
-  --sidebar-ring: #60a8dd;
+  --sidebar-accent: #f4d4ca;
+  --sidebar-accent-foreground: #703138;
+  --sidebar-border: #e1d4c8;
+  --sidebar-ring: #b24a55;
 
-  /* Cora tiers — neutral surface ladder, no per-feature chroma */
-  --tint-mint: #ebebeb;
-  --tint-mint-foreground: #2b2b2b;
-  --tint-lavender: #eaf3fb;
-  --tint-lavender-foreground: #09426c;
-  --tint-peach: #ebebeb;
-  --tint-peach-foreground: #2b2b2b;
-  --tint-rose: #fdf2f1;
-  --tint-rose-foreground: #cf372d;
-  --tint-sky: #eaf3fb;
-  --tint-sky-foreground: #09426c;
-  --tint-butter: #ebebeb;
-  --tint-butter-foreground: #2b2b2b;
-  --tint-sage: #ebebeb;
-  --tint-sage-foreground: #2b2b2b;
+  /* Tier tint — colourful, mengikuti peran palet */
+  --tint-mint: #eaece3;
+  --tint-mint-foreground: #515a2c;
+  --tint-lavender: #f4d4ca;
+  --tint-lavender-foreground: #703138;
+  --tint-peach: #f9e7e9;
+  --tint-peach-foreground: #703138;
+  --tint-rose: #f4e6e7;
+  --tint-rose-foreground: #703138;
+  --tint-sky: #f4d4ca;
+  --tint-sky-foreground: #703138;
+  --tint-butter: #f9e7e9;
+  --tint-butter-foreground: #833841;
+  --tint-sage: #eaece3;
+  --tint-sage-foreground: #515a2c;
 
-  /* aksen Emas lama dipetakan ke berry red (dipakai hemat) */
-  --gold: #cf372d;
+  /* aksen Emas lama dipetakan ke keluarga sekunder (dipakai hemat) */
+  --gold: #8c3c45;
 
-  --shadow-soft: rgba(13, 92, 150, 0.12) 0px 1px 3px 0px, rgba(13, 92, 150, 0.08) 0px 1px 2px 0px;
-  --shadow-lift: rgba(13, 92, 150, 0.16) 0px 4px 8px -2px, rgba(13, 92, 150, 0.1) 0px 2px 4px -1px;
-  --shadow-float: rgba(0, 0, 0, 0.25) 4px 6px 8px -2px, rgba(0, 0, 0, 0.2) -4px -1px 8px -2px;
+  --shadow-soft: rgba(94, 26, 38, 0.12) 0px 1px 3px 0px, rgba(94, 26, 38, 0.08) 0px 1px 2px 0px;
+  --shadow-lift: rgba(94, 26, 38, 0.16) 0px 4px 8px -2px, rgba(94, 26, 38, 0.1) 0px 2px 4px -1px;
+  --shadow-float: rgba(94, 26, 38, 0.22) 4px 6px 8px -2px, rgba(94, 26, 38, 0.16) -4px -1px 8px -2px;
 }
 
 .dark {
