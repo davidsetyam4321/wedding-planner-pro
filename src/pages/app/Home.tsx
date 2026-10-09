@@ -379,7 +379,7 @@ export function HomePage() {
             )}
           </div>
 
-          <div className="relative z-10 mt-4 flex items-start gap-3 rounded-2xl bg-white/12 p-3 backdrop-blur-sm">
+          <div className="relative z-10 flex items-start gap-3 rounded-2xl border border-white/20 bg-white/12 p-3 backdrop-blur-sm">
             <p className="elegant flex flex-1 items-start gap-2 text-[15px] leading-snug text-white/90">
               <Quote className="mt-0.5 size-4 shrink-0 text-atmosphere-blue" />
               “Dua hati, satu janji — dipersiapkan dengan tenang, dijalani
@@ -482,29 +482,30 @@ export function HomePage() {
         )}
       </section>
 
-      {/* ── Aksi cepat ────────────────────────────────────────────────── */}
+      {/* ── Aksi cepat — grid 2×2, selalu terlihat tanpa scroll ────── */}
       <section>
         <SectionHeader title="Aksi cepat" />
-        <Stagger className="-mx-4 flex items-center gap-2.5 overflow-x-auto px-4 pb-1">
+        <Stagger className="grid grid-cols-2 gap-2.5">
           {[
             { to: "/app/budget", label: "Catat Biaya", icon: Wallet, surface: "bg-sky-tint text-midnight-navy" },
-            { to: "/app/tamu", label: "Tambah Tamu", icon: UserPlus, surface: "bg-sky-tint text-midnight-navy" },
-            { to: "/app/rundown", label: "Rundown Acara", icon: CalendarPlus, surface: "bg-mist-gray text-ink" },
+            { to: "/app/tamu", label: "Tambah Tamu", icon: UserPlus, surface: "bg-sky-tint/70 text-midnight-navy" },
+            { to: "/app/rundown", label: "Rundown Acara", icon: CalendarPlus, surface: "bg-sky-tint text-midnight-navy" },
             { to: "/app/moodboard", label: "Moodboard", icon: Palette, surface: "bg-berry-tint text-berry-red" },
           ].map((action) => (
-            <StaggerItem key={action.to} className="shrink-0">
+            <StaggerItem key={action.to}>
               <Link
                 to={action.to}
-                className="clay clay-press flex items-center gap-2 rounded-full py-2.5 pl-2.5 pr-4"
+                className="clay clay-press group flex items-center gap-2.5 rounded-2xl p-3"
               >
                 <span
-                  className={`flex size-8 shrink-0 items-center justify-center rounded-full ${action.surface}`}
+                  className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${action.surface} transition-transform duration-200 group-hover:scale-110`}
                 >
-                  <action.icon className="size-4" />
+                  <action.icon className="size-5" />
                 </span>
-                <span className="whitespace-nowrap text-[13px] font-bold">
+                <span className="min-w-0 flex-1 text-[13px] font-bold leading-tight">
                   {action.label}
                 </span>
+                <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-primary" />
               </Link>
             </StaggerItem>
           ))}

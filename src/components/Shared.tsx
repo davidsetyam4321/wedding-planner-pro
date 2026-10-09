@@ -14,7 +14,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SekarSudut } from "@/components/Decor";
 import { FlowerMark } from "@/components/Decor";
 import FadeContent from "@/components/FadeContent";
 import { Button } from "@/components/ui/button";
@@ -22,6 +21,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import { ChevronLeft, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+
+// Bintang doodle kecil; inline agar tidak menarik dependensi Doodles.tsx
+// yang tidak dipakai di mana pun lagi.
+function DoodleStar({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M12 2 C 13 8, 16 11, 22 12 C 16 13, 13 16, 12 22 C 11 16, 8 13, 2 12 C 8 11, 11 8, 12 2 Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
 import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router";
 
@@ -185,10 +197,10 @@ export function EmptyState({
       }`}
     >
       <div className="relative">
-        <div className="sky-tint clay-sm flex size-14 items-center justify-center rounded-full text-2xl">
+        <div className="sky-tint clay-sm flex size-14 items-center justify-center rounded-full text-2xl shadow-[0_6px_16px_-6px_rgba(13,92,150,0.35)]">
           {emoji}
         </div>
-        <SekarSudut className="absolute -right-2 -top-2 size-5" />
+        <FlowerMark className="absolute -right-2 -top-2 size-5 text-berry-red" />
       </div>
       <p className="relative text-sm font-semibold">{title}</p>
       {description && (

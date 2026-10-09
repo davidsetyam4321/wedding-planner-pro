@@ -1,3 +1,4 @@
+import { PageMascot } from "@/components/PageMascot";
 import { BottomNav } from "@/components/BottomNav";
 import { SideNav } from "@/components/SideNav";
 import { OnboardingDialog } from "@/components/Onboarding";
@@ -29,7 +30,7 @@ import FadeContent from "@/components/FadeContent";
 import { api } from "@/convex/_generated/api";
 import { FEATURES } from "@/lib/features";
 import type { Id } from "@/convex/_generated/dataModel";
-import { countdownLabel, formatDateID, formatRupiahShort } from "@/lib/format";
+import { countdownLabel, countdownParts, formatDateID, formatRupiahShort } from "@/lib/format";
 import {
   readStoredAnonymousUser,
   trackAnonymousUser,
@@ -358,6 +359,16 @@ export function AppShell() {
       <PetalsFront />
 
       <BloomOverlay />
+      <PageMascot
+        pathname={pathname}
+        daysLabel={
+          wedding
+            ? wedding.onboarded
+              ? countdownLabel(wedding.weddingDate)
+              : undefined
+            : undefined
+        }
+      />
       <header className="sticky top-0 z-30 w-full bg-white/70 pb-2.5 pt-4 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3 px-4 lg:max-w-3xl lg:px-10">
           <Link to="/app" className="flex min-w-0 items-center gap-2.5">
