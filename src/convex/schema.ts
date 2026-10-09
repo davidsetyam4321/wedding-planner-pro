@@ -77,6 +77,11 @@ const schema = defineSchema(
       inviteCode: v.optional(v.string()),
       /** Onboarding awal (nama/tanggal/target) sudah diselesaikan. */
       onboarded: v.optional(v.boolean()),
+      /**
+       * Jenis (kategori) vendor yang tersedia di dropdown — dikelola dari
+       * halaman Pengaturan. Absen = memakai daftar bawaan.
+       */
+      vendorCategories: v.optional(v.array(v.string())),
     })
       .index("by_user", ["userId"])
       .index("by_inviteCode", ["inviteCode"]),

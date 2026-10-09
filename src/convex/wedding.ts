@@ -35,6 +35,21 @@ const DEFAULT_BUDGET_CATEGORIES = [
 
 const DEFAULT_MOODBOARD_CATEGORIES = ["Dekorasi", "Baju", "Makeup"];
 
+/** Jenis (kategori) vendor bawaan — dikelola pengguna dari halaman Pengaturan. */
+export const DEFAULT_VENDOR_CATEGORIES = [
+  "Katering",
+  "Venue",
+  "Dekorasi & Florist",
+  "Dokumentasi",
+  "MUA & Rias",
+  "Gown & Busana",
+  "Undangan & Cetak",
+  "Souvenir & Hampers",
+  "MC & Hiburan",
+  "Transportasi",
+  "Lainnya",
+];
+
 /**
  * Mood board categories are free text, so besides the three defaults we adopt
  * any category name that older boxes already use.
@@ -259,6 +274,110 @@ export const updateSettings = mutation({
       // Form pertama kali diisi = onboarding selesai.
       onboarded: true,
     });
+  },
+});
+
+/**
+ * Daftar jenis vendor efektif untuk dropdown (halaman Vendor) dan pengelolaan
+ * di Pengaturan: daftar pengaturan (atau bawaan) plus jenis yang masih dipakai
+ * vendor lama — supaya data free-text sebelumnya tetap tampil & bisa dikelola.
+ */
+export const getVendorCategories = query({
+  args: {},
+  handler: async (ctx): Promise<string[]> => {
+    const authId = await getAuthUserId(ctx);
+    if (authId === null) return [];
+    const userId = await workspaceUserId(ctx);
+
+    const wedding = await ctx.db
+      .query("wedding")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+    const base = wedding?.vendorCategories ?? DEFAULT_VENDOR_CATEGORIES;
+    const merged = [...base];
+    const seen = new Set(base.map((name) => name.toLowerCase()));
+
+    const vendors = await ctx.db
+      .query("vendor")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+    for (const vendor of vendors) {
+      const name = vendor.category.trim();
+      const key = name.toLowerCase();
+      if (!name || seen.has(key)) continue;
+      seen.add(key);
+      merged.push(name);
+    }
+    return merged;
+  },
+});
+
+/** Menambah jenis vendor baru (dari halaman Pengaturan). */
+export const addVendorCategory = mutation({
+  args: { name: v.string() },
+  handler: async (ctx, { name }) => {
+    const userId = await workspaceUserId(ctx);
+    const wedding = await ctx.db
+      .query("wedding")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+    if (!wedding) throw new Error("Workspace not found");
+
+    const cleaned = name.trim();
+    if (!cleaned) throw new Error("Nama jenis vendor tidak boleh kosong");
+    if (cleaned.length > 40) {
+      throw new Error("Nama jenis vendor terlalu panjang (maks. 40 karakter)");
+    }
+
+    const current = wedding.vendorCategories ?? DEFAULT_VENDOR_CATEGORIES;
+    if (current.some((item) => item.toLowerCase() === cleaned.toLowerCase())) {
+      throw new Error("Jenis vendor sudah ada di daftar");
+    }
+    await ctx.db.patch(wedding._id, { vendorCategories: [...current, cleaned] });
+  },
+});
+
+/**
+ * Menghapus jenis vendor dari daftar. Ditolak bila masih dipakai vendor
+ * (ubah jenis vendor itu dulu) atau bila daftar akan jadi kosong.
+ */
+export const removeVendorCategory = mutation({
+  args: { name: v.string() },
+  handler: async (ctx, { name }) => {
+    const userId = await workspaceUserId(ctx);
+    const wedding = await ctx.db
+      .query("wedding")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+    if (!wedding) throw new Error("Workspace not found");
+
+    const target = name.trim().toLowerCase();
+    if (!target) throw new Error("Jenis vendor tidak ditemukan");
+
+    // Cek pemakaian dulu supaya jenis yang hanya muncul dari data lama
+    // (bukan dari daftar pengaturan) tetap memberi pesan yang tepat.
+    const vendors = await ctx.db
+      .query("vendor")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+    const inUse = vendors.filter(
+      (vendor) => vendor.category.trim().toLowerCase() === target,
+    ).length;
+    if (inUse > 0) {
+      throw new Error(
+        `Masih dipakai ${inUse} vendor — ubah jenis vendor mereka dulu.`,
+      );
+    }
+
+    const current = wedding.vendorCategories ?? DEFAULT_VENDOR_CATEGORIES;
+    const next = current.filter((item) => item.toLowerCase() !== target);
+    if (next.length === current.length) {
+      throw new Error("Jenis vendor tidak ditemukan");
+    }
+    if (next.length === 0) {
+      throw new Error("Minimal satu jenis vendor harus tersisa");
+    }
+    await ctx.db.patch(wedding._id, { vendorCategories: next });
   },
 });
 

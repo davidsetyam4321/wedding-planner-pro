@@ -22,7 +22,7 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
-import { formatRupiah, formatRupiahShort } from "@/lib/format";
+import { formatDateShortID, formatRupiah, formatRupiahShort } from "@/lib/format";
 import { downloadCsv } from "@/lib/exportCsv";
 import { printDocument } from "@/lib/printDoc";
 import { undoableDelete } from "@/lib/undo";
@@ -102,45 +102,62 @@ export function BudgetPage() {
   const totalPaid = expenses
     .filter((expense) => expense.paidAt)
     .reduce((sum, expense) => sum + expense.amount, 0);
+  // Persen asli (boleh >100% supaya besarnya kelebihan terbaca); batang tetap
+  // dibatasi 100%. Alokasi 0 dengan pengeluaran dianggap penuh/lewat.
   const spentPct =
-    totalAllocated > 0 ? Math.min(100, Math.round((totalSpent / totalAllocated) * 100)) : 0;
+    totalAllocated > 0
+      ? Math.round((totalSpent / totalAllocated) * 100)
+      : totalSpent > 0
+        ? 100
+        : 0;
   const isOver = totalSpent > totalAllocated;
 
   const savingsTotal = budget?.savingsTotal ?? 0;
-  const fundTarget = budget?.fundTarget ?? 0;
-  const tabunganMencapaiTarget = savingsTotal >= fundTarget;
-  const sisaTabunganUntukAnggaran = Math.max(0, fundTarget - totalSpent - savingsTotal);
-  /** Sisa anggaran = Tabungan − Terpakai (bisa negatif = kurang). */
+  /**
+   * Sisa dana = Tabungan − Terpakai (bisa negatif = kurang). Total tabungan adalah
+   * dana yang akan dialokasikan, jadi target dana tidak dikaitkan ke halaman ini —
+   * angka target tinggal urusan halaman Tabungan.
+   */
   const sisaDana = savingsTotal - totalSpent;
 
-  // Donut komposisi pengeluaran — mengikuti pengeluaran tiap kategori
-  // (bukan alokasi mandiri); pembayaran vendor masuk irisan "Vendor".
-  // Maks. 6 irisan + "Lainnya".
+  // Pengeluaran vendor (turunan dari halaman Vendor) dihitung sekali dan tampil
+  // sebagai kelompok terpisah — tidak menempel di tiap kategori.
+  const vendorExpenses = expenses.filter(
+    (expense): expense is Extract<typeof expense, { source: "vendor" }> =>
+      expense.source === "vendor",
+  );
+  const vendorTotal = vendorExpenses.reduce(
+    (sum, expense) => sum + expense.amount,
+    0,
+  );
+
+  // Donut komposisi pengeluaran — pengeluaran per kategori + irisan "Vendor"
+  // tersendiri. `categoryId` ikut dibawa supaya klik-filter tidak mengandalkan
+  // nama (aman untuk kategori kembar). Maks. 6 irisan + "Lainnya".
+  type DonutRow = { name: string; value: number; categoryId?: string };
   const spentByCategory = new Map<string, number>();
-  let spentVendor = 0;
   for (const expense of expenses) {
-    if (expense.source === "vendor") {
-      spentVendor += expense.amount;
-    } else {
+    if (expense.source === "manual") {
       spentByCategory.set(
         expense.categoryId,
         (spentByCategory.get(expense.categoryId) ?? 0) + expense.amount,
       );
     }
   }
-  const donutRaw = categories
+  const donutRaw: DonutRow[] = categories
     .map((category) => ({
       name: category.name,
       value: spentByCategory.get(category._id) ?? 0,
+      categoryId: category._id as string,
     }))
     .filter((row) => row.value > 0);
-  if (spentVendor > 0) {
-    donutRaw.push({ name: "Vendor", value: spentVendor });
+  if (vendorTotal > 0) {
+    donutRaw.push({ name: "Vendor", value: vendorTotal });
   }
   donutRaw.sort((a, b) => b.value - a.value);
   const donutTop = donutRaw.slice(0, 6);
   const donutRest = donutRaw.slice(6).reduce((sum, row) => sum + row.value, 0);
-  const donutData =
+  const donutData: DonutRow[] =
     donutRest > 0 ? [...donutTop, { name: "Lainnya", value: donutRest }] : donutTop;
   const donutLegend = donutData.map((row, index) => ({
     ...row,
@@ -163,23 +180,41 @@ export function BudgetPage() {
     const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
     byMonth.set(key, (byMonth.get(key) ?? 0) + expense.amount);
   }
+  // Sumbu diisi kontinu dari bulan pertama → bulan terakhir (bulan kosong = 0)
+  // supaya jarak grafik tidak melompat-lompat.
   const sortedMonthKeys = [...byMonth.keys()].sort();
-  const trendData = sortedMonthKeys.map((key, index) => {
-    const baru = byMonth.get(key) ?? 0;
-    const kumulatif = sortedMonthKeys
-      .slice(0, index + 1)
-      .reduce((sum, monthKey) => sum + (byMonth.get(monthKey) ?? 0), 0);
-    const monthIndex = Number(key.slice(5)) - 1;
-    return {
-      month: MONTH_LABELS[monthIndex] ?? key,
-      baru,
-      kumulatif,
-    };
-  });
+  const trendData: { month: string; baru: number; kumulatif: number }[] = [];
+  if (sortedMonthKeys.length > 0) {
+    const [startYear, startMonth] = sortedMonthKeys[0].split("-").map(Number);
+    const lastKey = sortedMonthKeys[sortedMonthKeys.length - 1];
+    const [endYear, endMonth] = lastKey.split("-").map(Number);
+    const monthKeys: string[] = [];
+    let year = startYear;
+    let month = startMonth;
+    while (year < endYear || (year === endYear && month <= endMonth)) {
+      monthKeys.push(`${year}-${String(month).padStart(2, "0")}`);
+      month += 1;
+      if (month > 12) {
+        month = 1;
+        year += 1;
+      }
+    }
+    let kumulatif = 0;
+    for (const key of monthKeys) {
+      const baru = byMonth.get(key) ?? 0;
+      kumulatif += baru;
+      trendData.push({
+        month: MONTH_LABELS[Number(key.slice(5)) - 1] ?? key,
+        baru,
+        kumulatif,
+      });
+    }
+  }
 
   // Batang per kategori: alokasi vs terbayar (klik → filter daftar).
-  // Terbayar dihitung dari pengeluaran manual berdasarkan kategori, ditambah
-  // baris vendor yang sudah pembayarannya selesai.
+  // Terbayar = pengeluaran manual kategori itu saja; pembayaran vendor tidak
+  // lagi dijumlahkan ke setiap kategori (dulu terhitung berkali-kali), melainkan
+  // tampil sebagai batang "Vendor" tersendiri tanpa alokasi.
   const categoryBarData = categories.map((category) => {
     const terbayarManual = expenses
       .filter(
@@ -190,30 +225,60 @@ export function BudgetPage() {
       )
       .reduce((sum, expense) => sum + expense.amount, 0);
 
-    const terbayarVendor = expenses
-      .filter(
-        (expense): expense is Extract<typeof expense, { source: "vendor" }> =>
-          expense.source === "vendor",
-      )
-      .reduce((sum, expense) => sum + expense.amount, 0);
-
     return {
       id: category._id as string,
       name: category.name,
       alokasi: Math.max(0, category.allocated),
-      terbayar: terbayarManual + terbayarVendor,
+      terbayar: terbayarManual,
     };
   });
+  if (vendorTotal > 0) {
+    categoryBarData.push({
+      id: "vendor",
+      name: "Vendor",
+      alokasi: 0,
+      terbayar: vendorTotal,
+    });
+  }
 
   const filterCategory =
     categories.find((category) => category._id === filterCategoryId) ?? null;
 
-  // Daftar yang tampil saat filter aktif hanya kategori yang diseleksi.
-  // Pengeluaran vendor tetap ikut tampil di bawah kategori yang difilter,
-  // karena vendor tidak punya pemilik kategori.
+  // Saat filter kategori aktif hanya kategori itu yang tampil; kelompok vendor
+  // disembunyikan karena pembayaran vendor tidak punya pemilik kategori.
   const visibleCategories = filterCategory
     ? categories.filter((category) => category._id === filterCategory._id)
     : categories;
+
+  /** Apakah kartu kategori ini tetap tampil saat pencarian aktif. */
+  const categoryShows = (category: (typeof categories)[number]) => {
+    if (term === "" || matchesQuery(category.name)) return true;
+    return expenses.some(
+      (expense) =>
+        expense.source === "manual" &&
+        expense.categoryId === category._id &&
+        matchesQuery(expense.label),
+    );
+  };
+
+  // Kelompok vendor: ikut pencarian (nama grup atau nama vendor), tidak ikut
+  // filter kategori, dan hanya bila ada pembayaran vendor.
+  const vendorVisible =
+    !filterCategory &&
+    vendorExpenses.length > 0 &&
+    (term === "" ||
+      matchesQuery("vendor") ||
+      vendorExpenses.some((expense) => matchesQuery(expense.label)));
+  const shownVendorExpenses =
+    term === "" || matchesQuery("vendor")
+      ? vendorExpenses
+      : vendorExpenses.filter((expense) => matchesQuery(expense.label));
+
+  /** Toggle filter kategori dari donut/batang grafik (baris Vendor diabaikan). */
+  const toggleFilter = (id: string) => {
+    if (id === "vendor") return;
+    setFilterCategoryId((previous) => (previous === id ? null : id));
+  };
 
   const openNewExpense = () => {
     setExpenseForm({
@@ -242,8 +307,16 @@ export function BudgetPage() {
 
   const submitExpense = async () => {
     const value = Number(expenseForm.amount);
-    if (!expenseForm.label.trim() || !value) {
-      toast.error("Isi keterangan dan nominal dulu, ya.");
+    if (!expenseForm.label.trim()) {
+      toast.error("Isi keterangan pengeluaran dulu, ya.");
+      return;
+    }
+    if (!Number.isFinite(value) || value <= 0) {
+      toast.error("Nominal harus lebih dari 0.");
+      return;
+    }
+    if (!expenseForm.categoryId && !newCategoryName.trim()) {
+      toast.error("Pilih kategori atau isi nama kategori baru.");
       return;
     }
     setBusy(true);
@@ -279,20 +352,35 @@ export function BudgetPage() {
 
   const submitCategory = async () => {
     if (!categoryDialog) return;
+
+    const name = categoryDialog.name.trim();
+    if (!name) {
+      toast.error("Nama kategori wajib diisi.");
+      return;
+    }
+    const allocated = Number(categoryDialog.allocated) || 0;
+    if (allocated < 0) {
+      toast.error("Alokasi tidak boleh negatif.");
+      return;
+    }
+    const duplicate = categories.some(
+      (category) =>
+        category._id !== categoryDialog.id &&
+        category.name.toLowerCase() === name.toLowerCase(),
+    );
+    if (duplicate) {
+      toast.error("Nama kategori sudah dipakai.");
+      return;
+    }
+
     setBusy(true);
     try {
       if (categoryDialog.id) {
-        await renameCategory({ categoryId: categoryDialog.id, name: categoryDialog.name });
-        await setCategoryAllocation({
-          categoryId: categoryDialog.id,
-          allocated: Number(categoryDialog.allocated) || 0,
-        });
+        await renameCategory({ categoryId: categoryDialog.id, name });
+        await setCategoryAllocation({ categoryId: categoryDialog.id, allocated });
         toast.success("Kategori diperbarui.");
       } else {
-        await createCategory({
-          name: categoryDialog.name,
-          allocated: Number(categoryDialog.allocated) || 0,
-        });
+        await createCategory({ name, allocated });
         bloom();
         toast.success("Kategori ditambahkan.");
       }
@@ -304,30 +392,35 @@ export function BudgetPage() {
     }
   };
 
-  /** Ekspor ikhtisar anggaran sebagai CSV (satu baris per kategori). */
+  /**
+   * Ekspor ikhtisar anggaran sebagai CSV: satu baris per kategori (pengeluaran
+   * manualnya saja), baris Vendor tersendiri, lalu baris TOTAL. Kolom Sisa tidak
+   * dipatok nol — kelebihan anggaran harus tetap terbaca.
+   */
   const exportCsv = () => {
-    const rows = categories.map((category) => {
+    const rows: (string | number)[][] = categories.map((category) => {
       const spent = expenses
         .filter(
           (expense) =>
             expense.source === "manual" && expense.categoryId === category._id,
         )
         .reduce((sum, expense) => sum + expense.amount, 0);
-      // Baris vendor hanya dibebankan ke kategori pertama agar tidak dobel.
-      const vendorSpent =
-        category === categories[0]
-          ? expenses
-              .filter((expense) => expense.source === "vendor")
-              .reduce((sum, expense) => sum + expense.amount, 0)
-          : 0;
-      const total = spent + vendorSpent;
       return [
         category.name,
         category.allocated,
-        total,
-        Math.max(0, category.allocated - total),
+        spent,
+        category.allocated - spent,
       ];
     });
+    if (vendorExpenses.length > 0) {
+      rows.push(["Vendor (sinkron)", "", vendorTotal, ""]);
+    }
+    rows.push([
+      "TOTAL",
+      totalAllocated,
+      totalSpent,
+      totalAllocated - totalSpent,
+    ]);
     downloadCsv("budget-satujanji", ["Kategori", "Alokasi", "Terpakai", "Sisa"], rows);
     toast.success("CSV anggaran diunduh.");
   };
@@ -341,29 +434,43 @@ export function BudgetPage() {
         {
           title: "Per kategori",
           headers: ["Kategori", "Alokasi", "Terpakai", "Sisa"],
-          rows: categories.map((category) => {
-            const spent = expenses
-              .filter(
-                (expense) =>
-                  expense.source === "manual" &&
-                  expense.categoryId === category._id,
-              )
-              .reduce((sum, expense) => sum + expense.amount, 0);
-            const vendorSpent =
-              category === categories[0]
-                ? expenses
-                    .filter((expense) => expense.source === "vendor")
-                    .reduce((sum, expense) => sum + expense.amount, 0)
-                : 0;
-            const total = spent + vendorSpent;
-            return [
-              category.name,
-              formatRupiah(category.allocated),
-              formatRupiah(total),
-              formatRupiah(Math.max(0, category.allocated - total)),
-            ];
-          }),
+          rows: [
+            ...categories.map((category) => {
+              const spent = expenses
+                .filter(
+                  (expense) =>
+                    expense.source === "manual" &&
+                    expense.categoryId === category._id,
+                )
+                .reduce((sum, expense) => sum + expense.amount, 0);
+              return [
+                category.name,
+                formatRupiah(category.allocated),
+                formatRupiah(spent),
+                formatRupiah(category.allocated - spent),
+              ];
+            }),
+            [
+              "TOTAL",
+              formatRupiah(totalAllocated),
+              formatRupiah(totalSpent),
+              formatRupiah(totalAllocated - totalSpent),
+            ],
+          ],
         },
+        ...(vendorExpenses.length > 0
+          ? [
+              {
+                title: "Pembayaran vendor (sinkron dari halaman Vendor)",
+                headers: ["Keterangan", "Nominal", "Status"],
+                rows: vendorExpenses.map((expense) => [
+                  expense.label,
+                  formatRupiah(expense.amount),
+                  "Lunas",
+                ]),
+              },
+            ]
+          : []),
         {
           title: "Rincian pengeluaran",
           headers: ["Keterangan", "Nominal", "Sumber", "Status"],
@@ -375,10 +482,10 @@ export function BudgetPage() {
           ]),
         },
         {
-          title: "Tabungan & target",
+          title: "Tabungan",
           lines: [
             `Tabungan terkumpul: ${formatRupiah(savingsTotal)}`,
-            `Target dana: ${formatRupiah(fundTarget)}`,
+            `Sisa dana (tabungan − terpakai): ${formatRupiah(sisaDana)}`,
           ],
         },
       ],
@@ -402,12 +509,19 @@ export function BudgetPage() {
             <Wallet className="size-5" />
           </div>
         </div>
-        <div className="mt-4 h-3 overflow-hidden rounded-full bg-mist-gray">
+        <div
+          className="mt-4 h-3 overflow-hidden rounded-full bg-mist-gray"
+          role="progressbar"
+          aria-label="Progres pengeluaran terhadap alokasi"
+          aria-valuenow={Math.min(100, spentPct)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
           <div
             className={`h-full rounded-full transition-all duration-700 ${
               isOver ? "bg-destructive" : "fill-botanical"
             }`}
-            style={{ width: `${spentPct}%` }}
+            style={{ width: `${Math.min(100, spentPct)}%` }}
           />
         </div>
         <div className="relative mt-2 flex items-center gap-1.5">
@@ -428,7 +542,7 @@ export function BudgetPage() {
             <dd>{formatRupiahShort(totalPaid)}</dd>
           </div>
           <div className="stat-tile bg-secondary">
-            <dt>Sisa anggaran</dt>
+            <dt>Sisa dana</dt>
             <dd className={sisaDana < 0 ? "text-destructive" : undefined}>
               {sisaDana < 0
                 ? `−${formatRupiahShort(-sisaDana)}`
@@ -436,29 +550,11 @@ export function BudgetPage() {
             </dd>
           </div>
         </dl>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <div className={`clay-sm rounded-xl p-3 ${tabunganMencapaiTarget ? "bg-sky-tint" : "bg-mist-gray"}`}>
-            <p className="meta">Tabungan tercatat</p>
-            <p className="num font-extrabold">{formatRupiahShort(savingsTotal)}</p>
-          </div>
-          <div className={`clay-sm rounded-xl p-3 ${tabunganMencapaiTarget ? "bg-sky-tint" : "bg-mist-gray"}`}>
-            <p className="meta">Target wedding</p>
-            <p className="num font-extrabold">{formatRupiahShort(fundTarget)}</p>
-          </div>
+        <div className="mt-3 clay-sm rounded-xl p-3 bg-sky-tint">
+          <p className="meta">Tabungan tercatat</p>
+          <p className="num font-extrabold">{formatRupiahShort(savingsTotal)}</p>
+          <p className="meta mt-0.5">Sisa dana = tabungan − terpakai</p>
         </div>
-        {fundTarget > 0 && (
-          <div className="mt-2 flex items-center gap-2 text-xs">
-            {tabunganMencapaiTarget ? (
-              <span className="chip bg-tint-mint text-tint-mint-foreground">
-                Tabungan sudah cukup untuk anggaran
-              </span>
-            ) : (
-              <span className="chip bg-tint-sky text-tint-sky-foreground">
-                Masih perlu {formatRupiahShort(sisaTabunganUntukAnggaran)} dari anggaran
-              </span>
-            )}
-          </div>
-        )}
       </section>
 
       {/* Grafik: Ikhtisar (donut) | Tren (kumulatif + alokasi vs terbayar) */}
@@ -481,12 +577,12 @@ export function BudgetPage() {
         ))}
       </div>
 
-      {/* Donut komposisi alokasi — klik irisan untuk filter daftar */}
+      {/* Donut komposisi pengeluaran — klik irisan/legenda untuk filter daftar */}
       {chartTab === "ikhtisar" && donutData.length > 0 && (
         <section className="clay p-4">
           <div className="mb-2 flex items-center justify-between">
             <h2 className="h-card">Komposisi pengeluaran</h2>
-            <span className="meta">{donutRaw.length} irisan</span>
+            <span className="meta">{donutData.length} irisan</span>
           </div>
           <div className="flex items-center gap-4">
             <div className="relative size-32 shrink-0">
@@ -503,23 +599,14 @@ export function BudgetPage() {
                     strokeWidth={0}
                   >
                     {donutData.map((entry, index) => {
-                      const category = categories.find(
-                        (item) => item.name === entry.name,
-                      );
+                      const categoryId = entry.categoryId;
                       return (
                         <Cell
-                          key={entry.name}
+                          key={`${entry.name}-${index}`}
                           fill={DONUT_COLORS[index % DONUT_COLORS.length]}
-                          className="cursor-pointer"
+                          className={categoryId ? "cursor-pointer" : undefined}
                           onClick={
-                            category
-                              ? () =>
-                                  setFilterCategoryId((previous) =>
-                                    previous === category._id
-                                      ? null
-                                      : category._id,
-                                  )
-                              : undefined
+                            categoryId ? () => toggleFilter(categoryId) : undefined
                           }
                         />
                       );
@@ -536,21 +623,54 @@ export function BudgetPage() {
                 </span>
               </div>
             </div>
-            <ul className="min-w-0 flex-1 space-y-1.5">
-              {donutLegend.map((row) => (
-                <li key={row.name} className="flex items-center gap-2 text-xs">
+            <ul className="min-w-0 flex-1 space-y-1">
+              {donutLegend.map((row, index) => {
+                const categoryId = row.categoryId;
+                const active = categoryId
+                  ? filterCategoryId === categoryId
+                  : false;
+                const dot = (
                   <span
                     className="size-2.5 shrink-0 rounded-full"
                     style={{ backgroundColor: row.color }}
                   />
-                  <span className="min-w-0 flex-1 truncate font-semibold">
-                    {row.name}
-                  </span>
-                  <span className="num shrink-0 font-bold text-muted-foreground">
-                    {formatRupiahShort(row.value)}
-                  </span>
-                </li>
-              ))}
+                );
+                const text = (
+                  <>
+                    <span className="min-w-0 flex-1 truncate font-semibold">
+                      {row.name}
+                    </span>
+                    <span className="num shrink-0 font-bold text-muted-foreground">
+                      {formatRupiahShort(row.value)}
+                    </span>
+                  </>
+                );
+                return (
+                  <li key={`${row.name}-${index}`}>
+                    {categoryId ? (
+                      /* Legenda jadi tombol supaya filter bisa diakses keyboard. */
+                      <button
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => toggleFilter(categoryId)}
+                        className={`flex w-full items-center gap-2 rounded-xl px-2 py-1 text-xs transition-colors ${
+                          active
+                            ? "bg-tint-butter text-tint-butter-foreground"
+                            : "hover:bg-secondary"
+                        }`}
+                      >
+                        {dot}
+                        {text}
+                      </button>
+                    ) : (
+                      <span className="flex items-center gap-2 px-2 py-1 text-xs">
+                        {dot}
+                        {text}
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </section>
@@ -650,7 +770,17 @@ export function BudgetPage() {
                   fill="#e7dbc6"
                   radius={[0, 4, 4, 0]}
                   barSize={9}
-                />
+                >
+                  {categoryBarData.map((row) => (
+                    <Cell
+                      key={`alokasi-${row.id}`}
+                      className={
+                        row.id === "vendor" ? undefined : "cursor-pointer"
+                      }
+                      onClick={() => toggleFilter(row.id)}
+                    />
+                  ))}
+                </Bar>
                 <Bar
                   dataKey="terbayar"
                   name="Terbayar"
@@ -660,13 +790,11 @@ export function BudgetPage() {
                 >
                   {categoryBarData.map((row) => (
                     <Cell
-                      key={row.id}
-                      className="cursor-pointer"
-                      onClick={() =>
-                        setFilterCategoryId((previous) =>
-                          previous === row.id ? null : row.id,
-                        )
+                      key={`terbayar-${row.id}`}
+                      className={
+                        row.id === "vendor" ? undefined : "cursor-pointer"
                       }
+                      onClick={() => toggleFilter(row.id)}
                     />
                   ))}
                 </Bar>
@@ -742,11 +870,9 @@ export function BudgetPage() {
             } =>
               expense.source === "manual" && expense.categoryId === category._id,
           );
-          const vendorLines = expenses.filter(
-            (expense): expense is Extract<typeof expense, { source: "vendor" }> =>
-              expense.source === "vendor",
-          );
-          const categoryExpenses = [...manualForCategory, ...vendorLines];
+          // Hanya pengeluaran manual milik kategori ini — baris vendor tidak lagi
+          // disisipkan ke semua kategori (nomor, persen & daftar jadi akurat).
+          const categoryExpenses = manualForCategory;
           // Saat mencari: nama kategori yang cocok menampilkan seluruh isinya,
           // selain itu hanya baris yang cocok. Total tetap dihitung dari
           // seluruh pengeluaran supaya angka tidak berubah karena pencarian.
@@ -759,10 +885,16 @@ export function BudgetPage() {
             term !== "" && !categoryMatches && shownExpenses.length === 0;
           const spent = categoryExpenses.reduce((sum, expense) => sum + expense.amount, 0);
           const over = spent > category.allocated;
+          // Persen asli (boleh >100% supaya kelebihannya terbaca); alokasi 0
+          // dengan pengeluaran ditampilkan "∞".
           const pct =
             category.allocated > 0
-              ? Math.min(100, Math.round((spent / category.allocated) * 100))
-              : 0;
+              ? Math.round((spent / category.allocated) * 100)
+              : spent > 0
+                ? 100
+                : 0;
+          const badgeText =
+            category.allocated > 0 ? `${pct}%` : spent > 0 ? "∞" : "0%";
           const open = !collapsed[category._id];
 
           if (hiddenBySearch) return null;
@@ -795,8 +927,13 @@ export function BudgetPage() {
                             ? "bg-destructive/10 text-destructive"
                             : "bg-tint-mint text-tint-mint-foreground"
                         }`}
+                        title={
+                          category.allocated === 0 && spent > 0
+                            ? "Tanpa alokasi"
+                            : undefined
+                        }
                       >
-                        {pct}%
+                        {badgeText}
                       </span>
                     </CollapsibleTrigger>
                     <RowMenu
@@ -839,38 +976,27 @@ export function BudgetPage() {
                       deleteDescription="Semua pengeluaran di dalamnya juga akan terhapus."
                     />
                   </div>
-                  <div className="mx-4 h-1.5 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="mx-4 h-1.5 overflow-hidden rounded-full bg-muted"
+                    role="progressbar"
+                    aria-label={`Progres ${category.name}`}
+                    aria-valuenow={Math.min(100, pct)}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  >
                     <div
                       className={`h-full rounded-full transition-all ${
                         over ? "bg-destructive" : "fill-botanical"
                       }`}
-                      style={{ width: `${pct}%` }}
+                      style={{ width: `${Math.min(100, pct)}%` }}
                     />
                   </div>
 
                   <CollapsibleContent>
                     <ul className="divide-y divide-border">
-                      {shownExpenses.map((expense) =>
-                        expense.source === "vendor" ? (
-                          /* Turunan dari halaman Vendor: selalu terbayar, tanpa aksi edit/hapus. */
-                          <li
-                            key={expense.vendorId}
-                            className="flex items-center gap-2.5 px-4 py-2.5"
-                          >
-                            <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                              <Check className="size-3" />
-                            </span>
-                            <span className="min-w-0 flex-1 truncate text-sm">
-                              {expense.label}
-                            </span>
-                            <span className="chip shrink-0 bg-tint-butter text-tint-butter-foreground">
-                              Vendor
-                            </span>
-                            <span className="num text-sm font-bold">
-                              {formatRupiah(expense.amount)}
-                            </span>
-                          </li>
-                        ) : (
+                      {shownExpenses.map((expense) => {
+                        const rowDate = expense.createdAt ?? expense.paidAt;
+                        return (
                           <li key={expense._id} className="flex items-center gap-2.5 px-4 py-2.5">
                             <button
                               type="button"
@@ -887,12 +1013,19 @@ export function BudgetPage() {
                             >
                               <Check className="size-3" />
                             </button>
-                            <span
-                              className={`min-w-0 flex-1 truncate text-sm ${
-                                expense.paidAt ? "text-muted-foreground" : ""
-                              }`}
-                            >
-                              {expense.label}
+                            <span className="min-w-0 flex-1">
+                              <span
+                                className={`block truncate text-sm ${
+                                  expense.paidAt ? "text-muted-foreground" : ""
+                                }`}
+                              >
+                                {expense.label}
+                              </span>
+                              {rowDate ? (
+                                <span className="meta block text-[10px]">
+                                  {formatDateShortID(rowDate)}
+                                </span>
+                              ) : null}
                             </span>
                             <span className="num text-sm font-bold">
                               {formatRupiah(expense.amount)}
@@ -916,8 +1049,8 @@ export function BudgetPage() {
                               deleteTitle={`Hapus "${expense.label}"?`}
                             />
                           </li>
-                        ),
-                      )}
+                        );
+                      })}
                       {shownExpenses.length === 0 && (
                         <li className="px-4 py-2.5 text-xs text-muted-foreground">
                           {term !== ""
@@ -932,7 +1065,71 @@ export function BudgetPage() {
             </StaggerItem>
           );
         })}
+
+        {vendorVisible && (
+          <StaggerItem key="vendor-group">
+            <Collapsible
+              open={!collapsed["vendor"]}
+              onOpenChange={(value) =>
+                setCollapsed((previous) => ({ ...previous, vendor: !value }))
+              }
+            >
+              <section className="clay overflow-hidden">
+                <div className="flex items-center gap-1 px-3 py-2.5">
+                  <CollapsibleTrigger className="group flex min-w-0 flex-1 items-center gap-2 py-1 text-left">
+                    <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-data-[state=open]:rotate-0 group-data-[state=closed]:-rotate-90" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-extrabold">Vendor</p>
+                      <p className="num meta">
+                        {formatRupiahShort(vendorTotal)} · {vendorExpenses.length} pembayaran
+                      </p>
+                    </div>
+                    <span className="chip shrink-0 bg-tint-butter text-tint-butter-foreground">
+                      Sinkron
+                    </span>
+                  </CollapsibleTrigger>
+                </div>
+                <CollapsibleContent>
+                  <ul className="divide-y divide-border">
+                    {shownVendorExpenses.map((expense) => (
+                      <li
+                        key={expense.vendorId}
+                        className="flex items-center gap-2.5 px-4 py-2.5"
+                      >
+                        <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                          <Check className="size-3" />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm">
+                            {expense.label}
+                          </span>
+                          <span className="meta block text-[10px]">
+                            {formatDateShortID(expense.paidAt)}
+                          </span>
+                        </span>
+                        <span className="num text-sm font-bold">
+                          {formatRupiah(expense.amount)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </CollapsibleContent>
+              </section>
+            </Collapsible>
+          </StaggerItem>
+        )}
       </Stagger>
+
+      {budget !== undefined &&
+        categories.length > 0 &&
+        !vendorVisible &&
+        visibleCategories.every((category) => !categoryShows(category)) && (
+          <EmptyState
+            emoji="🔍"
+            title="Tidak ada yang cocok"
+            description="Coba ubah kata kunci pencarian atau hapus filter kategori."
+          />
+        )}
 
       {budget !== undefined && categories.length === 0 && (
         <EmptyState

@@ -1,5 +1,5 @@
 import { AccountSection } from "@/components/AccountSection";
-import { BackLink } from "@/components/Shared";
+import { BackLink, SectionHeader } from "@/components/Shared";
 import { coupleInitials, useCouplePhotoUpload } from "@/components/CouplePhoto";
 import { FlowerMark } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import { fromDateInputValue, toDateInputValue } from "@/lib/format";
 import { bloom } from "@/lib/bloom";
-import { Camera, Loader2, Save, Trash2 } from "lucide-react";
+import { Camera, Loader2, Plus, Save, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
@@ -19,8 +19,14 @@ export function PengaturanPage() {
   const couplePhoto = useQuery(api.wedding.getCouplePhoto);
   const updateSettings = useMutation(api.wedding.updateSettings);
   const removeCouplePhoto = useMutation(api.wedding.removeCouplePhoto);
+  const vendorTypes = useQuery(api.wedding.getVendorCategories);
+  const addVendorType = useMutation(api.wedding.addVendorCategory);
+  const removeVendorType = useMutation(api.wedding.removeVendorCategory);
+  const vendors = useQuery(api.vendors.list);
   const { uploading, openPicker, inputProps } = useCouplePhotoUpload();
   const [saving, setSaving] = useState(false);
+  const [newVendorType, setNewVendorType] = useState("");
+  const [typeBusy, setTypeBusy] = useState(false);
 
   const [partnerOne, setPartnerOne] = useState("");
   const [partnerTwo, setPartnerTwo] = useState("");
@@ -60,6 +66,59 @@ export function PengaturanPage() {
       toast.error("Gagal menyimpan pengaturan.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const types = vendorTypes ?? [];
+  /** Jumlah vendor yang memakai sebuah jenis (tanpa membedakan huruf). */
+  const usageOf = (name: string) => {
+    const key = name.trim().toLowerCase();
+    return (vendors ?? []).filter(
+      (vendor) => vendor.category.trim().toLowerCase() === key,
+    ).length;
+  };
+
+  const submitVendorType = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const name = newVendorType.trim();
+    if (!name) {
+      toast.error("Isi nama jenis vendor dulu.");
+      return;
+    }
+    if (types.some((type) => type.toLowerCase() === name.toLowerCase())) {
+      toast.error("Jenis vendor sudah ada di daftar.");
+      return;
+    }
+    setTypeBusy(true);
+    try {
+      await addVendorType({ name });
+      setNewVendorType("");
+      toast.success("Jenis vendor ditambahkan.");
+    } catch {
+      toast.error("Gagal menambahkan jenis vendor.");
+    } finally {
+      setTypeBusy(false);
+    }
+  };
+
+  const deleteVendorType = async (name: string) => {
+    // Divalidasi di sini juga supaya pesannya jelas, sebelum server menolak.
+    const used = usageOf(name);
+    if (used > 0) {
+      toast.error(
+        `Masih dipakai ${used} vendor — ubah jenis vendor mereka dulu.`,
+      );
+      return;
+    }
+    if (types.length <= 1) {
+      toast.error("Minimal satu jenis vendor harus tersisa.");
+      return;
+    }
+    try {
+      await removeVendorType({ name });
+      toast.success(`Jenis "${name}" dihapus.`);
+    } catch {
+      toast.error("Gagal menghapus jenis vendor.");
     }
   };
 
@@ -195,6 +254,65 @@ export function PengaturanPage() {
           )}
         </Button>
       </form>
+
+      <section className="clay p-4">
+        <SectionHeader
+          title="Jenis vendor"
+          action={<span className="meta">{types.length} jenis</span>}
+        />
+        <p className="meta mb-2.5">
+          Daftar ini yang tampil di dropdown halaman Vendor — tambah atau hapus
+          jenisnya di sini.
+        </p>
+        <ul className="flex flex-wrap gap-2">
+          {types.map((type) => {
+            const used = usageOf(type);
+            return (
+              <li
+                key={type}
+                className="chip gap-1 bg-secondary text-secondary-foreground"
+              >
+                <span className="max-w-[14ch] truncate">{type}</span>
+                {used > 0 && (
+                  <span className="num text-[10px] text-muted-foreground">
+                    {used}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  aria-label={`Hapus jenis ${type}`}
+                  onClick={() => void deleteVendorType(type)}
+                  className="flex size-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                >
+                  <X className="size-3" />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+        <form className="mt-3 flex gap-2" onSubmit={submitVendorType}>
+          <Input
+            value={newVendorType}
+            onChange={(event) => setNewVendorType(event.target.value)}
+            placeholder="cth. Photobooth"
+            aria-label="Jenis vendor baru"
+            className="flex-1"
+          />
+          <Button
+            type="submit"
+            variant="secondary"
+            className="shrink-0 rounded-2xl"
+            disabled={typeBusy}
+          >
+            {typeBusy ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Plus className="size-4" />
+            )}
+            Tambah
+          </Button>
+        </form>
+      </section>
     </div>
   );
 }

@@ -29,6 +29,7 @@ import {
   toDateInputValue,
 } from "@/lib/format";
 import {
+  ChevronDown,
   FileDown,
   FileText,
   Loader2,
@@ -124,6 +125,7 @@ function paidFor(vendor: {
 /** Vendor: kontak, biaya, dan status pembayaran. */
 export function VendorPage() {
   const vendors = useQuery(api.vendors.list);
+  const vendorTypes = useQuery(api.wedding.getVendorCategories);
   const createVendor = useMutation(api.vendors.create);
   const updateVendor = useMutation(api.vendors.update);
   const setStatus = useMutation(api.vendors.setStatus);
@@ -138,6 +140,18 @@ export function VendorPage() {
 
   const list = vendors ?? [];
   const categories = Array.from(new Set(list.map((v) => v.category)));
+  // Pilihan jenis vendor = daftar dari Pengaturan; jenis lama milik vendor yang
+  // sedang diubah tetap ikut supaya nilai tersimpan tidak pernah putus.
+  const typeOptions = (() => {
+    const base = vendorTypes ?? [];
+    if (
+      form.category &&
+      !base.some((type) => type.toLowerCase() === form.category.toLowerCase())
+    ) {
+      return [...base, form.category];
+    }
+    return base;
+  })();
   const totalCost = list.reduce((sum, v) => sum + v.cost, 0);
   const paidTotal = list.reduce((sum, v) => sum + paidFor(v), 0);
   const remaining = Math.max(0, totalCost - paidTotal);
@@ -179,7 +193,8 @@ export function VendorPage() {
     }));
 
   const openNew = () => {
-    setForm(EMPTY_FORM);
+    // Jenis pertama dari daftar Pengaturan jadi pilihan awal.
+    setForm({ ...EMPTY_FORM, category: vendorTypes?.[0] ?? "" });
     setFormOpen(true);
   };
 
@@ -201,6 +216,10 @@ export function VendorPage() {
   const submit = async () => {
     if (!form.name.trim()) {
       toast.error("Nama vendor wajib diisi.");
+      return;
+    }
+    if (!form.category.trim()) {
+      toast.error("Pilih jenis vendor — daftarkan barunya lewat menu Pengaturan.");
       return;
     }
     const cost = Number(form.cost) || 0;
@@ -688,21 +707,32 @@ export function VendorPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="vendor-category">Kategori</Label>
-                <Input
-                  id="vendor-category"
-                  list="vendor-categories"
-                  value={form.category}
-                  onChange={(event) =>
-                    setForm((prev) => ({ ...prev, category: event.target.value }))
-                  }
-                  placeholder="cth. Katering"
-                />
-                <datalist id="vendor-categories">
-                  {categories.map((category) => (
-                    <option key={category} value={category} />
-                  ))}
-                </datalist>
+                <Label htmlFor="vendor-category">Jenis vendor</Label>
+                <div className="relative">
+                  <select
+                    id="vendor-category"
+                    value={form.category}
+                    onChange={(event) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        category: event.target.value,
+                      }))
+                    }
+                    className="h-9 w-full appearance-none rounded-xl border border-transparent bg-popover px-3 pr-9 text-sm"
+                  >
+                    {typeOptions.length === 0 && (
+                      <option value="">
+                        Belum ada jenis — atur di Pengaturan
+                      </option>
+                    )}
+                    {typeOptions.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                </div>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="vendor-contact">Kontak</Label>

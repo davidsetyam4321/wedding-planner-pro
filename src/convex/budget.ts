@@ -119,16 +119,30 @@ export const createCategory = mutation({
   handler: async (ctx, { name, allocated }) => {
     const userId = await workspaceUserId(ctx);
 
+    const cleaned = name.trim();
+    if (!cleaned) throw new Error("Nama kategori tidak boleh kosong");
+    if (!Number.isFinite(allocated)) throw new Error("Alokasi tidak valid");
+
     const existing = await ctx.db
       .query("budgetCategory")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
 
+    // Nama unik (tanpa membedakan huruf besar/kecil) supaya donut & filter
+    // berbasis nama di halaman tidak pernah tertukar.
+    if (
+      existing.some(
+        (category) => category.name.toLowerCase() === cleaned.toLowerCase(),
+      )
+    ) {
+      throw new Error("Nama kategori sudah dipakai");
+    }
+
     // ID dikembalikan supaya alur "urungkan hapus" bisa mengembalikan
     // pengeluaran ke kategori yang baru dipulihkan.
     return await ctx.db.insert("budgetCategory", {
       userId,
-      name: name.trim() || "Kategori baru",
+      name: cleaned,
       allocated: Math.max(0, Math.round(allocated)),
       sortOrder: existing.length,
     });
@@ -138,9 +152,29 @@ export const createCategory = mutation({
 export const renameCategory = mutation({
   args: { categoryId: v.id("budgetCategory"), name: v.string() },
   handler: async (ctx, { categoryId, name }) => {
-    await requireCategory(ctx, categoryId);
+    const userId = await workspaceUserId(ctx);
+    const category = await ctx.db.get(categoryId);
+    if (!category || category.userId !== userId) {
+      throw new Error("Category not found");
+    }
+
     const cleaned = name.trim();
     if (!cleaned) throw new Error("Nama kategori tidak boleh kosong");
+
+    const siblings = await ctx.db
+      .query("budgetCategory")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+    if (
+      siblings.some(
+        (item) =>
+          item._id !== categoryId &&
+          item.name.toLowerCase() === cleaned.toLowerCase(),
+      )
+    ) {
+      throw new Error("Nama kategori sudah dipakai");
+    }
+
     await ctx.db.patch(categoryId, { name: cleaned });
   },
 });
@@ -187,6 +221,12 @@ export const addExpense = mutation({
   handler: async (ctx, { categoryId, categoryName, label, amount, paid }) => {
     const userId = await workspaceUserId(ctx);
 
+    const cleanedLabel = label.trim();
+    if (!cleanedLabel) throw new Error("Keterangan tidak boleh kosong");
+    if (!Number.isFinite(amount) || amount <= 0) {
+      throw new Error("Nominal harus lebih dari 0");
+    }
+
     let targetId = categoryId;
     if (targetId) {
       const category = await ctx.db.get(targetId);
@@ -217,8 +257,8 @@ export const addExpense = mutation({
     await ctx.db.insert("budgetExpense", {
       userId,
       categoryId: targetId,
-      label: label.trim() || "Pengeluaran",
-      amount: Math.max(0, Math.round(amount)),
+      label: cleanedLabel,
+      amount: Math.round(amount),
       paidAt: paid ? Date.now() : undefined,
       createdAt: Date.now(),
     });
@@ -252,14 +292,19 @@ export const updateExpense = mutation({
       patch.label = cleaned;
     }
     if (args.amount !== undefined) {
-      patch.amount = Math.max(0, Math.round(args.amount));
+      if (!Number.isFinite(args.amount) || args.amount <= 0) {
+        throw new Error("Nominal harus lebih dari 0");
+      }
+      patch.amount = Math.round(args.amount);
     }
     if (args.categoryId !== undefined) {
       await requireCategory(ctx, args.categoryId);
       patch.categoryId = args.categoryId;
     }
     if (args.paid !== undefined) {
-      patch.paidAt = args.paid ? Date.now() : 0;
+      // `undefined` menghapus field — konsisten dengan toggleExpensePaid,
+      // supaya "belum lunas" tidak menyimpan angka 0 yang membingungkan.
+      patch.paidAt = args.paid ? Date.now() : undefined;
     }
 
     await ctx.db.patch(args.expenseId, patch);
