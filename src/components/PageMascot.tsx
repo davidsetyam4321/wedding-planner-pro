@@ -120,9 +120,7 @@ export function PageMascot({
       )}
       <span className="relative block">
         <DoodleStar className="absolute -left-3 -top-3 size-3.5 text-brass-gold" />
-        <Character
-          {...{ className: "bobbing block size-16 drop-shadow-[0_4px_6px_rgba(13,92,150,0.18)] lg:size-20" }}
-        />
+        <Character className="bobbing block size-16 drop-shadow-[0_4px_6px_rgba(13,92,150,0.18)] lg:size-20" />
       </span>
     </div>
   );
