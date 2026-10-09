@@ -14,6 +14,8 @@ import {
   SprigMark,
   WreathMark,
 } from "@/components/Decor";
+import Magnet from "@/components/Magnet";
+import GradientText from "@/components/reactbits/GradientText";
 import Marquee from "@/components/reactbits/Marquee";
 import Rotate from "@/components/reactbits/Rotate";
 import ShinyText from "@/components/reactbits/ShinyText";
@@ -198,17 +200,19 @@ export function LandingPage() {
             />
 
             <div className="relative mt-9 flex flex-wrap items-center justify-center gap-3">
-              <StarBorder>
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-primary px-7 text-primary-foreground shadow-none hover:bg-deep-cerulean"
-                >
-                  <Link to="/app">
-                    Mulai merencanakan <ArrowRight className="size-4" />
-                  </Link>
-                </Button>
-              </StarBorder>
+              <Magnet padding={70} magnetStrength={2.5}>
+                <StarBorder>
+                  <Button
+                    asChild
+                    size="lg"
+                    className="bg-primary px-7 text-primary-foreground shadow-none hover:bg-deep-cerulean"
+                  >
+                    <Link to="/app">
+                      Mulai merencanakan <ArrowRight className="size-4" />
+                    </Link>
+                  </Button>
+                </StarBorder>
+              </Magnet>
               <Button
                 asChild
                 size="lg"
@@ -294,7 +298,9 @@ export function LandingPage() {
           <FadeContent blur duration={900}>
             <h2 className="mx-auto max-w-3xl font-serif text-3xl font-light leading-tight text-white md:text-[45px]">
               Hitung mundur, dana, dan tugas{" "}
-              <span className="elegant italic">terlihat sekilas</span>
+              <GradientText className="elegant italic" speed={8}>
+                terlihat sekilas
+              </GradientText>
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-body-lg text-white/80">
               Ringkasan hari-H, progres budget, dan sisa tugas diperbarui
@@ -480,15 +486,17 @@ export function LandingPage() {
               hanya butuh semenit.
             </p>
             <div className="mt-9 flex justify-center">
-              <Button
-                asChild
-                size="lg"
-                className="bg-midnight-navy px-8 text-white shadow-none hover:bg-deep-cerulean"
-              >
-                <Link to="/app">
-                  Buka SatuJanji <ArrowRight className="size-4" />
-                </Link>
-              </Button>
+              <Magnet padding={80} magnetStrength={2.2}>
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-midnight-navy px-8 text-white shadow-none hover:bg-deep-cerulean"
+                >
+                  <Link to="/app">
+                    Buka SatuJanji <ArrowRight className="size-4" />
+                  </Link>
+                </Button>
+              </Magnet>
             </div>
             <div className="mt-8 flex justify-center">
               <PulseHeart

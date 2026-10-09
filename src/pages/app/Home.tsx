@@ -642,10 +642,14 @@ export function HomePage() {
           />
         ) : (
           <ul className="space-y-2">
-            {agendaItems.map((task) => {
+            {agendaItems.map((task, index) => {
               const priority = normalizePriority(task.priority);
               return (
-                <li key={task._id} className="clay flex items-center gap-3 p-3.5">
+                <li
+                  key={task._id}
+                  className="clay list-enter flex items-center gap-3 p-3.5"
+                  style={{ animationDelay: `${index * 55}ms` }}
+                >
                   <button
                     type="button"
                     aria-label={

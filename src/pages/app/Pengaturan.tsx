@@ -3,6 +3,7 @@ import { BackLink, SectionHeader } from "@/components/Shared";
 import { coupleInitials, useCouplePhotoUpload } from "@/components/CouplePhoto";
 import { RingsMark } from "@/components/Decor";
 import { PaletteSection } from "@/components/PaletteSettings";
+import PixelTransition from "@/components/reactbits/PixelTransition";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -148,10 +149,10 @@ export function PengaturanPage() {
       <section className="clay overflow-hidden">
         <div className="relative aspect-[4/3] w-full bg-muted">
           {couplePhoto ? (
-            <img
+            <PixelTransition
               src={couplePhoto}
               alt="Foto pasangan"
-              className="h-full w-full object-cover"
+              className="h-full w-full"
             />
           ) : (
             <div className="sky-band flex h-full w-full flex-col items-center justify-center gap-1.5">

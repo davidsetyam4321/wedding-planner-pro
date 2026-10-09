@@ -493,6 +493,136 @@
     }
   }
 
+  /* GradientText — gradien brand berjalan di atas teks */
+  .gradient-text {
+    background: var(
+      --gradient-value,
+      linear-gradient(
+        110deg,
+        var(--color-midnight-navy) 0%,
+        var(--color-bloom) 32%,
+        var(--color-leaf) 66%,
+        var(--color-midnight-navy) 100%
+      )
+    );
+    background-size: 260% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-slide var(--gradient-speed, 7s) linear infinite;
+  }
+  @keyframes gradient-slide {
+    to {
+      background-position: -260% center;
+    }
+  }
+
+  /* PixelTransition — blok piksel menutup lalu hilang saat muat */
+  .pixel-block {
+    display: block;
+    animation: pixel-in 1ms linear forwards;
+  }
+  .pixel-block--out {
+    animation: pixel-out 460ms ease-out forwards;
+  }
+  @keyframes pixel-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes pixel-out {
+    from {
+      opacity: 1;
+      transform: scale(1.02);
+    }
+    to {
+      opacity: 0;
+      transform: scale(1);
+    }
+  }
+
+  /* Aurora — blob tint palet bergerak sangat perlahan */
+  .aurora {
+    overflow: hidden;
+  }
+  .aurora__blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(70px);
+    opacity: 0.5;
+    will-change: transform;
+    animation: aurora-drift 18s ease-in-out infinite alternate;
+  }
+  .aurora__blob--1 {
+    width: 42%;
+    height: 42%;
+    left: -8%;
+    top: 4%;
+    background: color-mix(in srgb, var(--color-petal) 80%, transparent);
+  }
+  .aurora__blob--2 {
+    width: 36%;
+    height: 36%;
+    right: -6%;
+    top: 22%;
+    background: color-mix(in srgb, var(--color-leaf) 55%, transparent);
+    animation-duration: 22s;
+    animation-delay: -6s;
+  }
+  .aurora__blob--3 {
+    width: 30%;
+    height: 30%;
+    left: 34%;
+    bottom: -10%;
+    background: color-mix(in srgb, var(--color-bloom) 45%, transparent);
+    animation-duration: 26s;
+    animation-delay: -12s;
+  }
+  @keyframes aurora-drift {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+      transform: translate3d(6%, -8%, 0) scale(1.15);
+    }
+  }
+
+  /* Masuk bertahap untuk baris daftar (delay diatur inline per item) */
+  .list-enter {
+    animation: list-enter 460ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  }
+  @keyframes list-enter {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.99);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gradient-text,
+    .aurora__blob,
+    .list-enter,
+    .pixel-block {
+      animation: none !important;
+    }
+    .gradient-text {
+      background: none;
+      color: inherit;
+      -webkit-text-fill-color: currentColor;
+    }
+    .pixel-block {
+      display: none;
+    }
+  }
+
   /* Rotate — host perspektif + bidang miring */
   .perspective-host {
     perspective: 900px;

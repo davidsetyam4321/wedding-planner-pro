@@ -11,6 +11,7 @@ import {
   RingsMark,
   SprigMark,
 } from "@/components/Decor";
+import Aurora from "@/components/reactbits/Aurora";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -299,7 +300,8 @@ export function AppShell() {
   // (first visit, and right after signing in with an email).
   if (setupState === "pending" && !wedding) {
     return (
-      <main className="flex min-h-screen items-center justify-center">
+      <main className="relative flex min-h-screen items-center justify-center">
+        <Aurora className="pointer-events-none absolute inset-0 -z-10" />
         <Petals />
         <div className="clay relative overflow-hidden px-8 py-7 text-center">
           <SprigMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-16 text-primary/20" />
