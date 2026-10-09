@@ -37,7 +37,7 @@ import {
 } from "@/lib/session";
 import { useAuth } from "@/hooks/use-auth";
 import { SETUP_REFRESH_EVENT } from "@/lib/session";
-import { Bell, Heart, Settings, Sparkles } from "lucide-react";
+import { Bell, Settings, Sparkles } from "lucide-react";
 import { useReducedMotion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
@@ -341,7 +341,17 @@ export function AppShell() {
           defaultTarget={wedding.fundTarget}
         />
       )}
-      <SideNav status={workspace} />
+      <SideNav
+        status={workspace}
+        extra={{
+          openTasks,
+          wedding: wedding ?? undefined,
+          couplePhoto,
+          status: workspace,
+          savingsNote,
+          reminders,
+        }}
+      />
       <div className="sky-wash relative min-w-0 flex-1 pb-28 lg:pb-10">
       {/* Ambient wash — atmosphere-blue sky tint mengikuti rute aktif */}
       <div
@@ -358,83 +368,47 @@ export function AppShell() {
       <Petals />
       <PetalsFront />
 
-      <BloomOverlay />
-      <PageMascot
-        pathname={pathname}
-        daysLabel={
-          wedding
-            ? wedding.onboarded
-              ? countdownLabel(wedding.weddingDate)
-              : undefined
-            : undefined
-        }
-      />
-      <header className="sticky top-0 z-30 w-full bg-white/70 pb-2.5 pt-4 backdrop-blur-xl">
-        <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3 px-4 lg:max-w-3xl lg:px-10">
-          <Link to="/app" className="flex min-w-0 items-center gap-2.5">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-foreground/15 shadow-sm backdrop-blur-md lg:hidden">
-              <FlowerMark className="size-5 text-primary" />
-            </span>
-            <span className="flex min-w-0 flex-col leading-tight">
-              <h1 className="truncate font-serif text-[19px] font-light text-primary">
-                SatuJanji
-              </h1>
-              {reducedMotion ? (
-                <span className="truncate text-[11px] font-semibold text-muted-foreground">
-                  {pageTitle}
-                </span>
-              ) : (
-                <BlurText
-                  key={pathname}
-                  text={pageTitle}
-                  direction="bottom"
-                  delay={12}
-                  className="truncate elegant text-[13px] text-muted-foreground"
-                />
-              )}
-            </span>
-          </Link>
-          <div className="flex shrink-0 items-center gap-1.5">
-            {wedding && (
-              <span className="hidden items-center gap-1.5 rounded-full border border-border px-3 py-1 text-[11px] font-medium text-foreground backdrop-blur-md sm:flex">
-                <span className="size-1.5 animate-pulse rounded-full bg-atmosphere-blue" />
-                {wedding.partnerOneName} & {wedding.partnerTwoName}
-                <Heart
-                  className="size-3 shrink-0 text-berry-red"
-                  fill="currentColor"
-                />
+      <header className="mx-auto w-full max-w-md px-4 pt-4 lg:max-w-3xl lg:px-10">
+        <div className="flex flex-wrap gap-1.5">
+        <div className="hidden lg:flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-[11px] font-medium text-foreground backdrop-blur-md">
+          <span className="size-1.5 animate-pulse rounded-full bg-atmosphere-blue" />
+          {wedding?.partnerOneName} &amp; {wedding?.partnerTwoName}
+        </div>
+        <div className="flex flex-1 lg:hidden items-center gap-2">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-foreground/15 shadow-sm backdrop-blur-md">
+            <FlowerMark className="size-5 text-primary" />
+          </span>
+          <h1 className="truncate font-serif text-[19px] font-light text-primary">SatuJanji</h1>
+          {pageTitle && (
+            <span className="elegant truncate text-[13px] text-muted-foreground">{pageTitle}</span>
+          )}
+        </div>
+        <div className="ml-auto flex shrink-0 items-center gap-1.5">
+          <NotificationBell
+            wedding={wedding}
+            openTasks={openTasks}
+            workspace={workspace}
+            savingsNote={savingsNote}
+            reminders={reminders}
+          />
+          <Link
+            to="/app/pengaturan"
+            aria-label="Pengaturan"
+            className="block size-9 shrink-0 overflow-hidden rounded-full p-0.5 ring-2 ring-atmosphere-blue/40"
+          >
+            {couplePhoto ? (
+              <img src={couplePhoto} alt="Foto pasangan" className="h-full w-full object-cover" />
+            ) : (
+              <span className="flex h-full w-full items-center justify-center rounded-full bg-primary text-[11px] font-extrabold text-primary-foreground">
+                {coupleInitials(
+                  wedding?.partnerOneName,
+                  wedding?.partnerTwoName,
+                )}
               </span>
             )}
-              <NotificationBell
-                wedding={wedding}
-                openTasks={openTasks}
-                workspace={workspace}
-                savingsNote={savingsNote}
-                reminders={reminders}
-              />
-            <Link
-              to="/app/pengaturan"
-              aria-label="Pengaturan"
-              className="block size-9 shrink-0 overflow-hidden rounded-full p-0.5 ring-2 ring-atmosphere-blue/40"
-            >
-              {couplePhoto ? (
-                <img
-                  src={couplePhoto}
-                  alt="Foto pasangan"
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <span className="flex h-full w-full items-center justify-center rounded-full bg-primary text-[11px] font-extrabold text-primary-foreground">
-                  {coupleInitials(
-                    wedding?.partnerOneName,
-                    wedding?.partnerTwoName,
-                  )}
-                </span>
-              )}
-            </Link>
-            </div>
-          </div>
-        <div aria-hidden="true" className="h-px w-full bg-fog-line" />
+          </Link>
+        </div>
+        </div>
       </header>
 
       <main className="mx-auto w-full max-w-md px-4 pt-4 lg:max-w-3xl lg:px-10">
