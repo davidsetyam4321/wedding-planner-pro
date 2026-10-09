@@ -2,7 +2,6 @@ import AnimatedContent from "@/components/AnimatedContent";
 import BlurText from "@/components/BlurText";
 import CountUp from "@/components/CountUp";
 import {
-  BirdMark,
   GarlandDivider,
   MotifDivider,
   PetalsFront,
@@ -10,6 +9,7 @@ import {
 import { FlowerMark, Petals } from "@/components/Decor";
 import FadeContent from "@/components/FadeContent";
 import PulseHeart from "@/components/PulseHeart";
+import { PlantRow, SunlitWall } from "@/components/SunlitGarden";
 import { Stagger, StaggerItem } from "@/components/Shared";
 import SpotlightCard from "@/components/SpotlightCard";
 import { Button } from "@/components/ui/button";
@@ -71,8 +71,9 @@ const VOICES = [
 ];
 
 /**
- * Halaman publik Cora: lukisan langit full-bleed sebagai kanvas hero,
- * lalu ritme selang-seling langit → putih → langit → putih → langit CTA.
+ * Halaman publik Cora: hero bertema nature ala Hero-28 — dinding bersinar
+ * dengan deretan tanaman yang membuang bayangan panjangnya — lalu ritme
+ * selang-seling langit → putih → langit → putih → langit CTA.
  */
 export function LandingPage() {
   const [bannerOpen, setBannerOpen] = useState(true);
@@ -108,63 +109,56 @@ export function LandingPage() {
         </div>
       )}
 
-      {/* ── Header transparan di atas langit ─────────────────────────── */}
-      <header className="absolute inset-x-0 top-0 z-40">
-        <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between px-5 py-4">
-          <Link
-            to="/"
-            className="flex items-center gap-2.5 rounded-full border border-white/40 px-3 py-1.5"
-          >
-            <span className="flex size-7 items-center justify-center rounded-full border border-white/70">
-              <FlowerMark className="size-4 text-white" />
-            </span>
-            <span className="text-base font-semibold tracking-tight text-white">
-              SatuJanji
-            </span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Button
-              asChild
-              variant="ghost"
-              size="sm"
-              className="text-white hover:bg-white/10 hover:text-white"
-            >
-              <Link to="/auth">Masuk</Link>
-            </Button>
-            <Button
-              asChild
-              size="sm"
-              className="bg-cerulean-sky text-white shadow-none hover:bg-deep-cerulean"
-            >
-              <Link to="/app">
-                Buka aplikasi <ArrowRight className="size-3.5" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </header>
-
       <main>
-        {/* ── Hero: langit lukisan full-bleed 100vh, teks langsung di atasnya ─ */}
-        <section className="relative flex min-h-screen w-full items-center justify-center px-5 text-center">
-          {/* Lukisan langit adalah LATAR, bukan banner — tanpa gradasi menutupi */}
-          <div
-            aria-hidden="true"
-            className="sky-canvas absolute inset-0 -z-10"
-          />
-          <div
-            aria-hidden="true"
-            className="sky-scrim absolute inset-0 -z-10"
-          />
+        {/* ── Hero "dinding bersinar": dinding krem memantulkan cahaya pagi,
+             deretan tanaman membuang bayangan panjangnya ke dinding ─────── */}
+        <section className="relative flex min-h-screen w-full items-center justify-center px-5 pb-44 pt-24 text-center sm:pb-52 md:pb-56">
+          <SunlitWall />
 
-          <div className="mx-auto max-w-4xl pt-20">
+          {/* Header menempel di atas dinding — persis di bawah pita pengumuman */}
+          <header className="absolute inset-x-0 top-0 z-40">
+            <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between px-5 py-4">
+              <Link
+                to="/"
+                className="flex items-center gap-2.5 rounded-full border border-ink/10 bg-white/60 px-3 py-1.5 backdrop-blur-sm"
+              >
+                <span className="flex size-7 items-center justify-center rounded-full border border-[#3c6b45]/30">
+                  <FlowerMark className="size-4 text-[#3c6b45]" />
+                </span>
+                <span className="text-base font-semibold tracking-tight text-midnight-navy">
+                  SatuJanji
+                </span>
+              </Link>
+              <div className="flex items-center gap-3">
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="sm"
+                  className="text-ink hover:bg-ink/5 hover:text-ink"
+                >
+                  <Link to="/auth">Masuk</Link>
+                </Button>
+                <Button
+                  asChild
+                  size="sm"
+                  className="bg-[#2f5d3f] text-white shadow-none hover:bg-[#254a33]"
+                >
+                  <Link to="/app">
+                    Buka aplikasi <ArrowRight className="size-3.5" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </header>
+
+          <div className="mx-auto max-w-4xl">
             <FadeContent
               blur
               duration={900}
               delay={150}
               className="relative inline-block"
             >
-              <span className="chip border-white/50 bg-white/15 text-white backdrop-blur-sm">
+              <span className="chip border-[#2f5d3f]/25 bg-white/70 text-[#25462e] backdrop-blur-sm">
                 <Sparkles className="size-3.5" /> Perencana pernikahan untuk
                 berdua
               </span>
@@ -176,9 +170,9 @@ export function LandingPage() {
               delay={300}
               className="relative mx-auto mt-7"
             >
-              <h1 className="font-serif text-[44px] font-light leading-[1.02] text-white sm:text-[56px] md:text-[68px]">
+              <h1 className="font-serif text-[44px] font-light leading-[1.02] text-midnight-navy sm:text-[56px] md:text-[68px]">
                 Rencanakan hari bahagia Anda,{" "}
-                <span className="elegant relative inline-block text-[1.06em] italic">
+                <span className="elegant relative inline-block text-[1.06em] italic text-[#3c6b45]">
                   berdua.
                 </span>
               </h1>
@@ -186,7 +180,7 @@ export function LandingPage() {
 
             <BlurText
               text="Satu ruang kerja bersama untuk budget, tabungan, checklist, daftar tamu, vendor, dan rundown — tersinkron real-time di kedua perangkat Anda berdua."
-              className="mx-auto mt-7 max-w-2xl text-body-lg leading-normal text-white/80"
+              className="mx-auto mt-7 max-w-2xl text-body-lg leading-normal text-ink/70"
               direction="bottom"
               delay={30}
             />
@@ -195,7 +189,7 @@ export function LandingPage() {
               <Button
                 asChild
                 size="lg"
-                className="bg-midnight-navy px-7 text-white shadow-none hover:bg-deep-cerulean"
+                className="bg-[#2f5d3f] px-7 text-white shadow-none hover:bg-[#254a33]"
               >
                 <Link to="/app">
                   Mulai merencanakan <ArrowRight className="size-4" />
@@ -205,7 +199,7 @@ export function LandingPage() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="border-atmosphere-blue bg-transparent px-6 text-atmosphere-blue hover:bg-white/10 hover:text-white"
+                className="border-[#2f5d3f]/45 bg-transparent px-6 text-[#2f5d3f] hover:bg-[#2f5d3f]/10 hover:text-[#25462e]"
               >
                 <a href="#cara-kerja">Lihat cara kerja</a>
               </Button>
@@ -221,9 +215,9 @@ export function LandingPage() {
                 (item) => (
                   <span
                     key={item}
-                    className="meta flex items-center gap-1.5 text-white/80"
+                    className="meta flex items-center gap-1.5 text-ink/70"
                   >
-                    <span className="size-1.5 rounded-full bg-white" />
+                    <span className="size-1.5 rounded-full bg-[#4f7d52]" />
                     {item}
                   </span>
                 ),
@@ -231,9 +225,8 @@ export function LandingPage() {
             </FadeContent>
           </div>
 
-          {/* burung di angkasa — satu-satunya ornamen hero */}
-          <BirdMark className="pointer-events-none absolute bottom-10 left-8 hidden w-10 text-white/60 md:block" />
-          <BirdMark className="pointer-events-none absolute bottom-24 right-14 hidden w-7 text-white/50 md:block" />
+          {/* deretan tanaman + bayangan panjangnya di dinding */}
+          <PlantRow />
         </section>
 
         {/* ── Section putih: testimonial mengambang ─────────────────────── */}
