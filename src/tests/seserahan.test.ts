@@ -52,6 +52,49 @@ describe("seserahan", () => {
     ).toBeUndefined();
   });
 
+  it("menyimpan harga, jumlah, dan catatan serta menghitung subtotal", async () => {
+    const t = t0();
+    const { as } = await makeWorkspace(t);
+
+    const id = await as.mutation(api.seserahan.create, {
+      title: "Mukena",
+      unitPrice: 125000,
+      quantity: 2,
+      note: "Warna sage",
+    });
+    let item = (await as.query(api.seserahan.list, {})).find((row) => row._id === id);
+    expect(item?.unitPrice).toBe(125000);
+    expect(item?.quantity).toBe(2);
+    expect(item?.note).toBe("Warna sage");
+    expect((item?.unitPrice ?? 0) * (item?.quantity ?? 1)).toBe(250000);
+
+    await as.mutation(api.seserahan.update, {
+      itemId: id,
+      unitPrice: null,
+      quantity: 3,
+      note: null,
+    });
+    item = (await as.query(api.seserahan.list, {})).find((row) => row._id === id);
+    expect(item?.unitPrice).toBeUndefined();
+    expect(item?.quantity).toBe(3);
+    expect(item?.note).toBeUndefined();
+  });
+
+  it("menolak harga negatif dan jumlah non-positif atau pecahan", async () => {
+    const t = t0();
+    const { as } = await makeWorkspace(t);
+
+    await expect(
+      as.mutation(api.seserahan.create, { title: "Barang", unitPrice: -1 }),
+    ).rejects.toThrow(/harga/i);
+    await expect(
+      as.mutation(api.seserahan.create, { title: "Barang", quantity: 0 }),
+    ).rejects.toThrow(/jumlah/i);
+    await expect(
+      as.mutation(api.seserahan.create, { title: "Barang", quantity: 1.5 }),
+    ).rejects.toThrow(/jumlah/i);
+  });
+
   it("menukar status link → keranjang → dibeli lalu menyimpannya", async () => {
     const t = t0();
     const { as } = await makeWorkspace(t);

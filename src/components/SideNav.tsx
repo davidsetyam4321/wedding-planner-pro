@@ -67,7 +67,7 @@ export function SideNav({
   return (
     <aside
       aria-label="Navigasi utama"
-      className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col gap-4 px-5 py-6 lg:flex"
+      className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col gap-4 border-r border-white/50 bg-white/55 px-5 py-6 shadow-[8px_0_36px_rgba(60,40,35,0.04)] backdrop-blur-2xl dark:border-white/10 dark:bg-slate-950/55 lg:flex"
     >
       {/* Brand + nama pasangan + hitung mundur — menggantikan blok kiri header */}
       <Link to="/app" className="flex items-center gap-3">

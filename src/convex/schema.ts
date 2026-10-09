@@ -230,6 +230,12 @@ const schema = defineSchema(
       title: v.string(),
       /** Link produk di marketplace/toko — opsional. */
       link: v.optional(v.string()),
+      /** Harga satuan dalam rupiah. Absen pada item lama atau belum diisi. */
+      unitPrice: v.optional(v.number()),
+      /** Banyaknya barang; item lama yang belum punya nilai dihitung satu. */
+      quantity: v.optional(v.number()),
+      /** Detail ukuran, warna, atau catatan belanja lainnya. */
+      note: v.optional(v.string()),
       status: seserahanStatusValidator,
       sortOrder: v.number(),
       createdAt: v.optional(v.number()),

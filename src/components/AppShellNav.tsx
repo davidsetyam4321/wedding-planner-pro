@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/popover";
 import { Bell, Heart } from "lucide-react";
 import { useMemo } from "react";
-import { countdownLabel, formatDateID, formatRupiahShort } from "@/lib/format";
+import { countdownLabel, formatDateID } from "@/lib/format";
 
 type WorkspaceStatus = {
   isAnonymous: boolean;

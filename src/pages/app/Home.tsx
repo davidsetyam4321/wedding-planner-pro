@@ -9,8 +9,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import AnimatedContent from "@/components/AnimatedContent";
 import { GarlandDivider, SekarSudut } from "@/components/Decor";
 import PulseHeart from "@/components/PulseHeart";
-import GlareHover from "@/components/reactbits/GlareHover";
-import SpotlightCard from "@/components/SpotlightCard";
 import { api } from "@/convex/_generated/api";
 import { bloom } from "@/lib/bloom";
 import { waLink } from "@/lib/contact";
@@ -19,6 +17,7 @@ import {
   daysUntil,
   formatDateLongID,
   formatDateShortID,
+  formatRupiahShort,
 } from "@/lib/format";
 import {
   PRIORITY_BADGE,
@@ -42,8 +41,6 @@ import {
   PartyPopper,
   Phone,
   Quote,
-  Sparkles,
-  TrendingUp,
   UserPlus,
   Wallet,
 } from "lucide-react";
@@ -106,99 +103,45 @@ function CountdownTimer({ weddingDate }: { weddingDate: number }) {
   );
 }
 
-/** Ring SVG kecil untuk persentase — visualisasi mini ala dashboard referensi. */
-function MiniRing({ pct, className }: { pct: number; className?: string }) {
-  const size = 38;
-  const stroke = 4;
-  const radius = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const clamped = Math.min(100, Math.max(0, pct));
-  return (
-    <div className={`relative shrink-0 ${className ?? ""}`}>
-      <svg
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
-        className="-rotate-90"
-      >
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="var(--tint-sage)" /* chart track — Cora mist */
-          strokeWidth={stroke}
-        />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={circumference - (clamped / 100) * circumference}
-        />
-      </svg>
-      <span className="num absolute inset-0 flex items-center justify-center text-[9px] font-extrabold">
-        {Math.round(clamped)}%
-      </span>
-    </div>
-  );
-}
-
-/** Kartu progres mini ala SatuJanji: ikon bulat berwarna, angka serif, bar botanical. */
-function ReadinessCard({
+/** Kartu ringkasan sederhana, tiap angka langsung menuju fitur terkait. */
+function SummaryCard({
+  to,
   label,
-  icon: Icon,
   value,
-  suffix,
+  detail,
   pct,
-  tone,
+  icon: Icon,
 }: {
+  to: string;
   label: string;
-  icon: typeof Sparkles;
   value: string;
-  suffix?: string;
+  detail: string;
   pct: number;
-  tone: { icon: string; pct: string };
+  icon: typeof CheckCircle2;
 }) {
+  const progress = Math.min(100, Math.max(0, pct));
   return (
-    <GlareHover className="clay" glareColor="var(--color-petal)">
-      <SpotlightCard
-        className="flex h-full flex-col justify-between gap-3 rounded-2xl p-4"
-        spotlightColor="rgba(255, 255, 255, 0.55)"
-      >
-      <div className="flex items-center justify-between">
+    <Link
+      to={to}
+      className="clay clay-press group block rounded-2xl p-4 transition-transform hover:-translate-y-0.5"
+    >
+      <span className="flex items-center justify-between gap-2">
+        <span className="text-xs font-bold text-muted-foreground">{label}</span>
+        <Icon className="size-4 shrink-0 text-primary" />
+      </span>
+      <span className="mt-2 block truncate font-serif text-xl font-semibold leading-tight">
+        {value}
+      </span>
+      <span className="mt-1 block truncate text-[11px] text-muted-foreground">
+        {detail}
+      </span>
+      <span className="mt-3 block h-1.5 overflow-hidden rounded-full bg-mist-gray">
         <span
-          className={`flex size-8 items-center justify-center rounded-full ${tone.icon}`}
-        >
-          <Icon className="size-4" />
-        </span>
-        <MiniRing pct={pct} className={tone.pct} />
-      </div>
-      <div>
-        <p className="font-serif text-lg font-semibold leading-tight">
-          {value}
-          {suffix && (
-            <span className="ml-1 text-xs font-semibold text-muted-foreground">
-              {suffix}
-            </span>
-          )}
-        </p>
-        <p className="mt-0.5 text-[11px] font-semibold leading-tight text-muted-foreground">
-          {label}
-        </p>
-      </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-mist-gray">
-          <div
-            className="fill-botanical h-full rounded-full transition-all duration-700"
-            style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
-          />
-        </div>
-      </SpotlightCard>
-    </GlareHover>
+          className="fill-botanical block h-full rounded-full transition-all duration-700"
+          style={{ width: `${progress}%` }}
+        />
+      </span>
+    </Link>
   );
 }
 
@@ -239,16 +182,10 @@ export function HomePage() {
   const guestTotal = guests?.length ?? 0;
   const guestHadir = guests?.filter((g) => g.rsvp === "hadir").length ?? 0;
   const guestTidak = guests?.filter((g) => g.rsvp === "tidak").length ?? 0;
+  const unansweredGuests = Math.max(0, guestTotal - guestHadir - guestTidak);
   const rsvpPct =
     guestTotal > 0 ? Math.round(((guestHadir + guestTidak) / guestTotal) * 100) : 0;
-
-  const readiness =
-    budget && checklist && guests
-      ? Math.round((taskPct + rsvpPct + spentPct) / 3)
-      : 0;
-  const onSchedule = readiness >= 60;
-  const readinessNote =
-    readiness >= 75 ? "Mantap" : readiness >= 45 ? "Berjalan" : "Mulai";
+  const remainingBudget = Math.max(0, allocated - spent);
 
   const agendaItems = [
     ...[...openTasks].sort(
@@ -401,82 +338,45 @@ export function HomePage() {
 
       <GarlandDivider className="mx-auto block h-16 w-full max-w-[14rem]" />
 
-      {/* ── Ringkasan kesiapan ────────────────────────────────────────── */}
+      {/* ── Ringkasan praktis: angka penting, tanpa skor gabungan ───── */}
       <section>
-        <SectionHeader
-          title="Ringkasan kesiapan"
-          action={
-            <span
-              className={`chip ${
-                onSchedule
-                  ? "bg-sky-tint text-midnight-navy"
-                  : "bg-berry-tint text-berry-red"
-              }`}
-            >
-              <TrendingUp className="size-3.5" />
-              {onSchedule ? "Sesuai jadwal" : "Perlu percepatan"}
-            </span>
-          }
-        />
+        <SectionHeader title="Ringkasan persiapan" />
         {budget === undefined || checklist === undefined || guests === undefined ? (
-          <div className="grid grid-cols-2 gap-3">
-            <Skeleton className="h-32 rounded-3xl" />
-            <Skeleton className="h-32 rounded-3xl" />
-            <Skeleton className="h-32 rounded-3xl" />
-            <Skeleton className="h-32 rounded-3xl" />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <Skeleton className="h-28 rounded-2xl" />
+            <Skeleton className="h-28 rounded-2xl" />
+            <Skeleton className="h-28 rounded-2xl" />
           </div>
         ) : (
-          <Stagger className="grid grid-cols-2 gap-3">
+          <Stagger className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <StaggerItem>
-              <ReadinessCard
-                label="Kesiapan acara"
-                icon={Sparkles}
-                value={`${readiness}%`}
-                suffix={readinessNote}
-                pct={readiness}
-                tone={{
-                  icon: "bg-sky-tint text-midnight-navy",
-                  pct: "text-cerulean-sky",
-                }}
-              />
-            </StaggerItem>
-            <StaggerItem>
-              <ReadinessCard
-                label="Tugas selesai"
-                icon={CheckCircle2}
-                value={`${doneTasks.length} / ${allTasks.length}`}
-                suffix="Tugas"
+              <SummaryCard
+                to="/app/checklist"
+                label="Tugas tersisa"
+                value={`${openTasks.length}`}
+                detail={allTasks.length > 0 ? `${doneTasks.length} dari ${allTasks.length} tugas selesai` : "Belum ada tugas persiapan"}
                 pct={taskPct}
-                tone={{
-                  icon: "bg-sky-tint/70 text-midnight-navy",
-                  pct: "text-cerulean-sky",
-                }}
+                icon={CheckCircle2}
               />
             </StaggerItem>
             <StaggerItem>
-              <ReadinessCard
-                label="RSVP tamu"
+              <SummaryCard
+                to="/app/tamu"
+                label="RSVP belum dijawab"
+                value={`${unansweredGuests}`}
+                detail={guestTotal > 0 ? `${guestHadir} hadir · ${guestTidak} tidak hadir` : "Belum ada tamu di daftar"}
+                pct={rsvpPct}
                 icon={Mail}
-                value={`${guestHadir} / ${guestTotal}`}
-                suffix="Hadir"
-                pct={guestTotal > 0 ? Math.round((guestHadir / guestTotal) * 100) : 0}
-                tone={{
-                  icon: "bg-sky-tint text-midnight-navy",
-                  pct: "text-cerulean-sky",
-                }}
               />
             </StaggerItem>
             <StaggerItem>
-              <ReadinessCard
-                label="Anggaran terpakai"
+              <SummaryCard
+                to="/app/budget"
+                label="Sisa anggaran"
+                value={formatRupiahShort(remainingBudget)}
+                detail={allocated > 0 ? `${formatRupiahShort(spent)} terpakai dari ${formatRupiahShort(allocated)}` : "Atur anggaran pernikahan Anda"}
+                pct={allocated > 0 ? spentPct : 0}
                 icon={Wallet}
-                value={`${spentPct}%`}
-                suffix="Terkendali"
-                pct={spentPct}
-                tone={{
-                  icon: "bg-sky-tint text-midnight-navy",
-                  pct: "text-cerulean-sky",
-                }}
               />
             </StaggerItem>
           </Stagger>

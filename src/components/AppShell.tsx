@@ -1,11 +1,9 @@
-import { PageMascot } from "@/components/PageMascot";
 import { BottomNav } from "@/components/BottomNav";
 import { SideNav } from "@/components/SideNav";
 import { OnboardingDialog } from "@/components/Onboarding";
 import { SignupBanner } from "@/components/SignupBanner";
 import { coupleInitials } from "@/components/CouplePhoto";
 import {
-  BloomOverlay,
   Petals,
   PetalsFront,
   RingsMark,
@@ -27,12 +25,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Stagger, StaggerItem } from "@/components/Shared";
-import BlurText from "@/components/BlurText";
 import FadeContent from "@/components/FadeContent";
 import { api } from "@/convex/_generated/api";
 import { FEATURES } from "@/lib/features";
 import type { Id } from "@/convex/_generated/dataModel";
-import { countdownLabel, countdownParts, formatDateID, formatRupiahShort } from "@/lib/format";
+import { countdownLabel, formatDateID, formatRupiahShort } from "@/lib/format";
 import {
   readStoredAnonymousUser,
   trackAnonymousUser,
@@ -300,7 +297,8 @@ export function AppShell() {
   // (first visit, and right after signing in with an email).
   if (setupState === "pending" && !wedding) {
     return (
-      <main className="relative flex min-h-screen items-center justify-center">
+      <main className="relative isolate flex min-h-screen items-center justify-center">
+        <div aria-hidden="true" className="app-photo-backdrop" />
         <Aurora className="pointer-events-none absolute inset-0 -z-10" />
         <Petals />
         <div className="clay relative overflow-hidden px-8 py-7 text-center">
@@ -319,7 +317,8 @@ export function AppShell() {
 
   if (setupState === "error" && !wedding) {
     return (
-      <main className="flex min-h-screen items-center justify-center p-6">
+      <main className="relative isolate flex min-h-screen items-center justify-center p-6">
+        <div aria-hidden="true" className="app-photo-backdrop" />
         <Petals />
         <div className="clay max-w-sm p-6 text-center">
           <p className="text-sm font-semibold">Gagal menyiapkan ruang kerja</p>
@@ -335,7 +334,8 @@ export function AppShell() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl">
+    <div className="app-workspace relative isolate mx-auto flex min-h-screen w-full max-w-7xl">
+      <div aria-hidden="true" className="app-photo-backdrop" />
       {/* Onboarding sekali jalan — tampil sekali sampai diselesaikan/dilewati. */}
       {wedding && !wedding.onboarded && (
         <OnboardingDialog
@@ -355,7 +355,7 @@ export function AppShell() {
           reminders,
         }}
       />
-      <div className="sky-wash relative min-w-0 flex-1 pb-28 lg:pb-10">
+      <div className="sky-wash relative z-10 min-w-0 flex-1 pb-28 lg:pb-10">
       {/* Ambient wash — atmosphere-blue sky tint mengikuti rute aktif */}
       <div
         aria-hidden="true"

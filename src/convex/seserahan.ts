@@ -39,17 +39,29 @@ export const create = mutation({
   args: {
     title: v.string(),
     link: v.optional(v.string()),
+    unitPrice: v.optional(v.number()),
+    quantity: v.optional(v.number()),
+    note: v.optional(v.string()),
   },
-  handler: async (ctx, { title, link }) => {
+  handler: async (ctx, { title, link, unitPrice, quantity, note }) => {
     const userId = await workspaceUserId(ctx);
 
     const cleaned = title.trim();
     if (!cleaned) throw new Error("Nama barang tidak boleh kosong");
+    if (unitPrice !== undefined && (!Number.isSafeInteger(unitPrice) || unitPrice < 0)) {
+      throw new Error("Harga harus berupa rupiah utuh nol atau lebih");
+    }
+    if (quantity !== undefined && (!Number.isSafeInteger(quantity) || quantity < 1)) {
+      throw new Error("Jumlah harus bilangan bulat minimal satu");
+    }
 
     return await ctx.db.insert("seserahanItem", {
       userId,
       title: cleaned,
       link: link?.trim() || undefined,
+      unitPrice,
+      quantity,
+      note: note?.trim() || undefined,
       // Status awal = baru input link; di-switch dari daftar.
       status: "link",
       sortOrder: await nextSortOrder(ctx, userId),
@@ -74,16 +86,19 @@ export const setStatus = mutation({
 });
 
 /**
- * Ubah nama dan/atau link tanpa menyentuh status.
- * `link: null` (atau string kosong) menghapus link — dipakai form edit.
+ * Ubah detail seserahan tanpa menyentuh status.
+ * Nilai null menghapus detail opsional yang sudah tersimpan.
  */
 export const update = mutation({
   args: {
     itemId: v.id("seserahanItem"),
     title: v.optional(v.string()),
     link: v.optional(v.union(v.string(), v.null())),
+    unitPrice: v.optional(v.union(v.number(), v.null())),
+    quantity: v.optional(v.union(v.number(), v.null())),
+    note: v.optional(v.union(v.string(), v.null())),
   },
-  handler: async (ctx, { itemId, title, link }) => {
+  handler: async (ctx, { itemId, title, link, unitPrice, quantity, note }) => {
     const userId = await workspaceUserId(ctx);
 
     const item = await ctx.db.get(itemId);
@@ -92,6 +107,9 @@ export const update = mutation({
     const patch: {
       title?: string;
       link?: string | undefined;
+      unitPrice?: number | undefined;
+      quantity?: number | undefined;
+      note?: string | undefined;
       updatedAt: number;
     } = { updatedAt: Date.now() };
 
@@ -101,6 +119,19 @@ export const update = mutation({
       patch.title = cleaned;
     }
     if (link !== undefined) patch.link = link ? link.trim() || undefined : undefined;
+    if (unitPrice !== undefined) {
+      if (unitPrice !== null && (!Number.isSafeInteger(unitPrice) || unitPrice < 0)) {
+        throw new Error("Harga harus berupa rupiah utuh nol atau lebih");
+      }
+      patch.unitPrice = unitPrice ?? undefined;
+    }
+    if (quantity !== undefined) {
+      if (quantity !== null && (!Number.isSafeInteger(quantity) || quantity < 1)) {
+        throw new Error("Jumlah harus bilangan bulat minimal satu");
+      }
+      patch.quantity = quantity ?? undefined;
+    }
+    if (note !== undefined) patch.note = note?.trim() || undefined;
 
     await ctx.db.patch(itemId, patch);
   },
