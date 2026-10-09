@@ -111,6 +111,7 @@ function SummaryCard({
   detail,
   pct,
   icon: Icon,
+  tone,
 }: {
   to: string;
   label: string;
@@ -118,8 +119,15 @@ function SummaryCard({
   detail: string;
   pct: number;
   icon: typeof CheckCircle2;
+  tone: "nature" | "secondary" | "soft";
 }) {
   const progress = Math.min(100, Math.max(0, pct));
+  const toneStyles = {
+    nature: { icon: "text-leaf", progress: "fill-botanical" },
+    secondary: { icon: "text-atmosphere-blue", progress: "fill-secondary" },
+    soft: { icon: "text-soft-deep", progress: "fill-soft" },
+  }[tone];
+
   return (
     <Link
       to={to}
@@ -127,7 +135,7 @@ function SummaryCard({
     >
       <span className="flex items-center justify-between gap-2">
         <span className="text-xs font-bold text-muted-foreground">{label}</span>
-        <Icon className="size-4 shrink-0 text-primary" />
+        <Icon className={`size-4 shrink-0 ${toneStyles.icon}`} />
       </span>
       <span className="mt-2 block truncate font-serif text-xl font-semibold leading-tight">
         {value}
@@ -137,7 +145,7 @@ function SummaryCard({
       </span>
       <span className="mt-3 block h-1.5 overflow-hidden rounded-full bg-mist-gray">
         <span
-          className="fill-botanical block h-full rounded-full transition-all duration-700"
+          className={`${toneStyles.progress} block h-full rounded-full transition-all duration-700`}
           style={{ width: `${progress}%` }}
         />
       </span>
@@ -248,7 +256,7 @@ export function HomePage() {
         >
           {/* Selalu ada lukisan langit di belakang; foto pasangan menimpa jika diunggah */}
           {!couplePhoto && (
-            <div className="absolute inset-0 bg-gradient-to-br from-midnight-navy/85 via-deep-cerulean/70 to-midnight-navy/85" />
+            <div className="absolute inset-0 bg-gradient-to-br from-midnight-navy/90 via-leaf-deep/80 to-brick-accent/80" />
           )}
           {couplePhoto && (
             <>
@@ -259,7 +267,7 @@ export function HomePage() {
                 aria-hidden
                 className="absolute inset-0 h-full w-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-br from-midnight-navy/90 via-deep-cerulean/80 to-midnight-navy/90" />
+              <div className="absolute inset-0 bg-gradient-to-br from-midnight-navy/90 via-leaf-deep/80 to-brick-accent/85" />
             </>
           )}
           <div className="pointer-events-none absolute -right-10 -top-14 size-44 rounded-full bg-white/10 blur-2xl" />
@@ -284,7 +292,7 @@ export function HomePage() {
                   <Loader2 className="size-4 animate-spin" />
                 </span>
               ) : (
-                <span className="flex size-full items-center justify-center bg-primary text-[11px] font-extrabold text-primary-foreground">
+                <span className="flex size-full items-center justify-center bg-tint-sage text-[11px] font-extrabold text-tint-sage-foreground">
                   {coupleInitials(
                     wedding.partnerOneName,
                     wedding.partnerTwoName,
@@ -357,6 +365,7 @@ export function HomePage() {
                 detail={allTasks.length > 0 ? `${doneTasks.length} dari ${allTasks.length} tugas selesai` : "Belum ada tugas persiapan"}
                 pct={taskPct}
                 icon={CheckCircle2}
+                tone="nature"
               />
             </StaggerItem>
             <StaggerItem>
@@ -367,6 +376,7 @@ export function HomePage() {
                 detail={guestTotal > 0 ? `${guestHadir} hadir · ${guestTidak} tidak hadir` : "Belum ada tamu di daftar"}
                 pct={rsvpPct}
                 icon={Mail}
+                tone="secondary"
               />
             </StaggerItem>
             <StaggerItem>
@@ -377,6 +387,7 @@ export function HomePage() {
                 detail={allocated > 0 ? `${formatRupiahShort(spent)} terpakai dari ${formatRupiahShort(allocated)}` : "Atur anggaran pernikahan Anda"}
                 pct={allocated > 0 ? spentPct : 0}
                 icon={Wallet}
+                tone="soft"
               />
             </StaggerItem>
           </Stagger>
@@ -388,10 +399,10 @@ export function HomePage() {
         <SectionHeader title="Aksi cepat" />
         <Stagger className="grid grid-cols-2 gap-2.5">
           {[
-            { to: "/app/budget", label: "Catat Biaya", icon: Wallet, surface: "bg-sky-tint text-midnight-navy" },
-            { to: "/app/tamu", label: "Tambah Tamu", icon: UserPlus, surface: "bg-sky-tint/70 text-midnight-navy" },
-            { to: "/app/rundown", label: "Rundown Acara", icon: CalendarPlus, surface: "bg-sky-tint text-midnight-navy" },
-            { to: "/app/moodboard", label: "Moodboard", icon: Palette, surface: "bg-berry-tint text-berry-red" },
+            { to: "/app/budget", label: "Catat Biaya", icon: Wallet, surface: "bg-tint-butter text-tint-butter-foreground" },
+            { to: "/app/tamu", label: "Tambah Tamu", icon: UserPlus, surface: "bg-tint-rose text-tint-rose-foreground" },
+            { to: "/app/rundown", label: "Rundown Acara", icon: CalendarPlus, surface: "bg-tint-sage text-tint-sage-foreground" },
+            { to: "/app/moodboard", label: "Moodboard", icon: Palette, surface: "bg-tint-lavender text-tint-lavender-foreground" },
           ].map((action) => (
             <StaggerItem key={action.to}>
               <Link
@@ -445,14 +456,14 @@ export function HomePage() {
                           index === 0
                             ? "invisible"
                             : index <= activePhase
-                              ? "bg-primary/40"
+                              ? "bg-leaf/45"
                               : "bg-border"
                         }`}
                       />
                       <span
                         className={`flex size-9 shrink-0 items-center justify-center rounded-full ${
                           status === "done"
-                            ? "bg-primary/70 text-white"
+                            ? "bg-leaf text-white"
                             : status === "active"
                               ? "bg-primary text-primary-foreground"
                               : "border border-border bg-tint-sage text-muted-foreground"
@@ -465,7 +476,7 @@ export function HomePage() {
                           index >= PHASES.length - 1
                             ? "invisible"
                             : index < activePhase
-                              ? "bg-primary/40"
+                              ? "bg-leaf/45"
                               : "bg-border"
                         }`}
                       />
@@ -476,7 +487,7 @@ export function HomePage() {
                     <p
                       className={`text-[10px] font-semibold leading-none ${
                         status === "active"
-                          ? "text-primary"
+                          ? "text-atmosphere-blue"
                           : "text-muted-foreground"
                       }`}
                     >

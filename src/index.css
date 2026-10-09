@@ -108,6 +108,7 @@
   /* Token nature — peran palet, ikut berganti saat palet diubah */
   --color-leaf: #6b7a38;
   --color-leaf-deep: #515a2c;
+  --color-soft-deep: #703138;
   --color-petal: #f2c9ce;
   --color-bloom: #b24a55;
   --color-ivory: #f7e9c3;
@@ -713,12 +714,27 @@
       var(--color-petal) 100%
     );
   }
-  /* isian progres dua-nada: primary → primary-deep (mengikuti palet) */
+  /* Isian progres memakai peran aksen yang berbeda agar dashboard tidak
+     terasa didominasi warna utama. */
   .fill-botanical {
     background-image: linear-gradient(
       90deg,
-      var(--color-cerulean-sky) 0%,
-      var(--color-midnight-navy) 100%
+      var(--color-leaf) 0%,
+      var(--color-leaf-deep) 100%
+    );
+  }
+  .fill-secondary {
+    background-image: linear-gradient(
+      90deg,
+      var(--color-atmosphere-blue) 0%,
+      var(--color-brick-accent) 100%
+    );
+  }
+  .fill-soft {
+    background-image: linear-gradient(
+      90deg,
+      var(--color-petal) 0%,
+      var(--color-soft-deep) 100%
     );
   }
 

@@ -132,7 +132,7 @@ export function NotificationBell({
         >
           <Bell className="size-4" />
           {openTasks > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+            <span className="absolute -right-0.5 -top-0.5 flex size-5 items-center justify-center rounded-full bg-atmosphere-blue text-white text-[10px] font-bold">
               {openTasks > 9 ? "9+" : openTasks}
             </span>
           )}

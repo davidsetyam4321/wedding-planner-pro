@@ -331,6 +331,7 @@ export function paletteVars(roles: PaletteRoles): Record<string, string> {
   /* Token baru nature (didefinisikan statis di @theme) */
   set("--color-leaf", L);
   set("--color-leaf-deep", darken(L, 0.3));
+  set("--color-soft-deep", accentFg);
   set("--color-petal", F);
   set("--color-bloom", S);
   set("--color-ivory", B);

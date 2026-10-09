@@ -72,9 +72,9 @@ export function BottomNav() {
               aria-label="Fitur lainnya"
               className={`relative flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-2 text-[10px] font-medium transition-all duration-200 ${
                 inGroup
-                  ? "bg-sky-tint font-semibold text-midnight-navy shadow-sm"
+                  ? "bg-tint-sage font-semibold text-tint-sage-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
-              } data-[state=open]:bg-sky-tint data-[state=open]:font-semibold data-[state=open]:text-midnight-navy data-[state=open]:shadow-sm`}
+              } data-[state=open]:bg-tint-sage data-[state=open]:font-semibold data-[state=open]:text-tint-sage-foreground data-[state=open]:shadow-sm`}
             >
               <LayoutGrid
                 className="size-5 shrink-0"

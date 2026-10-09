@@ -110,7 +110,7 @@ export function SideNav({
             <Icon className="size-4" />
             <span className="truncate">{label}</span>
             {to === "/app/checklist" && extra && extra.openTasks > 0 && (
-              <span className="ml-auto shrink-0 rounded-full bg-berry-red px-1.5 py-0.5 text-[10px] font-bold text-white">
+              <span className="ml-auto shrink-0 rounded-full bg-atmosphere-blue px-1.5 py-0.5 text-[10px] font-bold text-white">
                 {extra.openTasks > 9 ? "9+" : extra.openTasks}
               </span>
             )}
