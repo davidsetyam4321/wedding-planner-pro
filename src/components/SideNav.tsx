@@ -1,4 +1,4 @@
-import { FlowerMark } from "@/components/Decor";
+import { RingsMark } from "@/components/Decor";
 import { coupleInitials } from "@/components/CouplePhoto";
 import { NotificationBell } from "@/components/AppShellNav";
 import { FEATURES } from "@/lib/features";
@@ -72,7 +72,7 @@ export function SideNav({
       {/* Brand + nama pasangan + hitung mundur — menggantikan blok kiri header */}
       <Link to="/app" className="flex items-center gap-3">
         <span className="flex size-11 items-center justify-center rounded-full border border-foreground/10 bg-midnight-navy">
-          <FlowerMark className="size-6 text-white" />
+          <RingsMark className="size-6 text-white" />
         </span>
         <span className="min-w-0">
           <span className="block font-serif text-xl font-light leading-tight text-primary">

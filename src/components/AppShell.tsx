@@ -6,9 +6,10 @@ import { SignupBanner } from "@/components/SignupBanner";
 import { coupleInitials } from "@/components/CouplePhoto";
 import {
   BloomOverlay,
-  FlowerMark,
   Petals,
   PetalsFront,
+  RingsMark,
+  SprigMark,
 } from "@/components/Decor";
 import { Button } from "@/components/ui/button";
 import {
@@ -301,7 +302,7 @@ export function AppShell() {
       <main className="flex min-h-screen items-center justify-center">
         <Petals />
         <div className="clay relative overflow-hidden px-8 py-7 text-center">
-          <FlowerMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-16 text-primary/20" />
+          <SprigMark className="float-slow pointer-events-none absolute -right-3 -top-3 size-16 text-primary/20" />
           <div className="clay-sm relative mx-auto flex size-12 items-center justify-center rounded-full bg-white/70">
             <Sparkles className="size-5 animate-pulse text-primary" />
           </div>
@@ -376,7 +377,7 @@ export function AppShell() {
         </div>
         <div className="flex flex-1 lg:hidden items-center gap-2">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-foreground/15 shadow-sm backdrop-blur-md">
-            <FlowerMark className="size-5 text-primary" />
+            <RingsMark className="size-5 text-primary" />
           </span>
           <h1 className="truncate font-serif text-[19px] font-light text-primary">SatuJanji</h1>
           {pageTitle && (

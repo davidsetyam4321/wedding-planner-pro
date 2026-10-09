@@ -8,6 +8,7 @@ import React, { StrictMode, useEffect, lazy, Suspense, useRef, useState } from "
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router";
 import { AppPalette, DefaultPalette } from "@/components/PaletteProvider";
+import ClickSpark from "@/components/reactbits/ClickSpark";
 import "./index.css";
 
 // Lazy load route components for better code splitting
@@ -222,6 +223,7 @@ createRoot(document.getElementById("root")!).render(
         <BrowserRouter>
           <RouteSyncer />
           <RoutePalette />
+          <ClickSpark />
           <Suspense fallback={<RouteLoading />}>
             <AutoSession>
               <Routes>

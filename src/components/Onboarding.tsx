@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FlowerMark } from "@/components/Decor";
+import { BouquetMark } from "@/components/Decor";
 import { api } from "@/convex/_generated/api";
 import { bloom } from "@/lib/bloom";
 import { fromDateInputValue, toDateInputValue } from "@/lib/format";
@@ -112,7 +112,7 @@ export function OnboardingDialog({
       <div className="clay relative w-full max-w-sm overflow-hidden p-6">
         <div className="flex items-center justify-between">
           <span className="flex size-11 items-center justify-center rounded-full bg-sky-tint">
-            <FlowerMark className="size-6 text-primary" />
+            <BouquetMark className="size-6 text-primary" />
           </span>
           <span className="flex gap-1.5" aria-hidden>
             {steps.map((item, index) => (

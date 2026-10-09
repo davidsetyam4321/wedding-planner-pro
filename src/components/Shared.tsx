@@ -14,7 +14,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FlowerMark } from "@/components/Decor";
+import {
+  BranchMark,
+  BouquetMark,
+  FlowerMark,
+  SprigMark,
+  WreathMark,
+} from "@/components/Decor";
 import FadeContent from "@/components/FadeContent";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -200,7 +206,7 @@ export function EmptyState({
         <div className="sky-tint clay-sm flex size-14 items-center justify-center rounded-full text-2xl shadow-lift">
           {emoji}
         </div>
-        <FlowerMark className="absolute -right-2 -top-2 size-5 text-berry-red" />
+        <SprigMark className="absolute -right-2 -top-2 size-5 text-bloom" />
       </div>
       <p className="relative text-sm font-semibold">{title}</p>
       {description && (
@@ -258,7 +264,15 @@ export function DueChip({ dueDate }: { dueDate: number }) {
 /**
  * Judul seksi bergaya VOWCRAFT: huruf kapital kecil di kiri, aksi/meta di
  * kanan. Dipakai di seluruh halaman agar struktur judul seragam.
+ * Ikonnya silih berganti antar section supaya penempatan tidak monoton.
  */
+const SECTION_MARKS = [
+  FlowerMark,
+  SprigMark,
+  BouquetMark,
+  BranchMark,
+  WreathMark,
+];
 export function SectionHeader({
   title,
   action,
@@ -266,13 +280,15 @@ export function SectionHeader({
   title: string;
   action?: ReactNode;
 }) {
+  // Ikon section beragam — dipilih deterministik dari judul, tidak monoton.
+  const Mark = SECTION_MARKS[[...title].length % SECTION_MARKS.length];
   return (
     <FadeContent
       duration={550}
       className="mb-2.5 flex items-end justify-between gap-2"
     >
       <h2 className="flex items-center gap-1.5 font-serif text-[15px] font-normal uppercase leading-tight tracking-wide text-midnight-navy">
-        <FlowerMark className="size-3.5 shrink-0 text-berry-red" />
+        <Mark className="size-4 shrink-0 text-bloom" />
         {title}
       </h2>
       {action}

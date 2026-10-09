@@ -1,5 +1,11 @@
 import BlurText from "@/components/BlurText";
-import { FlowerMark, Petals, PetalsFront, SekarSudut } from "@/components/Decor";
+import {
+  BranchMark,
+  Petals,
+  PetalsFront,
+  SekarSudut,
+  WreathMark,
+} from "@/components/Decor";
 import Magnet from "@/components/Magnet";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -17,8 +23,8 @@ export default function NotFound() {
       <PetalsFront />
       <SekarSudut className="pointer-events-none absolute left-6 top-10 hidden size-8 rotate-12 sm:block" />
       <div className="clay grad-warm relative w-full max-w-sm overflow-hidden p-8 text-center">
-        <FlowerMark className="float-slow pointer-events-none absolute -right-4 -top-4 size-24 text-primary/20" />
-        <FlowerMark className="sway pointer-events-none absolute -left-4 bottom-2 size-16 text-tint-rose-foreground/20" />
+        <WreathMark className="float-slow pointer-events-none absolute -right-4 -top-4 size-24 text-primary/20" />
+        <BranchMark className="sway pointer-events-none absolute -left-4 bottom-2 size-16 text-leaf/30" />
         <p className="num relative text-5xl font-extrabold text-primary">404</p>
         <h1 className="h-card relative mt-3">
           <BlurText

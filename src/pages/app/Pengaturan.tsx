@@ -1,7 +1,7 @@
 import { AccountSection } from "@/components/AccountSection";
 import { BackLink, SectionHeader } from "@/components/Shared";
 import { coupleInitials, useCouplePhotoUpload } from "@/components/CouplePhoto";
-import { FlowerMark } from "@/components/Decor";
+import { RingsMark } from "@/components/Decor";
 import { PaletteSection } from "@/components/PaletteSettings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -155,7 +155,7 @@ export function PengaturanPage() {
             />
           ) : (
             <div className="sky-band flex h-full w-full flex-col items-center justify-center gap-1.5">
-              <FlowerMark className="size-9 text-primary/25" />
+              <RingsMark className="size-9 text-primary/25" />
               <p className="font-serif text-2xl font-semibold text-primary/60">
                 {coupleInitials(wedding?.partnerOneName, wedding?.partnerTwoName)}
               </p>

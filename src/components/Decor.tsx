@@ -19,6 +19,108 @@ export function FlowerMark({ className }: { className?: string }) {
   );
 }
 
+/** Tunas dua daun — aksen botanikal ringan. */
+export function SprigMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
+      <path
+        d="M12 21 C 12 15, 12.6 9, 16.4 3.4"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <path
+        d="M13 12.4 C 9.8 12.8, 7.4 11, 6.8 8.4 C 10 7.8, 12.4 9.6, 13 12.4 Z"
+        fill="currentColor"
+      />
+      <path
+        d="M14.4 8.2 C 12 7, 10.8 4.6, 11.4 2.4 C 14 3.2, 15.2 5.6, 14.4 8.2 Z"
+        fill="currentColor"
+      />
+      <path
+        d="M12.6 16 C 10.2 17, 7.4 16, 6.4 13.8 C 9.2 13, 11.8 14, 12.6 16 Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+/** Dua cincin bertaut + bintang kecil — simbol janji pernikahan. */
+export function RingsMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
+      <circle cx="9.4" cy="13.6" r="5.1" stroke="currentColor" strokeWidth="1.7" />
+      <circle cx="15.2" cy="10.8" r="5.1" stroke="currentColor" strokeWidth="1.7" />
+      <path
+        d="M15.2 2.6 L 16.3 4.7 L 18.6 5.1 L 16.9 6.7 L 17.3 9 L 15.2 7.9 L 13.1 9 L 13.5 6.7 L 11.8 5.1 L 14.1 4.7 Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+/** Mahkota daun bundar — untuk empty state & penutup. */
+export function WreathMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
+      <circle
+        cx="12"
+        cy="13.6"
+        r="7.4"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeDasharray="2.6 3.2"
+      />
+      <path
+        d="M12 2.4 C 14.8 4.2, 15.2 6.8, 12 8.6 C 8.8 6.8, 9.2 4.2, 12 2.4 Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+/** Buket mini — tiga kembang bertangkai. */
+export function BouquetMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
+      <g stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+        <path d="M12 13.4 L12 20.6" />
+        <path d="M9.2 12.2 C 7.7 14.6, 7.2 17.6, 7.8 20.2" />
+        <path d="M14.8 12.2 C 16.3 14.6, 16.8 17.6, 16.2 20.2" />
+      </g>
+      <circle cx="8" cy="9.2" r="3" fill="currentColor" />
+      <circle cx="16" cy="9.8" r="2.6" fill="currentColor" />
+      <circle cx="12" cy="6.2" r="3.2" fill="currentColor" />
+    </svg>
+  );
+}
+
+/** Ranting daun melengkung — ornamen pemisah. */
+export function BranchMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
+      <path
+        d="M3 18 C 8 16.6, 14.4 13, 21 6.6"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M7.6 15.4 C 7 12.8, 8.4 10.6, 10.6 10 C 11.2 12.6, 9.8 14.8, 7.6 15.4 Z"
+        fill="currentColor"
+      />
+      <path
+        d="M13.2 11.8 C 13.4 9.2, 15.2 7.4, 17.4 7.4 C 17.2 10, 15.4 11.8, 13.2 11.8 Z"
+        fill="currentColor"
+      />
+      <path
+        d="M4.8 17.6 C 3.4 15.6, 4 13.2, 5.6 12 C 7 14, 6.4 16.4, 4.8 17.6 Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
 /** Burung kecil di angkasa — siluet minimal Cora. */
 export function BirdMark({ className }: { className?: string }) {
   return (

@@ -284,7 +284,8 @@ export function paletteVars(roles: PaletteRoles): Record<string, string> {
 
   // Netral hangat — ditarik dari latar agar tetap selaras & kontras.
   const ink = mix("#241c20", B, 0.05);
-  const graphite = mix("#5f5457", B, 0.22);
+  // Netral sekunder dinaikkan kontrasnya (≥4.8:1 di atas latar terang).
+  const graphite = mix("#4a4043", B, 0.14);
   const stone = mix("#97878a", B, 0.25);
   const fog = mix("#d5c9ca", B, 0.35);
   const mist = mix("#eee5e4", B, 0.45);

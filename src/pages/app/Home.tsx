@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import AnimatedContent from "@/components/AnimatedContent";
 import { GarlandDivider, SekarSudut } from "@/components/Decor";
 import PulseHeart from "@/components/PulseHeart";
+import GlareHover from "@/components/reactbits/GlareHover";
 import SpotlightCard from "@/components/SpotlightCard";
 import { api } from "@/convex/_generated/api";
 import { bloom } from "@/lib/bloom";
@@ -164,7 +165,7 @@ function ReadinessCard({
   tone: { icon: string; pct: string };
 }) {
   return (
-    <div className="clay">
+    <GlareHover className="clay" glareColor="var(--color-petal)">
       <SpotlightCard
         className="flex h-full flex-col justify-between gap-3 rounded-2xl p-4"
         spotlightColor="rgba(255, 255, 255, 0.55)"
@@ -197,7 +198,7 @@ function ReadinessCard({
           />
         </div>
       </SpotlightCard>
-    </div>
+    </GlareHover>
   );
 }
 

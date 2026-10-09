@@ -6,7 +6,18 @@ import {
   MotifDivider,
   PetalsFront,
 } from "@/components/Decor";
-import { FlowerMark, Petals } from "@/components/Decor";
+import {
+  BouquetMark,
+  FlowerMark,
+  Petals,
+  RingsMark,
+  SprigMark,
+  WreathMark,
+} from "@/components/Decor";
+import Marquee from "@/components/reactbits/Marquee";
+import Rotate from "@/components/reactbits/Rotate";
+import ShinyText from "@/components/reactbits/ShinyText";
+import StarBorder from "@/components/reactbits/StarBorder";
 import FadeContent from "@/components/FadeContent";
 import PulseHeart from "@/components/PulseHeart";
 import { Stagger, StaggerItem } from "@/components/Shared";
@@ -69,6 +80,9 @@ const VOICES = [
   },
 ];
 
+/** Ikon avatar testimoni — silih berganti supaya tidak monoton. */
+const VOICE_MARKS = [FlowerMark, SprigMark, BouquetMark];
+
 /**
  * Halaman publik Cora: hero bertema nature — foto asli tanaman & bayangannya
  * di dinding, lalu ritme floral → putih → floral → putih → floral CTA.
@@ -121,7 +135,7 @@ export function LandingPage() {
                 className="flex items-center gap-2.5 rounded-full border border-ink/10 bg-white/60 px-3 py-1.5 backdrop-blur-sm"
               >
                 <span className="flex size-7 items-center justify-center rounded-full border border-leaf/30">
-                  <FlowerMark className="size-4 text-leaf" />
+                  <RingsMark className="size-4 text-leaf" />
                 </span>
                 <span className="text-base font-semibold tracking-tight text-midnight-navy">
                   SatuJanji
@@ -157,8 +171,8 @@ export function LandingPage() {
               className="relative inline-block"
             >
               <span className="chip border-primary/25 bg-white/75 text-primary backdrop-blur-sm">
-                <Sparkles className="size-3.5" /> Perencana pernikahan untuk
-                berdua
+                <Sparkles className="size-3.5" />{" "}
+                <ShinyText text="Perencana pernikahan untuk berdua" />
               </span>
             </FadeContent>
 
@@ -184,15 +198,17 @@ export function LandingPage() {
             />
 
             <div className="relative mt-9 flex flex-wrap items-center justify-center gap-3">
-              <Button
-                asChild
-                size="lg"
-                className="bg-primary px-7 text-primary-foreground shadow-none hover:bg-deep-cerulean"
-              >
-                <Link to="/app">
-                  Mulai merencanakan <ArrowRight className="size-4" />
-                </Link>
-              </Button>
+              <StarBorder>
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-primary px-7 text-primary-foreground shadow-none hover:bg-deep-cerulean"
+                >
+                  <Link to="/app">
+                    Mulai merencanakan <ArrowRight className="size-4" />
+                  </Link>
+                </Button>
+              </StarBorder>
               <Button
                 asChild
                 size="lg"
@@ -240,16 +256,20 @@ export function LandingPage() {
               </h2>
             </FadeContent>
 
-            <Stagger className="mt-12 grid gap-6 md:grid-cols-3">
-              {VOICES.map((voice) => (
-                <StaggerItem key={voice.name}>
-                  <figure className="clay h-full rounded-xl p-6 shadow-sm-2">
+            <Marquee speed={52} gap={24} className="mt-12">
+              {VOICES.map((voice, index) => {
+                const Mark = VOICE_MARKS[index % VOICE_MARKS.length];
+                return (
+                  <figure
+                    key={voice.name}
+                    className="clay w-[300px] rounded-xl p-6 shadow-sm-2 sm:w-[360px]"
+                  >
                     <blockquote className="text-body leading-relaxed text-ink">
                       “{voice.quote}”
                     </blockquote>
                     <figcaption className="mt-5 flex items-center gap-3">
                       <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-sky-tint">
-                        <FlowerMark className="size-4 text-midnight-navy" />
+                        <Mark className="size-4 text-midnight-navy" />
                       </span>
                       <span>
                         <span className="block text-sm font-semibold text-ink">
@@ -261,9 +281,9 @@ export function LandingPage() {
                       </span>
                     </figcaption>
                   </figure>
-                </StaggerItem>
-              ))}
-            </Stagger>
+                );
+              })}
+            </Marquee>
           </div>
         </section>
 
@@ -327,7 +347,9 @@ export function LandingPage() {
                   delay={25}
                 />
               </div>
-              <span className="meta">9 modul siap dipakai</span>
+              <span className="meta">
+                <ShinyText text="9 modul siap dipakai" className="text-primary" />
+              </span>
             </FadeContent>
 
             <Stagger className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -375,6 +397,7 @@ export function LandingPage() {
             <Stagger className="mt-10 grid gap-4 md:grid-cols-3">
               {STEPS.map((step) => (
                 <StaggerItem key={step.step}>
+                  <Rotate className="h-full" maxRotateX={8} maxRotateY={10}>
                   <div className="clay h-full rounded-xl">
                     <SpotlightCard
                       className="h-full rounded-xl p-6"
@@ -396,6 +419,7 @@ export function LandingPage() {
                       </p>
                     </SpotlightCard>
                   </div>
+                  </Rotate>
                 </StaggerItem>
               ))}
             </Stagger>
@@ -446,7 +470,10 @@ export function LandingPage() {
           <AnimatedContent distance={60} threshold={0.2}>
             <h2 className="mx-auto max-w-3xl font-serif text-4xl font-light leading-[1.05] text-white md:text-[55px]">
               Siap merencanakan{" "}
-              <span className="elegant italic">hari bahagia?</span>
+              <ShinyText
+                text="hari bahagia?"
+                className="elegant inline-block italic text-white"
+              />
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-body-lg text-white/80">
               Buka ruang kerja Anda dan mulai susun rencana bersama pasangan —
@@ -482,7 +509,7 @@ export function LandingPage() {
         <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center justify-between gap-3 px-5 py-8 sm:flex-row">
           <div className="flex items-center gap-2.5">
             <span className="flex size-8 items-center justify-center rounded-full border border-white/50">
-              <FlowerMark className="size-4 text-white" />
+              <WreathMark className="size-4 text-white" />
             </span>
             <span className="text-sm font-semibold tracking-tight text-white">
               SatuJanji
