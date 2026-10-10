@@ -253,8 +253,9 @@ export function DueChip({ dueDate }: { dueDate: number }) {
 }
 
 /**
- * Judul seksi bergaya VOWCRAFT: huruf kapital kecil di kiri, aksi/meta di
- * kanan. Dipakai di seluruh halaman agar struktur judul seragam.
+ * Judul seksi bergaya undangan: huruf kapital kecil berjarak lebar di kiri,
+ * aksi/meta di kanan, lalu garis rambut tipis di bawahnya seperti kertas
+ * undangan cetak. Dipakai di seluruh halaman agar struktur judul seragam.
  * Ikonnya silih berganti antar section supaya penempatan tidak monoton.
  */
 const SECTION_MARKS = [
@@ -274,15 +275,19 @@ export function SectionHeader({
   // Ikon section beragam — dipilih deterministik dari judul, tidak monoton.
   const Mark = SECTION_MARKS[[...title].length % SECTION_MARKS.length];
   return (
-    <FadeContent
-      duration={550}
-      className="mb-2.5 flex items-end justify-between gap-2"
-    >
-      <h2 className="flex items-center gap-1.5 font-serif text-[15px] font-normal uppercase leading-tight tracking-wide text-midnight-navy">
-        <Mark className="size-4 shrink-0 text-bloom" />
-        {title}
-      </h2>
-      {action}
+    <FadeContent duration={550} className="mb-2.5">
+      <div className="flex items-end justify-between gap-2">
+        <h2 className="flex items-center gap-1.5 font-serif text-[15px] font-normal uppercase leading-tight tracking-[0.14em] text-midnight-navy">
+          <Mark className="size-4 shrink-0 text-bloom" />
+          {title}
+        </h2>
+        {action}
+      </div>
+      {/* garis rambut khas kertas undangan di bawah judul seksi */}
+      <span
+        aria-hidden="true"
+        className="mt-2 block h-px w-full bg-gradient-to-r from-primary/40 via-border to-transparent"
+      />
     </FadeContent>
   );
 }

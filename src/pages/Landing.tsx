@@ -127,7 +127,8 @@ export function LandingPage() {
                 <span className="flex size-7 items-center justify-center rounded-full border border-leaf/30">
                   <RingsMark className="size-4 text-leaf" />
                 </span>
-                <span className="text-base font-semibold tracking-tight text-midnight-navy">
+                {/* Wordmark script — kunci nuansa undangan sejak header. */}
+                <span className="signature text-[21px] leading-none text-midnight-navy">
                   SatuJanji
                 </span>
               </Link>
@@ -174,10 +175,19 @@ export function LandingPage() {
             >
               <h1 className="font-serif text-[44px] font-light leading-[1.02] text-midnight-navy sm:text-[56px] md:text-[68px]">
                 Rencanakan hari bahagia Anda,{" "}
-                <span className="elegant relative inline-block text-[1.06em] italic text-leaf">
+                <span className="signature relative inline-block text-[1.22em] text-leaf">
                   berdua.
                 </span>
               </h1>
+            </FadeContent>
+
+            <FadeContent
+              blur
+              duration={900}
+              delay={420}
+              className="mt-5 flex justify-center"
+            >
+              <MotifDivider className="h-5 w-52 opacity-80" />
             </FadeContent>
 
             <BlurText
@@ -237,7 +247,7 @@ export function LandingPage() {
         <section className="bg-cloud-white px-5 py-24">
           <div className="mx-auto max-w-[1200px]">
             <FadeContent blur duration={900} className="text-center">
-              <p className="label text-stone">Dibuat untuk rencana bersama</p>
+              <p className="eyebrow eyebrow-rules text-stone">Dibuat untuk rencana bersama</p>
               <h2 className="mx-auto mt-2 max-w-2xl font-serif text-3xl font-light leading-tight md:text-[40px]">
                 Satu ruang untuk menyatukan semua detail
               </h2>
@@ -247,7 +257,8 @@ export function LandingPage() {
                 const Mark = [DoorOpen, Wallet, HeartHandshake][index];
                 return (
                   <StaggerItem key={pillar.title}>
-                    <article className="clay h-full rounded-xl p-6">
+                    {/* Kartu berbingkai ganda — permukaan kertas undangan. */}
+                    <article className="stationery h-full p-6">
                       <span className="flex size-10 items-center justify-center rounded-full bg-sky-tint text-midnight-navy">
                         <Mark className="size-5" />
                       </span>
@@ -281,7 +292,7 @@ export function LandingPage() {
           {/* Preview mini dashboard — kartu putih mengambang di langit */}
           <AnimatedContent distance={80} threshold={0.15} className="relative z-10">
             <div className="mx-auto mt-12 max-w-md rotate-[-2deg] rounded-xl bg-cloud-white p-6 shadow-float lg:max-w-lg">
-              <p className="label text-stone">Menuju hari pernikahan</p>
+              <p className="eyebrow eyebrow-rules text-stone">Menuju hari pernikahan</p>
               <p className="num mt-1 font-serif text-5xl font-light text-ink">
                 H-<CountUp to={328} />
               </p>
@@ -314,7 +325,7 @@ export function LandingPage() {
               className="flex flex-wrap items-end justify-between gap-2"
             >
               <div>
-                <p className="label text-stone">Fitur lengkap</p>
+                <p className="eyebrow eyebrow-rules text-stone">Fitur lengkap</p>
                 <SplitText
                   tag="h2"
                   textAlign="left"
@@ -361,7 +372,7 @@ export function LandingPage() {
         {/* ── Section putih: cara kerja ─────────────────────────────────── */}
         <section id="cara-kerja" className="bg-cloud-white px-5 pb-24">
           <div className="mx-auto max-w-[1200px]">
-            <p className="label text-stone">Cara kerja</p>
+            <p className="eyebrow eyebrow-rules text-stone">Cara kerja</p>
             <SplitText
               tag="h2"
               textAlign="left"

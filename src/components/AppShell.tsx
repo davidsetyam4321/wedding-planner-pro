@@ -381,7 +381,9 @@ export function AppShell() {
           <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-foreground/15 shadow-sm backdrop-blur-md">
             <RingsMark className="size-5 text-primary" />
           </span>
-          <h1 className="truncate font-serif text-[19px] font-light text-primary">SatuJanji</h1>
+          <h1 className="signature truncate text-[22px] leading-none text-primary">
+            SatuJanji
+          </h1>
           {pageTitle && (
             <span className="elegant truncate text-[13px] text-muted-foreground">{pageTitle}</span>
           )}

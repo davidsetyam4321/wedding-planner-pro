@@ -53,21 +53,28 @@ export function printDocument(
 <head>
 <meta charset="utf-8" />
 <title>${esc(docTitle)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
 <style>
   @page { margin: 18mm 14mm; }
   * { box-sizing: border-box; }
-  body { font-family: "Plus Jakarta Sans", Arial, sans-serif; color: #3a2317; margin: 0; }
-  header { border-bottom: 3px double #3a2317; padding-bottom: 12px; margin-bottom: 20px; }
-  h1 { font-family: "Marcellus", "GRIFTER", Georgia, serif; font-size: 22px; margin: 0 0 4px; color: #3a2317; letter-spacing: .02em; }
-  .subtitle { font-size: 12px; color: #7a6247; margin: 0; }
-  h2 { font-family: "GRIFTER", "Bagel Fat One", "Inter", Arial, sans-serif; font-size: 14px; text-transform: uppercase; letter-spacing: .08em;
-       color: #3a2317; margin: 22px 0 8px; }
+  body { font-family: "Outfit", "Segoe UI", Arial, sans-serif; color: #2f2628; margin: 0; }
+  /* Kepala dokumen bergaya kertas undangan: garis rambut atas-bawah, teks di tengah. */
+  header { text-align: center; border-top: 1px solid #cbb49f; border-bottom: 1px solid #cbb49f;
+           padding: 14px 0; margin-bottom: 22px; }
+  h1 { font-family: "Fraunces", Georgia, serif; font-weight: 400; font-size: 24px; margin: 0 0 6px;
+       color: #5e1a26; letter-spacing: .01em; }
+  .subtitle { font-size: 10.5px; text-transform: uppercase; letter-spacing: .18em; color: #8b7977; margin: 0; }
+  h2 { font-family: "Outfit", Arial, sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase;
+       letter-spacing: .18em; color: #5e1a26; margin: 24px 0 10px; padding-bottom: 6px;
+       border-bottom: 1px solid #e1d4c8; }
   table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  th, td { border: 1px solid #dcdad7; padding: 6px 8px; text-align: left; }
-  th { background: #efe6d6; font-weight: 700; }
-  tr:nth-child(even) td { background: #f7f7f8; }
+  th, td { border: 1px solid #e1d4c8; padding: 6px 8px; text-align: left; }
+  th { background: #f2e7d5; font-weight: 600; }
+  tr:nth-child(even) td { background: #fbf7ee; }
   .line { font-size: 12px; margin: 4px 0; }
-  footer { margin-top: 28px; font-size: 10px; color: #8b8d93; text-align: center; }
+  footer { margin-top: 28px; font-size: 10px; color: #8b7977; text-align: center; }
 </style>
 </head>
 <body>

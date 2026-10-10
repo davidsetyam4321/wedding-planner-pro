@@ -118,6 +118,8 @@
   --font-sans: "Outfit", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-serif: "Fraunces", ui-serif, Georgia, serif;
   --font-grifter: "Fraunces", ui-serif, Georgia, serif;
+  /* Script tanda tangan — hanya untuk momen personal (nama pasangan) */
+  --font-script: "Great Vibes", "Fraunces", ui-serif, Georgia, cursive;
   --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Typography — Scale */
@@ -1014,6 +1016,7 @@
   [data-slot="card"]:hover,
   .clay:hover,
   .panel:hover,
+  .stationery:hover,
   .clay-press:hover,
   [data-slot="button"][data-variant="default"]:hover,
   [data-slot="button"][data-variant="outline"]:hover,
@@ -1032,6 +1035,7 @@
   [data-slot="card"]:hover,
   .clay:hover,
   .panel:hover,
+  .stationery:hover,
   .clay-press:hover,
   [data-slot="button"]:hover {
     transform: none;
@@ -1069,5 +1073,80 @@
   }
   50% {
     transform: translateY(-7px) rotate(3deg);
+  }
+}
+
+/* ── Lapisan stationery undangan ─────────────────────────────────────────
+   Bahasa visual kertas undangan: label kapital berjarak lebar yang diapit
+   garis rambut, kartu berbingkai ganda, monogram pasangan, dan tanda tangan
+   script. Dipakai lintas halaman supaya nuansanya seragam. */
+@layer utilities {
+  /* Label ala undangan — kapital berjarak lebar. Warna sengaja tidak diatur
+     di sini agar pemanggil bebas memakai text-white/text-stone dsb. */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    line-height: 1.4;
+  }
+  /* Varian diapit dua garis rambut — dipakai pada judul seksi di tengah */
+  .eyebrow-rules::before,
+  .eyebrow-rules::after {
+    content: "";
+    flex: none;
+    height: 1px;
+    width: clamp(1.25rem, 7vw, 3.5rem);
+    background-image: linear-gradient(90deg, transparent, currentColor, transparent);
+    opacity: 0.5;
+  }
+
+  /* Kartu pernikahan: bingkai ganda tipis seperti undangan cetak. Padding
+     diserahkan ke pemanggil (p-5/p-6) agar tetap fleksibel. */
+  .stationery {
+    position: relative;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-3xl);
+    box-shadow: var(--shadow-sm-2);
+    transition:
+      box-shadow 220ms ease,
+      border-color 220ms ease,
+      background-color 220ms ease;
+  }
+  .stationery::before {
+    content: "";
+    position: absolute;
+    inset: 7px;
+    border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--border));
+    border-radius: calc(var(--radius-3xl) - 7px);
+    pointer-events: none;
+  }
+  .stationery > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Tanda tangan script — momen personal saja (nama pasangan) */
+  .signature {
+    font-family: var(--font-script);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+  }
+
+  /* Seal monogram bundar untuk inisial pasangan */
+  .monogram {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
+    font-family: var(--font-serif);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 }

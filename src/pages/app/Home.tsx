@@ -271,7 +271,7 @@ export function HomePage() {
           <SekarSudut className="pointer-events-none absolute right-4 top-4 size-7" />
           <div className="relative z-10 flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-widest text-white">
+              <span className="eyebrow text-white">
                 <Heart className="size-3.5" />
                 Menuju Janji Suci
               </span>
@@ -298,7 +298,8 @@ export function HomePage() {
             </button>
           </div>
 
-          <p className="relative z-10 mt-1 font-serif text-[1.7rem] font-light leading-tight text-white">
+          {/* Nama pasangan sebagai tanda tangan script — titik personal ala undangan. */}
+          <p className="signature relative z-10 mt-1 text-[2.15rem] text-white">
             {`${wedding.partnerOneName} & ${wedding.partnerTwoName}`}
           </p>
 
