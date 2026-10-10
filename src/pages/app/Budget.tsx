@@ -23,9 +23,9 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
 import { formatDateShortID, formatRupiah, formatRupiahShort } from "@/lib/format";
+import { deleteBudgetItem, summarizeBudget } from "@/lib/budget";
 import { downloadCsv } from "@/lib/exportCsv";
 import { printDocument } from "@/lib/printDoc";
-import { undoableDelete } from "@/lib/undo";
 import {
   AlertTriangle,
   Check,
@@ -61,8 +61,7 @@ type CategoryId = Id<"budgetCategory">;
 export function BudgetPage() {
   const budget = useQuery(api.budget.overview);
   const createCategory = useMutation(api.budget.createCategory);
-  const renameCategory = useMutation(api.budget.renameCategory);
-  const setCategoryAllocation = useMutation(api.budget.setCategoryAllocation);
+  const updateCategory = useMutation(api.budget.updateCategory);
   const deleteCategory = useMutation(api.budget.deleteCategory);
   const addExpense = useMutation(api.budget.addExpense);
   const updateExpense = useMutation(api.budget.updateExpense);
@@ -71,6 +70,24 @@ export function BudgetPage() {
 
   const categories = budget?.categories ?? [];
   const expenses = budget?.expenses ?? [];
+  const savingsTotal = budget?.savingsTotal ?? 0;
+  const summary = summarizeBudget(
+    categories.map((category) => ({
+      id: category._id,
+      allocated: category.allocated,
+    })),
+    expenses.map((expense) => ({
+      source: expense.source,
+      categoryId: expense.source === "manual" ? expense.categoryId : undefined,
+      amount: expense.amount,
+      isPaid: expense.paidAt !== undefined,
+      trendAt:
+        "createdAt" in expense
+          ? expense.createdAt ?? ("_creationTime" in expense ? expense._creationTime : undefined)
+          : expense.paidAt,
+    })),
+    savingsTotal,
+  );
 
   const [expenseOpen, setExpenseOpen] = useState(false);
   const [expenseForm, setExpenseForm] = useState({
@@ -97,28 +114,17 @@ export function BudgetPage() {
     allocated: string;
   } | null>(null);
 
-  const totalAllocated = categories.reduce((sum, category) => sum + category.allocated, 0);
-  const totalSpent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-  const totalPaid = expenses
-    .filter((expense) => expense.paidAt)
-    .reduce((sum, expense) => sum + expense.amount, 0);
-  // Persen asli (boleh >100% supaya besarnya kelebihan terbaca); batang tetap
-  // dibatasi 100%. Alokasi 0 dengan pengeluaran dianggap penuh/lewat.
-  const spentPct =
-    totalAllocated > 0
-      ? Math.round((totalSpent / totalAllocated) * 100)
-      : totalSpent > 0
-        ? 100
-        : 0;
-  const isOver = totalSpent > totalAllocated;
-
-  const savingsTotal = budget?.savingsTotal ?? 0;
-  /**
-   * Sisa dana = Tabungan − Terpakai (bisa negatif = kurang). Total tabungan adalah
-   * dana yang akan dialokasikan, jadi target dana tidak dikaitkan ke halaman ini —
-   * angka target tinggal urusan halaman Tabungan.
-   */
-  const sisaDana = savingsTotal - totalSpent;
+  const {
+    totalAllocated,
+    totalSpent,
+    totalPaid,
+    spentPct,
+    isOver,
+    remainingFunds: sisaDana,
+    vendorTotal,
+    trendData,
+    byCategory: categoryTotals,
+  } = summary;
 
   // Pengeluaran vendor (turunan dari halaman Vendor) dihitung sekali dan tampil
   // sebagai kelompok terpisah — tidak menempel di tiap kategori.
@@ -126,28 +132,23 @@ export function BudgetPage() {
     (expense): expense is Extract<typeof expense, { source: "vendor" }> =>
       expense.source === "vendor",
   );
-  const vendorTotal = vendorExpenses.reduce(
-    (sum, expense) => sum + expense.amount,
-    0,
-  );
+  type ManualExpenseRow = Extract<(typeof expenses)[number], { source: "manual" }>;
+  const manualExpensesByCategory = new Map<string, ManualExpenseRow[]>();
+  for (const expense of expenses) {
+    if (expense.source !== "manual") continue;
+    const rows = manualExpensesByCategory.get(expense.categoryId) ?? [];
+    rows.push(expense);
+    manualExpensesByCategory.set(expense.categoryId, rows);
+  }
 
   // Donut komposisi pengeluaran — pengeluaran per kategori + irisan "Vendor"
   // tersendiri. `categoryId` ikut dibawa supaya klik-filter tidak mengandalkan
   // nama (aman untuk kategori kembar). Maks. 6 irisan + "Lainnya".
   type DonutRow = { name: string; value: number; categoryId?: string };
-  const spentByCategory = new Map<string, number>();
-  for (const expense of expenses) {
-    if (expense.source === "manual") {
-      spentByCategory.set(
-        expense.categoryId,
-        (spentByCategory.get(expense.categoryId) ?? 0) + expense.amount,
-      );
-    }
-  }
   const donutRaw: DonutRow[] = categories
     .map((category) => ({
       name: category.name,
-      value: spentByCategory.get(category._id) ?? 0,
+      value: categoryTotals.get(category._id)?.spent ?? 0,
       categoryId: category._id as string,
     }))
     .filter((row) => row.value > 0);
@@ -164,74 +165,16 @@ export function BudgetPage() {
     color: DONUT_COLORS[index % DONUT_COLORS.length],
   }));
 
-  // Tren bulanan: total per bulan + garis kumulatif (manual & bayaran vendor).
-  const MONTH_LABELS = [
-    "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
-    "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
-  ];
-  const byMonth = new Map<string, number>();
-  for (const expense of expenses) {
-    const ts =
-      ("_creationTime" in expense ? expense._creationTime : 0) ||
-      expense.paidAt ||
-      0;
-    if (!ts) continue;
-    const date = new Date(ts);
-    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-    byMonth.set(key, (byMonth.get(key) ?? 0) + expense.amount);
-  }
-  // Sumbu diisi kontinu dari bulan pertama → bulan terakhir (bulan kosong = 0)
-  // supaya jarak grafik tidak melompat-lompat.
-  const sortedMonthKeys = [...byMonth.keys()].sort();
-  const trendData: { month: string; baru: number; kumulatif: number }[] = [];
-  if (sortedMonthKeys.length > 0) {
-    const [startYear, startMonth] = sortedMonthKeys[0].split("-").map(Number);
-    const lastKey = sortedMonthKeys[sortedMonthKeys.length - 1];
-    const [endYear, endMonth] = lastKey.split("-").map(Number);
-    const monthKeys: string[] = [];
-    let year = startYear;
-    let month = startMonth;
-    while (year < endYear || (year === endYear && month <= endMonth)) {
-      monthKeys.push(`${year}-${String(month).padStart(2, "0")}`);
-      month += 1;
-      if (month > 12) {
-        month = 1;
-        year += 1;
-      }
-    }
-    let kumulatif = 0;
-    for (const key of monthKeys) {
-      const baru = byMonth.get(key) ?? 0;
-      kumulatif += baru;
-      trendData.push({
-        month: MONTH_LABELS[Number(key.slice(5)) - 1] ?? key,
-        baru,
-        kumulatif,
-      });
-    }
-  }
-
   // Batang per kategori: alokasi vs terbayar (klik → filter daftar).
   // Terbayar = pengeluaran manual kategori itu saja; pembayaran vendor tidak
   // lagi dijumlahkan ke setiap kategori (dulu terhitung berkali-kali), melainkan
   // tampil sebagai batang "Vendor" tersendiri tanpa alokasi.
-  const categoryBarData = categories.map((category) => {
-    const terbayarManual = expenses
-      .filter(
-        (expense): expense is Extract<typeof expense, { source: "manual" }> & {
-          categoryId: Id<"budgetCategory">;
-        } =>
-          expense.source === "manual" && expense.categoryId === category._id,
-      )
-      .reduce((sum, expense) => sum + expense.amount, 0);
-
-    return {
-      id: category._id as string,
-      name: category.name,
-      alokasi: Math.max(0, category.allocated),
-      terbayar: terbayarManual,
-    };
-  });
+  const categoryBarData = categories.map((category) => ({
+    id: category._id as string,
+    name: category.name,
+    alokasi: Math.max(0, category.allocated),
+    terbayar: categoryTotals.get(category._id)?.paid ?? 0,
+  }));
   if (vendorTotal > 0) {
     categoryBarData.push({
       id: "vendor",
@@ -253,11 +196,8 @@ export function BudgetPage() {
   /** Apakah kartu kategori ini tetap tampil saat pencarian aktif. */
   const categoryShows = (category: (typeof categories)[number]) => {
     if (term === "" || matchesQuery(category.name)) return true;
-    return expenses.some(
-      (expense) =>
-        expense.source === "manual" &&
-        expense.categoryId === category._id &&
-        matchesQuery(expense.label),
+    return (manualExpensesByCategory.get(category._id) ?? []).some((expense) =>
+      matchesQuery(expense.label),
     );
   };
 
@@ -376,8 +316,11 @@ export function BudgetPage() {
     setBusy(true);
     try {
       if (categoryDialog.id) {
-        await renameCategory({ categoryId: categoryDialog.id, name });
-        await setCategoryAllocation({ categoryId: categoryDialog.id, allocated });
+        await updateCategory({
+          categoryId: categoryDialog.id,
+          name,
+          allocated,
+        });
         toast.success("Kategori diperbarui.");
       } else {
         await createCategory({ name, allocated });
@@ -399,12 +342,7 @@ export function BudgetPage() {
    */
   const exportCsv = () => {
     const rows: (string | number)[][] = categories.map((category) => {
-      const spent = expenses
-        .filter(
-          (expense) =>
-            expense.source === "manual" && expense.categoryId === category._id,
-        )
-        .reduce((sum, expense) => sum + expense.amount, 0);
+      const spent = categoryTotals.get(category._id)?.spent ?? 0;
       return [
         category.name,
         category.allocated,
@@ -436,13 +374,7 @@ export function BudgetPage() {
           headers: ["Kategori", "Alokasi", "Terpakai", "Sisa"],
           rows: [
             ...categories.map((category) => {
-              const spent = expenses
-                .filter(
-                  (expense) =>
-                    expense.source === "manual" &&
-                    expense.categoryId === category._id,
-                )
-                .reduce((sum, expense) => sum + expense.amount, 0);
+              const spent = categoryTotals.get(category._id)?.spent ?? 0;
               return [
                 category.name,
                 formatRupiah(category.allocated),
@@ -864,12 +796,7 @@ export function BudgetPage() {
 
       <Stagger className="space-y-3">
         {visibleCategories.map((category) => {
-          const manualForCategory = expenses.filter(
-            (expense): expense is Extract<typeof expense, { source: "manual" }> & {
-              categoryId: Id<"budgetCategory">;
-            } =>
-              expense.source === "manual" && expense.categoryId === category._id,
-          );
+          const manualForCategory = manualExpensesByCategory.get(category._id) ?? [];
           // Hanya pengeluaran manual milik kategori ini — baris vendor tidak lagi
           // disisipkan ke semua kategori (nomor, persen & daftar jadi akurat).
           const categoryExpenses = manualForCategory;
@@ -883,7 +810,7 @@ export function BudgetPage() {
               : categoryExpenses.filter((expense) => matchesQuery(expense.label));
           const hiddenBySearch =
             term !== "" && !categoryMatches && shownExpenses.length === 0;
-          const spent = categoryExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+          const spent = categoryTotals.get(category._id)?.spent ?? 0;
           const over = spent > category.allocated;
           // Persen asli (boleh >100% supaya kelebihannya terbaca); alokasi 0
           // dengan pengeluaran ditampilkan "∞".
@@ -952,9 +879,9 @@ export function BudgetPage() {
                           amount: expense.amount,
                           paidAt: expense.paidAt,
                         }));
-                        void deleteCategory({ categoryId: category._id });
-                        undoableDelete(
+                        void deleteBudgetItem(
                           `Kategori "${category.name}" dihapus.`,
+                          () => deleteCategory({ categoryId: category._id }),
                           async () => {
                             const categoryId = await createCategory({
                               name: category.name,
@@ -1033,9 +960,9 @@ export function BudgetPage() {
                             <RowMenu
                               onEdit={() => openEditExpense(expense)}
                               onDelete={() => {
-                                void deleteExpense({ expenseId: expense._id });
-                                undoableDelete(
+                                void deleteBudgetItem(
                                   `"${expense.label}" dihapus.`,
+                                  () => deleteExpense({ expenseId: expense._id }),
                                   () =>
                                     addExpense({
                                       categoryId: expense.categoryId,

@@ -2,6 +2,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { mutation, query, type MutationCtx } from "./_generated/server";
 import type { Doc, Id } from "./_generated/dataModel";
+import { vendorPaidAmount } from "../lib/budget";
 import { workspaceUserId } from "./workspace";
 
 /** Pengeluaran manual yang sudah diberi penanda sumbernya. */
@@ -64,12 +65,7 @@ export const overview = query({
       .collect();
     const vendorRows: VendorExpense[] = [];
     for (const vendor of vendors) {
-      const amount =
-        vendor.status === "lunas"
-          ? vendor.cost
-          : vendor.status === "dp"
-            ? (vendor.dpAmount ?? 0)
-            : 0;
+      const amount = vendorPaidAmount(vendor);
       if (amount <= 0) continue;
       vendorRows.push({
         source: "vendor",
@@ -121,7 +117,9 @@ export const createCategory = mutation({
 
     const cleaned = name.trim();
     if (!cleaned) throw new Error("Nama kategori tidak boleh kosong");
-    if (!Number.isFinite(allocated)) throw new Error("Alokasi tidak valid");
+    if (!Number.isFinite(allocated) || allocated < 0) {
+      throw new Error("Alokasi harus berupa angka nol atau lebih");
+    }
 
     const existing = await ctx.db
       .query("budgetCategory")
@@ -179,13 +177,50 @@ export const renameCategory = mutation({
   },
 });
 
+export const updateCategory = mutation({
+  args: {
+    categoryId: v.id("budgetCategory"),
+    name: v.string(),
+    allocated: v.number(),
+  },
+  handler: async (ctx, { categoryId, name, allocated }) => {
+    const category = await requireCategory(ctx, categoryId);
+    const cleaned = name.trim();
+    if (!cleaned) throw new Error("Nama kategori tidak boleh kosong");
+    if (!Number.isFinite(allocated) || allocated < 0) {
+      throw new Error("Alokasi harus berupa angka nol atau lebih");
+    }
+
+    const siblings = await ctx.db
+      .query("budgetCategory")
+      .withIndex("by_user", (q) => q.eq("userId", category.userId))
+      .collect();
+    if (
+      siblings.some(
+        (item) =>
+          item._id !== categoryId &&
+          item.name.toLowerCase() === cleaned.toLowerCase(),
+      )
+    ) {
+      throw new Error("Nama kategori sudah dipakai");
+    }
+
+    await ctx.db.patch(categoryId, {
+      name: cleaned,
+      allocated: Math.round(allocated),
+    });
+  },
+});
+
+/** Retained for callers that only need to change an allocation. */
 export const setCategoryAllocation = mutation({
   args: { categoryId: v.id("budgetCategory"), allocated: v.number() },
   handler: async (ctx, { categoryId, allocated }) => {
     await requireCategory(ctx, categoryId);
-    await ctx.db.patch(categoryId, {
-      allocated: Math.max(0, Math.round(allocated)),
-    });
+    if (!Number.isFinite(allocated) || allocated < 0) {
+      throw new Error("Alokasi harus berupa angka nol atau lebih");
+    }
+    await ctx.db.patch(categoryId, { allocated: Math.round(allocated) });
   },
 });
 

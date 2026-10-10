@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
+import { vendorPaidAmount } from "@/lib/budget";
 import { waLink } from "@/lib/contact";
 import {
   formatRupiah,
@@ -111,17 +112,6 @@ const EMPTY_FORM: VendorForm = {
   due: "",
 };
 
-/** Total yang benar-benar sudah dibayar untuk satu vendor. */
-function paidFor(vendor: {
-  cost: number;
-  status: string;
-  dpAmount?: number;
-}): number {
-  if (vendor.status === "lunas") return vendor.cost;
-  if (vendor.status === "dp") return Math.min(vendor.cost, vendor.dpAmount ?? 0);
-  return 0;
-}
-
 /** Vendor: kontak, biaya, dan status pembayaran. */
 export function VendorPage() {
   const vendors = useQuery(api.vendors.list);
@@ -153,7 +143,7 @@ export function VendorPage() {
     return base;
   })();
   const totalCost = list.reduce((sum, v) => sum + v.cost, 0);
-  const paidTotal = list.reduce((sum, v) => sum + paidFor(v), 0);
+  const paidTotal = list.reduce((sum, vendor) => sum + vendorPaidAmount(vendor), 0);
   const remaining = Math.max(0, totalCost - paidTotal);
   const lunasCount = list.filter((v) => v.status === "lunas").length;
 
@@ -188,8 +178,8 @@ export function VendorPage() {
     .map((vendor) => ({
       id: vendor._id as string,
       name: vendor.name,
-      terbayar: paidFor(vendor),
-      sisa: Math.max(0, vendor.cost - paidFor(vendor)),
+      terbayar: vendorPaidAmount(vendor),
+      sisa: Math.max(0, vendor.cost - vendorPaidAmount(vendor)),
     }));
 
   const openNew = () => {
@@ -303,7 +293,7 @@ export function VendorPage() {
           <div
             className="fill-botanical h-full rounded-full transition-all duration-700"
             style={{
-              width: `${totalCost > 0 ? Math.round((paidTotal / totalCost) * 100) : 0}%`,
+              width: `${totalCost > 0 ? Math.min(100, Math.round((paidTotal / totalCost) * 100)) : 0}%`,
             }}
           />
         </div>
@@ -472,7 +462,7 @@ export function VendorPage() {
                 vendor.contact ?? "",
                 vendor.cost,
                 vendor.dpAmount ?? 0,
-                paidFor(vendor),
+                vendorPaidAmount(vendor),
                 STATUS_OPTIONS.find((option) => option.key === vendor.status)?.label ?? vendor.status,
                 vendor.dueDate ? new Date(vendor.dueDate).toLocaleDateString("id-ID") : "",
                 vendor.note ?? "",
@@ -498,8 +488,8 @@ export function VendorPage() {
                     vendor.name,
                     vendor.category,
                     formatRupiah(vendor.cost),
-                    formatRupiah(paidFor(vendor)),
-                    formatRupiah(Math.max(0, vendor.cost - paidFor(vendor))),
+                    formatRupiah(vendorPaidAmount(vendor)),
+                    formatRupiah(Math.max(0, vendor.cost - vendorPaidAmount(vendor))),
                     STATUS_OPTIONS.find((option) => option.key === vendor.status)?.label ?? vendor.status,
                   ]),
                 },
@@ -566,7 +556,7 @@ export function VendorPage() {
         <Stagger className="space-y-3">
           {visible.map((vendor) => {
             const status = vendor.status as VendorStatus;
-            const paid = paidFor(vendor);
+            const paid = vendorPaidAmount(vendor);
             const left = Math.max(0, vendor.cost - paid);
             const wa = vendor.contact ? waLink(vendor.contact) : null;
             return (

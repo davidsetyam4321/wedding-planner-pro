@@ -1,6 +1,8 @@
 import { convexTest, type TestConvex } from "convex-test";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { toast } from "sonner";
 import { api } from "../convex/_generated/api";
+import { deleteBudgetItem, summarizeBudget, vendorPaidAmount } from "../lib/budget";
 import schema from "../convex/schema";
 
 /**
@@ -25,6 +27,87 @@ async function makeWorkspace(t: Test) {
   await as.mutation(api.wedding.ensureSetup, {});
   return { userId, as };
 }
+
+describe("aksi hapus budget", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("hanya menawarkan undo setelah penghapusan berhasil", async () => {
+    const success = vi.spyOn(toast, "success").mockImplementation(() => "toast-id");
+    const error = vi.spyOn(toast, "error").mockImplementation(() => "toast-id");
+    const restore = vi.fn();
+
+    await deleteBudgetItem("Item dihapus", async () => undefined, restore);
+
+    expect(success).toHaveBeenCalledWith("Item dihapus", expect.objectContaining({ action: expect.any(Object) }));
+    expect(error).not.toHaveBeenCalled();
+    expect(restore).not.toHaveBeenCalled();
+  });
+
+  it("menampilkan error dan tidak menawarkan undo bila penghapusan gagal", async () => {
+    const success = vi.spyOn(toast, "success").mockImplementation(() => "toast-id");
+    const error = vi.spyOn(toast, "error").mockImplementation(() => "toast-id");
+
+    await deleteBudgetItem("Item dihapus", async () => { throw new Error("offline"); }, async () => undefined);
+
+    expect(error).toHaveBeenCalledWith("Gagal menghapus data. Coba lagi.");
+    expect(success).not.toHaveBeenCalled();
+  });
+});
+
+describe("perhitungan ringkasan budget", () => {
+  it("menghitung komitmen, pembayaran, kategori, tabungan, dan tren konsisten", () => {
+    const december = new Date(2024, 11, 15).getTime();
+    const january = new Date(2025, 0, 10).getTime();
+    const summary = summarizeBudget(
+      [
+        { id: "venue", allocated: 1_000_000 },
+        { id: "dekor", allocated: 500_000 },
+      ],
+      [
+        {
+          source: "manual",
+          categoryId: "venue",
+          amount: 700_000,
+          isPaid: false,
+          trendAt: december,
+        },
+        {
+          source: "manual",
+          categoryId: "venue",
+          amount: 200_000,
+          isPaid: true,
+          trendAt: december,
+        },
+        { source: "vendor", amount: 300_000, isPaid: true, trendAt: january },
+      ],
+      250_000,
+    );
+
+    expect(summary.totalAllocated).toBe(1_500_000);
+    expect(summary.totalSpent).toBe(1_200_000);
+    expect(summary.totalPaid).toBe(500_000);
+    expect(summary.vendorTotal).toBe(300_000);
+    expect(summary.remainingFunds).toBe(-950_000);
+    expect(summary.spentPct).toBe(80);
+    expect(summary.isOver).toBe(false);
+    expect(summary.byCategory.get("venue")).toEqual({
+      allocated: 1_000_000,
+      spent: 900_000,
+      paid: 200_000,
+    });
+    expect(summary.trendData).toEqual([
+      { month: "Des '24", baru: 900_000, kumulatif: 900_000 },
+      { month: "Jan '25", baru: 300_000, kumulatif: 1_200_000 },
+    ]);
+  });
+
+  it("membatasi DP vendor agar pembayaran tidak melebihi biaya", () => {
+    expect(vendorPaidAmount({ cost: 1_000, status: "dp", dpAmount: 1_500 })).toBe(1_000);
+    expect(vendorPaidAmount({ cost: 1_000, status: "dp", dpAmount: -100 })).toBe(0);
+    expect(vendorPaidAmount({ cost: 1_000, status: "belum", dpAmount: 500 })).toBe(0);
+    expect(vendorPaidAmount({ cost: 1_000, status: "lunas", dpAmount: 100 })).toBe(1_000);
+  });
+});
 
 describe("kategori budget", () => {
   it("menolak nama kosong dan nama yang sudah dipakai (tanpa beda huruf)", async () => {
@@ -216,5 +299,27 @@ describe("sinkronisasi vendor → budget", () => {
     expect(vendorRows.find((row) => row.label === "Foto Senja")?.amount).toBe(
       5_000_000,
     );
+
+    const dekor = (await as.query(api.vendors.list)).find(
+      (vendor) => vendor.name === "Dekor Melati",
+    );
+    expect(dekor).toBeDefined();
+    await as.mutation(api.vendors.update, {
+      vendorId: dekor!._id,
+      dpAmount: 12_000_000,
+    });
+    const capped = (await as.query(api.budget.overview, {})).expenses.find(
+      (row) => row.source === "vendor" && row.label === "Dekor Melati",
+    );
+    expect(capped?.amount).toBe(8_000_000);
+
+    await as.mutation(api.vendors.setStatus, {
+      vendorId: dekor!._id,
+      status: "lunas",
+    });
+    const settled = (await as.query(api.budget.overview, {})).expenses.find(
+      (row) => row.source === "vendor" && row.label === "Dekor Melati",
+    );
+    expect(settled?.amount).toBe(8_000_000);
   });
 });
