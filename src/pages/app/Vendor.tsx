@@ -39,7 +39,7 @@ import {
   Plus,
   Search,
   X,
-} from "lucide-react";
+} from "@/lib/icons";
 import { downloadCsv } from "@/lib/exportCsv";
 import { printDocument } from "@/lib/printDoc";
 import { useState } from "react";

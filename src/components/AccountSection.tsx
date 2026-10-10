@@ -25,7 +25,7 @@ import {
   RefreshCw,
   ShieldCheck,
   UserPlus,
-} from "lucide-react";
+} from "@/lib/icons";
 import { useEffect, useMemo, useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useMutation, useQuery } from "convex/react";

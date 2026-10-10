@@ -1,4 +1,5 @@
 import { BottomNav } from "@/components/BottomNav";
+import { BotanicalTexture } from "@/components/BotanicalTexture";
 import { SideNav } from "@/components/SideNav";
 import { OnboardingDialog } from "@/components/Onboarding";
 import { SignupBanner } from "@/components/SignupBanner";
@@ -35,7 +36,7 @@ import {
 } from "@/lib/session";
 import { useAuth } from "@/hooks/use-auth";
 import { SETUP_REFRESH_EVENT } from "@/lib/session";
-import { Bell, Settings, Sparkles } from "lucide-react";
+import { Bell, Settings, Sparkles } from "@/lib/icons";
 import { motion, useReducedMotion } from "framer-motion";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
@@ -305,7 +306,9 @@ export function AppShell() {
   if (setupState === "pending" && !wedding) {
     return (
       <main className="relative isolate flex min-h-screen items-center justify-center">
-        <div aria-hidden="true" className="app-photo-backdrop" />
+        <div aria-hidden="true" className="app-photo-backdrop">
+          <BotanicalTexture className="botanical-texture absolute inset-0 size-full" />
+        </div>
         <Aurora className="pointer-events-none absolute inset-0 -z-10" />
         <Petals />
         <div className="clay relative overflow-hidden px-8 py-7 text-center">
@@ -325,7 +328,9 @@ export function AppShell() {
   if (setupState === "error" && !wedding) {
     return (
       <main className="relative isolate flex min-h-screen items-center justify-center p-6">
-        <div aria-hidden="true" className="app-photo-backdrop" />
+        <div aria-hidden="true" className="app-photo-backdrop">
+          <BotanicalTexture className="botanical-texture absolute inset-0 size-full" />
+        </div>
         <Petals />
         <div className="clay max-w-sm p-6 text-center">
           <p className="text-sm font-semibold">Gagal menyiapkan ruang kerja</p>
@@ -342,7 +347,9 @@ export function AppShell() {
 
   return (
     <div className="app-workspace relative isolate mx-auto flex min-h-screen w-full max-w-7xl">
-      <div aria-hidden="true" className="app-photo-backdrop" />
+      <div aria-hidden="true" className="app-photo-backdrop">
+          <BotanicalTexture className="botanical-texture absolute inset-0 size-full" />
+        </div>
       {/* Onboarding sekali jalan — tampil sekali sampai diselesaikan/dilewati. */}
       {wedding && !wedding.onboarded && (
         <OnboardingDialog

@@ -1,10 +1,10 @@
 import { FEATURES } from "@/lib/features";
-import { Home, ListChecks, Users, Wallet, type LucideIcon } from "lucide-react";
+import { Home, ListChecks, Users, Wallet, type Icon } from "@/lib/icons";
 
 export type NavItem = {
   to: string;
   label: string;
-  icon: LucideIcon;
+  icon: Icon;
   /** pastel surface applied while the item is active */
   active: string;
   /** show the open-task count badge (BottomNav) */

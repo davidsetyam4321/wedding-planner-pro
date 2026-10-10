@@ -1,5 +1,5 @@
 import { Dialog } from "@radix-ui/react-dialog";
-import { AlertTriangle, ChevronDown, ExternalLink } from "lucide-react";
+import { AlertTriangle, ChevronDown, ExternalLink } from "@/lib/icons";
 import React, { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";

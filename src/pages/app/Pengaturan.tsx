@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import { fromDateInputValue, toDateInputValue } from "@/lib/format";
 import { bloom } from "@/lib/bloom";
-import { Camera, Loader2, Plus, Save, Trash2, X } from "lucide-react";
+import { Camera, Loader2, Plus, Save, Trash2, X } from "@/lib/icons";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";

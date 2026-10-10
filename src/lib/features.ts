@@ -8,14 +8,14 @@ import {
   Receipt,
   Users,
   Wallet,
-  type LucideIcon,
-} from "lucide-react";
+  type Icon,
+} from "@/lib/icons";
 
 export type Feature = {
   to: string;
   label: string;
   desc: string;
-  icon: LucideIcon;
+  icon: Icon;
   /** neutral Cora surface — tier ladder only, no per-feature chroma */
   surface: string;
   /** quiet sky-tinted wash (hero card of that page) */

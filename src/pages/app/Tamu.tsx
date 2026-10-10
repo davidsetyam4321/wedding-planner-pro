@@ -31,7 +31,7 @@ import {
   Search,
   Send,
   Upload,
-} from "lucide-react";
+} from "@/lib/icons";
 import { useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import {

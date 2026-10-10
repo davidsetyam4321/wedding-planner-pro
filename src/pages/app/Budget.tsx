@@ -38,7 +38,7 @@ import {
   Search,
   Wallet,
   X,
-} from "lucide-react";
+} from "@/lib/icons";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import {

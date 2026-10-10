@@ -31,7 +31,7 @@ import {
   Sparkles,
   Wallet,
   X,
-} from "lucide-react";
+} from "@/lib/icons";
 import { useState } from "react";
 import { Link } from "react-router";
 import SplitText from "@/components/SplitText";
@@ -114,7 +114,7 @@ export function LandingPage() {
 
       <main>
         {/* ── Hero nature: foto asli tanaman membuang bayangan di dinding ── */}
-        <section className="plant-hero isolate relative flex min-h-screen w-full items-center justify-center px-5 pb-28 pt-24 text-center">
+        <section className="plant-hero botanical-print isolate relative flex min-h-screen w-full items-center justify-center px-5 pb-28 pt-24 text-center">
           <div aria-hidden="true" className="photo-veil absolute inset-0 z-0" />
 
           {/* Header menempel di atas dinding — persis di bawah pita pengumuman */}
@@ -244,7 +244,7 @@ export function LandingPage() {
         </section>
 
         {/* ── Perencanaan inti — copy faktual, tanpa testimoni buatan ─────── */}
-        <section className="paper-bg px-5 py-24">
+        <section className="paper-bg botanical-print px-5 py-24">
           <div className="mx-auto max-w-[1200px]">
             <FadeContent blur duration={900} className="text-center">
               <p className="eyebrow eyebrow-rules text-gold-deep">Dibuat untuk rencana bersama</p>
@@ -273,7 +273,7 @@ export function LandingPage() {
         </section>
 
         {/* ── Foto floral asli: headline mengambang + preview produk ──── */}
-        <section className="floral-canvas isolate relative w-full px-5 py-28 text-center">
+        <section className="floral-canvas botanical-print isolate relative w-full px-5 py-28 text-center">
           <div aria-hidden="true" className="photo-dim absolute inset-0 z-0" />
 
           <FadeContent blur duration={900} className="relative z-10">
@@ -351,7 +351,7 @@ export function LandingPage() {
                       spotlightColor="color-mix(in srgb, var(--color-bloom) 10%, transparent)"
                     >
                       <span className="flex size-9 items-center justify-center rounded-full bg-sky-tint">
-                        <feature.icon className="size-4.5 text-midnight-navy" />
+                        <feature.icon className="size-[18px] text-midnight-navy" weight="duotone" />
                       </span>
                       <p className="mt-3 text-sm font-semibold leading-tight text-ink">
                         {feature.label}
@@ -392,7 +392,7 @@ export function LandingPage() {
                     >
                       <div className="flex items-center justify-between">
                         <span className="flex size-10 items-center justify-center rounded-full bg-sky-tint text-midnight-navy">
-                          <step.icon className="size-5" />
+                          <step.icon className="size-5" weight="duotone" />
                         </span>
                         <span className="num font-serif text-3xl font-light text-graphite">
                           {step.step}
@@ -452,7 +452,7 @@ export function LandingPage() {
         <GarlandDivider className="mx-auto block h-10 w-full max-w-sm" />
 
         {/* ── CTA akhir: latar buket floral asli ───────────────────────── */}
-        <section className="bouquet-canvas isolate relative w-full px-5 py-32 text-center">
+        <section className="bouquet-canvas botanical-print isolate relative w-full px-5 py-32 text-center">
           <div aria-hidden="true" className="photo-dim absolute inset-0 z-0" />
           <AnimatedContent distance={60} threshold={0.2} className="relative z-10">
             <h2 className="mx-auto max-w-3xl font-serif text-4xl font-light leading-[1.05] text-white md:text-[55px]">

@@ -44,7 +44,7 @@ import {
   Quote,
   UserPlus,
   Wallet,
-} from "lucide-react";
+} from "@/lib/icons";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useMutation, useQuery } from "convex/react";

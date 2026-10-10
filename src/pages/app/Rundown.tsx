@@ -21,7 +21,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
 import { printDocument } from "@/lib/printDoc";
 import { undoableDelete } from "@/lib/undo";
-import { Clock, Loader2, Plus, Printer, Search, UserRound, X } from "lucide-react";
+import { Clock, Loader2, Plus, Printer, Search, UserRound, X } from "@/lib/icons";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";

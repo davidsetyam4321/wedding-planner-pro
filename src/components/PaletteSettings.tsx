@@ -14,7 +14,7 @@ import {
 } from "@/lib/palettes";
 import { bloom } from "@/lib/bloom";
 import { Button } from "@/components/ui/button";
-import { Check, Palette as PaletteIcon, Plus } from "lucide-react";
+import { Check, Palette as PaletteIcon, Plus } from "@/lib/icons";
 import { useMutation, useQuery } from "convex/react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";

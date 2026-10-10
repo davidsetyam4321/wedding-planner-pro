@@ -50,7 +50,7 @@ import {
   Trash2,
   UserRound,
   X,
-} from "lucide-react";
+} from "@/lib/icons";
 import { useState, type CSSProperties, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useMutation, useQuery } from "convex/react";

@@ -3,7 +3,7 @@ import { coupleInitials } from "@/components/CouplePhoto";
 import { NotificationBell } from "@/components/AppShellNav";
 import { FEATURES } from "@/lib/features";
 import { countdownLabel } from "@/lib/format";
-import { Settings } from "lucide-react";
+import { Settings } from "@/lib/icons";
 import { NavLink, Link } from "react-router";
 
 type SyncInfo = {
@@ -107,7 +107,7 @@ export function SideNav({
             }
             title={label}
           >
-            <Icon className="size-4" />
+            <Icon className="size-4" weight="regular" />
             <span className="truncate">{label}</span>
             {to === "/app/checklist" && extra && extra.openTasks > 0 && (
               <span className="ml-auto shrink-0 rounded-full bg-midnight-navy px-1.5 py-0.5 text-[10px] font-bold text-white">

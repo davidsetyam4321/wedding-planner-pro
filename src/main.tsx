@@ -10,6 +10,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-route
 import { AppPalette, DefaultPalette } from "@/components/PaletteProvider";
 import ClickSpark from "@/components/reactbits/ClickSpark";
 import { MotionConfig } from "framer-motion";
+import { IconContext } from "@phosphor-icons/react";
 import "./index.css";
 
 // Lazy load route components for better code splitting
@@ -227,6 +228,7 @@ createRoot(document.getElementById("root")!).render(
       </ToolbarErrorBoundary>
       <ConvexAuthProvider client={convex}>
         <MotionConfig reducedMotion="user">
+        <IconContext.Provider value={{ weight: "regular" }}>
         <BrowserRouter>
           <RouteSyncer />
           <RoutePalette />
@@ -256,6 +258,7 @@ createRoot(document.getElementById("root")!).render(
             </AutoSession>
           </Suspense>
         </BrowserRouter>
+        </IconContext.Provider>
         </MotionConfig>
         <Toaster />
       </ConvexAuthProvider>

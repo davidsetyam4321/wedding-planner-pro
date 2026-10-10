@@ -4,7 +4,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Bell, Heart } from "lucide-react";
+import { Bell, Heart } from "@/lib/icons";
 import { useMemo } from "react";
 import { countdownLabel, formatDateID } from "@/lib/format";
 

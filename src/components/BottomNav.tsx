@@ -5,7 +5,7 @@ import {
 } from "@/components/ui/popover";
 import { api } from "@/convex/_generated/api";
 import { PRIMARY_NAV, TOOL_NAV } from "@/lib/nav";
-import { LayoutGrid } from "lucide-react";
+import { LayoutGrid } from "@/lib/icons";
 import { NavLink, useLocation } from "react-router";
 import { useQuery } from "convex/react";
 
@@ -48,7 +48,7 @@ export function BottomNav() {
               <>
                 <Icon
                   className="size-5 shrink-0"
-                  strokeWidth={isActive ? 2.4 : 2}
+                  weight={isActive ? "fill" : "regular"}
                 />
                 <span className="leading-tight">{label}</span>
                 {badge && openTasks > 0 && (
@@ -74,7 +74,7 @@ export function BottomNav() {
             >
               <LayoutGrid
                 className="size-5 shrink-0"
-                strokeWidth={inGroup ? 2.4 : 2}
+                weight={inGroup ? "fill" : "regular"}
               />
               <span className="leading-tight">Lainnya</span>
             </button>
@@ -103,7 +103,7 @@ export function BottomNav() {
                     <span
                       className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${feature.surface}`}
                     >
-                      <feature.icon className="size-4" />
+                      <feature.icon className="size-4" weight="regular" />
                     </span>
                     <span className="min-w-0 flex-1 truncate">
                       {feature.label}

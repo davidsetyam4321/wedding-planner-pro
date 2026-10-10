@@ -5,7 +5,7 @@ import { BouquetMark } from "@/components/Decor";
 import { api } from "@/convex/_generated/api";
 import { bloom } from "@/lib/bloom";
 import { fromDateInputValue, toDateInputValue } from "@/lib/format";
-import { CalendarDays, Heart, Loader2, PiggyBank, Target } from "lucide-react";
+import { CalendarDays, Heart, Loader2, PiggyBank, Target } from "@/lib/icons";
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { toast } from "sonner";

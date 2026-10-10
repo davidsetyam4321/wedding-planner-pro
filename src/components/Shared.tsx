@@ -29,8 +29,8 @@ import {
   ChevronLeft, ClipboardList, Clock3, Gift, Handshake, Mail,
   MoreHorizontal, Palette, Pencil, Phone, PiggyBank, ReceiptText,
   Search, Trash2, Wallet,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+} from "@/lib/icons";
+import type { Icon } from "@/lib/icons";
 
 import { Children, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router";
@@ -82,7 +82,7 @@ export function StaggerItem({
 
 export type RowMenuExtra = {
   label: string;
-  icon?: LucideIcon;
+  icon?: Icon;
   onSelect: () => void;
 };
 
@@ -169,8 +169,8 @@ export function RowMenu({
   );
 }
 
-// Keep existing call sites compatible while rendering consistent Lucide SVGs.
-const EMPTY_ICONS: Record<string, LucideIcon> = {
+// Keep existing call sites compatible while rendering consistent Phosphor icons.
+const EMPTY_ICONS: Record<string, Icon> = {
   "🎁": Gift, "🤝": Handshake, "🔍": Search, "💸": Wallet,
   "🧾": ReceiptText, "📝": ClipboardList, "🎨": Palette,
   "📞": Phone, "🐷": PiggyBank, "⏰": Clock3, "💌": Mail,
@@ -200,8 +200,8 @@ export function EmptyState({
       }`}
     >
       <div className="relative">
-        <div className="flex size-14 items-center justify-center rounded-full border border-gold/40 bg-secondary text-primary">
-          <Icon aria-hidden="true" className="size-6" strokeWidth={1.5} />
+        <div className="icon-medallion flex size-14 items-center justify-center rounded-full text-primary">
+          <Icon aria-hidden="true" className="size-6" weight="duotone" />
         </div>
         <SprigMark className="absolute -right-2 -top-2 size-5 text-bloom" />
       </div>

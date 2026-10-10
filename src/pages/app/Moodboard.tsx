@@ -28,7 +28,7 @@ import {
   Search,
   Trash2,
   X,
-} from "lucide-react";
+} from "@/lib/icons";
 import { useRef, useState } from "react";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";

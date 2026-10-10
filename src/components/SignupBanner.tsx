@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Mail, X } from "lucide-react";
+import { Mail, X } from "@/lib/icons";
 import { useState } from "react";
 import { Link } from "react-router";
 

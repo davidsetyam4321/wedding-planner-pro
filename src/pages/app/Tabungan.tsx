@@ -21,7 +21,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
 import { formatDateTimeID, formatRupiah, formatRupiahShort } from "@/lib/format";
-import { Loader2, Plus, Target, TrendingUp } from "lucide-react";
+import { Loader2, Plus, Target, TrendingUp } from "@/lib/icons";
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { undoableDelete } from "@/lib/undo";
