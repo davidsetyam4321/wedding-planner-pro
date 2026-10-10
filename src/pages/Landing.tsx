@@ -95,7 +95,7 @@ export function LandingPage() {
               tanpa kartu.{" "}
               <a
                 href="#cara-kerja"
-                className="font-semibold text-atmosphere-blue underline-offset-4 hover:underline"
+                className="font-semibold text-white underline-offset-4 hover:underline"
               >
                 Lihat caranya
               </a>
@@ -182,7 +182,7 @@ export function LandingPage() {
 
             <BlurText
               text="Satu ruang kerja bersama untuk budget, tabungan, checklist, daftar tamu, vendor, dan rundown — tersinkron real-time di kedua perangkat Anda berdua."
-              className="mx-auto mt-7 max-w-2xl text-body-lg leading-normal text-ink/70"
+              className="mx-auto mt-7 max-w-2xl text-body-lg leading-normal text-ink"
               direction="bottom"
               delay={30}
             />
@@ -221,7 +221,7 @@ export function LandingPage() {
                 (item) => (
                   <span
                     key={item}
-                    className="meta flex items-center gap-1.5 text-ink/70"
+                    className="meta flex items-center gap-1.5 text-ink"
                   >
                     <span className="size-1.5 rounded-full bg-leaf" />
                     {item}
@@ -272,7 +272,7 @@ export function LandingPage() {
                 terlihat sekilas
               </GradientText>
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-body-lg text-white/80">
+            <p className="mx-auto mt-4 max-w-xl text-body-lg text-white">
               Ringkasan hari-H, progres budget, dan sisa tugas diperbarui
               real-time — sama persis di layar Anda dan pasangan.
             </p>
@@ -383,7 +383,7 @@ export function LandingPage() {
                         <span className="flex size-10 items-center justify-center rounded-full bg-sky-tint text-midnight-navy">
                           <step.icon className="size-5" />
                         </span>
-                        <span className="num font-serif text-3xl font-light text-fog">
+                        <span className="num font-serif text-3xl font-light text-graphite">
                           {step.step}
                         </span>
                       </div>
@@ -405,13 +405,13 @@ export function LandingPage() {
               <div className="relative mt-14 overflow-hidden rounded-2xl bg-midnight-navy p-8 shadow-float md:p-12">
                 <div className="grid items-center gap-8 md:grid-cols-2">
                   <div>
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-atmosphere-blue/50 bg-white/10 px-3 py-1.5 text-xs font-medium text-atmosphere-blue">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/50 bg-white/10 px-3 py-1.5 text-xs font-medium text-white">
                       <RefreshCw className="size-3.5" /> Sinkron real-time
                     </span>
                     <h3 className="mt-4 font-serif text-3xl font-light leading-tight text-white">
                       Dua perangkat, satu rencana
                     </h3>
-                    <p className="mt-4 text-sm leading-relaxed text-white/70">
+                    <p className="mt-4 text-sm leading-relaxed text-white">
                       Setiap perubahan — setoran tabungan, tugas selesai, RSVP
                       tamu — langsung tampil di perangkat pasangan Anda. Tanpa
                       refresh, tanpa kirim ulang.
@@ -425,7 +425,7 @@ export function LandingPage() {
                     ].map((event) => (
                       <div
                         key={event}
-                        className="flex items-center gap-2.5 rounded-lg bg-white/10 px-4 py-3 text-sm font-medium text-white/90"
+                        className="flex items-center gap-2.5 rounded-lg bg-white/10 px-4 py-3 text-sm font-medium text-white"
                       >
                         <span className="size-1.5 shrink-0 rounded-full bg-atmosphere-blue" />
                         {event}
@@ -451,7 +451,7 @@ export function LandingPage() {
                 className="elegant inline-block italic text-white"
               />
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-body-lg text-white/80">
+            <p className="mx-auto mt-4 max-w-xl text-body-lg text-white">
               Buka ruang kerja Anda dan mulai susun rencana bersama pasangan —
               hanya butuh semenit.
             </p>
@@ -493,7 +493,7 @@ export function LandingPage() {
               SatuJanji
             </span>
           </div>
-          <p className="meta text-white/80">
+          <p className="meta text-white">
             Perencana pernikahan untuk berdua · © 2026
           </p>
         </div>

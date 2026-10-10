@@ -88,13 +88,11 @@ function CountdownTimer({ weddingDate }: { weddingDate: number }) {
           className="flex flex-col items-center rounded-2xl bg-white/15 py-2.5 shadow-sm backdrop-blur-md"
         >
           <p
-            className={`num font-serif text-[1.35rem] font-semibold leading-tight ${
-              cell.gold ? "text-brass-gold" : "text-white"
-            }`}
+            className="num font-serif text-[1.35rem] font-semibold leading-tight text-white"
           >
             {String(cell.value).padStart(2, "0")}
           </p>
-          <p className="label mt-0.5 text-[9px] text-white/70">
+          <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white">
             {cell.label}
           </p>
         </div>
@@ -124,7 +122,7 @@ function SummaryCard({
   const progress = Math.min(100, Math.max(0, pct));
   const toneStyles = {
     nature: { icon: "text-leaf", progress: "fill-botanical" },
-    secondary: { icon: "text-atmosphere-blue", progress: "fill-secondary" },
+    secondary: { icon: "text-white", progress: "fill-secondary" },
     soft: { icon: "text-soft-deep", progress: "fill-soft" },
   }[tone];
 
@@ -273,7 +271,7 @@ export function HomePage() {
           <SekarSudut className="pointer-events-none absolute right-4 top-4 size-7" />
           <div className="relative z-10 flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-widest text-atmosphere-blue">
+              <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-widest text-white">
                 <Heart className="size-3.5" />
                 Menuju Janji Suci
               </span>
@@ -308,24 +306,24 @@ export function HomePage() {
             <CountdownTimer weddingDate={wedding.weddingDate} />
           </div>
 
-          <div className="relative z-10 mt-4 space-y-1.5 text-[13px] text-white/85">
+          <div className="relative z-10 mt-4 space-y-1.5 text-[13px] text-white">
             <p className="flex items-center gap-2">
-              <CalendarDays className="size-4 shrink-0 text-atmosphere-blue" />
+              <CalendarDays className="size-4 shrink-0 text-white" />
               <span className="font-semibold text-white">
                 {formatDateLongID(wedding.weddingDate)}
               </span>
             </p>
             {wedding.venueName && (
               <p className="flex items-center gap-2">
-                <MapPin className="size-4 shrink-0 text-white/70" />
+                <MapPin className="size-4 shrink-0 text-white" />
                 <span>{wedding.venueName}</span>
               </p>
             )}
           </div>
 
           <div className="relative z-10 flex items-start gap-3 rounded-2xl border border-white/20 bg-white/12 p-3 backdrop-blur-sm">
-            <p className="elegant flex flex-1 items-start gap-2 text-[15px] leading-snug text-white/90">
-              <Quote className="mt-0.5 size-4 shrink-0 text-atmosphere-blue" />
+            <p className="elegant flex flex-1 items-start gap-2 text-[15px] leading-snug text-white">
+              <Quote className="mt-0.5 size-4 shrink-0 text-white" />
               “Dua hati, satu janji — dipersiapkan dengan tenang, dijalani
               dengan bahagia.”
             </p>
@@ -485,7 +483,7 @@ export function HomePage() {
                     <p
                       className={`text-[10px] font-semibold leading-none ${
                         status === "active"
-                          ? "text-atmosphere-blue"
+                          ? "text-white"
                           : "text-muted-foreground"
                       }`}
                     >
@@ -510,7 +508,7 @@ export function HomePage() {
                 <CheckCircle2 className="size-4" />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="label block opacity-70">Fokus saat ini</span>
+                <span className="block text-[11px] font-semibold uppercase tracking-wider">Fokus saat ini</span>
                 <span className="mt-0.5 block text-xs font-bold leading-snug">
                   {PHASES[activePhase].focus}
                 </span>
@@ -628,7 +626,7 @@ export function HomePage() {
               />
               <div className="photo-scrim absolute inset-0" />
               <div className="absolute inset-x-0 bottom-0 p-4">
-                <p className="label text-white/70">Tema utama acara</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-white">Tema utama acara</p>
                 <p className="mt-1 font-serif text-lg font-semibold text-white">
                   {moodTitle}
                 </p>

@@ -75,20 +75,20 @@
      mengganti palet di Pengaturan → seluruh utilitas ikut berubah. */
   --color-cerulean-sky: #5e1a26;
   --color-deep-cerulean: #521823;
-  --color-atmosphere-blue: #b24a55;
+  --color-atmosphere-blue: #703138;
   --color-midnight-navy: #481720;
   --color-berry-red: #8c3c45;
   --color-cloud-white: #fefdfb;
   --color-mist-gray: #f2e7d5;
-  --color-fog: #e1d4c8;
-  --color-stone: #afa098;
+  --color-fog: #8b7977;
+  --color-stone: #584a4c;
   --color-ink: #2f2628;
   --color-obsidian: #251d1f;
 
   /* Legacy aliases kept for compiled class names across pages */
   --color-paper-white: #fefdfb;
   --color-pure-ink: #2f2628;
-  --color-graphite: #625855;
+  --color-graphite: #403638;
   --color-slate: #afa098;
   --color-fog-line: #e1d4c8;
   --color-sky-tint: #f4d4ca; /* aksen lembut — tier permukaan */
@@ -98,19 +98,19 @@
      so every surface renders in the disciplined palette */
   --color-teak-ink: #481720;
   --color-brick-accent: #8c3c45;
-  --color-brass-gold: #b24a55;
-  --color-janur-green: #6b7a38;
+  --color-brass-gold: #703138;
+  --color-janur-green: #4a5129;
   --color-ash-canvas: #f2e7d5;
   --color-warm-stone: #e1d4c8;
-  --color-butter-yellow: #b24a55;
+  --color-butter-yellow: #703138;
   --color-inkwell-navy: #481720;
 
   /* Token nature — peran palet, ikut berganti saat palet diubah */
-  --color-leaf: #6b7a38;
-  --color-leaf-deep: #515a2c;
+  --color-leaf: #4a5129;
+  --color-leaf-deep: #414722;
   --color-soft-deep: #703138;
   --color-petal: #f2c9ce;
-  --color-bloom: #b24a55;
+  --color-bloom: #703138;
   --color-ivory: #f7e9c3;
 
   /* Typography — Fraunces (signifier) + Outfit (switzer) */
@@ -177,13 +177,13 @@
   --secondary: #f4d4ca; /* tint lembut */
   --secondary-foreground: #2f2628;
   --muted: #f2e7d5;
-  --muted-foreground: #625855; /* netral hangat — kontras ≥4.8:1 di atas ivory */
+  --muted-foreground: #403638; /* kontras tinggi untuk teks kecil */
   --accent: #f4e6e7; /* rose whisper */
   --accent-foreground: #703138;
   --destructive: #8c3c45; /* dusty rose tua */
   --destructive-foreground: #ffffff;
   --border: #e1d4c8; /* hangat hairline */
-  --input: #e1d4c8;
+  --input: #8b7977;
   --ring: #b24a55; /* dusty rose */
   --chart-1: #5e1a26; /* burgundy */
   --chart-2: #b24a55; /* dusty rose */
@@ -201,7 +201,7 @@
 
   /* Tier tint — colourful, mengikuti peran palet */
   --tint-mint: #eaece3;
-  --tint-mint-foreground: #515a2c;
+  --tint-mint-foreground: #4a5129;
   --tint-lavender: #f4d4ca;
   --tint-lavender-foreground: #703138;
   --tint-peach: #f9e7e9;
@@ -211,9 +211,9 @@
   --tint-sky: #f4d4ca;
   --tint-sky-foreground: #703138;
   --tint-butter: #f9e7e9;
-  --tint-butter-foreground: #833841;
+  --tint-butter-foreground: #703138;
   --tint-sage: #eaece3;
-  --tint-sage-foreground: #515a2c;
+  --tint-sage-foreground: #4a5129;
 
   /* aksen Emas lama dipetakan ke keluarga sekunder (dipakai hemat) */
   --gold: #8c3c45;
@@ -369,22 +369,22 @@
     .floral-canvas,
     .bouquet-canvas { background-attachment: scroll; }
   }
-  /* veil ivory agar teks gelap di atas foto hero tetap terbaca */
+  /* Veil terang yang lebih pekat menjaga teks gelap tetap terbaca di atas foto. */
   .photo-veil {
     background: linear-gradient(
       180deg,
-      rgba(250, 243, 228, 0.58) 0%,
-      rgba(250, 243, 228, 0.46) 45%,
-      rgba(250, 243, 228, 0.66) 100%
+      rgba(250, 243, 228, 0.86) 0%,
+      rgba(250, 243, 228, 0.8) 45%,
+      rgba(250, 243, 228, 0.9) 100%
     );
   }
   /* redupkan foto floral agar teks putih di atasnya tetap terbaca */
   .photo-dim {
     background: linear-gradient(
       180deg,
-      rgba(28, 12, 16, 0.55) 0%,
-      rgba(28, 12, 16, 0.66) 55%,
-      rgba(28, 12, 16, 0.78) 100%
+      rgba(28, 12, 16, 0.8) 0%,
+      rgba(28, 12, 16, 0.84) 55%,
+      rgba(28, 12, 16, 0.9) 100%
     );
   }
 
@@ -744,13 +744,13 @@
     );
   }
 
-  /* readable text over the couple photo on the dashboard */
+  /* Overlay gelap merata agar teks putih tetap jelas pada foto pasangan. */
   .photo-scrim {
     background-image: linear-gradient(
-      to top,
-      rgba(9, 66, 108, 0.55) 0%,
-      rgba(9, 66, 108, 0.22) 55%,
-      rgba(9, 66, 108, 0) 100%
+      180deg,
+      rgba(35, 15, 19, 0.82) 0%,
+      rgba(35, 15, 19, 0.86) 55%,
+      rgba(35, 15, 19, 0.92) 100%
     );
   }
 
@@ -906,6 +906,55 @@
     font-size: var(--text-caption);
     line-height: var(--leading-caption);
     color: var(--muted-foreground);
+  }
+  [class*="text-white/"] {
+    color: rgb(255 255 255 / 96%);
+  }
+  [class*="text-ink/"] {
+    color: color-mix(in srgb, var(--color-ink) 96%, transparent);
+  }
+  [class*="text-primary/"] {
+    color: color-mix(in srgb, var(--primary) 96%, transparent);
+  }
+  [class*="text-muted-foreground/"] {
+    color: color-mix(in srgb, var(--muted-foreground) 96%, transparent);
+  }
+  [class*="text-leaf/"] {
+    color: color-mix(in srgb, var(--color-leaf) 92%, transparent);
+  }
+  [class*="text-bloom/"] {
+    color: color-mix(in srgb, var(--color-bloom) 92%, transparent);
+  }
+  .text-fog {
+    color: var(--color-stone);
+  }
+  .text-stone {
+    color: var(--color-stone);
+  }
+  .text-graphite {
+    color: var(--color-graphite);
+  }
+  .text-atmosphere-blue,
+  .text-brass-gold,
+  .text-butter-yellow {
+    color: var(--color-atmosphere-blue);
+  }
+  .text-leaf,
+  .text-janur-green {
+    color: var(--color-leaf);
+  }
+  .text-primary\/60 {
+    color: color-mix(in srgb, var(--primary) 88%, transparent);
+  }
+  [data-slot="input"],
+  [data-slot="textarea"],
+  [data-slot="select-trigger"] {
+    background-color: var(--card);
+    color: var(--foreground);
+  }
+  .stat-tile dt {
+    color: var(--muted-foreground);
+    opacity: 1;
   }
   .num {
     font-variant-numeric: tabular-nums;

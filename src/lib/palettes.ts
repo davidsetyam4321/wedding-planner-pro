@@ -228,6 +228,20 @@ export function readableOn(hex: string): string {
   return contrast(hex, "#ffffff") >= 4.5 ? "#ffffff" : "#241c20";
 }
 
+/** Gelapkan aksen secukupnya agar teks/ikon berwarna tetap terbaca di permukaan terang. */
+function readableText(hex: string, background = "#ffffff"): string {
+  if (contrast(hex, background) >= 4.5) return hex;
+
+  let low = 0;
+  let high = 1;
+  for (let i = 0; i < 12; i += 1) {
+    const middle = (low + high) / 2;
+    if (contrast(darken(hex, middle), background) >= 4.5) high = middle;
+    else low = middle;
+  }
+  return darken(hex, high);
+}
+
 export function rgba(hex: string, alpha: number): string {
   const [r, g, b] = hexToRgb(hex);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
@@ -276,19 +290,21 @@ export function paletteVars(roles: PaletteRoles): Record<string, string> {
   const L = roles.nature;
   const B = roles.background;
 
-  const primaryHover = darken(P, 0.16);
-  const primaryDeep = darken(P, 0.3);
-  const onPrimary = readableOn(P);
-  const secondaryDeep = darken(S, 0.24);
-  const accentFg = darken(S, 0.42);
+  const primaryText = readableText(P);
+  const secondaryText = readableText(S);
+  const natureText = readableText(L);
+  const primaryHover = darken(primaryText, 0.16);
+  const primaryDeep = darken(primaryText, 0.3);
+  const onPrimary = readableOn(primaryText);
+  const secondaryDeep = darken(secondaryText, 0.24);
+  const accentFg = secondaryText;
 
-  // Netral hangat — ditarik dari latar agar tetap selaras & kontras.
-  const ink = mix("#241c20", B, 0.05);
-  // Netral sekunder dinaikkan kontrasnya (≥4.8:1 di atas latar terang).
-  const graphite = mix("#4a4043", B, 0.14);
-  const stone = mix("#97878a", B, 0.25);
+  // Netral hangat dengan kontras tinggi pada semua kartu terang.
+  const ink = "#241c20";
+  const graphite = "#403638";
+  const stone = "#584a4c";
   const fog = mix("#d5c9ca", B, 0.35);
-  const mist = mix("#eee5e4", B, 0.45);
+  const mist = mix("#eee5e4", B, 0.12);
   const card = mix(B, "#ffffff", 0.8);
   const white = mix(B, "#ffffff", 0.93);
   const tintSoft = mix(F, B, 0.35);
@@ -301,17 +317,17 @@ export function paletteVars(roles: PaletteRoles): Record<string, string> {
   };
 
   /* Token brand — nama lama di-remap ke peran palet */
-  set("--color-cerulean-sky", P);
+  set("--color-cerulean-sky", primaryText);
   set("--color-deep-cerulean", primaryHover);
-  set("--color-atmosphere-blue", S);
+  set("--color-atmosphere-blue", secondaryText);
   set("--color-midnight-navy", primaryDeep);
   set("--color-inkwell-navy", primaryDeep);
   set("--color-teak-ink", primaryDeep);
   set("--color-berry-red", secondaryDeep);
   set("--color-brick-accent", secondaryDeep);
-  set("--color-brass-gold", S);
-  set("--color-butter-yellow", S);
-  set("--color-janur-green", L);
+  set("--color-brass-gold", secondaryText);
+  set("--color-butter-yellow", secondaryText);
+  set("--color-janur-green", natureText);
   set("--color-sky-tint", tintSoft);
   set("--color-berry-tint", tintRose);
   set("--color-cloud-white", white);
@@ -329,28 +345,28 @@ export function paletteVars(roles: PaletteRoles): Record<string, string> {
   set("--color-obsidian", darken(ink, 0.4));
 
   /* Token baru nature (didefinisikan statis di @theme) */
-  set("--color-leaf", L);
-  set("--color-leaf-deep", darken(L, 0.3));
+  set("--color-leaf", natureText);
+  set("--color-leaf-deep", darken(natureText, 0.18));
   set("--color-soft-deep", accentFg);
   set("--color-petal", F);
-  set("--color-bloom", S);
+  set("--color-bloom", accentFg);
   set("--color-ivory", B);
 
   /* Semantic shadcn */
   set("--background", B);
-  set("--foreground", ink);
+  set("--foreground", readableOn(B));
   set("--card", card);
-  set("--card-foreground", ink);
+  set("--card-foreground", readableOn(card));
   set("--popover", white);
-  set("--popover-foreground", ink);
-  set("--primary", P);
+  set("--popover-foreground", readableOn(white));
+  set("--primary", primaryText);
   set("--primary-foreground", onPrimary);
   set("--secondary", tintSoft);
-  set("--secondary-foreground", ink);
+  set("--secondary-foreground", readableOn(tintSoft));
   set("--muted", mist);
-  set("--muted-foreground", graphite);
+  set("--muted-foreground", readableOn(mist));
   set("--accent", tintRose);
-  set("--accent-foreground", accentFg);
+  set("--accent-foreground", readableOn(tintRose));
   set("--destructive", secondaryDeep);
   set("--destructive-foreground", "#ffffff");
   set("--border", fog);
@@ -364,29 +380,29 @@ export function paletteVars(roles: PaletteRoles): Record<string, string> {
 
   /* Sidebar */
   set("--sidebar", white);
-  set("--sidebar-foreground", ink);
-  set("--sidebar-primary", P);
+  set("--sidebar-foreground", readableOn(white));
+  set("--sidebar-primary", primaryText);
   set("--sidebar-primary-foreground", onPrimary);
   set("--sidebar-accent", tintSoft);
-  set("--sidebar-accent-foreground", accentFg);
+  set("--sidebar-accent-foreground", readableOn(tintSoft));
   set("--sidebar-border", fog);
   set("--sidebar-ring", S);
 
   /* Tier tint — colorful mengikuti palet */
   set("--tint-mint", tintLeaf);
-  set("--tint-mint-foreground", darken(L, 0.3));
+  set("--tint-mint-foreground", readableOn(tintLeaf));
   set("--tint-lavender", tintSoft);
-  set("--tint-lavender-foreground", accentFg);
+  set("--tint-lavender-foreground", readableOn(tintSoft));
   set("--tint-peach", tintWarm);
-  set("--tint-peach-foreground", accentFg);
+  set("--tint-peach-foreground", readableOn(tintWarm));
   set("--tint-rose", tintRose);
-  set("--tint-rose-foreground", accentFg);
+  set("--tint-rose-foreground", readableOn(tintRose));
   set("--tint-sky", tintSoft);
-  set("--tint-sky-foreground", accentFg);
+  set("--tint-sky-foreground", readableOn(tintSoft));
   set("--tint-butter", tintWarm);
-  set("--tint-butter-foreground", darken(S, 0.3));
+  set("--tint-butter-foreground", readableOn(tintWarm));
   set("--tint-sage", tintLeaf);
-  set("--tint-sage-foreground", darken(L, 0.3));
+  set("--tint-sage-foreground", readableOn(tintLeaf));
 
   set("--gold", secondaryDeep);
 

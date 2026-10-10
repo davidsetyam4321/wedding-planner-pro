@@ -82,7 +82,7 @@ export function SideNav({
             <span className="meta block truncate">
               {wedding.partnerOneName} & {wedding.partnerTwoName}
               {daysLabel && (
-                <span className="text-atmosphere-blue"> · {daysLabel}</span>
+                <span className="text-primary"> · {daysLabel}</span>
               )}
             </span>
           ) : (
@@ -110,7 +110,7 @@ export function SideNav({
             <Icon className="size-4" />
             <span className="truncate">{label}</span>
             {to === "/app/checklist" && extra && extra.openTasks > 0 && (
-              <span className="ml-auto shrink-0 rounded-full bg-atmosphere-blue px-1.5 py-0.5 text-[10px] font-bold text-white">
+              <span className="ml-auto shrink-0 rounded-full bg-midnight-navy px-1.5 py-0.5 text-[10px] font-bold text-white">
                 {extra.openTasks > 9 ? "9+" : extra.openTasks}
               </span>
             )}
@@ -155,7 +155,7 @@ export function SideNav({
         <div className="clay-inset flex items-center gap-2.5 rounded-2xl px-3 py-2.5">
           <span
             className={`size-2 shrink-0 rounded-full ${
-              status?.connectedEmail ? "bg-atmosphere-blue" : "bg-berry-red"
+              status?.connectedEmail ? "bg-leaf" : "bg-berry-red"
             }`}
           />
           <div className="min-w-0 flex-1">
