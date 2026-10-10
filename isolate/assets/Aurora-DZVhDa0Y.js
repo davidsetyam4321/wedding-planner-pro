@@ -1,0 +1,1 @@
+import{j as a}from"./framer-motion-WvXl1suq.js";function o({className:r=""}){return a.jsxs("div",{"aria-hidden":"true",className:`aurora ${r}`,children:[a.jsx("span",{className:"aurora__blob aurora__blob--1"}),a.jsx("span",{className:"aurora__blob aurora__blob--2"}),a.jsx("span",{className:"aurora__blob aurora__blob--3"})]})}export{o as A};
