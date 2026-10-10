@@ -33,7 +33,6 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --color-gold: var(--gold);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -67,59 +66,69 @@
    midnight navy #09426c (the one filled action), atmosphere blue #60a8dd
    (outline action + borders on sky), berry red #cf372d (single accent,
    used sparingly), cloud white surfaces, hairline #dadada.
-   Type: literary serif at weight 400 (Fraunces as signifier
-   substitute) for headlines ≥24px, Inter (switzer substitute) for UI. */
+   Type: serif display (Cormorant Garamond) untuk headline, Plus Jakarta Sans
+   untuk UI — sejalan dengan tema undangan digital. */
 @theme {
-  /* Colors — Burgundy Garden (palet default) — dihasilkan dari
+  /* Colors — Hutan & Emas (palet default, tema undangan) — dihasilkan dari
      paletteVars(@/lib/palettes); nilai runtime meng-override ini saat pengguna
-     mengganti palet di Pengaturan → seluruh utilitas ikut berubah. */
-  --color-cerulean-sky: #5e1a26;
-  --color-deep-cerulean: #521823;
-  --color-atmosphere-blue: #703138;
-  --color-midnight-navy: #481720;
-  --color-berry-red: #8c3c45;
-  --color-cloud-white: #fefdfb;
-  --color-mist-gray: #f2e7d5;
-  --color-fog: #8b7977;
+     mengganti palet di Pengaturan → seluruh utilitas ikut berubah.
+     Nilai statis di bawah = output paletteVars("hutan-emas") agar tidak ada
+     divergensi antara render pertama dan render setelah JS jalan. */
+  --color-cerulean-sky: #1a3424;
+  --color-deep-cerulean: #192e21;
+  --color-atmosphere-blue: #9d6d2f;
+  --color-midnight-navy: #19291e;
+  --color-berry-red: #7c5628;
+  --color-cloud-white: #fffefe;
+  --color-mist-gray: #efe7e5;
+  --color-fog: #e2d9d7;
   --color-stone: #584a4c;
-  --color-ink: #2f2628;
-  --color-obsidian: #251d1f;
+  --color-ink: #241c20;
+  --color-obsidian: #1e171a;
 
   /* Legacy aliases kept for compiled class names across pages */
-  --color-paper-white: #fefdfb;
-  --color-pure-ink: #2f2628;
+  --color-paper-white: #fffefe;
+  --color-pure-ink: #241c20;
   --color-graphite: #403638;
-  --color-slate: #afa098;
-  --color-fog-line: #e1d4c8;
-  --color-sky-tint: #f4d4ca; /* aksen lembut — tier permukaan */
-  --color-berry-tint: #f4e6e7; /* aksen rose — tier whisper */
+  --color-slate: #584a4c;
+  --color-fog-line: #e2d9d7;
+  --color-sky-tint: #f5f0e3; /* aksen lembut — tier permukaan */
+  --color-berry-tint: #f2ebe2; /* aksen rose — tier whisper */
 
   /* Legacy class names found across /app pages — remapped to palet values
      so every surface renders in the disciplined palette */
-  --color-teak-ink: #481720;
-  --color-brick-accent: #8c3c45;
-  --color-brass-gold: #703138;
-  --color-janur-green: #4a5129;
-  --color-ash-canvas: #f2e7d5;
-  --color-warm-stone: #e1d4c8;
-  --color-butter-yellow: #703138;
-  --color-inkwell-navy: #481720;
+  --color-teak-ink: #19291e;
+  --color-brick-accent: #7c5628;
+  --color-brass-gold: #9d6d2f;
+  --color-janur-green: #3c5a44;
+  --color-ash-canvas: #efe7e5;
+  --color-warm-stone: #e2d9d7;
+  --color-butter-yellow: #9d6d2f;
+  --color-inkwell-navy: #19291e;
 
   /* Token nature — peran palet, ikut berganti saat palet diubah */
-  --color-leaf: #4a5129;
-  --color-leaf-deep: #414722;
-  --color-soft-deep: #703138;
-  --color-petal: #f2c9ce;
-  --color-bloom: #703138;
-  --color-ivory: #f7e9c3;
+  --color-leaf: #3c5a44;
+  --color-leaf-deep: #354d3b;
+  --color-soft-deep: #9d6d2f;
+  --color-petal: #f3ecdd;
+  --color-bloom: #9d6d2f;
+  --color-ivory: #faf7ee;
 
-  /* Typography — Fraunces (signifier) + Outfit (switzer) */
-  --font-inter: "Outfit", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-sans: "Outfit", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-serif: "Fraunces", ui-serif, Georgia, serif;
-  --font-grifter: "Fraunces", ui-serif, Georgia, serif;
-  /* Script tanda tangan — hanya untuk momen personal (nama pasangan) */
-  --font-script: "Great Vibes", "Fraunces", ui-serif, Georgia, cursive;
+  /* Token tema undangan — emas (ornamen), hutan (sisi gelap), krem (kertas) */
+  --color-gold: #bb976a;
+  --color-gold-deep: #9d6d2f;
+  --color-forest: #1a3424;
+  --color-forest-deep: #19291e;
+  --color-cream: #f8f5ec;
+
+  /* Typography — Cormorant Garamond (display) + Plus Jakarta Sans (UI),
+     sama seperti tema undangan digital. */
+  --font-inter: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Cormorant Garamond", "Times New Roman", ui-serif, Georgia, serif;
+  --font-grifter: "Cormorant Garamond", "Times New Roman", ui-serif, Georgia, serif;
+  /* Tanda tangan nama pasangan — Cormorant italic (bukan script terpisah). */
+  --font-script: "Cormorant Garamond", "Times New Roman", ui-serif, Georgia, serif;
   --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Typography — Scale */
@@ -155,11 +164,12 @@
   --radius-2xl: 12px;
   --radius-3xl: 20px;
 
-  /* Shadows — brand-cast dari warna utama palet, never neutral gray */
-  --shadow-subtle: rgba(94, 26, 38, 0.12) 0px 1px 3px 0px, rgba(94, 26, 38, 0.08) 0px 1px 2px 0px;
-  --shadow-sm: rgba(94, 26, 38, 0.16) 0px 4px 8px -2px, rgba(94, 26, 38, 0.1) 0px 2px 4px -1px;
-  --shadow-sm-2: rgba(94, 26, 38, 0.1) 0px 4px 4px 0px;
-  --shadow-float: rgba(94, 26, 38, 0.22) 4px 6px 8px -2px, rgba(94, 26, 38, 0.16) -4px -1px 8px -2px;
+  /* Shadows — brand-cast dari warna utama palet, never neutral gray.
+     Sama dengan rgba(primary) palet default Hutan & Emas (#1a3424). */
+  --shadow-subtle: rgba(26, 52, 36, 0.12) 0px 1px 3px 0px, rgba(26, 52, 36, 0.08) 0px 1px 2px 0px;
+  --shadow-sm: rgba(26, 52, 36, 0.16) 0px 4px 8px -2px, rgba(26, 52, 36, 0.1) 0px 2px 4px -1px;
+  --shadow-sm-2: rgba(26, 52, 36, 0.1) 0px 4px 4px 0px;
+  --shadow-float: rgba(26, 52, 36, 0.22) 4px 6px 8px -2px, rgba(26, 52, 36, 0.16) -2px -1px 8px -2px;
 }
 
 /* ── Semantic tokens (terhubung ke bridge di atas) ─────────────────────── */
@@ -168,113 +178,113 @@
   /* --radius tetap 0.5rem → lg=8px (input), xl=12px (kartu) */
   --radius: 0.5rem;
 
-  --background: #f7e9c3; /* ivory — latar halaman */
-  --foreground: #2f2628; /* ink hangat */
-  --card: #fdfbf3;
-  --card-foreground: #2f2628;
-  --popover: #fefdfb;
-  --popover-foreground: #2f2628;
-  --primary: #5e1a26; /* burgundy — aksi terisi */
+  --background: #faf7ee; /* kertas gading — latar halaman */
+  --foreground: #241c20; /* ink hangat */
+  --card: #fefdfc;
+  --card-foreground: #241c20;
+  --popover: #fffefe;
+  --popover-foreground: #241c20;
+  --primary: #1a3424; /* hijau hutan — aksi terisi */
   --primary-foreground: #ffffff;
-  --secondary: #f4d4ca; /* tint lembut */
-  --secondary-foreground: #2f2628;
-  --muted: #f2e7d5;
-  --muted-foreground: #403638; /* kontras tinggi untuk teks kecil */
-  --accent: #f4e6e7; /* rose whisper */
-  --accent-foreground: #703138;
-  --destructive: #8c3c45; /* dusty rose tua */
+  --secondary: #f5f0e3; /* tint lembut */
+  --secondary-foreground: #241c20;
+  --muted: #efe7e5;
+  --muted-foreground: #241c20; /* kontras tinggi untuk teks kecil */
+  --accent: #f2ebe2; /* krem whisper */
+  --accent-foreground: #241c20;
+  --destructive: #7c5628; /* emas tua */
   --destructive-foreground: #ffffff;
-  --border: #e1d4c8; /* hangat hairline */
-  --input: #8b7977;
-  --ring: #b24a55; /* dusty rose */
-  --chart-1: #5e1a26; /* burgundy */
-  --chart-2: #b24a55; /* dusty rose */
-  --chart-3: #6b7a38; /* olive */
-  --chart-4: #521823; /* burgundy hover */
-  --chart-5: #8c3c45; /* rose tua */
-  --sidebar: #fefdfb;
-  --sidebar-foreground: #2f2628;
-  --sidebar-primary: #5e1a26;
+  --border: #e2d9d7; /* hangat hairline */
+  --input: #e2d9d7;
+  --ring: #a06f30; /* emas */
+  --chart-1: #1a3424; /* hijau hutan */
+  --chart-2: #a06f30; /* emas */
+  --chart-3: #3c5a44; /* hijau daun */
+  --chart-4: #192e21; /* hutan hover */
+  --chart-5: #7c5628; /* emas tua */
+  --sidebar: #fffefe;
+  --sidebar-foreground: #241c20;
+  --sidebar-primary: #1a3424;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f4d4ca;
-  --sidebar-accent-foreground: #703138;
-  --sidebar-border: #e1d4c8;
-  --sidebar-ring: #b24a55;
+  --sidebar-accent: #f5f0e3;
+  --sidebar-accent-foreground: #241c20;
+  --sidebar-border: #e2d9d7;
+  --sidebar-ring: #a06f30;
 
   /* Tier tint — colourful, mengikuti peran palet */
-  --tint-mint: #eaece3;
-  --tint-mint-foreground: #4a5129;
-  --tint-lavender: #f4d4ca;
-  --tint-lavender-foreground: #703138;
-  --tint-peach: #f9e7e9;
-  --tint-peach-foreground: #703138;
-  --tint-rose: #f4e6e7;
-  --tint-rose-foreground: #703138;
-  --tint-sky: #f4d4ca;
-  --tint-sky-foreground: #703138;
-  --tint-butter: #f9e7e9;
-  --tint-butter-foreground: #703138;
-  --tint-sage: #eaece3;
-  --tint-sage-foreground: #4a5129;
+  --tint-mint: #e4e8e5;
+  --tint-mint-foreground: #241c20;
+  --tint-lavender: #f5f0e3;
+  --tint-lavender-foreground: #241c20;
+  --tint-peach: #faf6f0;
+  --tint-peach-foreground: #241c20;
+  --tint-rose: #f2ebe2;
+  --tint-rose-foreground: #241c20;
+  --tint-sky: #f5f0e3;
+  --tint-sky-foreground: #241c20;
+  --tint-butter: #faf6f0;
+  --tint-butter-foreground: #241c20;
+  --tint-sage: #e4e8e5;
+  --tint-sage-foreground: #241c20;
 
   /* aksen Emas lama dipetakan ke keluarga sekunder (dipakai hemat) */
-  --gold: #8c3c45;
+  --gold: #7c5628;
 
-  --shadow-soft: rgba(94, 26, 38, 0.12) 0px 1px 3px 0px, rgba(94, 26, 38, 0.08) 0px 1px 2px 0px;
-  --shadow-lift: rgba(94, 26, 38, 0.16) 0px 4px 8px -2px, rgba(94, 26, 38, 0.1) 0px 2px 4px -1px;
-  --shadow-float: rgba(94, 26, 38, 0.22) 4px 6px 8px -2px, rgba(94, 26, 38, 0.16) -4px -1px 8px -2px;
+  --shadow-soft: rgba(26, 52, 36, 0.12) 0px 1px 3px 0px, rgba(26, 52, 36, 0.08) 0px 1px 2px 0px;
+  --shadow-lift: rgba(26, 52, 36, 0.16) 0px 4px 8px -2px, rgba(26, 52, 36, 0.1) 0px 2px 4px -1px;
+  --shadow-float: rgba(26, 52, 36, 0.22) 4px 6px 8px -2px, rgba(26, 52, 36, 0.16) -2px -1px 8px -2px;
 }
 
 .dark {
-  --background: #0b1e30; /* malam di atas langit */
-  --foreground: #eef4f9;
-  --card: #10283e;
-  --card-foreground: #eef4f9;
-  --popover: #10283e;
-  --popover-foreground: #eef4f9;
-  --primary: #60a8dd;
-  --primary-foreground: #06243d;
-  --secondary: #14304a;
-  --secondary-foreground: #eef4f9;
-  --muted: #14304a;
-  --muted-foreground: #9fb9cf;
-  --accent: #14304a;
-  --accent-foreground: #bfe0f5;
-  --destructive: #e05a51;
+  --background: #0c1f13; /* hijau hutan malam */
+  --foreground: #f2eee0;
+  --card: #13291b;
+  --card-foreground: #f2eee0;
+  --popover: #13291b;
+  --popover-foreground: #f2eee0;
+  --primary: #c49e62; /* emas — satu aksi terisi */
+  --primary-foreground: #12200f;
+  --secondary: #1b3323;
+  --secondary-foreground: #eae4d4;
+  --muted: #1b3323;
+  --muted-foreground: #a9b5a6;
+  --accent: #1f3a28;
+  --accent-foreground: #e6d3a8;
+  --destructive: #c2705a;
   --destructive-foreground: #ffffff;
-  --border: #1d3d5c;
-  --input: #1d3d5c;
-  --ring: #60a8dd;
-  --chart-1: #60a8dd;
-  --chart-2: #117bc8;
-  --chart-3: #bfe0f5;
-  --chart-4: #0d5c96;
-  --chart-5: #e05a51;
-  --sidebar: #0b1e30;
-  --sidebar-foreground: #eef4f9;
-  --sidebar-primary: #60a8dd;
-  --sidebar-primary-foreground: #06243d;
-  --sidebar-accent: #14304a;
-  --sidebar-accent-foreground: #bfe0f5;
-  --sidebar-border: #1d3d5c;
-  --sidebar-ring: #60a8dd;
+  --border: #24402c;
+  --input: #24402c;
+  --ring: #c49e62;
+  --chart-1: #c49e62;
+  --chart-2: #8fae8a;
+  --chart-3: #e6d3a8;
+  --chart-4: #4d7a5b;
+  --chart-5: #c2705a;
+  --sidebar: #0c1f13;
+  --sidebar-foreground: #f2eee0;
+  --sidebar-primary: #c49e62;
+  --sidebar-primary-foreground: #12200f;
+  --sidebar-accent: #1b3323;
+  --sidebar-accent-foreground: #e6d3a8;
+  --sidebar-border: #24402c;
+  --sidebar-ring: #c49e62;
 
-  --tint-mint: #14304a;
-  --tint-mint-foreground: #eef4f9;
-  --tint-lavender: #14304a;
-  --tint-lavender-foreground: #bfe0f5;
-  --tint-peach: #14304a;
-  --tint-peach-foreground: #eef4f9;
-  --tint-rose: #1d2733;
-  --tint-rose-foreground: #f2b8b3;
-  --tint-sky: #14304a;
-  --tint-sky-foreground: #bfe0f5;
-  --tint-butter: #14304a;
-  --tint-butter-foreground: #eef4f9;
-  --tint-sage: #14304a;
-  --tint-sage-foreground: #eef4f9;
+  --tint-mint: #1b3323;
+  --tint-mint-foreground: #f2eee0;
+  --tint-lavender: #1b3323;
+  --tint-lavender-foreground: #e6d3a8;
+  --tint-peach: #1b3323;
+  --tint-peach-foreground: #f2eee0;
+  --tint-rose: #2a2318;
+  --tint-rose-foreground: #e3c98f;
+  --tint-sky: #1b3323;
+  --tint-sky-foreground: #e6d3a8;
+  --tint-butter: #1b3323;
+  --tint-butter-foreground: #f2eee0;
+  --tint-sage: #1b3323;
+  --tint-sage-foreground: #f2eee0;
 
-  --gold: #e05a51;
+  --gold: #c49e62;
 
   --shadow-soft: rgba(0, 0, 0, 0.4) 0px 1px 2px 0px, rgba(0, 0, 0, 0.24) 0px 1px 3px 0px;
   --shadow-lift: rgba(0, 0, 0, 0.45) 0px 4px 6px -1px, rgba(0, 0, 0, 0.28) 0px 2px 4px -1px;
@@ -300,7 +310,7 @@
   h1,
   h2,
   h3 {
-    /* Fraunces — serif estetik, opsz otomatis;400 agar tetap terbaca */
+    /* Cormorant Garamond — serif display undangan; 400 agar tetap terbaca */
     font-family: var(--font-serif);
     font-weight: 400;
     font-optical-sizing: auto;
@@ -371,22 +381,22 @@
     .floral-canvas,
     .bouquet-canvas { background-attachment: scroll; }
   }
-  /* Veil terang yang lebih pekat menjaga teks gelap tetap terbaca di atas foto. */
+  /* Veil gading di atas foto hero — teks gelap tetap terbaca (kertas gading). */
   .photo-veil {
     background: linear-gradient(
       180deg,
-      rgba(250, 243, 228, 0.86) 0%,
-      rgba(250, 243, 228, 0.8) 45%,
-      rgba(250, 243, 228, 0.9) 100%
+      rgba(250, 247, 238, 0.86) 0%,
+      rgba(250, 247, 238, 0.8) 45%,
+      rgba(250, 247, 238, 0.9) 100%
     );
   }
-  /* redupkan foto floral agar teks putih di atasnya tetap terbaca */
+  /* redupkan foto agar teks gading di atasnya tetap terbaca — hijau hutan */
   .photo-dim {
     background: linear-gradient(
       180deg,
-      rgba(28, 12, 16, 0.8) 0%,
-      rgba(28, 12, 16, 0.84) 55%,
-      rgba(28, 12, 16, 0.9) 100%
+      rgba(12, 31, 19, 0.84) 0%,
+      rgba(12, 31, 19, 0.88) 55%,
+      rgba(12, 31, 19, 0.93) 100%
     );
   }
 
@@ -653,8 +663,9 @@
     }
   }
 
-  /* Latar foto lokal flora/botanical dengan veil ivory yang tipis agar tetap
-     tenang; .clay/.panel mempertahankan permukaan kartu yang solid. */
+  /* Latar aplikasi = kertas undangan: gading dengan pendar emas + hijau hutan,
+     bukan foto botanical, agar seluruh halaman terasa seperti kertas cetak.
+     Warna mengikuti palet aktif lewat var(--color-gold/--color-forest). */
   .app-photo-backdrop {
     position: fixed;
     inset: 0;
@@ -662,14 +673,16 @@
     pointer-events: none;
     background-color: var(--background);
     background-image:
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--background) 78%, transparent),
-        color-mix(in srgb, var(--background) 88%, transparent)
+      radial-gradient(
+        ellipse at 20% 0%,
+        color-mix(in oklab, var(--color-gold) 12%, transparent),
+        transparent 55%
       ),
-      url("/assets/nature/delicate-leafy-background.jpg");
-    background-size: cover;
-    background-position: center 42%;
+      radial-gradient(
+        ellipse at 85% 30%,
+        color-mix(in oklab, var(--color-forest) 8%, transparent),
+        transparent 50%
+      );
   }
   .sky-wash {
     min-height: 100vh;
@@ -677,35 +690,35 @@
   }
   .dark .app-photo-backdrop {
     background-image:
-      linear-gradient(rgba(16, 32, 43, 0.88), rgba(16, 32, 43, 0.93)),
-      url("/assets/nature/delicate-leafy-background.jpg");
+      radial-gradient(
+        ellipse at 20% 0%,
+        color-mix(in oklab, var(--color-gold) 10%, transparent),
+        transparent 55%
+      ),
+      radial-gradient(
+        ellipse at 85% 30%,
+        color-mix(in oklab, var(--color-forest) 16%, transparent),
+        transparent 50%
+      );
   }
   @media (max-width: 640px) {
-    .app-photo-backdrop {
-      background-position: 55% center;
-    }
     .plant-hero { background-position: 58% center; }
     .floral-canvas, .bouquet-canvas { background-position: 66% center; }
   }
-  @media (prefers-reduced-motion: reduce) {
-    .app-photo-backdrop {
-      background-attachment: scroll;
-    }
-  }
 
-  /* Pita nature tipis — gradasi brand, bukan foto langit */
+  /* Pita gelap hero — gradasi hijau hutan ke emas, seperti sisi gelap undangan */
   .sky-band {
     background-image: linear-gradient(
       135deg,
-      var(--color-midnight-navy) 0%,
-      color-mix(in srgb, var(--color-cerulean-sky) 78%, var(--color-bloom)) 55%,
-      var(--color-bloom) 100%
+      var(--color-forest-deep) 0%,
+      color-mix(in oklab, var(--color-forest) 82%, var(--color-gold-deep)) 55%,
+      var(--color-gold-deep) 100%
     );
   }
 
   /* gradients — mapped to Cora tiers so legacy class names still work */
   .grad-warm {
-    background-image: linear-gradient(135deg, #ffffff 0%, #eaf3fb 100%);
+    background-image: linear-gradient(135deg, #ffffff 0%, var(--color-cream) 100%);
   }
   .grad-mint,
   .grad-lavender,
@@ -713,7 +726,7 @@
   .grad-sky,
   .grad-butter,
   .grad-sage {
-    background-image: linear-gradient(135deg, #ffffff 0%, #ebf3fa 100%);
+    background-image: linear-gradient(135deg, #ffffff 0%, var(--color-cream) 100%);
   }
   .grad-rose {
     background-image: linear-gradient(
@@ -746,13 +759,13 @@
     );
   }
 
-  /* Overlay gelap merata agar teks putih tetap jelas pada foto pasangan. */
+  /* Overlay hijau hutan merata agar teks gading tetap jelas pada foto pasangan. */
   .photo-scrim {
     background-image: linear-gradient(
       180deg,
-      rgba(35, 15, 19, 0.82) 0%,
-      rgba(35, 15, 19, 0.86) 55%,
-      rgba(35, 15, 19, 0.92) 100%
+      rgba(12, 31, 19, 0.82) 0%,
+      rgba(12, 31, 19, 0.86) 55%,
+      rgba(12, 31, 19, 0.92) 100%
     );
   }
 
@@ -1056,7 +1069,7 @@
 
 /* ── Literary serif accent — italic estetik untuk frasa romantis ── */
 .elegant {
-  font-family: "Fraunces", ui-serif, Georgia, serif;
+  font-family: var(--font-serif);
   font-style: italic;
   font-weight: 400;
   letter-spacing: 0.005em;
@@ -1089,7 +1102,7 @@
     gap: 0.7rem;
     font-size: 0.6875rem;
     font-weight: 500;
-    letter-spacing: 0.24em;
+    letter-spacing: 0.3em; /* jarak lebar khas label undangan */
     text-transform: uppercase;
     line-height: 1.4;
   }
@@ -1121,7 +1134,7 @@
     content: "";
     position: absolute;
     inset: 7px;
-    border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--border));
+    border: 1px solid color-mix(in oklab, var(--color-gold) 45%, transparent);
     border-radius: calc(var(--radius-3xl) - 7px);
     pointer-events: none;
   }
@@ -1130,12 +1143,41 @@
     z-index: 1;
   }
 
-  /* Tanda tangan script — momen personal saja (nama pasangan) */
+  /* Tanda tangan nama pasangan — Cormorant italic seperti undangan cetak */
   .signature {
     font-family: var(--font-script);
+    font-style: italic;
     font-weight: 400;
-    letter-spacing: 0.01em;
-    line-height: 1.2;
+    letter-spacing: 0.005em;
+    line-height: 1.25;
+  }
+
+  /* Kertas undangan: latar gading dengan pendar emas + hijau hutan tipis */
+  .paper-bg {
+    background-color: var(--background);
+    background-image:
+      radial-gradient(
+        ellipse at 20% 0%,
+        color-mix(in oklab, var(--color-gold) 12%, transparent),
+        transparent 55%
+      ),
+      radial-gradient(
+        ellipse at 85% 30%,
+        color-mix(in oklab, var(--color-forest) 8%, transparent),
+        transparent 50%
+      );
+  }
+
+  /* Garis ornamen emas — pembatas antar seksi gaya undangan */
+  .ornament-line {
+    height: 1px;
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-gold) 20%,
+      var(--color-gold) 80%,
+      transparent
+    );
   }
 
   /* Seal monogram bundar untuk inisial pasangan */

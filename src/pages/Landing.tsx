@@ -244,10 +244,10 @@ export function LandingPage() {
         </section>
 
         {/* ── Perencanaan inti — copy faktual, tanpa testimoni buatan ─────── */}
-        <section className="bg-cloud-white px-5 py-24">
+        <section className="paper-bg px-5 py-24">
           <div className="mx-auto max-w-[1200px]">
             <FadeContent blur duration={900} className="text-center">
-              <p className="eyebrow eyebrow-rules text-stone">Dibuat untuk rencana bersama</p>
+              <p className="eyebrow eyebrow-rules text-gold-deep">Dibuat untuk rencana bersama</p>
               <h2 className="mx-auto mt-2 max-w-2xl font-serif text-3xl font-light leading-tight md:text-[40px]">
                 Satu ruang untuk menyatukan semua detail
               </h2>
@@ -292,7 +292,7 @@ export function LandingPage() {
           {/* Preview mini dashboard — kartu putih mengambang di langit */}
           <AnimatedContent distance={80} threshold={0.15} className="relative z-10">
             <div className="mx-auto mt-12 max-w-md rotate-[-2deg] rounded-xl bg-cloud-white p-6 shadow-float lg:max-w-lg">
-              <p className="eyebrow eyebrow-rules text-stone">Menuju hari pernikahan</p>
+              <p className="eyebrow eyebrow-rules text-gold-deep">Menuju hari pernikahan</p>
               <p className="num mt-1 font-serif text-5xl font-light text-ink">
                 H-<CountUp to={328} />
               </p>
@@ -325,7 +325,7 @@ export function LandingPage() {
               className="flex flex-wrap items-end justify-between gap-2"
             >
               <div>
-                <p className="eyebrow eyebrow-rules text-stone">Fitur lengkap</p>
+                <p className="eyebrow eyebrow-rules text-gold-deep">Fitur lengkap</p>
                 <SplitText
                   tag="h2"
                   textAlign="left"
@@ -372,7 +372,7 @@ export function LandingPage() {
         {/* ── Section putih: cara kerja ─────────────────────────────────── */}
         <section id="cara-kerja" className="bg-cloud-white px-5 pb-24">
           <div className="mx-auto max-w-[1200px]">
-            <p className="eyebrow eyebrow-rules text-stone">Cara kerja</p>
+            <p className="eyebrow eyebrow-rules text-gold-deep">Cara kerja</p>
             <SplitText
               tag="h2"
               textAlign="left"
@@ -494,7 +494,9 @@ export function LandingPage() {
       </main>
 
       {/* ── Footer solid di atas burgundy ────────────────────────────── */}
-      <footer className="relative border-t border-white/20 bg-midnight-navy">
+      <footer className="relative bg-midnight-navy">
+        {/* garis ornamen emas memisahkan halaman dari footer */}
+        <span aria-hidden="true" className="ornament-line block w-full" />
         <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center justify-between gap-3 px-5 py-8 sm:flex-row">
           <div className="flex items-center gap-2.5">
             <span className="flex size-8 items-center justify-center rounded-full border border-white/50">

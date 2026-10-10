@@ -286,7 +286,7 @@ export function SectionHeader({
       {/* garis rambut khas kertas undangan di bawah judul seksi */}
       <span
         aria-hidden="true"
-        className="mt-2 block h-px w-full bg-gradient-to-r from-primary/40 via-border to-transparent"
+        className="mt-2 block h-px w-full bg-gradient-to-r from-gold/70 via-gold/25 to-transparent"
       />
     </FadeContent>
   );

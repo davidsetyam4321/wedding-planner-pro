@@ -14,17 +14,23 @@ bertabrakan dengan identitas produk SatuJanji dan aturan proyek:
 
 | Rekomendasi generator | Keputusan proyek | Alasan |
 |---|---|---|
-| Palet romantic pink (`#DB2777`, latar `#FDF2F8`) | **Ditolak** — pakai palet Burgundy Garden di `src/lib/palettes.ts` (`--primary #5e1a26`, latar ivory `#f7e9c3`) | Aplikasi sudah punya sistem ganti-palet penuh (`PaletteProvider`) dengan nuansa hangat; skill sendiri menandai gradien pink/ungu AI sebagai anti-pattern |
-| Great Vibes sebagai *heading font* | **Dipakai terbatas** — hanya sebagai tanda tangan script (`.signature`: wordmark, aksen hero, nama pasangan) | Teks UI tetap Fraunces (serif) + Outfit (sans) agar terbaca dan konsisten |
-| Soft UI Evolution | **Dipakai sebagian** — shadow tetap bercorak warna palet (`--shadow-*`), tanpa bayangan abu netral | Mengikuti token yang sudah ada |
+| Palet romantic pink (`#DB2777`, latar `#FDF2F8`) | **Ditolak** — palet default sekarang **Hutan & Emas** (`src/lib/palettes.ts`): primary `#1a3424`, sekunder/gold `#a06f30`, latar ivory `#faf7ee`, hijau `#3c5a44` | Palet mengikuti tema undangan digital pengguna (`satujanjiinvitation.freebuff.app`: ivory + gold + forest), dan tetap lewat sistem ganti-palet (`PaletteProvider`) sehingga pengguna bisa memilih lagi |
+| Great Vibes sebagai *heading font* | **Ditolak** — pakai **Cormorant Garamond** (display, termasuk `.signature` italic & `.elegant`) + **Plus Jakarta Sans** (UI) | Font yang sama dengan undangan digital pengguna; script terpisah tidak dipakai di sana |
+| Soft UI Evolution | **Dipakai sebagian** — shadow tetap bercorak warna palet (`--shadow-*`, kini rgba hijau hutan), tanpa bayangan abu netral | Mengikuti token yang sudah ada |
 
 Yang **dipakai penuh** dari generator: pola hero + CTA, eyebrow kapital
-berjarak lebar, garis rambut pemisah, kartu berbingkai ganda
-(`.stationery`), kontras/fokus, serta checklist pra-kirim di bawah ini.
+berjarak lebar (0.3em, emas), garis rambut/organen emas, kartu berbingkai
+ganda (`.stationery`), kertas undangan (`.paper-bg`), kontras/fokus, serta
+checklist pra-kirim di bawah ini.
 
-Perubahan yang sudah diterapkan ada di `src/index.css` (lapisan stationery),
-`src/components/Shared.tsx` (`SectionHeader`), `src/pages/Landing.tsx`,
-`src/pages/app/Home.tsx`, `src/components/AppShell.tsx`, dan `src/lib/printDoc.ts`.
+Perubahan yang sudah diterapkan ada di `src/index.css` (token + lapisan
+stationery/kertas), `src/lib/palettes.ts` (palet default Hutan & Emas),
+`src/components/Shared.tsx` (`SectionHeader`), `src/components/Decor.tsx`
+(ornamen emas), `src/pages/Landing.tsx`, `src/pages/app/Home.tsx`,
+`src/components/AppShell.tsx`, `src/lib/printDoc.ts`, dan `index.html` (font).
+
+Nilai statis di `src/index.css` wajib sama dengan `paletteVars("hutan-emas")`;
+tidak ada divergensi (dicek 90 token).
 
 ---
 

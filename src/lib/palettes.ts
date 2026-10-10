@@ -31,7 +31,8 @@ export type Palette = {
 };
 
 export const CUSTOM_PALETTE_ID = "custom";
-export const DEFAULT_PALETTE_ID = "burgundy-garden";
+/** Palet default = tema undangan (hijau hutan + emas + kertas gading). */
+export const DEFAULT_PALETTE_ID = "hutan-emas";
 
 export const SLOT_LABELS: Record<PaletteRoleKey, string> = {
   primary: "Warna Utama",
@@ -49,8 +50,20 @@ export const SLOT_ORDER: PaletteRoleKey[] = [
   "background",
 ];
 
-/** Enam palet colorful siap pakai — "Burgundy Garden" berasal dari referensi pengguna. */
+/** Palet colorful siap pakai — "Hutan & Emas" mengikuti tema undangan digital. */
 export const PALETTES: Palette[] = [
+  {
+    id: "hutan-emas",
+    name: "Hutan & Emas",
+    hint: "Tema undangan — hijau hutan, emas, kertas gading",
+    roles: {
+      primary: "#1a3424",
+      secondary: "#a06f30",
+      soft: "#f3ecdd",
+      nature: "#3c5a44",
+      background: "#faf7ee",
+    },
+  },
   {
     id: "burgundy-garden",
     name: "Burgundy Garden",
@@ -351,6 +364,13 @@ export function paletteVars(roles: PaletteRoles): Record<string, string> {
   set("--color-petal", F);
   set("--color-bloom", accentFg);
   set("--color-ivory", B);
+
+  /* Token tema undangan — emas (ornamen), hutan (sisi gelap), krem (kertas) */
+  set("--color-gold", lighten(S, 0.28));
+  set("--color-gold-deep", secondaryText);
+  set("--color-forest", primaryText);
+  set("--color-forest-deep", primaryDeep);
+  set("--color-cream", mix(F, "#ffffff", 0.45));
 
   /* Semantic shadcn */
   set("--background", B);

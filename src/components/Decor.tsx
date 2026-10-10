@@ -328,8 +328,8 @@ export function PetalsFront() {
 }
 
 /**
- * Garis pemisah hairline Cora — satu garis #dadada dengan titik atmosphere
- * biru di tengah. Pengganti GarlandDivider.
+ * Garis pemisah undangan — satu garis emas tipis dengan titik emas tua di
+ * tengah, seperti rule pada kertas undangan cetak.
  */
 export function GarlandDivider({ className }: { className?: string }) {
   return (
@@ -339,9 +339,9 @@ export function GarlandDivider({ className }: { className?: string }) {
       className={className}
       fill="none"
     >
-      <path d="M8 20 H190" stroke="var(--color-fog)" strokeWidth="1" />
-      <path d="M210 20 H392" stroke="var(--color-fog)" strokeWidth="1" />
-      <circle cx="200" cy="20" r="3" stroke="var(--color-atmosphere-blue)" strokeWidth="1.4" />
+      <path d="M8 20 H190" stroke="var(--color-gold)" strokeWidth="1" />
+      <path d="M210 20 H392" stroke="var(--color-gold)" strokeWidth="1" />
+      <circle cx="200" cy="20" r="3" stroke="var(--color-gold-deep)" strokeWidth="1.4" />
     </svg>
   );
 }
@@ -460,8 +460,8 @@ export function SekarSudut({ className }: { className?: string }) {
 }
 
 /**
- * Pembatas section: hairline #dadada dengan berlian atmosphere di tengah —
- * rule premium 1px, tanpa motif.
+ * Pembatas section: hairline emas dengan berlian emas tua di tengah —
+ * rule premium 1px bergaya undangan, tanpa motif.
  */
 export function MotifDivider({ className }: { className?: string }) {
   return (
@@ -472,12 +472,12 @@ export function MotifDivider({ className }: { className?: string }) {
       aria-hidden="true"
       preserveAspectRatio="xMidYMid meet"
     >
-      <path d="M8 20 H188" stroke="var(--color-fog)" strokeWidth="1" />
-      <path d="M212 20 H392" stroke="var(--color-fog)" strokeWidth="1" />
+      <path d="M8 20 H188" stroke="var(--color-gold)" strokeWidth="1" />
+      <path d="M212 20 H392" stroke="var(--color-gold)" strokeWidth="1" />
       <path
         d="M200 13 L207 20 L200 27 L193 20 Z"
         fill="none"
-        stroke="var(--color-atmosphere-blue)"
+        stroke="var(--color-gold-deep)"
         strokeWidth="1.2"
         strokeLinejoin="round"
       />

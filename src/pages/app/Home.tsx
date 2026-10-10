@@ -271,7 +271,7 @@ export function HomePage() {
           <SekarSudut className="pointer-events-none absolute right-4 top-4 size-7" />
           <div className="relative z-10 flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <span className="eyebrow text-white">
+              <span className="eyebrow text-gold">
                 <Heart className="size-3.5" />
                 Menuju Janji Suci
               </span>
