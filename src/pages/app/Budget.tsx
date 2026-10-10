@@ -13,6 +13,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -24,7 +31,6 @@ import { printDocument } from "@/lib/printDoc";
 import {
   AlertTriangle,
   Check,
-  ChevronDown,
   FileDown,
   FileText,
   Loader2,
@@ -941,27 +947,39 @@ export function BudgetPage() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="exp-category">Kategori</Label>
-              <div className="relative">
-                <select
+              <Select
+                value={expenseForm.categoryId || undefined}
+                onValueChange={(value) =>
+                  setExpenseForm((previous) => ({
+                    ...previous,
+                    categoryId: value === "new-category" ? "" : value,
+                  }))
+                }
+              >
+                <SelectTrigger
                   id="exp-category"
-                  value={expenseForm.categoryId}
-                  onChange={(event) =>
-                    setExpenseForm((previous) => ({
-                      ...previous,
-                      categoryId: event.target.value,
-                    }))
-                  }
-                  className="h-9 w-full appearance-none rounded-xl border border-transparent bg-popover px-3 pr-9 text-sm"
+                  className="h-10 w-full rounded-xl border border-border bg-card px-3 text-sm shadow-sm transition-colors hover:bg-secondary/50 focus-visible:border-ring focus-visible:ring-ring/30"
                 >
+                  <SelectValue placeholder="Pilih kategori" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border border-border bg-popover p-1.5 shadow-lg">
                   {categories.map((category) => (
-                    <option key={category._id} value={category._id}>
+                    <SelectItem
+                      key={category._id}
+                      value={category._id}
+                      className="rounded-lg py-2 focus:bg-accent focus:text-accent-foreground"
+                    >
                       {category.name}
-                    </option>
+                    </SelectItem>
                   ))}
-                  <option value="">+ Kategori baru…</option>
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              </div>
+                  <SelectItem
+                    value="new-category"
+                    className="mt-1 rounded-lg border-t border-border py-2 text-primary focus:bg-accent focus:text-accent-foreground"
+                  >
+                    + Kategori baru…
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             {expenseForm.categoryId === "" && (
               <div className="space-y-1.5">
