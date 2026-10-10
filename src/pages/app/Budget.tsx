@@ -201,18 +201,12 @@ export function BudgetPage() {
     );
   };
 
-  // Kelompok vendor: ikut pencarian (nama grup atau nama vendor), tidak ikut
-  // filter kategori, dan hanya bila ada pembayaran vendor.
+  // Vendor ditampilkan sebagai total gabungan saja; pencarian hanya mengenali
+  // label grup, bukan menampilkan rincian nama/nominal tiap vendor.
   const vendorVisible =
     !filterCategory &&
     vendorExpenses.length > 0 &&
-    (term === "" ||
-      matchesQuery("vendor") ||
-      vendorExpenses.some((expense) => matchesQuery(expense.label)));
-  const shownVendorExpenses =
-    term === "" || matchesQuery("vendor")
-      ? vendorExpenses
-      : vendorExpenses.filter((expense) => matchesQuery(expense.label));
+    (term === "" || matchesQuery("vendor"));
 
   /** Toggle filter kategori dari donut/batang grafik (baris Vendor diabaikan). */
   const toggleFilter = (id: string) => {
@@ -393,25 +387,22 @@ export function BudgetPage() {
         ...(vendorExpenses.length > 0
           ? [
               {
-                title: "Pembayaran vendor (sinkron dari halaman Vendor)",
-                headers: ["Keterangan", "Nominal", "Status"],
-                rows: vendorExpenses.map((expense) => [
-                  expense.label,
-                  formatRupiah(expense.amount),
-                  "Lunas",
-                ]),
+                title: "Pembayaran vendor (total gabungan)",
+                headers: ["Keterangan", "Total", "Status"],
+                rows: [["Total pembayaran vendor", formatRupiah(vendorTotal), "Lunas"]],
               },
             ]
           : []),
         {
-          title: "Rincian pengeluaran",
-          headers: ["Keterangan", "Nominal", "Sumber", "Status"],
-          rows: expenses.map((expense) => [
-            expense.label,
-            formatRupiah(expense.amount),
-            expense.source === "vendor" ? "Vendor" : "Manual",
-            expense.paidAt ? "Lunas" : "Belum",
-          ]),
+          title: "Rincian pengeluaran manual",
+          headers: ["Keterangan", "Nominal", "Status"],
+          rows: expenses
+            .filter((expense) => expense.source === "manual")
+            .map((expense) => [
+              expense.label,
+              formatRupiah(expense.amount),
+              expense.paidAt ? "Lunas" : "Belum",
+            ]),
         },
         {
           title: "Tabungan",
@@ -995,54 +986,15 @@ export function BudgetPage() {
 
         {vendorVisible && (
           <StaggerItem key="vendor-group">
-            <Collapsible
-              open={!collapsed["vendor"]}
-              onOpenChange={(value) =>
-                setCollapsed((previous) => ({ ...previous, vendor: !value }))
-              }
-            >
-              <section className="clay overflow-hidden">
-                <div className="flex items-center gap-1 px-3 py-2.5">
-                  <CollapsibleTrigger className="group flex min-w-0 flex-1 items-center gap-2 py-1 text-left">
-                    <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-data-[state=open]:rotate-0 group-data-[state=closed]:-rotate-90" />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-extrabold">Vendor</p>
-                      <p className="num meta">
-                        {formatRupiahShort(vendorTotal)} · {vendorExpenses.length} pembayaran
-                      </p>
-                    </div>
-                    <span className="chip shrink-0 bg-tint-butter text-tint-butter-foreground">
-                      Sinkron
-                    </span>
-                  </CollapsibleTrigger>
-                </div>
-                <CollapsibleContent>
-                  <ul className="divide-y divide-border">
-                    {shownVendorExpenses.map((expense) => (
-                      <li
-                        key={expense.vendorId}
-                        className="flex items-center gap-2.5 px-4 py-2.5"
-                      >
-                        <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                          <Check className="size-3" />
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm">
-                            {expense.label}
-                          </span>
-                          <span className="meta block text-[10px]">
-                            {formatDateShortID(expense.paidAt)}
-                          </span>
-                        </span>
-                        <span className="num text-sm font-bold">
-                          {formatRupiah(expense.amount)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </CollapsibleContent>
-              </section>
-            </Collapsible>
+            <section className="clay flex items-center justify-between gap-3 px-4 py-3">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-extrabold">Pembayaran vendor</p>
+                <p className="meta">Total gabungan · {vendorExpenses.length} pembayaran lunas</p>
+              </div>
+              <span className="num shrink-0 text-sm font-bold">
+                {formatRupiahShort(vendorTotal)}
+              </span>
+            </section>
           </StaggerItem>
         )}
       </Stagger>
