@@ -1,0 +1,1 @@
+import{t as a}from"./index-DqQSTwxh.js";function s(n,t,e){a.warning(n,{duration:e?.durationMs??7e3,action:{label:"Urungkan",onClick:async()=>{try{await t(),a.success(e?.successMessage??"Data dikembalikan.")}catch{a.error("Gagal mengembalikan. Muat ulang lalu coba lagi.")}}}})}export{s as u};
