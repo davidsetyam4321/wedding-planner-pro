@@ -414,12 +414,12 @@ export function AppShell() {
           <Link
             to="/app/pengaturan"
             aria-label="Pengaturan"
-            className="block size-9 shrink-0 overflow-hidden rounded-full p-0.5 ring-2 ring-atmosphere-blue/40"
+            className="block size-9 shrink-0 overflow-hidden rounded-full p-0.5 ring-2 ring-gold/50 transition-shadow hover:ring-gold"
           >
             {couplePhoto ? (
               <img src={couplePhoto} alt="Foto pasangan" className="h-full w-full object-cover" />
             ) : (
-              <span className="flex h-full w-full items-center justify-center rounded-full bg-primary text-[11px] font-extrabold text-primary-foreground">
+              <span className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-primary via-primary to-gold-deep font-serif text-[13px] font-semibold tracking-wide text-primary-foreground">
                 {coupleInitials(
                   wedding?.partnerOneName,
                   wedding?.partnerTwoName,
