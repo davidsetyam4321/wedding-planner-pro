@@ -46,6 +46,20 @@ const INVITE_ATTEMPT_LIMIT = 5;
 const INVITE_LOCKOUT_MS = 15 * 60 * 1000;
 
 /** Create a new seven-day invite code when missing or expired. */
+async function generateUniqueInviteCode(
+  ctx: MutationCtx,
+  currentWeddingId: Id<"wedding">,
+): Promise<string> {
+  for (;;) {
+    const code = generateInviteCode();
+    const existing = await ctx.db
+      .query("wedding")
+      .withIndex("by_inviteCode", (q) => q.eq("inviteCode", code))
+      .first();
+    if (!existing || existing._id === currentWeddingId) return code;
+  }
+}
+
 export async function ensureInviteCode(
   ctx: MutationCtx,
   wedding: Doc<"wedding">,
@@ -56,7 +70,7 @@ export async function ensureInviteCode(
     wedding.inviteCodeExpiresAt !== undefined &&
     wedding.inviteCodeExpiresAt > now
   ) return wedding.inviteCode;
-  const code = generateInviteCode();
+  const code = await generateUniqueInviteCode(ctx, wedding._id);
   await ctx.db.patch(wedding._id, {
     inviteCode: code,
     inviteCodeExpiresAt: now + INVITE_CODE_TTL_MS,
@@ -127,9 +141,9 @@ export const joinByInviteCode = mutation({
     const user = await ctx.db.get(userId);
     if (!user) throw new Error("User not found");
     if (user.isAnonymous) throw new Error("Masuk dengan email dulu sebelum bergabung.");
-    if (user.coupleId) throw new Error("Kamu sudah tergabung di sebuah workspace.");
+    if (user.coupleId) return { error: "Kamu sudah tergabung di sebuah workspace." };
     if (await isSharingWorkspace(ctx, userId)) {
-      throw new Error("Workspace kamu sudah punya pasangan.");
+      return { error: "Workspace kamu sudah punya pasangan." };
     }
 
     const now = Date.now();
@@ -138,7 +152,7 @@ export const joinByInviteCode = mutation({
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .first();
     if (attempt?.blockedUntil && attempt.blockedUntil > now) {
-      throw new Error("Terlalu banyak percobaan. Coba lagi dalam 15 menit.");
+      return { error: "Terlalu banyak percobaan. Coba lagi dalam 15 menit." };
     }
     const inWindow = Boolean(
       attempt && now - attempt.windowStartedAt < INVITE_ATTEMPT_WINDOW_MS,
@@ -170,7 +184,10 @@ export const joinByInviteCode = mutation({
     };
 
     const normalized = code.trim().toUpperCase();
-    if (!/^[A-Z0-9]{6}$/.test(normalized)) {
+    if (
+      normalized.length !== 6 ||
+      [...normalized].some((character) => !CODE_ALPHABET.includes(character))
+    ) {
       return { error: await recordFailure("Format kode tidak valid.") };
     }
     const target = await ctx.db
@@ -236,7 +253,7 @@ export const revealInviteCode = mutation({
 
     if (regenerate) {
       await ctx.db.patch(wedding._id, {
-        inviteCode: generateInviteCode(),
+        inviteCode: await generateUniqueInviteCode(ctx, wedding._id),
         inviteCodeExpiresAt: Date.now() + INVITE_CODE_TTL_MS,
       });
     } else {

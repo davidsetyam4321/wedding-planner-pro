@@ -71,8 +71,9 @@ const PulseHeart: React.FC<PulseHeartProps> = ({
 }) => {
   const controlled = likedProp !== undefined;
   const [inner, setInner] = useState(defaultLiked);
-  const [total, setTotal] = useState(count);
+  const [countState, setCountState] = useState({ base: count, value: count });
   const liked = controlled ? likedProp : inner;
+  const effectiveCount = countState.base === count ? countState.value : count;
   const [shown, setShown] = useState({ liked, count });
   const [roll, setRoll] = useState<Roll | null>(null);
 
@@ -85,21 +86,20 @@ const PulseHeart: React.FC<PulseHeartProps> = ({
   const rollTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const viaPointer = useRef(false);
   const shownRef = useRef(shown);
-  const logical = useRef({ liked, count: total });
-  logical.current = { liked, count: total };
+  const logical = useRef({ liked, count });
   const cfg = useRef({ duration, dotSize, overshoot, beat, rollDuration });
-  cfg.current = { duration, dotSize, overshoot, beat, rollDuration };
 
-  useEffect(() => {
-    setTotal(count);
-  }, [count]);
+  useLayoutEffect(() => {
+    logical.current = { liked, count: effectiveCount };
+    cfg.current = { duration, dotSize, overshoot, beat, rollDuration };
+  }, [liked, effectiveCount, duration, dotSize, overshoot, beat, rollDuration]);
 
   useEffect(() => {
     if (raf.current) return;
-    if (shownRef.current.liked === liked && shownRef.current.count === total) return;
-    shownRef.current = { liked, count: total };
+    if (shownRef.current.liked === liked && shownRef.current.count === effectiveCount) return;
+    shownRef.current = { liked, count: effectiveCount };
     setShown(shownRef.current);
-  }, [liked, total]);
+  }, [liked, effectiveCount]);
 
   useLayoutEffect(() => {
     const root = rootRef.current;
@@ -201,9 +201,11 @@ const PulseHeart: React.FC<PulseHeartProps> = ({
     const pointer = viaPointer.current && e.detail !== 0;
     viaPointer.current = false;
     const nextLiked = !liked;
-    const nextCount = total + (nextLiked ? 1 : -1);
-    if (!controlled) setInner(nextLiked);
-    setTotal(nextCount);
+    const nextCount = effectiveCount + (nextLiked ? 1 : -1);
+    if (!controlled) {
+      setInner(nextLiked);
+      setCountState({ base: count, value: nextCount });
+    }
     onChange?.(nextLiked, nextCount);
     if (pointer && !reducedMotion()) run(nextLiked, nextCount);
     else if (rootRef.current) rootRef.current.dataset.instant = '';
@@ -292,7 +294,7 @@ const PulseHeart: React.FC<PulseHeartProps> = ({
             )}
           </span>
         ) : null}
-        <span className="sr-only">{showCount ? `${label}, ${format(total)}` : label}</span>
+        <span className="sr-only">{showCount ? `${label}, ${format(effectiveCount)}` : label}</span>
       </span>
     </button>
   );

@@ -71,7 +71,12 @@ function AutoSession({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    if (isLoading || isAuthenticated || error || triedRef.current) return;
+    if (isLoading) return;
+    if (isAuthenticated) {
+      triedRef.current = false;
+      return;
+    }
+    if (error || triedRef.current) return;
     triedRef.current = true;
     signIn("anonymous").catch(() => {
       triedRef.current = false;
@@ -228,7 +233,10 @@ createRoot(document.getElementById("root")!).render(
             <AutoSession>
               <Routes>
                 <Route path="/" element={<LandingPage />} />
-                <Route path="/auth" element={<Navigate to="/app/pengaturan" replace />} />
+                <Route
+                  path="/auth"
+                  element={<Navigate to="/app/pengaturan" replace />}
+                />
                 <Route path="/app" element={<AppShell />}>
                   <Route index element={<HomePage />} />
                   <Route path="budget" element={<BudgetPage />} />

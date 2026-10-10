@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText as GSAPSplitText } from 'gsap/SplitText';
@@ -42,22 +42,21 @@ const SplitText: React.FC<SplitTextProps> = ({
   const ref = useRef<HTMLParagraphElement>(null);
   const animationCompletedRef = useRef(false);
   const onCompleteRef = useRef(onLetterAnimationComplete);
-  const [fontsLoaded, setFontsLoaded] = useState<boolean>(false);
+  const fontsLoaded = typeof document !== 'undefined' && document.fonts.status === 'loaded';
+  const [fontVersion, setFontVersion] = React.useState(0);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element || fontsLoaded) return;
+    const markLoaded = () => setFontVersion((version) => version + 1);
+    element.addEventListener('split-fonts-ready', markLoaded);
+    return () => element.removeEventListener('split-fonts-ready', markLoaded);
+  }, [fontsLoaded]);
 
   // Keep callback ref updated
   useEffect(() => {
     onCompleteRef.current = onLetterAnimationComplete;
   }, [onLetterAnimationComplete]);
-
-  useEffect(() => {
-    if (document.fonts.status === 'loaded') {
-      setFontsLoaded(true);
-    } else {
-      document.fonts.ready.then(() => {
-        setFontsLoaded(true);
-      });
-    }
-  }, []);
 
   useGSAP(
     () => {
@@ -69,10 +68,16 @@ const SplitText: React.FC<SplitTextProps> = ({
       };
 
       if (el._rbsplitInstance) {
-        try {
-          el._rbsplitInstance.revert();
-        } catch (_) {}
+        el._rbsplitInstance.revert();
         el._rbsplitInstance = undefined;
+      }
+      if (!fontsLoaded) {
+        void document.fonts.ready.then(() => {
+          if (!animationCompletedRef.current && el.isConnected) {
+            el.dispatchEvent(new Event('split-fonts-ready'));
+          }
+        });
+        return;
       }
 
       const startPct = (1 - threshold) * 100;
@@ -134,9 +139,7 @@ const SplitText: React.FC<SplitTextProps> = ({
         ScrollTrigger.getAll().forEach(st => {
           if (st.trigger === el) st.kill();
         });
-        try {
-          splitInstance.revert();
-        } catch (_) {}
+        splitInstance.revert();
         el._rbsplitInstance = undefined;
       };
     },
@@ -151,7 +154,8 @@ const SplitText: React.FC<SplitTextProps> = ({
         JSON.stringify(to),
         threshold,
         rootMargin,
-        fontsLoaded
+        fontsLoaded,
+        fontVersion
       ],
       scope: ref
     }

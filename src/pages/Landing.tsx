@@ -4,6 +4,7 @@ import CountUp from "@/components/CountUp";
 import {
   GarlandDivider,
   MotifDivider,
+  Petals,
   PetalsFront,
 } from "@/components/Decor";
 import {
@@ -12,7 +13,6 @@ import {
 } from "@/components/Decor";
 import Magnet from "@/components/Magnet";
 import GradientText from "@/components/reactbits/GradientText";
-import Marquee from "@/components/reactbits/Marquee";
 import Rotate from "@/components/reactbits/Rotate";
 import ShinyText from "@/components/reactbits/ShinyText";
 import StarBorder from "@/components/reactbits/StarBorder";
@@ -29,6 +29,7 @@ import {
   Mail,
   RefreshCw,
   Sparkles,
+  Wallet,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -56,7 +57,7 @@ const STEPS = [
   },
 ];
 
-/** Kutipan pasangan — kartu putih mengambang ala Cora. */
+/** Nilai utama yang disampaikan tanpa kutipan atau klaim pengguna yang belum diverifikasi. */
 const PLANNER_PILLARS = [
   {
     title: "Rencana yang jelas",

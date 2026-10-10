@@ -22,16 +22,12 @@ export default function PixelTransition({
   duration?: number;
 }) {
   const [phase, setPhase] = useState<"cover" | "reveal" | "done">("cover");
+  const reducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      setPhase("done");
-      return;
-    }
-    setPhase("cover");
+    if (reducedMotion) return;
     const showPhoto = window.setTimeout(() => setPhase("reveal"), 140);
     const finish = window.setTimeout(
       () => setPhase("done"),
@@ -41,7 +37,7 @@ export default function PixelTransition({
       window.clearTimeout(showPhoto);
       window.clearTimeout(finish);
     };
-  }, [src, duration]);
+  }, [src, duration, reducedMotion]);
 
   // Urutan blok deterministik per src — konsisten di setiap muat.
   const order = useMemo(() => {
@@ -86,8 +82,8 @@ export default function PixelTransition({
           transition: "opacity 220ms ease",
         }}
       />
-      {phase === "cover" && renderBlocks("in")}
-      {phase === "reveal" && renderBlocks("out")}
+      {!reducedMotion && phase === "cover" && renderBlocks("in")}
+      {!reducedMotion && phase === "reveal" && renderBlocks("out")}
     </div>
   );
 }

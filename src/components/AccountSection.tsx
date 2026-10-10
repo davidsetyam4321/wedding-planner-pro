@@ -154,6 +154,7 @@ export function AccountSection() {
     setBusy(true);
     try {
       await leaveMutation({});
+      setConfirmLeave(false);
       toast.success("Anda telah keluar dari ruang kerja bersama.");
     } catch {
       toast.error("Gagal keluar dari ruang kerja.");
@@ -221,6 +222,8 @@ export function AccountSection() {
               <Label htmlFor="account-email">Alamat email</Label>
               <Input
                 id="account-email"
+                autoComplete="email"
+                required
                 type="email"
                 inputMode="email"
                 value={email}
@@ -254,10 +257,11 @@ export function AccountSection() {
               <Input
                 id="account-code"
                 autoFocus
+                autoComplete="one-time-code"
                 inputMode="numeric"
                 maxLength={6}
                 value={code}
-                onChange={(event) => setCode(event.target.value.replace(/\\D/g, "").slice(0, 6))}
+                onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
                 placeholder="______"
                 className="num text-center text-lg tracking-[0.4em]"
                 onKeyDown={(event) => {
@@ -275,7 +279,8 @@ export function AccountSection() {
             <div className="flex items-center justify-between">
               <button
                 type="button"
-                className="meta underline-offset-2 hover:underline"
+                disabled={busy}
+                className="meta underline-offset-2 hover:underline disabled:opacity-50"
                 onClick={() => setStage("email")}
               >
                 Ganti email
@@ -311,10 +316,14 @@ export function AccountSection() {
         <button
           type="button"
           aria-label="Keluar"
-          className="text-muted-foreground hover:text-destructive"
-          onClick={() => {
-            void signOut();
-            toast.success("Anda telah keluar.");
+          className="rounded-lg p-2 text-muted-foreground transition-colors hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          onClick={async () => {
+            try {
+              await signOut();
+              toast.success("Anda telah keluar.");
+            } catch {
+              toast.error("Gagal keluar. Coba lagi.");
+            }
           }}
         >
           <LogOut className="size-4" />
@@ -351,7 +360,10 @@ export function AccountSection() {
           <p className="label text-muted-foreground">Kode pasangan</p>
           {shareCode ? (
             <div className="mt-1 flex items-center justify-between gap-2">
-              <p className="num text-xl font-extrabold tracking-[0.25em]">
+              <p
+                className="num text-xl font-extrabold tracking-[0.25em]"
+                aria-label={`Kode undangan ${shareCode}`}
+              >
                 {shareCode}
               </p>
               <div className="flex items-center gap-1">
@@ -360,9 +372,14 @@ export function AccountSection() {
                   aria-label="Salin kode"
                   className="flex size-8 items-center justify-center rounded-xl text-muted-foreground hover:text-primary"
                   onClick={async () => {
-                    await navigator.clipboard.writeText(shareCode);
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 1500);
+                    try {
+                      await navigator.clipboard.writeText(shareCode);
+                      setCopied(true);
+                      window.setTimeout(() => setCopied(false), 1500);
+                      toast.success("Kode undangan disalin.");
+                    } catch {
+                      toast.error("Gagal menyalin kode. Salin kode secara manual.");
+                    }
                   }}
                 >
                   {copied ? (
@@ -403,9 +420,25 @@ export function AccountSection() {
           <p className="label text-muted-foreground">Gabung pakai kode</p>
           <div className="flex items-center gap-2">
             <Input
-              value={joinCode}
-              onChange={(event) => setJoinCode(event.target.value.toUpperCase())}
+              aria-label="Kode undangan pasangan"
+              autoComplete="off"
               maxLength={6}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && !busy && joinCode.length === 6) {
+                  void join();
+                }
+              }}
+              value={joinCode}
+              onChange={(event) =>
+                setJoinCode(
+                  [...event.target.value.toUpperCase()]
+                    .filter((character) =>
+                      "ABCDEFGHJKMNPQRSTUVWXYZ23456789".includes(character),
+                    )
+                    .slice(0, 6)
+                    .join(""),
+                )
+              }
               placeholder="ABC123"
               className="num flex-1 tracking-[0.25em]"
             />
@@ -432,9 +465,25 @@ export function AccountSection() {
           <p className="label text-muted-foreground">Gabung pakai kode</p>
           <div className="flex items-center gap-2">
             <Input
-              value={joinCode}
-              onChange={(event) => setJoinCode(event.target.value.toUpperCase())}
+              aria-label="Kode undangan pasangan"
+              autoComplete="off"
               maxLength={6}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && !busy && joinCode.length === 6) {
+                  void join();
+                }
+              }}
+              value={joinCode}
+              onChange={(event) =>
+                setJoinCode(
+                  [...event.target.value.toUpperCase()]
+                    .filter((character) =>
+                      "ABCDEFGHJKMNPQRSTUVWXYZ23456789".includes(character),
+                    )
+                    .slice(0, 6)
+                    .join(""),
+                )
+              }
               placeholder="ABC123"
               className="num flex-1 tracking-[0.25em]"
             />
@@ -460,7 +509,12 @@ export function AccountSection() {
           </p>
         </div>
       )}
-      <AlertDialog open={confirmLeave} onOpenChange={setConfirmLeave}>
+      <AlertDialog
+        open={confirmLeave}
+        onOpenChange={(open) => {
+          if (!busy) setConfirmLeave(open);
+        }}
+      >
         <AlertDialogContent className="max-w-sm rounded-3xl">
           <AlertDialogHeader>
             <AlertDialogTitle>Keluar dari workspace bersama?</AlertDialogTitle>
@@ -470,9 +524,12 @@ export function AccountSection() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-xl">Batal</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-xl" disabled={busy}>
+              Batal
+            </AlertDialogCancel>
             <AlertDialogAction
               className="rounded-xl bg-destructive text-white hover:bg-destructive/90"
+              disabled={busy}
               onClick={() => void leave()}
             >
               Keluar

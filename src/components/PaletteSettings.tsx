@@ -49,17 +49,19 @@ export function PaletteSection() {
     setDrafting(wedding.paletteId === CUSTOM_PALETTE_ID);
   }
 
-  // Selalu punya referensi palet tersimpan terbaru — dipakai untuk rollback.
+  // Referensi terbaru untuk rollback dan pembersihan saat unmount.
   const savedRef = useRef(savedRoles);
-  savedRef.current = savedRoles;
+  useEffect(() => {
+    savedRef.current = savedRoles;
+  }, [savedId, savedCustom]);
 
   // Batal/ditinggal tanpa simpan → kembali ke palet tersimpan.
-  useEffect(
-    () => () => {
-      applyPalette(savedRef.current);
-    },
-    [],
-  );
+  useEffect(() => {
+    if (drafting || !wedding) return;
+    applyPalette(savedRoles);
+  }, [drafting, savedRoles, wedding]);
+
+  useEffect(() => () => applyPalette(savedRef.current), []);
 
   const pickPreset = async (preset: Palette) => {
     setDrafting(false);
@@ -92,7 +94,7 @@ export function PaletteSection() {
       bloom();
       toast.success("Palet kustom disimpan — diterapkan di kedua perangkat.");
     } catch {
-      applyPalette(savedRef.current);
+      applyPalette(savedRoles);
       toast.error("Gagal menyimpan palet kustom.");
     } finally {
       setSaving(false);

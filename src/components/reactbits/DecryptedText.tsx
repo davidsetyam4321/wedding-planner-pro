@@ -22,10 +22,7 @@ export default function DecryptedText({
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    if (reduced) {
-      setDisplay(text);
-      return;
-    }
+    if (reduced) return;
 
     let frame = 0;
     const total = text.length;

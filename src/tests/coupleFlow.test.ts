@@ -104,7 +104,7 @@ describe("alur pasangan lewat kode undangan", () => {
 
     await expect(
       other.as.mutation(api.workspace.joinByInviteCode, { code: owner.code }),
-    ).rejects.toThrow(/sudah punya pasangan/i);
+    ).resolves.toMatchObject({ error: expect.stringMatching(/sudah punya pasangan/i) });
   });
 
   it("menolak kode tidak valid, tidak ditemukan, dan kode sendiri", async () => {
@@ -117,7 +117,10 @@ describe("alur pasangan lewat kode undangan", () => {
       partner.as.mutation(api.workspace.joinByInviteCode, { code: "abc" }),
     ).resolves.toMatchObject({ error: expect.stringMatching(/format kode/i) });
     await expect(
-      partner.as.mutation(api.workspace.joinByInviteCode, { code: "ZZZZZZ" }),
+      partner.as.mutation(api.workspace.joinByInviteCode, { code: "OOOOOO" }),
+    ).resolves.toMatchObject({ error: expect.stringMatching(/format kode/i) });
+    await expect(
+      partner.as.mutation(api.workspace.joinByInviteCode, { code: "234567" }),
     ).resolves.toMatchObject({ error: expect.stringMatching(/tidak ditemukan/i) });
     await expect(
       owner.as.mutation(api.workspace.joinByInviteCode, { code: owner.code }),
@@ -189,13 +192,13 @@ describe("alur pasangan lewat kode undangan", () => {
 
     for (let index = 0; index < 5; index++) {
       const result = await partner.as.mutation(api.workspace.joinByInviteCode, {
-        code: "ZZZZZZ",
+        code: "234567",
       });
       expect(result.error).toMatch(index === 4 ? /terlalu banyak percobaan/i : /tidak ditemukan/i);
     }
     await expect(
       partner.as.mutation(api.workspace.joinByInviteCode, { code: owner.code }),
-    ).rejects.toThrow(/terlalu banyak percobaan/i);
+    ).resolves.toMatchObject({ error: expect.stringMatching(/terlalu banyak percobaan/i) });
   });
 
   it("kode undangan kedaluwarsa dan dapat diperbarui", async () => {
@@ -229,7 +232,7 @@ describe("alur pasangan lewat kode undangan", () => {
 
     await expect(
       partner.as.mutation(api.workspace.joinByInviteCode, { code: owner.code }),
-    ).rejects.toThrow(/tidak ditemukan/i);
+    ).resolves.toMatchObject({ error: expect.stringMatching(/tidak ditemukan/i) });
     await partner.as.mutation(api.workspace.joinByInviteCode, {
       code: fresh!,
     });

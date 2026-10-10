@@ -28,18 +28,6 @@ import { motion } from "framer-motion";
 import { ChevronLeft, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-// Bintang doodle kecil; inline agar tidak menarik dependensi Doodles.tsx
-// yang tidak dipakai di mana pun lagi.
-function DoodleStar({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M12 2 C 13 8, 16 11, 22 12 C 16 13, 13 16, 12 22 C 11 16, 8 13, 2 12 C 8 11, 11 8, 12 2 Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
 import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router";
 
@@ -169,7 +157,10 @@ export function RowMenu({
             <AlertDialogCancel className="rounded-xl">Batal</AlertDialogCancel>
             <AlertDialogAction
               className="rounded-xl bg-destructive text-white hover:bg-destructive/90"
-              onClick={() => onDelete?.()}
+              onClick={() => {
+                onDelete?.();
+                setConfirming(false);
+              }}
             >
               Ya, hapus
             </AlertDialogAction>

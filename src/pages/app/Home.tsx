@@ -195,14 +195,16 @@ export function HomePage() {
     guestTotal > 0 ? Math.round(((guestHadir + guestTidak) / guestTotal) * 100) : 0;
   const remainingBudget = Math.max(0, allocated - spent);
 
-  const agendaItems = [
-    ...[...openTasks].sort(
+  const agendaItems = [...openTasks]
+    .sort(
       (a, b) =>
         PRIORITY_RANK[normalizePriority(a.priority)] -
-        PRIORITY_RANK[normalizePriority(b.priority)],
-    ),
-    ...doneTasks,
-  ].slice(0, 4);
+          PRIORITY_RANK[normalizePriority(b.priority)] ||
+        (a.dueDate ?? Number.POSITIVE_INFINITY) -
+          (b.dueDate ?? Number.POSITIVE_INFINITY) ||
+        a.sortOrder - b.sortOrder,
+    )
+    .slice(0, 4);
 
   const moodPhotos = (moodBoxes ?? [])
     .flatMap((box) => box.photos.map((photo) => ({ ...photo, url: photo.url })))
@@ -216,10 +218,6 @@ export function HomePage() {
   const toggleTask = async (itemId: (typeof openTasks)[number]["_id"]) => {
     await toggleItem({ itemId, done: true });
     bloom();
-  };
-
-  const reopenTask = (itemId: (typeof doneTasks)[number]["_id"]) => {
-    void toggleItem({ itemId, done: false });
   };
 
   return (
@@ -563,13 +561,9 @@ export function HomePage() {
                 >
                   <button
                     type="button"
-                    aria-label={
-                      task.done ? "Tandai belum selesai" : "Tandai selesai"
-                    }
-                    onClick={() =>
-                      task.done ? reopenTask(task._id) : toggleTask(task._id)
-                    }
-                    className={`flex size-7 shrink-0 items-center justify-center rounded-lg border-2 transition-colors ${
+                    aria-label={`Tandai tugas “${task.label}” selesai`}
+                    onClick={() => toggleTask(task._id)}
+                    className={`flex size-7 shrink-0 items-center justify-center rounded-lg border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
                       task.done
                         ? "border-tint-sage-foreground bg-tint-sage-foreground text-white"
                         : "border-border text-transparent hover:border-primary"

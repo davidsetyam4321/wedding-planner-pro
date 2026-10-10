@@ -4,6 +4,16 @@ import { coupleInitials, useCouplePhotoUpload } from "@/components/CouplePhoto";
 import { RingsMark } from "@/components/Decor";
 import { PaletteSection } from "@/components/PaletteSettings";
 import PixelTransition from "@/components/reactbits/PixelTransition";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +39,7 @@ export function PengaturanPage() {
   const [saving, setSaving] = useState(false);
   const [newVendorType, setNewVendorType] = useState("");
   const [typeBusy, setTypeBusy] = useState(false);
+  const [pendingDeleteType, setPendingDeleteType] = useState<string | null>(null);
 
   const [partnerOne, setPartnerOne] = useState("");
   const [partnerTwo, setPartnerTwo] = useState("");
@@ -103,17 +114,21 @@ export function PengaturanPage() {
     }
   };
 
-  const deleteVendorType = async (name: string) => {
-    // Divalidasi di sini juga supaya pesannya jelas, sebelum server menolak.
+  const deleteVendorType = async () => {
+    if (!pendingDeleteType) return;
+    const name = pendingDeleteType;
+    // Recheck against current reactive data before committing the deletion.
     const used = usageOf(name);
     if (used > 0) {
       toast.error(
         `Masih dipakai ${used} vendor — ubah jenis vendor mereka dulu.`,
       );
+      setPendingDeleteType(null);
       return;
     }
     if (types.length <= 1) {
       toast.error("Minimal satu jenis vendor harus tersisa.");
+      setPendingDeleteType(null);
       return;
     }
     try {
@@ -121,6 +136,8 @@ export function PengaturanPage() {
       toast.success(`Jenis "${name}" dihapus.`);
     } catch {
       toast.error("Gagal menghapus jenis vendor.");
+    } finally {
+      setPendingDeleteType(null);
     }
   };
 
@@ -185,9 +202,13 @@ export function PengaturanPage() {
               variant="outline"
               className="rounded-2xl"
               disabled={uploading}
-              onClick={() => {
-                void removeCouplePhoto();
-                toast.success("Foto pasangan dihapus.");
+              onClick={async () => {
+                try {
+                  await removeCouplePhoto();
+                  toast.success("Foto pasangan dihapus.");
+                } catch {
+                  toast.error("Gagal menghapus foto pasangan.");
+                }
               }}
             >
               <Trash2 className="size-4" /> Hapus
@@ -285,7 +306,7 @@ export function PengaturanPage() {
                 <button
                   type="button"
                   aria-label={`Hapus jenis ${type}`}
-                  onClick={() => void deleteVendorType(type)}
+                  onClick={() => setPendingDeleteType(type)}
                   className="flex size-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                 >
                   <X className="size-3" />
@@ -317,6 +338,32 @@ export function PengaturanPage() {
           </Button>
         </form>
       </section>
+
+      <AlertDialog
+        open={pendingDeleteType !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteType(null);
+        }}
+      >
+        <AlertDialogContent className="max-w-sm rounded-3xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus jenis vendor?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Jenis “{pendingDeleteType}” akan dihapus dari daftar. Penghapusan
+              hanya dapat dilakukan jika tidak ada vendor yang menggunakannya.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-xl">Batal</AlertDialogCancel>
+            <AlertDialogAction
+              className="rounded-xl bg-destructive text-white hover:bg-destructive/90"
+              onClick={() => void deleteVendorType()}
+            >
+              Hapus jenis
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
