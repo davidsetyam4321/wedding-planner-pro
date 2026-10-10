@@ -6,11 +6,6 @@ import {
 import { EmptyState, PageSkeleton, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
   Dialog,
   DialogContent,
   DialogFooter,
@@ -99,7 +94,6 @@ export function BudgetPage() {
   });
   const [newCategoryName, setNewCategoryName] = useState("");
   const [busy, setBusy] = useState(false);
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [chartTab, setChartTab] = useState<"ikhtisar" | "tren">("ikhtisar");
   const [filterCategoryId, setFilterCategoryId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -113,6 +107,7 @@ export function BudgetPage() {
     name: string;
     allocated: string;
   } | null>(null);
+  const [categoryManagerOpen, setCategoryManagerOpen] = useState(false);
 
   const {
     totalAllocated,
@@ -133,13 +128,10 @@ export function BudgetPage() {
       expense.source === "vendor",
   );
   type ManualExpenseRow = Extract<(typeof expenses)[number], { source: "manual" }>;
-  const manualExpensesByCategory = new Map<string, ManualExpenseRow[]>();
-  for (const expense of expenses) {
-    if (expense.source !== "manual") continue;
-    const rows = manualExpensesByCategory.get(expense.categoryId) ?? [];
-    rows.push(expense);
-    manualExpensesByCategory.set(expense.categoryId, rows);
-  }
+  const manualExpenses = expenses.filter(
+    (expense): expense is ManualExpenseRow => expense.source === "manual",
+  );
+  const categoryById = new Map(categories.map((category) => [category._id, category]));
 
   // Donut komposisi pengeluaran — pengeluaran per kategori + irisan "Vendor"
   // tersendiri. `categoryId` ikut dibawa supaya klik-filter tidak mengandalkan
@@ -187,19 +179,13 @@ export function BudgetPage() {
   const filterCategory =
     categories.find((category) => category._id === filterCategoryId) ?? null;
 
-  // Saat filter kategori aktif hanya kategori itu yang tampil; kelompok vendor
-  // disembunyikan karena pembayaran vendor tidak punya pemilik kategori.
-  const visibleCategories = filterCategory
-    ? categories.filter((category) => category._id === filterCategory._id)
-    : categories;
-
-  /** Apakah kartu kategori ini tetap tampil saat pencarian aktif. */
-  const categoryShows = (category: (typeof categories)[number]) => {
-    if (term === "" || matchesQuery(category.name)) return true;
-    return (manualExpensesByCategory.get(category._id) ?? []).some((expense) =>
-      matchesQuery(expense.label),
-    );
-  };
+  // Tampilkan semua pengeluaran manual sebagai daftar datar; kategori hanya
+  // menjadi label tiap baris, bukan kartu yang merangkum nominal/alokasinya.
+  const visibleManualExpenses = manualExpenses.filter((expense) => {
+    const category = categoryById.get(expense.categoryId);
+    if (filterCategory && expense.categoryId !== filterCategory._id) return false;
+    return term === "" || matchesQuery(expense.label) || matchesQuery(category?.name ?? "");
+  });
 
   // Vendor ditampilkan sebagai total gabungan saja; pencarian hanya mengenali
   // label grup, bukan menampilkan rincian nama/nominal tiap vendor.
@@ -282,6 +268,35 @@ export function BudgetPage() {
     } finally {
       setBusy(false);
     }
+  };
+
+  const removeCategory = (category: (typeof categories)[number]) => {
+    const removed = manualExpenses
+      .filter((expense) => expense.categoryId === category._id)
+      .map((expense) => ({
+        label: expense.label,
+        amount: expense.amount,
+        paidAt: expense.paidAt,
+      }));
+    void deleteBudgetItem(
+      `Kategori "${category.name}" dihapus.`,
+      () => deleteCategory({ categoryId: category._id }),
+      async () => {
+        const categoryId = await createCategory({
+          name: category.name,
+          allocated: category.allocated,
+        });
+        for (const expense of removed) {
+          await addExpense({
+            categoryId,
+            label: expense.label,
+            amount: expense.amount,
+            paid: Boolean(expense.paidAt),
+          });
+        }
+      },
+      { successMessage: "Kategori dipulihkan." },
+    );
   };
 
   const submitCategory = async () => {
@@ -448,7 +463,6 @@ export function BudgetPage() {
           />
         </div>
         <div className="relative mt-2 flex items-center gap-1.5">
-          <p className="num meta font-bold">{spentPct}% terpakai</p>
           {isOver && (
             <span className="chip bg-destructive/90 text-white">
               <AlertTriangle className="size-3" /> Melebihi alokasi
@@ -738,6 +752,15 @@ export function BudgetPage() {
         >
           Kategori
         </Button>
+        {categories.length > 0 && (
+          <Button
+            variant="ghost"
+            className="rounded-2xl"
+            onClick={() => setCategoryManagerOpen(true)}
+          >
+            Kelola
+          </Button>
+        )}
         <Button
           variant="outline"
           className="rounded-2xl"
@@ -785,211 +808,71 @@ export function BudgetPage() {
         </button>
       )}
 
-      <Stagger className="space-y-3">
-        {visibleCategories.map((category) => {
-          const manualForCategory = manualExpensesByCategory.get(category._id) ?? [];
-          // Hanya pengeluaran manual milik kategori ini — baris vendor tidak lagi
-          // disisipkan ke semua kategori (nomor, persen & daftar jadi akurat).
-          const categoryExpenses = manualForCategory;
-          // Saat mencari: nama kategori yang cocok menampilkan seluruh isinya,
-          // selain itu hanya baris yang cocok. Total tetap dihitung dari
-          // seluruh pengeluaran supaya angka tidak berubah karena pencarian.
-          const categoryMatches = matchesQuery(category.name);
-          const shownExpenses =
-            term === "" || categoryMatches
-              ? categoryExpenses
-              : categoryExpenses.filter((expense) => matchesQuery(expense.label));
-          const hiddenBySearch =
-            term !== "" && !categoryMatches && shownExpenses.length === 0;
-          const spent = categoryTotals.get(category._id)?.spent ?? 0;
-          const over = spent > category.allocated;
-          // Persen asli (boleh >100% supaya kelebihannya terbaca); alokasi 0
-          // dengan pengeluaran ditampilkan "∞".
-          const pct =
-            category.allocated > 0
-              ? Math.round((spent / category.allocated) * 100)
-              : spent > 0
-                ? 100
-                : 0;
-          const badgeText =
-            category.allocated > 0 ? `${pct}%` : spent > 0 ? "∞" : "0%";
-          const open = !collapsed[category._id];
-
-          if (hiddenBySearch) return null;
-
+      <Stagger className="space-y-2">
+        {visibleManualExpenses.map((expense) => {
+          const category = categoryById.get(expense.categoryId);
+          const rowDate = expense.createdAt ?? expense.paidAt;
           return (
-            <StaggerItem key={category._id}>
-              <Collapsible
-                open={open}
-                onOpenChange={(value) =>
-                  setCollapsed((previous) => ({
-                    ...previous,
-                    [category._id]: !value,
-                  }))
-                }
-              >
-                <section className="clay overflow-hidden">
-                  <div className="flex items-center gap-1 px-3 py-2.5">
-                    <CollapsibleTrigger className="group flex min-w-0 flex-1 items-center gap-2 py-1 text-left">
-                      <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-data-[state=open]:rotate-0 group-data-[state=closed]:-rotate-90" />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-extrabold">{category.name}</p>
-                        <p className="num meta">
-                          {formatRupiahShort(spent)} / {formatRupiahShort(category.allocated)}
-                          {over ? " · melebihi!" : ` · sisa ${formatRupiahShort(category.allocated - spent)}`}
-                        </p>
-                      </div>
-                      <span
-                        className={`num shrink-0 rounded-full px-2 py-0.5 text-[11px] font-extrabold ${
-                          over
-                            ? "bg-destructive/10 text-destructive"
-                            : "bg-tint-mint text-tint-mint-foreground"
-                        }`}
-                        title={
-                          category.allocated === 0 && spent > 0
-                            ? "Tanpa alokasi"
-                            : undefined
-                        }
-                      >
-                        {badgeText}
-                      </span>
-                    </CollapsibleTrigger>
-                    <RowMenu
-                      onEdit={() =>
-                        setCategoryDialog({
-                          id: category._id,
-                          name: category.name,
-                          allocated: String(category.allocated),
-                        })
-                      }
-                      onDelete={() => {
-                        // Snapshot dulu: pemulihan butuh nama pengeluaran
-                        // yang ikut terhapus bersama kategorinya.
-                        const removed = manualForCategory.map((expense) => ({
+            <StaggerItem key={expense._id}>
+              <section className="clay flex items-center gap-2.5 px-3 py-2.5">
+                <button
+                  type="button"
+                  aria-label={expense.paidAt ? "Tandai belum lunas" : "Tandai lunas"}
+                  onClick={() => {
+                    togglePaid({ expenseId: expense._id, paid: !expense.paidAt });
+                    if (!expense.paidAt) bloom();
+                  }}
+                  className={`flex size-6 shrink-0 items-center justify-center rounded-full transition-colors ${
+                    expense.paidAt
+                      ? "bg-primary text-primary-foreground"
+                      : "clay-inset text-muted-foreground hover:text-primary"
+                  }`}
+                >
+                  <Check className="size-3" />
+                </button>
+                <span className="min-w-0 flex-1">
+                  <span className={`block truncate text-sm ${expense.paidAt ? "text-muted-foreground" : ""}`}>
+                    {expense.label}
+                  </span>
+                  <span className="meta mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[10px]">
+                    <span className="rounded-full bg-secondary px-2 py-0.5 font-semibold text-secondary-foreground">
+                      {category?.name ?? "Kategori dihapus"}
+                    </span>
+                    {rowDate ? <span>{formatDateShortID(rowDate)}</span> : null}
+                  </span>
+                </span>
+                <span className="num shrink-0 text-sm font-bold">
+                  {formatRupiah(expense.amount)}
+                </span>
+                <RowMenu
+                  onEdit={() => openEditExpense(expense)}
+                  onDelete={() => {
+                    void deleteBudgetItem(
+                      `"${expense.label}" dihapus.`,
+                      () => deleteExpense({ expenseId: expense._id }),
+                      () =>
+                        addExpense({
+                          categoryId: expense.categoryId,
                           label: expense.label,
                           amount: expense.amount,
-                          paidAt: expense.paidAt,
-                        }));
-                        void deleteBudgetItem(
-                          `Kategori "${category.name}" dihapus.`,
-                          () => deleteCategory({ categoryId: category._id }),
-                          async () => {
-                            const categoryId = await createCategory({
-                              name: category.name,
-                              allocated: category.allocated,
-                            });
-                            for (const expense of removed) {
-                              await addExpense({
-                                categoryId,
-                                label: expense.label,
-                                amount: expense.amount,
-                                paid: Boolean(expense.paidAt),
-                              });
-                            }
-                          },
-                          { successMessage: "Kategori dipulihkan." },
-                        );
-                      }}
-                      deleteTitle={`Hapus kategori "${category.name}"?`}
-                      deleteDescription="Semua pengeluaran di dalamnya juga akan terhapus."
-                    />
-                  </div>
-                  <div
-                    className="mx-4 h-1.5 overflow-hidden rounded-full bg-muted"
-                    role="progressbar"
-                    aria-label={`Progres ${category.name}`}
-                    aria-valuenow={Math.min(100, pct)}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                  >
-                    <div
-                      className={`h-full rounded-full transition-all ${
-                        over ? "bg-destructive" : "fill-botanical"
-                      }`}
-                      style={{ width: `${Math.min(100, pct)}%` }}
-                    />
-                  </div>
-
-                  <CollapsibleContent>
-                    <ul className="divide-y divide-border">
-                      {shownExpenses.map((expense) => {
-                        const rowDate = expense.createdAt ?? expense.paidAt;
-                        return (
-                          <li key={expense._id} className="flex items-center gap-2.5 px-4 py-2.5">
-                            <button
-                              type="button"
-                              aria-label={expense.paidAt ? "Tandai belum lunas" : "Tandai lunas"}
-                              onClick={() => {
-                                togglePaid({ expenseId: expense._id, paid: !expense.paidAt });
-                                if (!expense.paidAt) bloom();
-                              }}
-                              className={`flex size-6 shrink-0 items-center justify-center rounded-full transition-colors ${
-                                expense.paidAt
-                                  ? "bg-primary text-primary-foreground"
-                                  : "clay-inset text-muted-foreground hover:text-primary"
-                              }`}
-                            >
-                              <Check className="size-3" />
-                            </button>
-                            <span className="min-w-0 flex-1">
-                              <span
-                                className={`block truncate text-sm ${
-                                  expense.paidAt ? "text-muted-foreground" : ""
-                                }`}
-                              >
-                                {expense.label}
-                              </span>
-                              {rowDate ? (
-                                <span className="meta block text-[10px]">
-                                  {formatDateShortID(rowDate)}
-                                </span>
-                              ) : null}
-                            </span>
-                            <span className="num text-sm font-bold">
-                              {formatRupiah(expense.amount)}
-                            </span>
-                            <RowMenu
-                              onEdit={() => openEditExpense(expense)}
-                              onDelete={() => {
-                                void deleteBudgetItem(
-                                  `"${expense.label}" dihapus.`,
-                                  () => deleteExpense({ expenseId: expense._id }),
-                                  () =>
-                                    addExpense({
-                                      categoryId: expense.categoryId,
-                                      label: expense.label,
-                                      amount: expense.amount,
-                                      paid: Boolean(expense.paidAt),
-                                    }),
-                                  { successMessage: "Pengeluaran dipulihkan." },
-                                );
-                              }}
-                              deleteTitle={`Hapus "${expense.label}"?`}
-                            />
-                          </li>
-                        );
-                      })}
-                      {shownExpenses.length === 0 && (
-                        <li className="px-4 py-2.5 text-xs text-muted-foreground">
-                          {term !== ""
-                            ? "Tidak ada pengeluaran yang cocok."
-                            : "Belum ada pengeluaran di kategori ini."}
-                        </li>
-                      )}
-                    </ul>
-                  </CollapsibleContent>
-                </section>
-              </Collapsible>
+                          paid: Boolean(expense.paidAt),
+                        }),
+                      { successMessage: "Pengeluaran dipulihkan." },
+                    );
+                  }}
+                  deleteTitle={`Hapus "${expense.label}"?`}
+                />
+              </section>
             </StaggerItem>
           );
         })}
 
         {vendorVisible && (
           <StaggerItem key="vendor-group">
-            <section className="clay flex items-center justify-between gap-3 px-4 py-3">
+            <section className="clay flex items-center justify-between gap-3 px-3 py-2.5">
               <div className="min-w-0">
-                <p className="truncate text-sm font-extrabold">Pembayaran vendor</p>
-                <p className="meta">Total gabungan · {vendorExpenses.length} pembayaran lunas</p>
+                <p className="truncate text-sm font-semibold">Pembayaran vendor</p>
+                <p className="meta text-[10px]">Total gabungan · {vendorExpenses.length} lunas</p>
               </div>
               <span className="num shrink-0 text-sm font-bold">
                 {formatRupiahShort(vendorTotal)}
@@ -1000,23 +883,28 @@ export function BudgetPage() {
       </Stagger>
 
       {budget !== undefined &&
-        categories.length > 0 &&
+        (categories.length > 0 || term !== "") &&
         !vendorVisible &&
-        visibleCategories.every((category) => !categoryShows(category)) && (
+        visibleManualExpenses.length === 0 && (
           <EmptyState
-            emoji="🔍"
-            title="Tidak ada yang cocok"
-            description="Coba ubah kata kunci pencarian atau hapus filter kategori."
+            emoji={term ? "🔍" : "🧾"}
+            title={term ? "Tidak ada yang cocok" : "Belum ada pengeluaran"}
+            description={term ? "Coba ubah kata kunci atau hapus filter kategori." : "Catat pengeluaran agar mudah memantau anggaran."}
+            actionLabel={!term ? "Catat pengeluaran" : undefined}
+            onAction={!term ? openNewExpense : undefined}
           />
         )}
 
-      {budget !== undefined && categories.length === 0 && (
+      {budget !== undefined &&
+        categories.length === 0 &&
+        expenses.length === 0 &&
+        term === "" && (
         <EmptyState
           emoji="💸"
           title="Belum ada kategori"
-          description="Pecah anggaran pernikahan jadi kategori kecil biar gampang diatur."
-          actionLabel="Catat pengeluaran"
-          onAction={openNewExpense}
+          description="Buat kategori pengeluaran pertama untuk mulai mencatat anggaran."
+          actionLabel="Buat kategori"
+          onAction={() => setCategoryDialog({ id: null, name: "", allocated: "" })}
         />
       )}
 
@@ -1103,6 +991,36 @@ export function BudgetPage() {
               {busy ? <Loader2 className="size-4 animate-spin" /> : "Simpan"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={categoryManagerOpen} onOpenChange={setCategoryManagerOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Kelola kategori</DialogTitle>
+          </DialogHeader>
+          <ul className="divide-y divide-border">
+            {categories.map((category) => (
+              <li key={category._id} className="flex items-center gap-2 py-2">
+                <span className="min-w-0 flex-1 truncate text-sm font-semibold">
+                  {category.name}
+                </span>
+                <RowMenu
+                  onEdit={() => {
+                    setCategoryManagerOpen(false);
+                    setCategoryDialog({
+                      id: category._id,
+                      name: category.name,
+                      allocated: String(category.allocated),
+                    });
+                  }}
+                  onDelete={() => removeCategory(category)}
+                  deleteTitle={`Hapus kategori "${category.name}"?`}
+                  deleteDescription="Semua pengeluaran di dalamnya juga akan terhapus."
+                />
+              </li>
+            ))}
+          </ul>
         </DialogContent>
       </Dialog>
 
