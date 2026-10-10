@@ -23,6 +23,7 @@ import { bloom } from "@/lib/bloom";
 import { formatDateTimeID, formatRupiah, formatRupiahShort } from "@/lib/format";
 import { Loader2, Plus, Target, TrendingUp } from "lucide-react";
 import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { undoableDelete } from "@/lib/undo";
 import { useMutation, useQuery } from "convex/react";
 import {
@@ -87,6 +88,7 @@ const MONTHS = [
 const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
 
 export function TabunganPage() {
+  const reducedMotion = useReducedMotion();
   const wedding = useQuery(api.wedding.get);
   const deposits = useQuery(api.savings.list);
   const addDeposit = useMutation(api.savings.add);
@@ -481,8 +483,14 @@ export function TabunganPage() {
                 </span>
               </div>
               <ul className="divide-y divide-border">
+                <AnimatePresence>
                 {monthDeposits.map((deposit) => (
-                  <li key={deposit._id} className="flex items-center gap-3 px-4 py-3">
+                  <motion.li key={deposit._id}
+                    layout={reducedMotion ? false : "position"}
+                    initial={reducedMotion ? false : { opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                    transition={{ duration: reducedMotion ? 0 : 0.2 }}
+                    className="flex flex-wrap items-center gap-3 px-4 py-3">
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-bold">
                         {deposit.note ?? "Setoran"}
@@ -515,8 +523,9 @@ export function TabunganPage() {
                       deleteTitle="Hapus setoran ini?"
                       deleteDescription="Total tabungan akan menyesuaikan."
                     />
-                  </li>
+                  </motion.li>
                 ))}
+                </AnimatePresence>
               </ul>
             </section>
           </StaggerItem>

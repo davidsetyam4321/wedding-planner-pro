@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, type ReactNode, type HTMLAttributes } from 'react';
+import { useReducedMotion } from 'framer-motion';
 
 interface MagnetProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
@@ -27,9 +28,11 @@ const Magnet: React.FC<MagnetProps> = ({
   const [isActive, setIsActive] = useState<boolean>(false);
   const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const magnetRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
+  const inactive = disabled || Boolean(reducedMotion);
 
   useEffect(() => {
-    if (disabled) return;
+    if (inactive || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       if (!magnetRef.current) return;
@@ -43,8 +46,9 @@ const Magnet: React.FC<MagnetProps> = ({
 
       if (distX < width / 2 + padding && distY < height / 2 + padding) {
         setIsActive(true);
-        const offsetX = (e.clientX - centerX) / magnetStrength;
-        const offsetY = (e.clientY - centerY) / magnetStrength;
+        const strength = Math.max(1, magnetStrength);
+        const offsetX = Math.max(-5, Math.min(5, (e.clientX - centerX) / strength));
+        const offsetY = Math.max(-5, Math.min(5, (e.clientY - centerY) / strength));
         setPosition({ x: offsetX, y: offsetY });
       } else {
         setIsActive(false);
@@ -56,10 +60,10 @@ const Magnet: React.FC<MagnetProps> = ({
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [padding, disabled, magnetStrength]);
+  }, [padding, inactive, magnetStrength]);
 
   const transitionStyle = isActive ? activeTransition : inactiveTransition;
-  const visiblePosition = disabled ? { x: 0, y: 0 } : position;
+  const visiblePosition = inactive ? { x: 0, y: 0 } : position;
 
   return (
     <div

@@ -507,6 +507,7 @@ export function VendorPage() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Cari vendor atau kategori…"
+          aria-label="Cari vendor atau kategori"
           className="pl-9"
         />
       </div>

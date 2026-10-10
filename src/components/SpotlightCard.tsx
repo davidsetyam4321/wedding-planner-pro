@@ -1,11 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-
-interface Position {
-  x: number;
-  y: number;
-}
+import { useReducedMotion } from 'framer-motion';
 
 interface SpotlightCardProps extends React.PropsWithChildren {
   className?: string;
@@ -19,18 +15,22 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
 }) => {
   const divRef = useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = useState<boolean>(false);
-  const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
+  const reducedMotion = useReducedMotion();
   const [opacity, setOpacity] = useState<number>(0);
 
   const handleMouseMove: React.MouseEventHandler<HTMLDivElement> = e => {
-    if (!divRef.current || isFocused) return;
-
-    const rect = divRef.current.getBoundingClientRect();
-    setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    const element = divRef.current;
+    if (!element || isFocused || reducedMotion) return;
+    const rect = element.getBoundingClientRect();
+    // CSS variables avoid a React render for every pointer movement.
+    element.style.setProperty('--spotlight-x', `${e.clientX - rect.left}px`);
+    element.style.setProperty('--spotlight-y', `${e.clientY - rect.top}px`);
   };
 
   const handleFocus = () => {
     setIsFocused(true);
+    divRef.current?.style.setProperty('--spotlight-x', '50%');
+    divRef.current?.style.setProperty('--spotlight-y', '50%');
     setOpacity(0.6);
   };
 
@@ -59,9 +59,10 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
     >
       <div
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 ease-in-out"
+        aria-hidden="true"
         style={{
-          opacity,
-          background: `radial-gradient(circle at ${position.x}px ${position.y}px, ${spotlightColor}, transparent 80%)`
+          opacity: reducedMotion ? 0 : opacity,
+          background: `radial-gradient(circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), ${spotlightColor}, transparent 80%)`
         }}
       />
       {children}

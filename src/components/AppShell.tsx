@@ -24,8 +24,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Stagger, StaggerItem } from "@/components/Shared";
-import FadeContent from "@/components/FadeContent";
+import { PageSkeleton, Stagger, StaggerItem } from "@/components/Shared";
 import { api } from "@/convex/_generated/api";
 import { FEATURES } from "@/lib/features";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -37,8 +36,8 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { SETUP_REFRESH_EVENT } from "@/lib/session";
 import { Bell, Settings, Sparkles } from "lucide-react";
-import { useReducedMotion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { useMutation, useQuery } from "convex/react";
 
@@ -272,6 +271,14 @@ export function AppShell() {
   const { pathname } = useLocation();
   const pageTitle = pageTitleFor(pathname);
   const reducedMotion = useReducedMotion();
+  const mainRef = useRef<HTMLElement>(null);
+  const previousPath = useRef(pathname);
+  useEffect(() => {
+    if (previousPath.current === pathname) return;
+    previousPath.current = pathname;
+    mainRef.current?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [pathname]);
   /** Satu aksen warna per fitur — wash ambient & chip header mengikuti rute. */
   const activeFeature = FEATURES.find((item) => item.to === pathname);
 
@@ -371,6 +378,7 @@ export function AppShell() {
       <Petals />
       <PetalsFront />
 
+      <a href="#planner-content" className="skip-link">Langsung ke isi perencanaan</a>
       <header className="mx-auto w-full max-w-md px-4 pt-4 lg:max-w-3xl lg:px-10">
         <div className="flex flex-wrap gap-1.5">
         <div className="hidden lg:flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-[11px] font-medium text-foreground backdrop-blur-md">
@@ -416,15 +424,17 @@ export function AppShell() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-md px-4 pt-4 lg:max-w-3xl lg:px-10">
+      <main id="planner-content" ref={mainRef} tabIndex={-1} aria-label={pageTitle || "Ringkasan perencanaan"} className="mx-auto w-full max-w-md px-4 pt-4 lg:max-w-3xl lg:px-10">
         <SignupBanner show={showSignupBanner} />
-        {reducedMotion ? (
-          <Outlet />
-        ) : (
-          <FadeContent key={pathname} duration={450} threshold={0.05}>
-            <Outlet />
-          </FadeContent>
-        )}
+        {/* Entrance only: no delayed exit that can render the wrong Outlet. */}
+        <motion.div
+          key={pathname}
+          initial={reducedMotion ? false : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reducedMotion ? 0 : 0.24, ease: "easeOut" }}
+        >
+          <Suspense fallback={<PageSkeleton />}><Outlet /></Suspense>
+        </motion.div>
       </main>
 
       <Drawer open={featuresOpen} onOpenChange={setFeaturesOpen}>

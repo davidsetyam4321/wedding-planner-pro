@@ -24,17 +24,21 @@ import {
 import FadeContent from "@/components/FadeContent";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { motion } from "framer-motion";
-import { ChevronLeft, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { AnimatePresence, motion, useIsPresent, useReducedMotion } from "framer-motion";
+import {
+  ChevronLeft, ClipboardList, Clock3, Gift, Handshake, Mail,
+  MoreHorizontal, Palette, Pencil, Phone, PiggyBank, ReceiptText,
+  Search, Trash2, Wallet,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { useState, type ReactNode } from "react";
+import { Children, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router";
 
 /**
- * Staggered entrance: direct StaggerItem children fade/slide in one after
- * another. Wrap the list container with <Stagger> and each card with
- * <StaggerItem>.
+ * Animated list/grid: stable keys animate additions, removals, and position
+ * changes. Wrap each direct child with <StaggerItem>; no cumulative delay
+ * so large lists remain immediately usable.
  */
 export function Stagger({
   children,
@@ -44,17 +48,10 @@ export function Stagger({
   className?: string;
 }) {
   return (
-    <motion.div
-      className={className}
-      initial="hidden"
-      animate="show"
-      variants={{
-        hidden: {},
-        show: { transition: { staggerChildren: 0.05 } },
-      }}
-    >
-      {children}
-    </motion.div>
+    <div className={className}>
+      {/* Stable item keys preserve focus and let reactive updates animate out. */}
+      <AnimatePresence>{Children.toArray(children)}</AnimatePresence>
+    </div>
   );
 }
 
@@ -65,17 +62,18 @@ export function StaggerItem({
   children: ReactNode;
   className?: string;
 }) {
+  const reducedMotion = useReducedMotion();
+  const isPresent = useIsPresent();
   return (
     <motion.div
       className={className}
-      variants={{
-        hidden: { opacity: 0, y: 14 },
-        show: {
-          opacity: 1,
-          y: 0,
-          transition: { duration: 0.35, ease: "easeOut" },
-        },
-      }}
+      inert={!isPresent}
+      aria-hidden={!isPresent || undefined}
+      layout={reducedMotion ? false : "position"}
+      initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
+      transition={{ duration: reducedMotion ? 0 : 0.22, ease: "easeOut" }}
     >
       {children}
     </motion.div>
@@ -114,7 +112,7 @@ export function RowMenu({
           <button
             type="button"
             aria-label="Menu aksi"
-            className="flex size-7 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            className="flex size-11 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           >
             <MoreHorizontal className="size-4" />
           </button>
@@ -171,7 +169,14 @@ export function RowMenu({
   );
 }
 
-/** Friendly illustrated empty state with an optional call-to-action. */
+// Keep existing call sites compatible while rendering consistent Lucide SVGs.
+const EMPTY_ICONS: Record<string, LucideIcon> = {
+  "🎁": Gift, "🤝": Handshake, "🔍": Search, "💸": Wallet,
+  "🧾": ReceiptText, "📝": ClipboardList, "🎨": Palette,
+  "📞": Phone, "🐷": PiggyBank, "⏰": Clock3, "💌": Mail,
+};
+
+/** Helpful, accessible empty state with a themed SVG and optional action. */
 export function EmptyState({
   emoji,
   title,
@@ -187,21 +192,22 @@ export function EmptyState({
   onAction?: () => void;
   className?: string;
 }) {
+  const Icon = EMPTY_ICONS[emoji] ?? ClipboardList;
   return (
     <div
-      className={`clay-inset flex flex-col items-center justify-center gap-2 rounded-3xl px-6 py-10 text-center ${
+      className={`stationery flex flex-col items-center justify-center gap-3 rounded-3xl px-6 py-10 text-center ${
         className ?? ""
       }`}
     >
       <div className="relative">
-        <div className="sky-tint clay-sm flex size-14 items-center justify-center rounded-full text-2xl shadow-lift">
-          {emoji}
+        <div className="flex size-14 items-center justify-center rounded-full border border-gold/40 bg-secondary text-primary">
+          <Icon aria-hidden="true" className="size-6" strokeWidth={1.5} />
         </div>
         <SprigMark className="absolute -right-2 -top-2 size-5 text-bloom" />
       </div>
       <p className="relative text-sm font-semibold">{title}</p>
       {description && (
-        <p className="meta max-w-[30ch]">{description}</p>
+        <p className="max-w-[36ch] text-sm leading-relaxed text-muted-foreground">{description}</p>
       )}
       {actionLabel && onAction && (
         <Button size="sm" className="mt-1 rounded-xl" onClick={onAction}>
@@ -311,7 +317,7 @@ export function BackLink({
         if ((window.history.state?.idx ?? 0) > 0) navigate(-1);
         else navigate(fallback);
       }}
-      className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground"
+      className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-primary"
     >
       <ChevronLeft className="size-3.5" /> {label}
     </button>
@@ -324,7 +330,8 @@ export function BackLink({
  */
 export function PageSkeleton() {
   return (
-    <div className="space-y-4" aria-hidden="true">
+    <div className="space-y-4" role="status" aria-busy="true" aria-label="Memuat data perencanaan">
+      <span className="sr-only">Memuat data perencanaan…</span>
       <Skeleton className="h-36 w-full rounded-3xl" />
       <Skeleton className="h-28 w-full rounded-3xl" />
       <div className="grid gap-3 sm:grid-cols-2">

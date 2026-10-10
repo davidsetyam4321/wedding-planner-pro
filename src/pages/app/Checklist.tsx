@@ -52,6 +52,7 @@ import {
   X,
 } from "lucide-react";
 import { useState, type CSSProperties, type ReactNode } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useMutation, useQuery } from "convex/react";
 import {
   Bar,
@@ -113,6 +114,7 @@ const FILTERS: { key: Filter; label: string }[] = [
 ];
 
 export function ChecklistPage() {
+  const reducedMotion = useReducedMotion();
   const items = useQuery(api.checklist.list);
   const createItem = useMutation(api.checklist.create);
   const createMany = useMutation(api.checklist.createMany);
@@ -252,21 +254,28 @@ export function ChecklistPage() {
       style: CSSProperties;
     },
   ) => (
-    <li
+    <motion.li
+      layout={!sortable && !reducedMotion ? "position" : false}
+      initial={reducedMotion || sortable ? false : { opacity: 0 }}
+      animate={{ opacity: sortable?.style.opacity ?? 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: reducedMotion || sortable ? 0 : 0.2 }}
       key={item._id}
       ref={sortable?.ref}
       style={sortable?.style}
-      className="clay flex items-center gap-3 p-3"
+      className="clay flex flex-wrap items-center gap-2 p-3 sm:gap-3"
     >
       {sortable?.handle}
       <button
         type="button"
         aria-label={item.done ? "Tandai belum selesai" : "Tandai selesai"}
+        aria-pressed={item.done}
+        data-celebrate={!item.done ? "true" : undefined}
         onClick={() => {
           toggleItem({ itemId: item._id, done: !item.done });
           if (!item.done) bloom();
         }}
-        className={`flex size-7 shrink-0 items-center justify-center rounded-full transition-colors ${
+        className={`flex size-11 shrink-0 items-center justify-center rounded-full transition-colors ${
           item.done
             ? "bg-primary text-primary-foreground"
             : "clay-inset text-muted-foreground hover:text-primary"
@@ -275,7 +284,7 @@ export function ChecklistPage() {
         <Check className="size-3.5" />
       </button>
       <span
-        className={`flex-1 text-sm leading-snug ${
+        className={`min-w-[8rem] flex-1 break-words text-sm leading-relaxed ${
           item.done ? "text-muted-foreground line-through" : ""
         }`}
       >
@@ -319,7 +328,7 @@ export function ChecklistPage() {
         deleteTitle={`Hapus tugas ini?`}
         deleteDescription={item.label}
       />
-    </li>
+    </motion.li>
   );
 
   /** Pulihkan satu tugas yang dihapus, termasuk status selesainya. */
@@ -637,13 +646,14 @@ export function ChecklistPage() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Cari tugas…"
+            aria-label="Cari tugas persiapan"
             className="pl-9"
           />
         </div>
 
         <Stagger className="space-y-4">
           {(filter === "semua" || filter === "belum") && visibleOpen.length > 0 && (
-            <StaggerItem>
+            <StaggerItem key="open-tasks">
               <section className="space-y-2">
                 <p className="label px-1 text-muted-foreground">
                   Belum · {visibleOpen.length}
@@ -674,7 +684,7 @@ export function ChecklistPage() {
                       </SortableContext>
                     </DndContext>
                   ) : (
-                    visibleOpen.map((item) => renderItem(item))
+                    <AnimatePresence>{visibleOpen.map((item) => renderItem(item))}</AnimatePresence>
                   )}
                 </ul>
               </section>
@@ -682,7 +692,7 @@ export function ChecklistPage() {
           )}
 
           {(filter === "semua" || filter === "selesai") && visibleDone.length > 0 && showDone && (
-            <StaggerItem>
+            <StaggerItem key="done-tasks">
               <section className="space-y-2">
                 <div className="flex items-center justify-between px-1">
                   <p className="label text-muted-foreground">Selesai · {visibleDone.length}</p>
@@ -697,7 +707,7 @@ export function ChecklistPage() {
                   )}
                 </div>
                 <ul className="space-y-2">
-                  {visibleDone.map((item) => renderItem(item))}
+                  <AnimatePresence>{visibleDone.map((item) => renderItem(item))}</AnimatePresence>
                 </ul>
               </section>
             </StaggerItem>

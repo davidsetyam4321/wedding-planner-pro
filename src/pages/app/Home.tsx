@@ -7,6 +7,7 @@ import {
 } from "@/components/Shared";
 import { Skeleton } from "@/components/ui/skeleton";
 import AnimatedContent from "@/components/AnimatedContent";
+import CountUp from "@/components/CountUp";
 import { GarlandDivider, SekarSudut } from "@/components/Decor";
 import PulseHeart from "@/components/PulseHeart";
 import { api } from "@/convex/_generated/api";
@@ -87,9 +88,7 @@ function CountdownTimer({ weddingDate }: { weddingDate: number }) {
           key={cell.label}
           className="flex flex-col items-center rounded-2xl bg-white/15 py-2.5 shadow-sm backdrop-blur-md"
         >
-          <p
-            className="num font-serif text-[1.35rem] font-semibold leading-tight text-white"
-          >
+          <p key={cell.value} className="countdown-digit num font-serif text-[1.35rem] font-semibold leading-tight text-white">
             {String(cell.value).padStart(2, "0")}
           </p>
           <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white">
@@ -106,6 +105,7 @@ function SummaryCard({
   to,
   label,
   value,
+  numericValue,
   detail,
   pct,
   icon: Icon,
@@ -114,6 +114,7 @@ function SummaryCard({
   to: string;
   label: string;
   value: string;
+  numericValue?: number;
   detail: string;
   pct: number;
   icon: typeof CheckCircle2;
@@ -122,7 +123,7 @@ function SummaryCard({
   const progress = Math.min(100, Math.max(0, pct));
   const toneStyles = {
     nature: { icon: "text-leaf", progress: "fill-botanical" },
-    secondary: { icon: "text-white", progress: "fill-secondary" },
+    secondary: { icon: "text-gold-deep", progress: "fill-secondary" },
     soft: { icon: "text-soft-deep", progress: "fill-soft" },
   }[tone];
 
@@ -136,9 +137,9 @@ function SummaryCard({
         <Icon className={`size-4 shrink-0 ${toneStyles.icon}`} />
       </span>
       <span className="mt-2 block truncate font-serif text-xl font-semibold leading-tight">
-        {value}
+        {numericValue === undefined ? value : <CountUp to={numericValue} duration={0.5} />}
       </span>
-      <span className="mt-1 block truncate text-[11px] text-muted-foreground">
+      <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
         {detail}
       </span>
       <span className="mt-3 block h-1.5 overflow-hidden rounded-full bg-mist-gray">
@@ -359,6 +360,7 @@ export function HomePage() {
                 to="/app/checklist"
                 label="Tugas tersisa"
                 value={`${openTasks.length}`}
+                numericValue={openTasks.length}
                 detail={allTasks.length > 0 ? `${doneTasks.length} dari ${allTasks.length} tugas selesai` : "Belum ada tugas persiapan"}
                 pct={taskPct}
                 icon={CheckCircle2}
@@ -370,6 +372,7 @@ export function HomePage() {
                 to="/app/tamu"
                 label="RSVP belum dijawab"
                 value={`${unansweredGuests}`}
+                numericValue={unansweredGuests}
                 detail={guestTotal > 0 ? `${guestHadir} hadir · ${guestTidak} tidak hadir` : "Belum ada tamu di daftar"}
                 pct={rsvpPct}
                 icon={Mail}

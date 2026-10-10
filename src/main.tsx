@@ -9,6 +9,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router";
 import { AppPalette, DefaultPalette } from "@/components/PaletteProvider";
 import ClickSpark from "@/components/reactbits/ClickSpark";
+import { MotionConfig } from "framer-motion";
 import "./index.css";
 
 // Lazy load route components for better code splitting
@@ -54,7 +55,7 @@ const LandingPage = lazy(() =>
 function RouteLoading() {
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <div className="clay px-5 py-3 text-sm text-muted-foreground">Memuat…</div>
+      <div role="status" aria-live="polite" className="stationery px-6 py-4 text-sm text-muted-foreground">Memuat halaman…</div>
     </div>
   );
 }
@@ -225,10 +226,11 @@ createRoot(document.getElementById("root")!).render(
         <VlyToolbar />
       </ToolbarErrorBoundary>
       <ConvexAuthProvider client={convex}>
+        <MotionConfig reducedMotion="user">
         <BrowserRouter>
           <RouteSyncer />
           <RoutePalette />
-          <ClickSpark />
+          <ClickSpark sparks={5} sparkSize={12} radius={20} duration={320} sparkColor="var(--color-gold)" />
           <Suspense fallback={<RouteLoading />}>
             <AutoSession>
               <Routes>
@@ -254,6 +256,7 @@ createRoot(document.getElementById("root")!).render(
             </AutoSession>
           </Suspense>
         </BrowserRouter>
+        </MotionConfig>
         <Toaster />
       </ConvexAuthProvider>
     </RootErrorBoundary>

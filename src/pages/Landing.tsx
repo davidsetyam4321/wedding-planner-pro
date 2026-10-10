@@ -137,7 +137,7 @@ export function LandingPage() {
                   asChild
                   variant="ghost"
                   size="sm"
-                  className="text-ink hover:bg-ink/5 hover:text-ink"
+                  className="text-ink hover:bg-ink/5 hover:text-ink hidden sm:inline-flex"
                 >
                   <Link to="/auth">Masuk dengan email</Link>
                 </Button>
@@ -205,7 +205,7 @@ export function LandingPage() {
                     size="lg"
                     className="bg-primary px-7 text-primary-foreground shadow-none hover:bg-deep-cerulean"
                   >
-                    <Link to="/app">
+                    <Link to="/app" data-celebrate="true">
                       Mulai merencanakan <ArrowRight className="size-4" />
                     </Link>
                   </Button>
@@ -260,7 +260,7 @@ export function LandingPage() {
                     {/* Kartu berbingkai ganda — permukaan kertas undangan. */}
                     <article className="stationery h-full p-6">
                       <span className="flex size-10 items-center justify-center rounded-full bg-sky-tint text-midnight-navy">
-                        <Mark className="size-5" />
+                        <Mark aria-hidden="true" className="size-5" />
                       </span>
                       <h3 className="mt-4 text-base font-semibold text-ink">{pillar.title}</h3>
                       <p className="mt-2 text-sm leading-relaxed text-graphite">{pillar.description}</p>

@@ -29,6 +29,27 @@ stationery/kertas), `src/lib/palettes.ts` (palet default Hutan & Emas),
 (ornamen emas), `src/pages/Landing.tsx`, `src/pages/app/Home.tsx`,
 `src/components/AppShell.tsx`, `src/lib/printDoc.ts`, dan `index.html` (font).
 
+### Motion & interaction polish
+
+- Referensi: [React Bits](https://github.com/DavidHDev/react-bits) dan
+  [Motion Primitives](https://github.com/ibelick/motion-primitives).
+  Implementasi memakai komponen yang sudah ada dan Framer Motion/GSAP;
+  tidak menambahkan runtime animasi baru.
+- Navigasi: fade + slide 10px selama 240ms; shell tetap terlihat saat rute
+  lazy dimuat. Skip link dan fokus main setelah perpindahan halaman.
+- Daftar: keyed entrance/exit dan `layout="position"`, tanpa delay kumulatif.
+  Dnd-kit tetap mengendalikan transform baris yang dapat diseret.
+- Angka: count-up 500ms pada ringkasan; target selalu tersedia untuk screen
+  reader. Perubahan berikutnya dimulai dari angka terakhir, bukan nol.
+- Efek emas: highlight kartu interaktif, press feedback 0.98, percikan hanya
+  pada aksi bertanda `data-celebrate="true"`, bukan di setiap klik form.
+- Reduced motion: GSAP matchMedia, MotionConfig, final value langsung untuk
+  angka, tanpa blur/slide yang meninggalkan konten tersembunyi.
+- UI: target kontrol bersama 44px, label bottom nav selalu terlihat, dialog
+  maksimal tinggi viewport dan bisa di-scroll, empty state SVG, loading status.
+- Tes DOM: `src/tests/uiPolish.test.ts` dan `src/tests/uiMotion.test.ts`.
+  `jsdom` hanya devDependency untuk tes; tidak menambah library ke aplikasi.
+
 Nilai statis di `src/index.css` wajib sama dengan `paletteVars("hutan-emas")`;
 tidak ada divergensi (dicek 90 token).
 

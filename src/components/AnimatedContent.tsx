@@ -53,6 +53,8 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
     const el = ref.current;
     if (!el) return;
 
+    const media = gsap.matchMedia();
+    media.add('(prefers-reduced-motion: no-preference)', () => {
     let scrollerTarget: Element | string | null = container || document.getElementById('snap-main-container') || null;
 
     if (typeof scrollerTarget === 'string') {
@@ -108,7 +110,10 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
     return () => {
       st.kill();
       tl.kill();
+      gsap.killTweensOf(el);
     };
+    });
+    return () => media.revert();
   }, [
     container,
     distance,
@@ -129,7 +134,7 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
   ]);
 
   return (
-    <div ref={ref} className={`invisible ${className}`} {...props}>
+    <div ref={ref} className={className} {...props}>
       {children}
     </div>
   );

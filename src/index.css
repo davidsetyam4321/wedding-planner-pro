@@ -136,13 +136,13 @@
   --leading-caption: 1.2;
   --tracking-caption: 0;
   --text-body-sm: 14px;
-  --leading-body-sm: 1.24;
+  --leading-body-sm: 1.5;
   --tracking-body-sm: 0;
   --text-body: 16px;
-  --leading-body: 1.2;
+  --leading-body: 1.5;
   --tracking-body: 0;
   --text-body-lg: 18px;
-  --leading-body-lg: 1.24;
+  --leading-body-lg: 1.5;
   --tracking-body-lg: 0;
   --text-subheading: 22px;
   --leading-subheading: 1.2;
@@ -498,7 +498,8 @@
     gap: var(--marquee-gap, 1rem);
     animation: marquee-scroll var(--marquee-speed, 38s) linear infinite;
   }
-  .marquee--hover-pause:hover .marquee__track {
+  .marquee--hover-pause:hover .marquee__track,
+  .marquee:focus-within .marquee__track {
     animation-play-state: paused;
   }
   .marquee--reverse .marquee__track {
@@ -1039,8 +1040,7 @@
   }
 }
 [data-slot="button"]:active,
-.clay-press:active {
-  transform: none;
+.clay-press:active {  transform: scale(0.98);
   opacity: 0.92;
 }
 
@@ -1067,12 +1067,76 @@
   }
 }
 
+/* ── Interaction polish: keyboard, touch, and restrained gold highlights ── */
+@layer base {
+  a, button, input, select, textarea, [role="button"] {
+    touch-action: manipulation;
+    scroll-margin-block: 6rem;
+  }
+  a:focus-visible, button:focus-visible, [role="button"]:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+  [data-slot="dialog-content"], [data-slot="alert-dialog-content"] {
+    border-color: var(--border);
+  }
+}
+@layer components {
+  .skip-link {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 100;
+    transform: translateY(-200%);
+    padding: 0.75rem 1rem;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-radius: 0.75rem;
+  }
+  .skip-link:focus { transform: translateY(0); }
+
+  /* Highlight only actionable cards, not every data surface. */
+  .clay-press {
+    background-image: linear-gradient(115deg,
+      color-mix(in srgb, var(--color-gold) 8%, transparent), transparent 60%);
+    transition: box-shadow 180ms ease, border-color 180ms ease, transform 150ms ease;
+  }
+  .clay-press:hover, .clay-press:focus-visible {
+    border-color: var(--color-gold);
+  }
+  .chip { white-space: normal; overflow-wrap: anywhere; }
+  button.chip { min-height: 44px; }
+  [data-slot="textarea"] { min-height: 6rem; line-height: 1.5; }
+  [data-slot="input"], [data-slot="select-trigger"] { min-height: 44px; }
+
+  @media (pointer: coarse) {
+    button[aria-label], a[aria-label] { min-height: 44px; min-width: 44px; }
+    [data-slot="input"], [data-slot="textarea"], [data-slot="select-trigger"] {
+      font-size: 16px;
+    }
+    .app-workspace [data-slot="button"] { white-space: normal; }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="button"]:active, .clay-press:active { transform: none; }
+}
+
 /* ── Literary serif accent — italic estetik untuk frasa romantis ── */
 .elegant {
   font-family: var(--font-serif);
   font-style: italic;
   font-weight: 400;
   letter-spacing: 0.005em;
+}
+
+/* Tiny digit crossfade: tabular figures keep countdown cells stationary. */
+.countdown-digit { animation: digit-change 180ms ease-out; }
+@keyframes digit-change {
+  from { opacity: 0.45; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .countdown-digit { animation: none; }
 }
 
 /* ── Character doodle: gentle bob (PageMascot) ── */

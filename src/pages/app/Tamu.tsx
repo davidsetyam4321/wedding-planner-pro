@@ -597,6 +597,7 @@ export function TamuPage() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Cari nama tamu…"
+          aria-label="Cari nama tamu"
           className="pl-9"
         />
       </div>

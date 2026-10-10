@@ -2,9 +2,9 @@ import { useEffect, type ReactNode } from "react";
 
 /**
  * ClickSpark — percikan cahaya saat diklik, mengikuti titik klik
- * (gaya React Bits). Dipasang global: mendengarkan pointerdown di document
- * dan merender percikan berumur pendek via WAAPI — ringan, tanpa state React
- * per klik.
+ * (gaya React Bits). Hanya pada aksi beratribut data-celebrate="true":
+ * tidak memicu percikan saat mengetik atau memakai form. Node dan timer
+ * dibersihkan saat unmount; reduced motion tidak memicu efek.
  */
 export default function ClickSpark({
   children,
@@ -26,12 +26,15 @@ export default function ClickSpark({
   duration?: number;
 }) {
   useEffect(() => {
-    const reduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    if (reduced) return;
-
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const bursts = new Set<HTMLDivElement>();
+    const timers = new Set<number>();
     const handler = (event: PointerEvent) => {
+      const target = event.target;
+      if (reduced.matches || !event.isPrimary || event.button !== 0 ||
+        !(target instanceof Element) ||
+        !target.closest('[data-celebrate="true"]') ||
+        typeof Element.prototype.animate !== "function") return;
       const burst = document.createElement("div");
       burst.setAttribute("aria-hidden", "true");
       burst.style.cssText =
@@ -73,11 +76,19 @@ export default function ClickSpark({
       }
 
       document.body.appendChild(burst);
-      window.setTimeout(() => burst.remove(), duration + 60);
+      bursts.add(burst);
+      const timer = window.setTimeout(() => {
+        burst.remove(); bursts.delete(burst); timers.delete(timer);
+      }, duration + 60);
+      timers.add(timer);
     };
 
     document.addEventListener("pointerdown", handler);
-    return () => document.removeEventListener("pointerdown", handler);
+    return () => {
+      document.removeEventListener("pointerdown", handler);
+      timers.forEach((timer) => window.clearTimeout(timer));
+      bursts.forEach((burst) => burst.remove());
+    };
   }, [sparks, sparkColor, sparkSize, radius, duration]);
 
   return children ? <>{children}</> : null;

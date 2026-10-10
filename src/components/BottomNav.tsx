@@ -13,7 +13,7 @@ import { useQuery } from "convex/react";
 const GROUPED_PATHS = new Set(TOOL_NAV.map((feature) => feature.to));
 
 /**
- * Bottom navigation mengambang ala SatuJanji: pill kaca rounded-full.
+ * Bottom navigation mengambang: lima target sentuh dengan label selalu terlihat.
  * Empat tombol utama (Beranda, Budget, Checklist, Tamu) tampil langsung;
  * sisa fitur terkumpul di tombol "Lainnya" yang membuka daftar ke atas
  * tanpa berpindah halaman — baru memilih item yang menavigasi.
@@ -28,8 +28,8 @@ export function BottomNav() {
   const inGroup = GROUPED_PATHS.has(pathname);
 
   return (
-    <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
-      <div className="pointer-events-auto mx-auto flex max-w-md items-stretch justify-between gap-0.5 overflow-x-auto rounded-full border border-white/90 bg-[color-mix(in_srgb,var(--background)_88%,white_12%)] p-1.5 shadow-[0_10px_30px_rgba(56,37,31,0.14)] backdrop-blur-2xl dark:border-white/15 dark:bg-slate-950/85 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <nav aria-label="Navigasi utama" className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
+      <div className="pointer-events-auto mx-auto flex max-w-md items-stretch justify-between gap-0.5 rounded-3xl border border-white/90 bg-[color-mix(in_srgb,var(--background)_88%,white_12%)] p-1.5 shadow-[0_10px_30px_rgba(56,37,31,0.14)] backdrop-blur-2xl dark:border-white/15 dark:bg-slate-950/85 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {PRIMARY_NAV.map(({ to, label, icon: Icon, active, badge }) => (
           <NavLink
             key={to}
@@ -37,10 +37,10 @@ export function BottomNav() {
             // `end` keeps Home from staying active on every nested /app/* route.
             end={to === "/app"}
             className={({ isActive }) =>
-              `relative flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full py-2 text-[10px] font-semibold transition-all duration-200 ${
+              `relative flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2 text-[10px] font-semibold transition-colors duration-200 ${
                 isActive
-                  ? `${active} px-3.5 font-bold`
-                  : "px-2.5 text-muted-foreground hover:text-foreground"
+                  ? `${active} font-bold`
+                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
               }`
             }
           >
@@ -50,11 +50,7 @@ export function BottomNav() {
                   className="size-5 shrink-0"
                   strokeWidth={isActive ? 2.4 : 2}
                 />
-                {isActive ? (
-                  <span>{label}</span>
-                ) : (
-                  <span className="sr-only">{label}</span>
-                )}
+                <span className="leading-tight">{label}</span>
                 {badge && openTasks > 0 && (
                   <span className="absolute right-0.5 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-berry-red px-1 text-[9px] font-semibold text-white">
                     {openTasks > 9 ? "9+" : openTasks}
@@ -70,7 +66,7 @@ export function BottomNav() {
             <button
               type="button"
               aria-label="Fitur lainnya"
-              className={`relative flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-2 text-[10px] font-medium transition-all duration-200 ${
+              className={`relative flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2 text-[10px] font-medium transition-colors duration-200 ${
                 inGroup
                   ? "bg-tint-sage font-semibold text-tint-sage-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
@@ -80,6 +76,7 @@ export function BottomNav() {
                 className="size-5 shrink-0"
                 strokeWidth={inGroup ? 2.4 : 2}
               />
+              <span className="leading-tight">Lainnya</span>
             </button>
           </PopoverTrigger>
           <PopoverContent

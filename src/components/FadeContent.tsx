@@ -46,6 +46,8 @@ const FadeContent: React.FC<FadeContentProps> = ({
     const el = ref.current;
     if (!el) return;
 
+    const media = gsap.matchMedia();
+    media.add('(prefers-reduced-motion: no-preference)', () => {
     let scrollerTarget: Element | string | null = container || document.getElementById('snap-main-container') || null;
 
     if (typeof scrollerTarget === 'string') {
@@ -99,7 +101,11 @@ const FadeContent: React.FC<FadeContentProps> = ({
       tl.kill();
       gsap.killTweensOf(el);
     };
-  }, []);
+    });
+    // matchMedia reverts inline styles/tweens when the preference changes.
+    return () => media.revert();
+  }, [container, blur, duration, ease, delay, threshold, initialOpacity,
+    disappearAfter, disappearDuration, disappearEase, onComplete, onDisappearanceComplete]);
 
   return (
     <div ref={ref} className={className} {...props}>
