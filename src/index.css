@@ -346,24 +346,28 @@
     color: var(--muted-foreground);
   }
 
-  /* Foto asli sebagai kanvas halaman — gambar asli, bukan buatan */
+  /* Foto botanical public-domain baru, di-crop terpisah untuk hero/CTA. */
   .plant-hero {
-    background-image: url("/assets/nature/plant-shadow.jpg");
+    background-image: url("/assets/nature/delicate-leafy-background.jpg");
     background-size: cover;
-    background-position: center;
+    background-position: center 42%;
     background-repeat: no-repeat;
   }
-  .floral-canvas {
-    background-image: url("/assets/bunga-dekorasi.jpg");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
+  .floral-canvas,
   .bouquet-canvas {
-    background-image: url("/assets/nature/floral-backdrop.jpg");
+    background-image: url("/assets/nature/delicate-leafy-background.jpg");
     background-size: cover;
-    background-position: center;
+    background-position: center 48%;
     background-repeat: no-repeat;
+  }
+  @media (max-width: 640px) {
+    .plant-hero { background-position: 56% center; }
+    .floral-canvas, .bouquet-canvas { background-position: 62% center; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .plant-hero,
+    .floral-canvas,
+    .bouquet-canvas { background-attachment: scroll; }
   }
   /* veil ivory agar teks gelap di atas foto hero tetap terbaca */
   .photo-veil {
@@ -661,7 +665,7 @@
         color-mix(in srgb, var(--background) 78%, transparent),
         color-mix(in srgb, var(--background) 88%, transparent)
       ),
-      url("/assets/nature/floral-backdrop.jpg");
+      url("/assets/nature/delicate-leafy-background.jpg");
     background-size: cover;
     background-position: center 42%;
   }
@@ -672,12 +676,14 @@
   .dark .app-photo-backdrop {
     background-image:
       linear-gradient(rgba(16, 32, 43, 0.88), rgba(16, 32, 43, 0.93)),
-      url("/assets/nature/floral-backdrop.jpg");
+      url("/assets/nature/delicate-leafy-background.jpg");
   }
   @media (max-width: 640px) {
     .app-photo-backdrop {
       background-position: 55% center;
     }
+    .plant-hero { background-position: 58% center; }
+    .floral-canvas, .bouquet-canvas { background-position: 66% center; }
   }
   @media (prefers-reduced-motion: reduce) {
     .app-photo-backdrop {

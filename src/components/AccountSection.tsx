@@ -1,3 +1,13 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -73,6 +83,7 @@ export function AccountSection() {
   const [busy, setBusy] = useState(false);
   const [joinCode, setJoinCode] = useState("");
   const [copied, setCopied] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState(false);
 
   const sendCode = async () => {
     const cleaned = email.trim().toLowerCase();
@@ -122,7 +133,11 @@ export function AccountSection() {
   const join = async () => {
     setBusy(true);
     try {
-      await joinMutation({ code: joinCode });
+      const result = await joinMutation({ code: joinCode });
+      if (result?.error) {
+        toast.error(result.error);
+        return;
+      }
       bloom();
       toast.success("Berhasil bergabung dengan ruang kerja pasangan!");
       setJoinCode("");
@@ -196,8 +211,7 @@ export function AccountSection() {
             <Mail className="size-4" />
           </span>
           <div>
-            <h2 className="h-card">Masuk dengan Email</h2>
-            <p className="meta">Tersimpan permanen, dapat dibuka dari perangkat mana saja</p>
+            <h2 className="h-card">Masuk dengan Email</h2>              <p className="meta">Agar tersimpan permanen dan bisa dibuka dari perangkat lain</p>
           </div>
         </div>
 
@@ -243,7 +257,7 @@ export function AccountSection() {
                 inputMode="numeric"
                 maxLength={6}
                 value={code}
-                onChange={(event) => setCode(event.target.value)}
+                onChange={(event) => setCode(event.target.value.replace(/\\D/g, "").slice(0, 6))}
                 placeholder="______"
                 className="num text-center text-lg tracking-[0.4em]"
                 onKeyDown={(event) => {
@@ -321,7 +335,7 @@ export function AccountSection() {
               size="sm"
               className="mt-2 rounded-xl"
               disabled={busy}
-              onClick={() => void leave()}
+              onClick={() => setConfirmLeave(true)}
             >
               Keluar dari ruang kerja
             </Button>
@@ -446,6 +460,26 @@ export function AccountSection() {
           </p>
         </div>
       )}
+      <AlertDialog open={confirmLeave} onOpenChange={setConfirmLeave}>
+        <AlertDialogContent className="max-w-sm rounded-3xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Keluar dari workspace bersama?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Anda kembali ke workspace pribadi yang kosong. Data pasangan tetap
+              berada di workspace pemilik.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-xl">Batal</AlertDialogCancel>
+            <AlertDialogAction
+              className="rounded-xl bg-destructive text-white hover:bg-destructive/90"
+              onClick={() => void leave()}
+            >
+              Keluar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 }

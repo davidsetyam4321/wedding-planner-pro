@@ -7,11 +7,7 @@ import {
   PetalsFront,
 } from "@/components/Decor";
 import {
-  BouquetMark,
-  FlowerMark,
-  Petals,
   RingsMark,
-  SprigMark,
   WreathMark,
 } from "@/components/Decor";
 import Magnet from "@/components/Magnet";
@@ -61,33 +57,24 @@ const STEPS = [
 ];
 
 /** Kutipan pasangan — kartu putih mengambang ala Cora. */
-const VOICES = [
+const PLANNER_PILLARS = [
   {
-    quote:
-      "Baru pertama kali kami berdua buka rencana nikah di satu tempat yang sama. Budget-nya jujur, checklist-nya realistis.",
-    name: "Andra & Rina",
-    role: "Menikah Maret 2026 · Solo",
+    title: "Rencana yang jelas",
+    description: "Checklist, tenggat, dan rundown tersusun dalam satu alur.",
   },
   {
-    quote:
-      "Setoran tabungan langsung kelihatan di layar pasangan. Rasanya seperti benar-benar punya tim dua orang.",
-    name: "Bimo & Salsa",
-    role: "Menikah Agustus 2026 · Yogyakarta",
+    title: "Keuangan terbuka",
+    description: "Anggaran, pengeluaran, dan setoran mudah dipantau bersama.",
   },
   {
-    quote:
-      "Rundown dan daftar tamunya rapi tanpa spreadsheet. Tinggal buka, isi, beres.",
-    name: "Cakra & Lintang",
-    role: "Menikah Desember 2026 · Semarang",
+    title: "Kerja tim berdua",
+    description: "Workspace yang sama mengikuti perubahan di kedua perangkat.",
   },
 ];
 
-/** Ikon avatar testimoni — silih berganti supaya tidak monoton. */
-const VOICE_MARKS = [FlowerMark, SprigMark, BouquetMark];
-
 /**
  * Halaman publik Cora: hero bertema nature — foto asli tanaman & bayangannya
- * di dinding, lalu ritme floral → putih → floral → putih → floral CTA.
+ * di dinding, lalu ritme botanical → putih → botanical → putih → CTA.
  * Palet selalu default (Burgundy Garden); palet kustom hanya untuk /app.
  */
 export function LandingPage() {
@@ -126,8 +113,8 @@ export function LandingPage() {
 
       <main>
         {/* ── Hero nature: foto asli tanaman membuang bayangan di dinding ── */}
-        <section className="plant-hero relative flex min-h-screen w-full items-center justify-center px-5 pb-28 pt-24 text-center">
-          <div aria-hidden="true" className="photo-veil absolute inset-0 -z-10" />
+        <section className="plant-hero isolate relative flex min-h-screen w-full items-center justify-center px-5 pb-28 pt-24 text-center">
+          <div aria-hidden="true" className="photo-veil absolute inset-0 z-0" />
 
           {/* Header menempel di atas dinding — persis di bawah pita pengumuman */}
           <header className="absolute inset-x-0 top-0 z-40">
@@ -150,7 +137,7 @@ export function LandingPage() {
                   size="sm"
                   className="text-ink hover:bg-ink/5 hover:text-ink"
                 >
-                  <Link to="/auth">Masuk</Link>
+                  <Link to="/auth">Masuk dengan email</Link>
                 </Button>
                 <Button
                   asChild
@@ -165,7 +152,7 @@ export function LandingPage() {
             </div>
           </header>
 
-          <div className="mx-auto max-w-4xl">
+          <div className="relative z-10 mx-auto max-w-4xl">
             <FadeContent
               blur
               duration={900}
@@ -245,57 +232,39 @@ export function LandingPage() {
 
         </section>
 
-        {/* ── Section putih: testimonial mengambang ─────────────────────── */}
+        {/* ── Perencanaan inti — copy faktual, tanpa testimoni buatan ─────── */}
         <section className="bg-cloud-white px-5 py-24">
           <div className="mx-auto max-w-[1200px]">
-            <FadeContent
-              blur
-              duration={900}
-              className="text-center"
-            >
-              <p className="label text-stone">Cerita pasangan</p>
+            <FadeContent blur duration={900} className="text-center">
+              <p className="label text-stone">Dibuat untuk rencana bersama</p>
               <h2 className="mx-auto mt-2 max-w-2xl font-serif text-3xl font-light leading-tight md:text-[40px]">
-                Dipercaya untuk hari yang{" "}
-                <span className="elegant italic">paling penting</span>
+                Satu ruang untuk menyatukan semua detail
               </h2>
             </FadeContent>
-
-            <Marquee speed={52} gap={24} className="mt-12">
-              {VOICES.map((voice, index) => {
-                const Mark = VOICE_MARKS[index % VOICE_MARKS.length];
+            <Stagger className="mt-12 grid gap-4 md:grid-cols-3">
+              {PLANNER_PILLARS.map((pillar, index) => {
+                const Mark = [DoorOpen, Wallet, HeartHandshake][index];
                 return (
-                  <figure
-                    key={voice.name}
-                    className="clay w-[300px] rounded-xl p-6 shadow-sm-2 sm:w-[360px]"
-                  >
-                    <blockquote className="text-body leading-relaxed text-ink">
-                      “{voice.quote}”
-                    </blockquote>
-                    <figcaption className="mt-5 flex items-center gap-3">
-                      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-sky-tint">
-                        <Mark className="size-4 text-midnight-navy" />
+                  <StaggerItem key={pillar.title}>
+                    <article className="clay h-full rounded-xl p-6">
+                      <span className="flex size-10 items-center justify-center rounded-full bg-sky-tint text-midnight-navy">
+                        <Mark className="size-5" />
                       </span>
-                      <span>
-                        <span className="block text-sm font-semibold text-ink">
-                          {voice.name}
-                        </span>
-                        <span className="block text-[13px] text-stone">
-                          {voice.role}
-                        </span>
-                      </span>
-                    </figcaption>
-                  </figure>
+                      <h3 className="mt-4 text-base font-semibold text-ink">{pillar.title}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-graphite">{pillar.description}</p>
+                    </article>
+                  </StaggerItem>
                 );
               })}
-            </Marquee>
+            </Stagger>
           </div>
         </section>
 
         {/* ── Foto floral asli: headline mengambang + preview produk ──── */}
-        <section className="floral-canvas relative w-full px-5 py-28 text-center">
-          <div aria-hidden="true" className="photo-dim absolute inset-0 -z-10" />
+        <section className="floral-canvas isolate relative w-full px-5 py-28 text-center">
+          <div aria-hidden="true" className="photo-dim absolute inset-0 z-0" />
 
-          <FadeContent blur duration={900}>
+          <FadeContent blur duration={900} className="relative z-10">
             <h2 className="mx-auto max-w-3xl font-serif text-3xl font-light leading-tight text-white md:text-[45px]">
               Hitung mundur, dana, dan tugas{" "}
               <GradientText className="elegant italic" speed={8}>
@@ -309,7 +278,7 @@ export function LandingPage() {
           </FadeContent>
 
           {/* Preview mini dashboard — kartu putih mengambang di langit */}
-          <AnimatedContent distance={80} threshold={0.15}>
+          <AnimatedContent distance={80} threshold={0.15} className="relative z-10">
             <div className="mx-auto mt-12 max-w-md rotate-[-2deg] rounded-xl bg-cloud-white p-6 shadow-float lg:max-w-lg">
               <p className="label text-stone">Menuju hari pernikahan</p>
               <p className="num mt-1 font-serif text-5xl font-light text-ink">
@@ -471,9 +440,9 @@ export function LandingPage() {
         <GarlandDivider className="mx-auto block h-10 w-full max-w-sm" />
 
         {/* ── CTA akhir: latar buket floral asli ───────────────────────── */}
-        <section className="bouquet-canvas relative w-full px-5 py-32 text-center">
-          <div aria-hidden="true" className="photo-dim absolute inset-0 -z-10" />
-          <AnimatedContent distance={60} threshold={0.2}>
+        <section className="bouquet-canvas isolate relative w-full px-5 py-32 text-center">
+          <div aria-hidden="true" className="photo-dim absolute inset-0 z-0" />
+          <AnimatedContent distance={60} threshold={0.2} className="relative z-10">
             <h2 className="mx-auto max-w-3xl font-serif text-4xl font-light leading-[1.05] text-white md:text-[55px]">
               Siap merencanakan{" "}
               <ShinyText

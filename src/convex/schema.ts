@@ -73,8 +73,9 @@ const schema = defineSchema(
       guestEstimate: v.optional(v.number()),
       /** Foto pasangan yang tampil di dashboard. */
       photoStorageId: v.optional(v.id("_storage")),
-      /** Kode 6 karakter untuk mengundang pasangan ke workspace ini. */
+      /** Kode undangan sekali pakai, berlaku tujuh hari. */
       inviteCode: v.optional(v.string()),
+      inviteCodeExpiresAt: v.optional(v.number()),
       /** Onboarding awal (nama/tanggal/target) sudah diselesaikan. */
       onboarded: v.optional(v.boolean()),
       /**
@@ -262,6 +263,14 @@ const schema = defineSchema(
     })
       .index("by_sent", ["sentAt"])
       .index("by_user", ["userId"]),
+
+    /** Batasi percobaan kode undangan per akun selama jendela waktu. */
+    inviteAttempt: defineTable({
+      userId: v.id("users"),
+      windowStartedAt: v.number(),
+      attempts: v.number(),
+      blockedUntil: v.optional(v.number()),
+    }).index("by_user", ["userId"]),
 
     /**
      * One-way handshake when an anonymous workspace is migrated to a fresh

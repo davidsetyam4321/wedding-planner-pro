@@ -50,8 +50,12 @@ untuk kebutuhan tampilan web.
 Lisensi Pexels (https://www.pexels.com/license/) membebaskan pemakaian tanpa
 atribusi wajib; pencatatan sumber dilakukan di sini untuk transparansi.
 
-## sky-hero.jpg
-John Constable — Cloud Study (Google Art Project)
-Sumber: Wikimedia Commons (public domain)
-https://commons.wikimedia.org/wiki/File:John_Constable_-_Cloud_Study_-_Google_Art_Project.jpg
-Dahulu dipakai sebagai kanvas langit; kini tidak lagi dipakai (diganti wash nature).
+## Botanical background
+
+| Berkas | Sumber | Penulis | Lisensi |
+| --- | --- | --- | --- |
+| `nature/delicate-leafy-background.jpg` | [Delicate leafy background](https://commons.wikimedia.org/wiki/File:Delicate_leafy_background.jpg) | Leon Brooks | Public domain |
+
+Diunduh sebagai thumbnail 1,920 px untuk ukuran web; digunakan pada hero,
+CTA, dan latar workspace. Public domain: dapat digunakan tanpa kewajiban
+atribusi; kredit dicatat di sini untuk transparansi.

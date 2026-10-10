@@ -115,13 +115,13 @@ describe("alur pasangan lewat kode undangan", () => {
 
     await expect(
       partner.as.mutation(api.workspace.joinByInviteCode, { code: "abc" }),
-    ).rejects.toThrow(/format kode/i);
+    ).resolves.toMatchObject({ error: expect.stringMatching(/format kode/i) });
     await expect(
       partner.as.mutation(api.workspace.joinByInviteCode, { code: "ZZZZZZ" }),
-    ).rejects.toThrow(/tidak ditemukan/i);
+    ).resolves.toMatchObject({ error: expect.stringMatching(/tidak ditemukan/i) });
     await expect(
       owner.as.mutation(api.workspace.joinByInviteCode, { code: owner.code }),
-    ).rejects.toThrow(/workspacemu sendiri/i);
+    ).resolves.toMatchObject({ error: expect.stringMatching(/workspacemu sendiri/i) });
 
     // Pemilik yang sudah berpasangan tidak boleh ikut workspace orang lain.
     await partner.as.mutation(api.workspace.joinByInviteCode, {
@@ -129,7 +129,7 @@ describe("alur pasangan lewat kode undangan", () => {
     });
     await expect(
       owner.as.mutation(api.workspace.joinByInviteCode, { code: other.code }),
-    ).rejects.toThrow(/sudah punya pasangan/i);
+    ).resolves.toMatchObject({ error: expect.stringMatching(/sudah punya pasangan/i) });
   });
 
   it("menolak pengguna anonim, baik bergabung maupun membagikan kode", async () => {
@@ -180,6 +180,41 @@ describe("alur pasangan lewat kode undangan", () => {
       code: owner.code,
     });
     expect(await partner.as.query(api.guests.list, {})).toHaveLength(1);
+  });
+
+  it("membatasi percobaan kode salah dan menyimpan rate limit", async () => {
+    const t = t0();
+    const owner = await setupOwner(t, "pemilik@example.com");
+    const partner = await makeEmailUser(t, "pasangan@example.com");
+
+    for (let index = 0; index < 5; index++) {
+      const result = await partner.as.mutation(api.workspace.joinByInviteCode, {
+        code: "ZZZZZZ",
+      });
+      expect(result.error).toMatch(index === 4 ? /terlalu banyak percobaan/i : /tidak ditemukan/i);
+    }
+    await expect(
+      partner.as.mutation(api.workspace.joinByInviteCode, { code: owner.code }),
+    ).rejects.toThrow(/terlalu banyak percobaan/i);
+  });
+
+  it("kode undangan kedaluwarsa dan dapat diperbarui", async () => {
+    const t = t0();
+    const owner = await setupOwner(t, "pemilik@example.com");
+    const partner = await makeEmailUser(t, "pasangan@example.com");
+    const wedding = await owner.as.query(api.wedding.get, {});
+    expect(wedding).not.toBeNull();
+    await t.run(async (ctx) => {
+      await ctx.db.patch(wedding!._id, { inviteCodeExpiresAt: Date.now() - 1 });
+    });
+
+    await expect(
+      partner.as.mutation(api.workspace.joinByInviteCode, { code: owner.code }),
+    ).resolves.toMatchObject({ error: expect.stringMatching(/kedaluwarsa/i) });
+    const fresh = await owner.as.mutation(api.workspace.revealInviteCode, {});
+    expect(fresh).not.toBe(owner.code);
+    expect(await partner.as.mutation(api.workspace.joinByInviteCode, { code: fresh! }))
+      .toMatchObject({ error: null });
   });
 
   it("mengganti kode undangan menutup akses kode lama", async () => {
