@@ -107,16 +107,16 @@ function SummaryCard({
   return (
     <Link
       to={to}
-      className="clay clay-press group block rounded-xl p-3 transition-transform hover:-translate-y-0.5 sm:rounded-2xl sm:p-4"
+      className={`clay clay-press dashboard-summary--${tone} group block rounded-xl p-3 transition-transform hover:-translate-y-0.5 sm:rounded-2xl sm:p-4 lg:p-5`}
     >
       <span className="flex items-center justify-between gap-2">
-        <span className="text-xs font-bold text-muted-foreground">{label}</span>
+        <span className="text-sm font-bold text-muted-foreground lg:text-base">{label}</span>
         <Icon className={`size-4 shrink-0 ${toneStyles.icon}`} />
       </span>
       <span className="mt-1.5 block truncate font-serif text-lg font-semibold leading-tight sm:mt-2 sm:text-xl lg:text-2xl">
         {numericValue === undefined ? value : <CountUp to={numericValue} duration={0.5} />}
       </span>
-      <span className="mt-1 block text-[11px] leading-snug text-muted-foreground sm:text-xs sm:leading-relaxed lg:text-[13px]">
+      <span className="mt-1 block text-xs leading-snug text-muted-foreground sm:text-sm sm:leading-relaxed lg:text-base">
         {detail}
       </span>
       <span className="mt-3 block h-1.5 overflow-hidden rounded-full bg-mist-gray">
@@ -287,7 +287,7 @@ export function HomePage() {
 
 
       {/* ── Ringkasan persiapan ───────────────────────────────────────── */}
-      <section className="col-span-2 lg:col-span-2 xl:col-span-7">
+      <section className="col-span-2 rounded-2xl border border-gold/20 bg-white/40 p-3 backdrop-blur-sm sm:p-4 lg:col-span-2 lg:p-5 xl:col-span-7 dark:bg-card/30">
         <SectionHeader title="Ringkasan" />
         {budget === undefined || checklist === undefined || guests === undefined ? (
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -337,7 +337,7 @@ export function HomePage() {
       </section>
 
       {/* ── Aksi cepat — grid 2×2, selalu terlihat tanpa scroll ────── */}
-      <section className="clay col-span-2 space-y-2 p-3 sm:space-y-2.5 sm:p-4 lg:col-span-2 lg:p-5 xl:col-span-5 xl:p-6">
+      <section className="clay dashboard-accent-panel--gold col-span-2 space-y-2 p-3 sm:space-y-2.5 sm:p-4 lg:col-span-2 lg:p-5 xl:col-span-5 xl:p-6">
         <SectionHeader title="Aksi cepat" />
         <Stagger className="grid grid-cols-2 gap-1.5 sm:gap-2">
           {[
@@ -356,7 +356,7 @@ export function HomePage() {
                 >
                   <action.icon className="size-4" />
                 </span>
-                <span className="min-w-0 flex-1 text-xs font-bold leading-tight sm:text-[13px]">
+                <span className="min-w-0 flex-1 text-sm font-bold leading-tight lg:text-base">
                   {action.label}
                 </span>
                 <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-primary" />
@@ -367,13 +367,13 @@ export function HomePage() {
       </section>
 
       {/* ── Agenda penting ────────────────────────────────────────────── */}
-      <section className="clay col-span-2 space-y-2 p-3 sm:space-y-2.5 sm:p-4 lg:col-span-2 lg:p-5 xl:col-span-5 xl:p-6">
+      <section className="clay dashboard-accent-panel--sage col-span-2 space-y-2 p-3 sm:space-y-2.5 sm:p-4 lg:col-span-2 lg:p-5 xl:col-span-5 xl:p-6">
         <SectionHeader
           title="Agenda berikutnya"
           action={
             <Link
               to="/app/checklist"
-              className="flex items-center gap-1 text-[11px] font-bold text-primary"
+              className="clay-press flex items-center gap-1 rounded-full px-2 py-1 text-xs font-bold text-primary transition-colors hover:bg-secondary sm:text-sm"
             >
               Lihat semua ({allTasks.length})
               <ArrowUpRight className="size-3" />

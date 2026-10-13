@@ -283,7 +283,7 @@ export function SectionHeader({
   return (
     <FadeContent duration={550} className="mb-2.5">
       <div className="flex items-end justify-between gap-2">
-        <h2 className="flex items-center gap-1.5 font-serif text-[15px] font-normal uppercase leading-tight tracking-[0.14em] text-midnight-navy">
+        <h2 className="flex items-center gap-2 font-serif text-base font-normal uppercase leading-tight tracking-[0.12em] text-midnight-navy lg:text-lg xl:text-xl">
           <Mark className="size-4 shrink-0 text-bloom" />
           {title}
         </h2>
@@ -292,7 +292,7 @@ export function SectionHeader({
       {/* garis rambut khas kertas undangan di bawah judul seksi */}
       <span
         aria-hidden="true"
-        className="mt-2 block h-px w-full bg-gradient-to-r from-gold/70 via-gold/25 to-transparent"
+        className="ornament-line mt-2 block w-full opacity-70"
       />
     </FadeContent>
   );

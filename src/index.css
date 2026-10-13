@@ -910,6 +910,10 @@
     line-height: 1.25;
     letter-spacing: -0.005em;
   }
+  @media (min-width: 1024px) {
+    .h-page { font-size: 2rem; }
+    .h-card { font-size: 1.45rem; }
+  }
   .label {
     font-size: var(--text-caption);
     font-weight: 500;
@@ -1136,6 +1140,59 @@
 }
 @media (prefers-reduced-motion: reduce) {
   [data-slot="button"]:active, .clay-press:active { transform: none; }
+}
+
+/* App workspace: keep detail readable on wide screens and echo the landing's
+   warm paper, botanical accents, and calm interactions across every module. */
+@media (min-width: 768px) {
+  .app-workspace [class~="text-[9px]"] { font-size: 0.6875rem; line-height: 1.35; }
+  .app-workspace [class~="text-[10px]"] { font-size: 0.75rem; line-height: 1.4; }
+  .app-workspace [class~="text-[11px]"] { font-size: 0.8125rem; line-height: 1.45; }
+  .app-workspace [class~="text-xs"] { font-size: 0.875rem; line-height: 1.5; }
+}
+.app-workspace .clay,
+.app-workspace .panel {
+  background-image: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--color-gold) 5%, transparent),
+    transparent 48%
+  );
+}
+.app-workspace a,
+.app-workspace button {
+  cursor: pointer;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-duration: 180ms;
+  transition-timing-function: ease;
+}
+.app-workspace :is(button, a):disabled,
+.app-workspace :is(button, a)[aria-disabled="true"] { cursor: not-allowed; }
+.app-workspace .dashboard-summary--nature {
+  background-image: linear-gradient(145deg, color-mix(in srgb, var(--color-leaf) 12%, var(--card)), var(--card) 72%);
+}
+.app-workspace .dashboard-summary--secondary {
+  background-image: linear-gradient(145deg, color-mix(in srgb, var(--color-gold) 14%, var(--card)), var(--card) 72%);
+}
+.app-workspace .dashboard-summary--soft {
+  background-image: linear-gradient(145deg, color-mix(in srgb, var(--color-petal) 72%, var(--card)), var(--card) 72%);
+}
+.app-workspace .dashboard-accent-panel--gold {
+  background-image: linear-gradient(145deg, color-mix(in srgb, var(--color-gold) 12%, var(--card)), var(--card) 68%);
+}
+.app-workspace .dashboard-accent-panel--sage {
+  background-image: linear-gradient(145deg, color-mix(in srgb, var(--color-leaf) 10%, var(--card)), var(--card) 68%);
+}
+.dark .app-workspace .dashboard-summary--nature,
+.dark .app-workspace .dashboard-accent-panel--sage {
+  background-image: linear-gradient(145deg, color-mix(in srgb, var(--color-leaf) 22%, var(--card)), var(--card) 76%);
+}
+.dark .app-workspace .dashboard-summary--secondary,
+.dark .app-workspace .dashboard-accent-panel--gold {
+  background-image: linear-gradient(145deg, color-mix(in srgb, var(--color-gold) 18%, var(--card)), var(--card) 76%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-workspace a,
+  .app-workspace button { transition-duration: 0.01ms; }
 }
 
 /* ── Literary serif accent — italic estetik untuk frasa romantis ── */
