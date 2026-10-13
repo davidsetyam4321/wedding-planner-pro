@@ -8,16 +8,12 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import AnimatedContent from "@/components/AnimatedContent";
 import CountUp from "@/components/CountUp";
-import { GarlandDivider, SekarSudut } from "@/components/Decor";
-import PulseHeart from "@/components/PulseHeart";
+import { SekarSudut } from "@/components/Decor";
 import { api } from "@/convex/_generated/api";
 import { bloom } from "@/lib/bloom";
-import { waLink } from "@/lib/contact";
 import {
   countdownParts,
-  daysUntil,
   formatDateLongID,
-  formatDateShortID,
   formatRupiahShort,
 } from "@/lib/format";
 import {
@@ -35,34 +31,15 @@ import {
   ChevronRight,
   Heart,
   Loader2,
-  Lock,
   Mail,
   MapPin,
   Palette,
-  PartyPopper,
-  Phone,
-  Quote,
   UserPlus,
   Wallet,
 } from "@/lib/icons";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useMutation, useQuery } from "convex/react";
-
-/** Empat tahapan persiapan, dihitung dari hari menuju pernikahan. */
-const PHASES = [
-  { short: "H-6 Bln", icon: CheckCircle2, focus: "Menetapkan konsep, venue, dan target dana" },
-  { short: "H-3 Bln", icon: Heart, focus: "Kunci vendor utama dan susun daftar tamu" },
-  { short: "H-1 Bln", icon: Lock, focus: "Finalisasi undangan, katering, dan rundown acara" },
-  { short: "Hari-H", icon: PartyPopper, focus: "Cek ulang detail acara dan istirahat yang cukup" },
-];
-
-function phaseIndex(days: number): number {
-  if (days > 180) return 0;
-  if (days > 90) return 1;
-  if (days > 30) return 2;
-  return 3;
-}
 
 /** Hitung mundur detik per detik — hanya komponen ini yang re-render tiap detik. */
 function CountdownTimer({ weddingDate }: { weddingDate: number }) {
@@ -152,26 +129,17 @@ function SummaryCard({
   );
 }
 
-/** Dashboard "Ringkasan" ala VOWCRAFT: hitung mundur, kesiapan, aksi cepat,
- *  tahapan pernikahan, agenda prioritas, mood board, dan kontak darurat. */
+/** Dashboard ringkas berbentuk bento: countdown, ringkasan, aksi cepat, agenda. */
 export function HomePage() {
   const navigate = useNavigate();
   const wedding = useQuery(api.wedding.get);
   const budget = useQuery(api.budget.overview);
   const checklist = useQuery(api.checklist.list);
   const guests = useQuery(api.guests.list);
-  const vendors = useQuery(api.vendors.list);
   const toggleItem = useMutation(api.checklist.toggle);
   const couplePhoto = useQuery(api.wedding.getCouplePhoto);
-  const workspace = useQuery(api.workspace.status);
   const { uploading, openPicker, inputProps } = useCouplePhotoUpload();
-
-  const moodCategories = useQuery(api.moodboard.listCategories);
-  const firstMoodCategory = moodCategories?.[0]?.name;
-  const moodBoxes = useQuery(
-    api.moodboard.listBoxes,
-    firstMoodCategory ? { category: firstMoodCategory } : "skip",
-  );
+  const workspace = useQuery(api.workspace.status);
 
   const spent =
     budget?.expenses.reduce((sum, expense) => sum + expense.amount, 0) ?? 0;
@@ -205,27 +173,18 @@ export function HomePage() {
     )
     .slice(0, 4);
 
-  const moodPhotos = (moodBoxes ?? [])
-    .flatMap((box) => box.photos.map((photo) => ({ ...photo, url: photo.url })))
-    .filter((photo) => photo.url !== "");
-  const moodTitle = moodBoxes?.[0]?.title ?? firstMoodCategory ?? "";
-  const contactVendors = (vendors ?? []).slice(0, 3);
-
-  const days = wedding ? daysUntil(wedding.weddingDate) : 0;
-  const activePhase = phaseIndex(days);
-
   const toggleTask = async (itemId: (typeof openTasks)[number]["_id"]) => {
     await toggleItem({ itemId, done: true });
     bloom();
   };
 
   return (
-    <div className="space-y-5">
+    <div className="grid grid-cols-2 items-start gap-3 sm:gap-4 lg:grid-cols-4">
       <input type="file" accept="image/*" className="hidden" {...inputProps} />
 
       {/* ── Pill sinkronisasi ────────────────────────────────── */}
       {wedding && (
-        <div className="flex items-center justify-between rounded-full border border-atmosphere-blue/30 bg-white/60 px-3 py-1.5 text-[11px] font-medium text-muted-foreground backdrop-blur-md">
+        <div className="col-span-2 flex items-center justify-between rounded-full border border-atmosphere-blue/30 bg-white/60 px-3 py-1.5 text-[11px] font-medium text-muted-foreground backdrop-blur-md lg:col-span-4">
           <span className="flex items-center gap-1.5">
             <span className="size-2 animate-pulse rounded-full bg-atmosphere-blue" />
             Sinkronisasi otomatis
@@ -244,12 +203,12 @@ export function HomePage() {
 
       {/* ── Hero: menuju janji suci + hitung mundur ────────── */}
       {!wedding ? (
-        <Skeleton className="h-56 w-full rounded-3xl" />
+        <Skeleton className="col-span-2 h-52 w-full rounded-3xl lg:col-span-2" />
       ) : (
         <AnimatedContent
           distance={50}
           threshold={0.05}
-          className="sky-band relative overflow-hidden rounded-3xl p-5 shadow-float"
+          className="sky-band relative col-span-2 overflow-hidden rounded-3xl p-4 shadow-float sm:p-5 lg:col-span-2"
         >
           {/* Selalu ada lukisan langit di belakang; foto pasangan menimpa jika diunggah */}
           {!couplePhoto && (
@@ -304,11 +263,11 @@ export function HomePage() {
             {`${wedding.partnerOneName} & ${wedding.partnerTwoName}`}
           </p>
 
-          <div className="relative z-10 mt-4">
+          <div className="relative z-10 mt-3 max-w-sm">
             <CountdownTimer weddingDate={wedding.weddingDate} />
           </div>
 
-          <div className="relative z-10 mt-4 space-y-1.5 text-[13px] text-white">
+          <div className="relative z-10 mt-3 space-y-1 text-[12px] text-white">
             <p className="flex items-center gap-2">
               <CalendarDays className="size-4 shrink-0 text-white" />
               <span className="font-semibold text-white">
@@ -323,38 +282,21 @@ export function HomePage() {
             )}
           </div>
 
-          <div className="relative z-10 flex items-start gap-3 rounded-2xl border border-white/20 bg-white/12 p-3 backdrop-blur-sm">
-            <p className="elegant flex flex-1 items-start gap-2 text-[15px] leading-snug text-white">
-              <Quote className="mt-0.5 size-4 shrink-0 text-white" />
-              “Dua hati, satu janji — dipersiapkan dengan tenang, dijalani
-              dengan bahagia.”
-            </p>
-            <PulseHeart
-              showCount={false}
-              size={30}
-              label="Suka"
-              likedColor="var(--color-bloom)"
-              idleColor="rgba(255, 255, 255, 0.65)"
-              pillColor="rgba(255, 255, 255, 0.14)"
-              textColor="#ffffff"
-            />
-          </div>
         </AnimatedContent>
       )}
 
-      <GarlandDivider className="mx-auto block h-16 w-full max-w-[14rem]" />
 
-      {/* ── Ringkasan praktis: angka penting, tanpa skor gabungan ───── */}
-      <section>
-        <SectionHeader title="Ringkasan persiapan" />
+      {/* ── Ringkasan persiapan ───────────────────────────────────────── */}
+      <section className="col-span-2 lg:col-span-2">
+        <SectionHeader title="Ringkasan" />
         {budget === undefined || checklist === undefined || guests === undefined ? (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <Skeleton className="h-28 rounded-2xl" />
-            <Skeleton className="h-28 rounded-2xl" />
-            <Skeleton className="h-28 rounded-2xl" />
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <Skeleton className="h-24 rounded-2xl" />
+            <Skeleton className="h-24 rounded-2xl" />
+            <Skeleton className="col-span-2 h-24 rounded-2xl sm:col-span-1" />
           </div>
         ) : (
-          <Stagger className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <Stagger className="grid grid-cols-2 gap-2 sm:gap-3">
             <StaggerItem>
               <SummaryCard
                 to="/app/checklist"
@@ -379,7 +321,7 @@ export function HomePage() {
                 tone="secondary"
               />
             </StaggerItem>
-            <StaggerItem>
+            <StaggerItem className="col-span-2 sm:col-span-1">
               <SummaryCard
                 to="/app/budget"
                 label="Sisa anggaran"
@@ -395,9 +337,9 @@ export function HomePage() {
       </section>
 
       {/* ── Aksi cepat — grid 2×2, selalu terlihat tanpa scroll ────── */}
-      <section>
+      <section className="clay col-span-2 space-y-2.5 p-3.5 sm:p-4 lg:col-span-2">
         <SectionHeader title="Aksi cepat" />
-        <Stagger className="grid grid-cols-2 gap-2.5">
+        <Stagger className="grid grid-cols-2 gap-2">
           {[
             { to: "/app/budget", label: "Catat Biaya", icon: Wallet, surface: "bg-tint-butter text-tint-butter-foreground" },
             { to: "/app/tamu", label: "Tambah Tamu", icon: UserPlus, surface: "bg-tint-rose text-tint-rose-foreground" },
@@ -407,12 +349,12 @@ export function HomePage() {
             <StaggerItem key={action.to}>
               <Link
                 to={action.to}
-                className="clay clay-press group flex items-center gap-2.5 rounded-2xl p-3"
+                className="clay-inset clay-press group flex min-h-14 items-center gap-2 rounded-2xl p-2.5"
               >
                 <span
-                  className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${action.surface} transition-transform duration-200 group-hover:scale-110`}
+                  className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${action.surface} transition-transform duration-200 group-hover:scale-110`}
                 >
-                  <action.icon className="size-5" />
+                  <action.icon className="size-4" />
                 </span>
                 <span className="min-w-0 flex-1 text-[13px] font-bold leading-tight">
                   {action.label}
@@ -424,109 +366,10 @@ export function HomePage() {
         </Stagger>
       </section>
 
-      {/* ── Tahapan pernikahan ────────────────────────────────────────── */}
-      {wedding && (
-        <section>
-          <SectionHeader
-            title="Tahapan pernikahan"
-            action={
-              <span className="meta font-semibold">
-                Fase {activePhase + 1} berlangsung
-              </span>
-            }
-          />
-          <div className="clay p-4">
-            <div className="flex items-start">
-              {PHASES.map((phase, index) => {
-                const status =
-                  index < activePhase
-                    ? "done"
-                    : index === activePhase
-                      ? "active"
-                      : "upcoming";
-                const Icon = phase.icon;
-                return (
-                  <div
-                    key={phase.short}
-                    className="flex min-w-0 flex-1 flex-col items-center gap-1.5"
-                  >
-                    <div className="flex w-full items-center">
-                      <span
-                        className={`h-0.5 flex-1 ${
-                          index === 0
-                            ? "invisible"
-                            : index <= activePhase
-                              ? "bg-leaf/45"
-                              : "bg-border"
-                        }`}
-                      />
-                      <span
-                        className={`flex size-9 shrink-0 items-center justify-center rounded-full ${
-                          status === "done"
-                            ? "bg-leaf text-white"
-                            : status === "active"
-                              ? "bg-primary text-primary-foreground"
-                              : "border border-border bg-tint-sage text-muted-foreground"
-                        }`}
-                      >
-                        <Icon className="size-4" />
-                      </span>
-                      <span
-                        className={`h-0.5 flex-1 ${
-                          index >= PHASES.length - 1
-                            ? "invisible"
-                            : index < activePhase
-                              ? "bg-leaf/45"
-                              : "bg-border"
-                        }`}
-                      />
-                    </div>
-                    <p className="text-[11px] font-extrabold leading-none">
-                      {phase.short}
-                    </p>
-                    <p
-                      className={`text-[10px] font-semibold leading-none ${
-                        status === "active"
-                          ? "text-white"
-                          : "text-muted-foreground"
-                      }`}
-                    >
-                      {index === 3
-                        ? formatDateShortID(wedding.weddingDate)
-                        : status === "done"
-                          ? "Selesai"
-                          : status === "active"
-                            ? "Aktif kini"
-                            : "Mendatang"}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-
-            <Link
-              to="/app/checklist"
-              className="mt-4 flex items-center gap-2.5 rounded-2xl bg-tint-sage p-3 text-tint-sage-foreground"
-            >
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-white/70">
-                <CheckCircle2 className="size-4" />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-[11px] font-semibold uppercase tracking-wider">Fokus saat ini</span>
-                <span className="mt-0.5 block text-xs font-bold leading-snug">
-                  {PHASES[activePhase].focus}
-                </span>
-              </span>
-              <ChevronRight className="size-4 shrink-0" />
-            </Link>
-          </div>
-        </section>
-      )}
-
-      {/* ── Daftar agenda penting ─────────────────────────────────────── */}
-      <section>
+      {/* ── Agenda penting ────────────────────────────────────────────── */}
+      <section className="clay col-span-2 space-y-2.5 p-3.5 sm:p-4 lg:col-span-2">
         <SectionHeader
-          title="Daftar agenda penting"
+          title="Agenda berikutnya"
           action={
             <Link
               to="/app/checklist"
@@ -539,9 +382,8 @@ export function HomePage() {
         />
         {checklist === undefined ? (
           <div className="space-y-2">
-            <Skeleton className="h-16 w-full rounded-2xl" />
-            <Skeleton className="h-16 w-full rounded-2xl" />
-            <Skeleton className="h-16 w-full rounded-2xl" />
+            <Skeleton className="h-12 w-full rounded-2xl" />
+            <Skeleton className="h-12 w-full rounded-2xl" />
           </div>
         ) : agendaItems.length === 0 ? (
           <EmptyState
@@ -552,13 +394,13 @@ export function HomePage() {
             onAction={() => navigate("/app/checklist")}
           />
         ) : (
-          <ul className="space-y-2">
-            {agendaItems.map((task, index) => {
+          <ul className="space-y-1.5">
+            {agendaItems.slice(0, 3).map((task, index) => {
               const priority = normalizePriority(task.priority);
               return (
                 <li
                   key={task._id}
-                  className="clay list-enter flex items-center gap-3 p-3.5"
+                  className="clay-inset list-enter flex items-center gap-2.5 rounded-xl p-2.5"
                   style={{ animationDelay: `${index * 55}ms` }}
                 >
                   <button
@@ -589,122 +431,6 @@ export function HomePage() {
                   >
                     {task.done ? "Selesai" : PRIORITY_LABEL[priority]}
                   </span>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
-
-      {/* ── Konsep & mood board ───────────────────────────────────────── */}
-      <section>
-        <SectionHeader
-          title="Konsep & mood board"
-          action={
-            <Link
-              to="/app/moodboard"
-              className="flex items-center gap-1 text-[11px] font-bold text-primary"
-            >
-              Detail <ArrowUpRight className="size-3" />
-            </Link>
-          }
-        />
-        {moodCategories === undefined ||
-        (firstMoodCategory !== undefined && moodBoxes === undefined) ? (
-          <Skeleton className="h-56 w-full rounded-3xl" />
-        ) : moodPhotos.length === 0 ? (
-          <EmptyState
-            emoji="🎨"
-            title="Belum ada inspirasi"
-            description="Kumpulkan referensi dekorasi, busana, dan makeup di mood board."
-            actionLabel="Buka mood board"
-            onAction={() => navigate("/app/moodboard")}
-          />
-        ) : (
-          <div className="clay overflow-hidden">
-            <div className="relative aspect-[16/10] w-full">
-              <img
-                src={moodPhotos[0].url}
-                alt={moodTitle}
-                className="h-full w-full object-cover"
-              />
-              <div className="photo-scrim absolute inset-0" />
-              <div className="absolute inset-x-0 bottom-0 p-4">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-white">Tema utama acara</p>
-                <p className="mt-1 font-serif text-lg font-semibold text-white">
-                  {moodTitle}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center justify-between gap-3 p-3.5">
-              <div className="flex gap-2">
-                {moodPhotos.slice(1, 5).map((photo, index) => (
-                  <img
-                    key={`${photo.url}-${index}`}
-                    src={photo.url}
-                    alt=""
-                    className="clay-sm size-11 rounded-xl object-cover"
-                  />
-                ))}
-              </div>
-              <p className="meta shrink-0">{moodPhotos.length} foto tersimpan</p>
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* ── Kontak darurat & tim inti ─────────────────────────────────── */}
-      <section>
-        <SectionHeader
-          title="Kontak darurat & tim inti"
-          action={
-            <Link
-              to="/app/vendor"
-              className="flex items-center gap-1 text-[11px] font-bold text-primary"
-            >
-              Semua vendor <ArrowUpRight className="size-3" />
-            </Link>
-          }
-        />
-        {vendors === undefined ? (
-          <div className="space-y-2">
-            <Skeleton className="h-16 w-full rounded-2xl" />
-            <Skeleton className="h-16 w-full rounded-2xl" />
-          </div>
-        ) : contactVendors.length === 0 ? (
-          <EmptyState
-            emoji="📞"
-            title="Belum ada kontak vendor"
-            description="Tambahkan vendor beserta nomor kontaknya agar mudah dihubungi."
-            actionLabel="Tambah vendor"
-            onAction={() => navigate("/app/vendor")}
-          />
-        ) : (
-          <ul className="space-y-2">
-            {contactVendors.map((vendor) => {
-              const wa = vendor.contact ? waLink(vendor.contact) : null;
-              return (
-                <li key={vendor._id} className="clay flex items-center gap-3 p-3.5">
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-tint-butter text-sm font-extrabold text-tint-butter-foreground">
-                    {vendor.name.trim().charAt(0).toUpperCase() || "?"}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-bold">
-                      {vendor.name}
-                    </span>
-                    <span className="meta block truncate">{vendor.category}</span>
-                  </span>
-                  {wa && (
-                    <a
-                      href={wa}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`Hubungi ${vendor.name}`}
-                      className="flex size-9 shrink-0 items-center justify-center rounded-full bg-tint-mint text-tint-mint-foreground transition hover:opacity-80"
-                    >
-                      <Phone className="size-4" />
-                    </a>
-                  )}
                 </li>
               );
             })}
