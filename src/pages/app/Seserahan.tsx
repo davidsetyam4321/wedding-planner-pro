@@ -1,3 +1,4 @@
+import { ChartCard, ChartTip } from "@/components/Charts";
 import {
   EmptyState,
   RowMenu,
@@ -31,6 +32,7 @@ import {
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 type Status = Doc<"seserahanItem">["status"];
 
@@ -43,24 +45,28 @@ const STATUSES: {
   label: string;
   icon: typeof Link2;
   surface: string;
+  color: string;
 }[] = [
   {
     value: "link",
     label: "Link",
     icon: Link2,
     surface: "bg-tint-butter text-tint-butter-foreground",
+    color: "var(--chart-3)",
   },
   {
     value: "cart",
     label: "Keranjang",
     icon: ShoppingCart,
     surface: "bg-tint-lavender text-tint-lavender-foreground",
+    color: "var(--chart-2)",
   },
   {
     value: "bought",
     label: "Dibeli",
     icon: CheckCircle2,
     surface: "bg-tint-mint text-tint-mint-foreground",
+    color: "var(--chart-1)",
   },
 ];
 
@@ -219,6 +225,7 @@ export function SeserahanPage() {
   const [quantity, setQuantity] = useState("1");
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<Status | null>(null);
 
   const total = items?.length ?? 0;
   const bought = (items ?? []).filter((i) => i.status === "bought").length;
@@ -229,6 +236,13 @@ export function SeserahanPage() {
   );
   const itemsWithPrice = (items ?? []).filter((item) => item.unitPrice !== undefined).length;
   const pct = total > 0 ? Math.round((bought / total) * 100) : 0;
+  const statusData = STATUSES.map((status) => ({
+    ...status,
+    count: (items ?? []).filter((item) => item.status === status.value).length,
+  }));
+  const visibleItems = (items ?? []).filter(
+    (item) => statusFilter === null || item.status === statusFilter,
+  );
 
   const openCreate = () => {
     setEditingId(null);
@@ -347,9 +361,62 @@ export function SeserahanPage() {
         </div>
       </section>
 
+      {total > 0 && (
+        <ChartCard
+          title="Tahap belanja"
+          meta={statusFilter ? "Pilih lagi untuk melepas filter" : "Pilih tahap untuk menyaring daftar"}
+        >
+          <div className="flex flex-col items-center gap-3 sm:flex-row">
+            <div className="h-40 w-full max-w-[220px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={statusData.filter((row) => row.count > 0)}
+                    dataKey="count"
+                    nameKey="label"
+                    innerRadius={48}
+                    outerRadius={70}
+                    paddingAngle={4}
+                    stroke="none"
+                    onClick={(entry) => {
+                      const value = entry.payload?.value as Status | undefined;
+                      if (!value) return;
+                      setStatusFilter((current) => current === value ? null : value);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    {statusData.filter((row) => row.count > 0).map((row) => (
+                      <Cell key={row.value} fill={row.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<ChartTip format={(value) => `${value} barang`} />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="grid w-full flex-1 grid-cols-1 gap-2 sm:grid-cols-3">
+              {statusData.map((status) => (
+                <button
+                  key={status.value}
+                  type="button"
+                  aria-pressed={statusFilter === status.value}
+                  onClick={() => setStatusFilter((current) => current === status.value ? null : status.value)}
+                  className={`flex min-h-14 items-center justify-between gap-2 rounded-xl px-3 text-left transition-colors ${statusFilter === status.value ? status.surface : "bg-secondary/60 hover:bg-secondary"}`}
+                >
+                  <span className="flex items-center gap-2 text-xs font-bold">
+                    <span className="size-2.5 rounded-full" style={{ backgroundColor: status.color }} />
+                    {status.label}
+                  </span>
+                  <span className="num text-lg font-extrabold">{status.count}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </ChartCard>
+      )}
+
       {/* ── Daftar ─────────────────────────────────────────────────── */}
       <SectionHeader
-        title="Daftar seserahan"
+        title={statusFilter ? `Daftar seserahan · ${STATUSES.find((s) => s.value === statusFilter)?.label}` : "Daftar seserahan"}
         action={
           <Button size="sm" className="rounded-xl" onClick={openCreate}>
             <Plus className="size-4" /> Tambah
@@ -371,9 +438,17 @@ export function SeserahanPage() {
           actionLabel="Tambah seserahan"
           onAction={openCreate}
         />
+      ) : visibleItems.length === 0 ? (
+        <EmptyState
+          emoji="🛍️"
+          title="Tidak ada barang di tahap ini"
+          description="Pilih tahap belanja lain pada grafik untuk melihat barangnya."
+          actionLabel="Lihat semua barang"
+          onAction={() => setStatusFilter(null)}
+        />
       ) : (
         <Stagger className="space-y-3">
-          {items.map((item) => (
+          {visibleItems.map((item) => (
             <StaggerItem key={item._id}>
               <SeserahanRow item={item} onEdit={openEdit} />
             </StaggerItem>

@@ -42,6 +42,8 @@ import {
 } from "@/lib/priority";
 import {
   Check,
+  ChevronLeft,
+  ChevronRight,
   GripVertical,
   Loader2,
   Plus,
@@ -113,6 +115,32 @@ const FILTERS: { key: Filter; label: string }[] = [
   { key: "selesai", label: "Selesai" },
 ];
 
+const CALENDAR_VIEWS: { key: CalendarView; label: string }[] = [
+  { key: "bulan", label: "Bulan" },
+  { key: "minggu", label: "Minggu" },
+  { key: "hari", label: "Hari" },
+];
+
+type CalendarView = "bulan" | "minggu" | "hari";
+
+const WEEKDAYS = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+
+function dayKey(date: Date): string {
+  return toDateInputValue(date.getTime());
+}
+
+function startOfWeek(date: Date): Date {
+  const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  start.setDate(start.getDate() - start.getDay());
+  return start;
+}
+
+function shiftDate(date: Date, days: number): Date {
+  const shifted = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  shifted.setDate(shifted.getDate() + days);
+  return shifted;
+}
+
 export function ChecklistPage() {
   const reducedMotion = useReducedMotion();
   const items = useQuery(api.checklist.list);
@@ -157,31 +185,139 @@ export function ChecklistPage() {
   const [priorityFilter, setPriorityFilter] = useState<
     "tinggi" | "sedang" | "rendah" | null
   >(null);
+  const [calendarView, setCalendarView] = useState<CalendarView>("bulan");
+  const [calendarDate, setCalendarDate] = useState(() => new Date());
+  const [selectedDay, setSelectedDay] = useState(() => dayKey(new Date()));
 
   const all = items ?? [];
   const open = all.filter((item) => !item.done);
   const done = all.filter((item) => item.done);
   const pct = all.length > 0 ? Math.round((done.length / all.length) * 100) : 0;
 
+  const monthStart = new Date(
+    calendarDate.getFullYear(),
+    calendarDate.getMonth(),
+    1,
+  );
+  const monthEnd = new Date(
+    calendarDate.getFullYear(),
+    calendarDate.getMonth() + 1,
+    1,
+  );
+  const monthTasks = all
+    .filter((item) => {
+      if (!item.dueDate) return false;
+      const due = new Date(item.dueDate);
+      return due >= monthStart && due < monthEnd;
+    })
+    .sort((a, b) =>
+      (a.dueDate ?? 0) - (b.dueDate ?? 0) || a.sortOrder - b.sortOrder,
+    );
+  const selectedDayTasks = all
+    .filter((item) => item.dueDate && dayKey(new Date(item.dueDate)) === selectedDay)
+    .sort((a, b) => (a.dueDate ?? 0) - (b.dueDate ?? 0));
+  const undatedTasks = all.filter((item) => !item.dueDate);
   const filtered =
     Boolean(query) || filter !== "semua" || priorityFilter !== null;
+  const listMonthDate =
+    calendarView === "bulan" ? calendarDate : new Date(`${selectedDay}T12:00:00`);
+  const listMonthStart = new Date(
+    listMonthDate.getFullYear(),
+    listMonthDate.getMonth(),
+    1,
+  );
+  const listMonthEnd = new Date(
+    listMonthDate.getFullYear(),
+    listMonthDate.getMonth() + 1,
+    1,
+  );
+  const listMonthLabel = listMonthDate.toLocaleDateString("id-ID", {
+    month: "long",
+    year: "numeric",
+  });
+
+  const calendarDays = (() => {
+    if (calendarView === "hari") return [new Date(`${selectedDay}T12:00:00`)];
+    if (calendarView === "minggu") {
+      const selected = new Date(`${selectedDay}T12:00:00`);
+      return Array.from({ length: 7 }, (_, index) =>
+        shiftDate(startOfWeek(selected), index),
+      );
+    }
+    const first = startOfWeek(monthStart);
+    const weekCount = Math.ceil(
+      (new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 0).getDate() +
+        monthStart.getDay()) /
+        7,
+    );
+    return Array.from({ length: weekCount * 7 }, (_, index) => shiftDate(first, index));
+  })();
+  const monthLabel = calendarDate.toLocaleDateString("id-ID", {
+    month: "long",
+    year: "numeric",
+  });
+  const calendarHeading =
+    calendarView === "hari"
+      ? new Date(`${selectedDay}T12:00:00`).toLocaleDateString("id-ID", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })
+      : calendarView === "minggu"
+        ? `${calendarDays[0]?.toLocaleDateString("id-ID", { day: "numeric", month: "short" })} – ${calendarDays[6]?.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}`
+        : monthLabel;
+
+  const moveCalendar = (direction: -1 | 1) => {
+    if (calendarView === "hari") {
+      const next = shiftDate(new Date(`${selectedDay}T12:00:00`), direction);
+      setSelectedDay(dayKey(next));
+      setCalendarDate(next);
+    } else if (calendarView === "minggu") {
+      const next = shiftDate(new Date(`${selectedDay}T12:00:00`), direction * 7);
+      setSelectedDay(dayKey(next));
+      setCalendarDate(next);
+    } else {
+      const next = new Date(
+        calendarDate.getFullYear(),
+        calendarDate.getMonth() + direction,
+        1,
+      );
+      setCalendarDate(next);
+      setSelectedDay(dayKey(next));
+    }
+  };
 
   const matches = (text: string) =>
     query.trim() === "" || text.toLowerCase().includes(query.trim().toLowerCase());
 
-  const visible = all.filter((item) => {
-    if (filter === "belum" && item.done) return false;
-    if (filter === "selesai" && !item.done) return false;
-    if (priorityFilter && normalizePriority(item.priority) !== priorityFilter)
-      return false;
-    return matches(item.label);
-  });
-  const visibleOpen = visible.filter((item) => !item.done);
-  const visibleDone = visible.filter((item) => item.done);
+  const visible = all
+    .filter((item) => {
+      if (filter === "belum" && item.done) return false;
+      if (filter === "selesai" && !item.done) return false;
+      if (priorityFilter && normalizePriority(item.priority) !== priorityFilter)
+        return false;
+      if (
+        item.dueDate &&
+        (new Date(item.dueDate) < listMonthStart || new Date(item.dueDate) >= listMonthEnd)
+      )
+        return false;
+      return matches(item.label);
+    })
+    .sort(
+      (a, b) =>
+        (a.dueDate ?? Number.POSITIVE_INFINITY) -
+          (b.dueDate ?? Number.POSITIVE_INFINITY) ||
+        a.sortOrder - b.sortOrder,
+    );
+  const visibleDated = visible.filter((item) => item.dueDate !== undefined);
+  const visibleOpen = visibleDated.filter((item) => !item.done);
+  const visibleDone = visibleDated.filter((item) => item.done);
+  const visibleUndated = visible.filter((item) => item.dueDate === undefined);
 
-  // Seret-untuk-mengurutkan hanya saat daftar utuh (tanpa pencarian/filter):
-  // menyeret di dalam hasil pencarian membuat urutan global jadi kabur.
-  const dragEnabled = !filtered && visibleOpen.length > 1;
+  // Daftar kalender selalu diurutkan berdasarkan tenggat; urutan manual tidak
+  // diaktifkan di tampilan ini agar drag tidak melawan urutan tanggal tersebut.
+  const dragEnabled = false;
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return;
@@ -411,6 +547,140 @@ export function ChecklistPage() {
 
   return (
     <div className="space-y-4">
+      <section className="clay space-y-4 p-4 sm:p-5" aria-label="Kalender tenggat checklist">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="label text-muted-foreground">Jadwal checklist</p>
+            <p className="mt-1 font-serif text-xl font-semibold capitalize">{calendarHeading}</p>
+          </div>
+          <div className="flex items-center gap-1 rounded-xl bg-secondary p-1" aria-label="Tampilan kalender">
+            {CALENDAR_VIEWS.map(({ key: view, label: viewLabel }) => (
+              <button
+                key={view}
+                type="button"
+                aria-pressed={calendarView === view}
+                onClick={() => setCalendarView(view)}
+                className={`min-h-10 rounded-lg px-3 text-xs font-bold capitalize transition-colors ${
+                  calendarView === view
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {viewLabel}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-1">
+            <Button variant="outline" size="icon" className="size-10 rounded-xl" aria-label="Periode sebelumnya" onClick={() => moveCalendar(-1)}>
+              <ChevronLeft className="size-4" />
+            </Button>
+            <Button variant="outline" className="h-10 rounded-xl px-3 text-xs" onClick={() => {
+              const today = new Date();
+              setCalendarDate(today);
+              setSelectedDay(dayKey(today));
+            }}>Hari ini</Button>
+            <Button variant="outline" size="icon" className="size-10 rounded-xl" aria-label="Periode berikutnya" onClick={() => moveCalendar(1)}>
+              <ChevronRight className="size-4" />
+            </Button>
+          </div>
+          <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+            Filter bulan
+            <Input
+              type="month"
+              aria-label="Pilih bulan checklist"
+              className="h-10 w-40 rounded-xl"
+              value={`${calendarDate.getFullYear()}-${String(calendarDate.getMonth() + 1).padStart(2, "0")}`}
+              onChange={(event) => {
+                if (!event.target.value) return;
+                const [year, month] = event.target.value.split("-").map(Number);
+                const next = new Date(year, month - 1, 1);
+                setCalendarDate(next);
+                setSelectedDay(dayKey(next));
+              }}
+            />
+          </label>
+        </div>
+        {calendarView !== "hari" && (
+          <div className="grid grid-cols-7 gap-1 text-center">
+            {WEEKDAYS.map((weekday) => (
+              <span key={weekday} className="py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{weekday}</span>
+            ))}
+          </div>
+        )}
+        <div className={`grid gap-1 ${calendarView === "hari" ? "grid-cols-1" : "grid-cols-7"}`}>
+          {calendarDays.map((date) => {
+            const key = dayKey(date);
+            const dayTasks = all
+              .filter((item) => item.dueDate && dayKey(new Date(item.dueDate)) === key)
+              .sort((a, b) => (a.dueDate ?? 0) - (b.dueDate ?? 0));
+            const inMonth = date.getMonth() === calendarDate.getMonth();
+            const isSelected = selectedDay === key;
+            const isToday = dayKey(new Date()) === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                aria-label={`${date.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" })}, ${dayTasks.length} tugas`}
+                aria-pressed={isSelected}
+                onClick={() => {
+                  setSelectedDay(key);
+                  setCalendarDate(date);
+                }}
+                className={`min-h-16 rounded-xl border p-1.5 text-left transition-colors sm:min-h-24 sm:p-2 ${
+                  isSelected
+                    ? "border-primary bg-primary/10 ring-1 ring-primary/30"
+                    : "border-transparent bg-background/60 hover:border-border hover:bg-secondary/70"
+                } ${calendarView === "bulan" && !inMonth ? "opacity-45" : ""}`}
+              >
+                <span className={`flex size-7 items-center justify-center rounded-full text-xs font-bold ${isToday ? "bg-primary text-primary-foreground" : ""}`}>
+                  {date.getDate()}
+                </span>
+                {dayTasks.length > 0 && (
+                  <span className="mt-1 block space-y-0.5">
+                    {dayTasks.slice(0, calendarView === "bulan" ? 1 : 3).map((task) => (
+                      <span key={task._id} className={`block truncate rounded-md px-1 py-0.5 text-[9px] font-semibold sm:text-[10px] ${task.done ? "bg-tint-sage/60 text-muted-foreground line-through" : "bg-tint-butter text-tint-butter-foreground"}`}>
+                        {task.label}
+                      </span>
+                    ))}
+                    {dayTasks.length > (calendarView === "bulan" ? 1 : 3) && (
+                      <span className="block px-1 text-[9px] font-bold text-muted-foreground">+{dayTasks.length - (calendarView === "bulan" ? 1 : 3)} tugas</span>
+                    )}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+        <div className="rounded-2xl bg-secondary/60 p-3">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <p className="label capitalize">Tenggat {new Date(`${selectedDay}T12:00:00`).toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" })}</p>
+            <span className="chip bg-background text-muted-foreground">{selectedDayTasks.length} tugas</span>
+          </div>
+          {selectedDayTasks.length ? (
+            <ul className="space-y-1.5">
+              {selectedDayTasks.map((task) => (
+                <li key={task._id} className="flex items-center gap-2 text-sm">
+                  <button
+                    type="button"
+                    aria-label={task.done ? "Tandai belum selesai" : "Tandai selesai"}
+                    aria-pressed={Boolean(task.done)}
+                    onClick={() => void toggleItem({ itemId: task._id, done: !task.done })}
+                    className={`flex size-7 shrink-0 items-center justify-center rounded-full ${task.done ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground"}`}
+                  ><Check className="size-3" /></button>
+                  <span className={`min-w-0 flex-1 truncate ${task.done ? "text-muted-foreground line-through" : ""}`}>{task.label}</span>
+                  <span className="text-[10px] font-bold uppercase text-muted-foreground">{PRIORITY_LABEL[normalizePriority(task.priority)]}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-xs text-muted-foreground">Belum ada tugas dengan tenggat pada tanggal ini.</p>
+          )}
+        </div>
+        <p className="text-[11px] text-muted-foreground">{monthTasks.length} tugas bertenggat pada {monthLabel} · daftar di bawah mengikuti tenggat terdekat</p>
+      </section>
+
       <section className="clay p-5">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -612,7 +882,16 @@ export function ChecklistPage() {
         </div>
       </section>
 
-      <section className="space-y-3">
+      <section className="space-y-3" aria-label={`Daftar tugas bulan ${listMonthLabel}`}>
+        <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+          <div>
+            <p className="label text-muted-foreground">Daftar tenggat</p>
+            <p className="text-sm font-semibold capitalize">{listMonthLabel} · {all.filter((item) => item.dueDate && new Date(item.dueDate) >= listMonthStart && new Date(item.dueDate) < listMonthEnd).length} tugas terjadwal</p>
+          </div>
+          {undatedTasks.length > 0 && (
+            <span className="chip bg-secondary text-secondary-foreground">{undatedTasks.length} tanpa tenggat</span>
+          )}
+        </div>
         <div className="clay-inset flex gap-1.5 p-1.5">
           {FILTERS.map((option) => (
             <button
@@ -724,18 +1003,33 @@ export function ChecklistPage() {
           </button>
         )}
 
+        {visibleUndated.length > 0 && (
+          <section className="space-y-2" aria-label="Tugas tanpa tenggat">
+            <p className="label px-1 text-muted-foreground">Belum dijadwalkan · {visibleUndated.length}</p>
+            <ul className="space-y-2">
+              <AnimatePresence>
+                {visibleUndated.map((item) => renderItem(item))}
+              </AnimatePresence>
+            </ul>
+          </section>
+        )}
+
         {visible.length === 0 && items !== undefined && (
           <EmptyState
             emoji={filtered ? "🔍" : "📝"}
             title={
               filtered
                 ? "Tidak ada tugas yang cocok"
-                : "Belum ada tugas"
+                : all.length > 0
+                  ? `Tidak ada tugas pada ${listMonthLabel}`
+                  : "Belum ada tugas"
             }
             description={
               filtered
                 ? "Coba kata kunci lain atau ganti filter."
-                : "Tuliskan satu per satu, atau tempel daftar tugas sekaligus."
+                : all.length > 0
+                  ? "Pilih bulan lain di kalender atau lihat tugas tanpa tenggat di bagian ini."
+                  : "Tuliskan satu per satu, atau tempel daftar tugas sekaligus."
             }
             actionLabel={filtered ? undefined : "Tempel banyak tugas"}
             onAction={filtered ? undefined : () => setBulkOpen(true)}

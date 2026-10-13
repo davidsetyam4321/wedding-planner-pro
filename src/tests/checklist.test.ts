@@ -1,6 +1,7 @@
 import { convexTest, type TestConvex } from "convex-test";
 import { describe, expect, it } from "vitest";
 import { api } from "../convex/_generated/api";
+import { fromDateInputValue } from "../lib/format";
 import schema from "../convex/schema";
 
 /**
@@ -24,6 +25,25 @@ async function makeWorkspace(t: Test) {
   await as.mutation(api.wedding.ensureSetup, {});
   return { userId, as };
 }
+
+describe("tenggat checklist", () => {
+  it("menyimpan tanggal deadline yang dapat ditampilkan kalender", async () => {
+    const t = t0();
+    const { as } = await makeWorkspace(t);
+    const dueDate = fromDateInputValue("2026-11-18");
+
+    const id = await as.mutation(api.checklist.create, {
+      label: "Finalisasi undangan",
+      dueDate,
+    });
+    const item = (await as.query(api.checklist.list, {})).find((row) => row._id === id);
+
+    expect(item?.dueDate).toBe(dueDate);
+    expect(new Date(item!.dueDate!).getFullYear()).toBe(2026);
+    expect(new Date(item!.dueDate!).getMonth()).toBe(10);
+    expect(new Date(item!.dueDate!).getDate()).toBe(18);
+  });
+});
 
 describe("penyusunan ulang checklist", () => {
   it("menyimpan urutan baru sesuai posisi array", async () => {
