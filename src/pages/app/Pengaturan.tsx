@@ -3,6 +3,10 @@ import { BackLink, SectionHeader } from "@/components/Shared";
 import { coupleInitials, useCouplePhotoUpload } from "@/components/CouplePhoto";
 import { RingsMark } from "@/components/Decor";
 import { PaletteSection } from "@/components/PaletteSettings";
+import { useVisualStyle } from "@/components/VisualStyleProvider";
+import { Switch } from "@/components/ui/switch";
+import { Label as UiLabel } from "@/components/ui/label";
+import { Sparkles } from "@/lib/icons";
 import PixelTransition from "@/components/reactbits/PixelTransition";
 import {
   AlertDialog,
@@ -36,6 +40,7 @@ export function PengaturanPage() {
   const removeVendorType = useMutation(api.wedding.removeVendorCategory);
   const vendors = useQuery(api.vendors.list);
   const { uploading, openPicker, inputProps } = useCouplePhotoUpload();
+  const { style, setStyle } = useVisualStyle();
   const [saving, setSaving] = useState(false);
   const [newVendorType, setNewVendorType] = useState("");
   const [typeBusy, setTypeBusy] = useState(false);
@@ -155,6 +160,24 @@ export function PengaturanPage() {
             <p className="meta mt-1">Data ini dipakai di seluruh halaman</p>
           </div>
         </div>
+      </section>
+
+      <section className="clay flex items-center justify-between gap-4 p-5">
+        <div className="flex items-center gap-3">
+          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-tint-lavender text-tint-lavender-foreground">
+            <Sparkles className="size-5" />
+          </div>
+          <div>
+            <UiLabel htmlFor="visual-style" className="font-semibold">Tampilan Unlumen</UiLabel>
+            <p className="meta mt-1">Gaya baru, kaca lembut, dan animasi. Matikan untuk kembali ke tampilan sebelumnya.</p>
+          </div>
+        </div>
+        <Switch
+          id="visual-style"
+          checked={style === "unlumen"}
+          onCheckedChange={(enabled) => setStyle(enabled ? "unlumen" : "classic")}
+          aria-label="Aktifkan tampilan Unlumen"
+        />
       </section>
 
       <PaletteSection />

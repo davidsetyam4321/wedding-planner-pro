@@ -1,6 +1,7 @@
 import { RingsMark } from "@/components/Decor";
 import { coupleInitials } from "@/components/CouplePhoto";
 import { NotificationBell } from "@/components/AppShellNav";
+import { FloatingTooltip } from "@/components/unlumen-ui/floating-tooltip";
 import { FEATURES } from "@/lib/features";
 import { countdownLabel } from "@/lib/format";
 import { Settings } from "@/lib/icons";
@@ -93,28 +94,29 @@ export function SideNav({
 
       {/* SEMUA fitur, satu daftar — bukan lagi dipisah "utama/Alat" */}
       <nav className="flex flex-col gap-1">
-        {FEATURES.map(({ to, label, icon: Icon, surface }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === "/app"}
-            className={({ isActive }) =>
-              `flex items-center gap-2.5 rounded-full px-3 py-2.5 text-sm font-medium transition-colors ${
-                isActive
-                  ? `${surface} shadow-sm`
-                  : "text-muted-foreground hover:bg-mist-gray hover:text-foreground"
-              }`
-            }
-            title={label}
-          >
-            <Icon className="size-4" weight="regular" />
-            <span className="truncate">{label}</span>
-            {to === "/app/checklist" && extra && extra.openTasks > 0 && (
-              <span className="ml-auto shrink-0 rounded-full bg-midnight-navy px-1.5 py-0.5 text-[10px] font-bold text-white">
-                {extra.openTasks > 9 ? "9+" : extra.openTasks}
-              </span>
-            )}
-          </NavLink>
+        {FEATURES.map(({ to, label, desc, icon: Icon, surface }) => (
+          <FloatingTooltip.Trigger key={to} content={label} description={desc}>
+            <NavLink
+              to={to}
+              end={to === "/app"}
+              className={({ isActive }) =>
+                `flex items-center gap-2.5 rounded-full px-3 py-2.5 text-sm font-medium transition-colors ${
+                  isActive
+                    ? `${surface} shadow-sm`
+                    : "text-muted-foreground hover:bg-mist-gray hover:text-foreground"
+                }`
+              }
+              title={label}
+            >
+              <Icon className="size-4" weight="regular" />
+              <span className="truncate">{label}</span>
+              {to === "/app/checklist" && extra && extra.openTasks > 0 && (
+                <span className="ml-auto shrink-0 rounded-full bg-midnight-navy px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  {extra.openTasks > 9 ? "9+" : extra.openTasks}
+                </span>
+              )}
+            </NavLink>
+          </FloatingTooltip.Trigger>
         ))}
       </nav>
 

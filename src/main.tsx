@@ -9,6 +9,8 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router";
 import { AppPalette, DefaultPalette } from "@/components/PaletteProvider";
 import ClickSpark from "@/components/reactbits/ClickSpark";
+import { VisualStyleProvider } from "@/components/VisualStyleProvider";
+import { FloatingTooltip } from "@/components/unlumen-ui/floating-tooltip";
 import { MotionConfig } from "framer-motion";
 import { IconContext } from "@phosphor-icons/react";
 import "./index.css";
@@ -233,6 +235,8 @@ createRoot(document.getElementById("root")!).render(
           <RouteSyncer />
           <RoutePalette />
           <ClickSpark sparks={5} sparkSize={12} radius={20} duration={320} sparkColor="var(--color-gold)" />
+          <VisualStyleProvider>
+          <FloatingTooltip.Provider variant="outline" size="md" className="z-[70] border-gold/30 bg-card/95 text-foreground shadow-xl backdrop-blur-xl">
           <Suspense fallback={<RouteLoading />}>
             <AutoSession>
               <Routes>
@@ -257,6 +261,8 @@ createRoot(document.getElementById("root")!).render(
               </Routes>
             </AutoSession>
           </Suspense>
+          </FloatingTooltip.Provider>
+          </VisualStyleProvider>
         </BrowserRouter>
         </IconContext.Provider>
         </MotionConfig>
