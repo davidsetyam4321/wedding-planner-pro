@@ -346,7 +346,7 @@ export function AppShell() {
   }
 
   return (
-    <div className="app-workspace relative isolate mx-auto flex min-h-screen w-full max-w-7xl">
+    <div className="app-workspace relative isolate mx-auto flex min-h-screen w-full max-w-[1680px]">
       <div aria-hidden="true" className="app-photo-backdrop">
           <BotanicalTexture className="botanical-texture absolute inset-0 size-full" />
         </div>
@@ -376,7 +376,7 @@ export function AppShell() {
       <PetalsFront />
 
       <a href="#planner-content" className="skip-link">Langsung ke isi perencanaan</a>
-      <header className="mx-auto w-full max-w-md px-3 pt-3 sm:px-4 lg:max-w-3xl lg:px-10 lg:pt-4">
+      <header className="mx-auto w-full max-w-md px-3 pt-3 sm:px-4 lg:max-w-[1520px] lg:px-12 lg:pt-5 xl:px-16 2xl:px-20">
         <div className="flex flex-wrap gap-1.5">
         <div className="hidden lg:flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-[11px] font-medium text-foreground backdrop-blur-md">
           <span className="size-1.5 animate-pulse rounded-full bg-atmosphere-blue" />
@@ -421,7 +421,7 @@ export function AppShell() {
         </div>
       </header>
 
-      <main id="planner-content" ref={mainRef} tabIndex={-1} aria-label={pageTitle || "Ringkasan perencanaan"} className="mx-auto w-full max-w-md px-3 pt-3 sm:px-4 lg:max-w-3xl lg:px-10 lg:pt-4">
+      <main id="planner-content" ref={mainRef} tabIndex={-1} aria-label={pageTitle || "Ringkasan perencanaan"} className="mx-auto w-full max-w-md px-3 pt-3 sm:px-4 lg:max-w-[1520px] lg:px-12 lg:pt-6 xl:px-16 2xl:px-20">
         <SignupBanner show={showSignupBanner} />
         {/* Entrance only: no delayed exit that can render the wrong Outlet. */}
         <motion.div

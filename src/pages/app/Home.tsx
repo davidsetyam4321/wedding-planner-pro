@@ -59,16 +59,16 @@ function CountdownTimer({ weddingDate }: { weddingDate: number }) {
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-1.5 text-center sm:gap-2">
+    <div className="grid grid-cols-4 gap-1.5 text-center sm:gap-2 lg:gap-3">
       {cells.map((cell) => (
         <div
           key={cell.label}
-          className="flex flex-col items-center rounded-xl bg-white/15 py-1.5 shadow-sm backdrop-blur-md sm:rounded-2xl sm:py-2.5"
+          className="flex flex-col items-center rounded-xl bg-white/15 py-1.5 shadow-sm backdrop-blur-md sm:rounded-2xl sm:py-2.5 lg:py-3"
         >
-          <p key={cell.value} className="countdown-digit num font-serif text-lg font-semibold leading-tight text-white sm:text-[1.35rem]">
+          <p key={cell.value} className="countdown-digit num font-serif text-lg font-semibold leading-tight text-white sm:text-[1.35rem] lg:text-2xl">
             {String(cell.value).padStart(2, "0")}
           </p>
-          <p className="mt-0.5 text-[9px] font-semibold uppercase tracking-wider text-white sm:text-[11px]">
+          <p className="mt-0.5 text-[9px] font-semibold uppercase tracking-wider text-white sm:text-[11px] lg:text-xs">
             {cell.label}
           </p>
         </div>
@@ -113,10 +113,10 @@ function SummaryCard({
         <span className="text-xs font-bold text-muted-foreground">{label}</span>
         <Icon className={`size-4 shrink-0 ${toneStyles.icon}`} />
       </span>
-      <span className="mt-1.5 block truncate font-serif text-lg font-semibold leading-tight sm:mt-2 sm:text-xl">
+      <span className="mt-1.5 block truncate font-serif text-lg font-semibold leading-tight sm:mt-2 sm:text-xl lg:text-2xl">
         {numericValue === undefined ? value : <CountUp to={numericValue} duration={0.5} />}
       </span>
-      <span className="mt-1 block text-[11px] leading-snug text-muted-foreground sm:text-xs sm:leading-relaxed">
+      <span className="mt-1 block text-[11px] leading-snug text-muted-foreground sm:text-xs sm:leading-relaxed lg:text-[13px]">
         {detail}
       </span>
       <span className="mt-3 block h-1.5 overflow-hidden rounded-full bg-mist-gray">
@@ -179,12 +179,12 @@ export function HomePage() {
   };
 
   return (
-    <div className="grid grid-cols-2 items-start gap-2.5 sm:gap-4 lg:grid-cols-4">
+    <div className="grid grid-cols-2 items-start gap-2.5 sm:gap-4 lg:grid-cols-4 lg:gap-5 xl:grid-cols-12 xl:gap-6">
       <input type="file" accept="image/*" className="hidden" {...inputProps} />
 
       {/* ── Pill sinkronisasi ────────────────────────────────── */}
       {wedding && (
-        <div className="col-span-2 flex items-center justify-between rounded-full border border-atmosphere-blue/30 bg-white/60 px-3 py-1.5 text-[11px] font-medium text-muted-foreground backdrop-blur-md lg:col-span-4">
+        <div className="col-span-2 flex items-center justify-between rounded-full border border-atmosphere-blue/30 bg-white/60 px-3 py-1.5 text-[11px] font-medium text-muted-foreground backdrop-blur-md lg:col-span-4 lg:px-4 lg:py-2 xl:col-span-12">
           <span className="flex items-center gap-1.5">
             <span className="size-2 animate-pulse rounded-full bg-atmosphere-blue" />
             Sinkronisasi otomatis
@@ -203,12 +203,12 @@ export function HomePage() {
 
       {/* ── Hero: menuju janji suci + hitung mundur ────────── */}
       {!wedding ? (
-        <Skeleton className="col-span-2 h-52 w-full rounded-3xl lg:col-span-2" />
+        <Skeleton className="col-span-2 h-52 w-full rounded-3xl lg:col-span-2 xl:col-span-5 xl:h-64" />
       ) : (
         <AnimatedContent
           distance={50}
           threshold={0.05}
-          className="sky-band relative col-span-2 overflow-hidden rounded-2xl p-3 shadow-float sm:rounded-3xl sm:p-5 lg:col-span-2"
+          className="sky-band relative col-span-2 overflow-hidden rounded-2xl p-3 shadow-float sm:rounded-3xl sm:p-5 lg:col-span-2 lg:p-6 xl:col-span-5 xl:p-7"
         >
           {/* Selalu ada lukisan langit di belakang; foto pasangan menimpa jika diunggah */}
           {!couplePhoto && (
@@ -259,11 +259,11 @@ export function HomePage() {
           </div>
 
           {/* Nama pasangan sebagai tanda tangan script — titik personal ala undangan. */}
-          <p className="signature relative z-10 mt-1 text-[1.75rem] leading-tight text-white sm:text-[2.15rem]">
+          <p className="signature relative z-10 mt-1 text-[1.75rem] leading-tight text-white sm:text-[2.15rem] lg:text-4xl xl:text-[2.75rem]">
             {`${wedding.partnerOneName} & ${wedding.partnerTwoName}`}
           </p>
 
-          <div className="relative z-10 mt-2 max-w-sm sm:mt-3">
+          <div className="relative z-10 mt-2 max-w-sm sm:mt-3 xl:max-w-lg">
             <CountdownTimer weddingDate={wedding.weddingDate} />
           </div>
 
@@ -287,7 +287,7 @@ export function HomePage() {
 
 
       {/* ── Ringkasan persiapan ───────────────────────────────────────── */}
-      <section className="col-span-2 lg:col-span-2">
+      <section className="col-span-2 lg:col-span-2 xl:col-span-7">
         <SectionHeader title="Ringkasan" />
         {budget === undefined || checklist === undefined || guests === undefined ? (
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -296,7 +296,7 @@ export function HomePage() {
             <Skeleton className="col-span-2 h-24 rounded-2xl sm:col-span-1" />
           </div>
         ) : (
-          <Stagger className="grid grid-cols-2 gap-2 sm:gap-3">
+          <Stagger className="grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-3">
             <StaggerItem>
               <SummaryCard
                 to="/app/checklist"
@@ -337,7 +337,7 @@ export function HomePage() {
       </section>
 
       {/* ── Aksi cepat — grid 2×2, selalu terlihat tanpa scroll ────── */}
-      <section className="clay col-span-2 space-y-2 p-3 sm:space-y-2.5 sm:p-4 lg:col-span-2">
+      <section className="clay col-span-2 space-y-2 p-3 sm:space-y-2.5 sm:p-4 lg:col-span-2 lg:p-5 xl:col-span-5 xl:p-6">
         <SectionHeader title="Aksi cepat" />
         <Stagger className="grid grid-cols-2 gap-1.5 sm:gap-2">
           {[
@@ -367,7 +367,7 @@ export function HomePage() {
       </section>
 
       {/* ── Agenda penting ────────────────────────────────────────────── */}
-      <section className="clay col-span-2 space-y-2 p-3 sm:space-y-2.5 sm:p-4 lg:col-span-2">
+      <section className="clay col-span-2 space-y-2 p-3 sm:space-y-2.5 sm:p-4 lg:col-span-2 lg:p-5 xl:col-span-5 xl:p-6">
         <SectionHeader
           title="Agenda berikutnya"
           action={
