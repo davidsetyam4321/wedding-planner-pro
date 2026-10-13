@@ -358,18 +358,8 @@ export function AppShell() {
           defaultTarget={wedding.fundTarget}
         />
       )}
-      <SideNav
-        status={workspace}
-        extra={{
-          openTasks,
-          wedding: wedding ?? undefined,
-          couplePhoto,
-          status: workspace,
-          savingsNote,
-          reminders,
-        }}
-      />
-      <div className="sky-wash relative z-10 min-w-0 flex-1 pb-28 lg:pb-10">
+      <SideNav extra={{ openTasks }} />
+      <div className="sky-wash relative z-10 min-w-0 flex-1 pb-32 lg:pb-28">
       {/* Ambient wash — atmosphere-blue sky tint mengikuti rute aktif */}
       <div
         aria-hidden="true"
@@ -386,7 +376,7 @@ export function AppShell() {
       <PetalsFront />
 
       <a href="#planner-content" className="skip-link">Langsung ke isi perencanaan</a>
-      <header className="mx-auto w-full max-w-md px-4 pt-4 lg:max-w-3xl lg:px-10">
+      <header className="mx-auto w-full max-w-md px-3 pt-3 sm:px-4 lg:max-w-3xl lg:px-10 lg:pt-4">
         <div className="flex flex-wrap gap-1.5">
         <div className="hidden lg:flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-[11px] font-medium text-foreground backdrop-blur-md">
           <span className="size-1.5 animate-pulse rounded-full bg-atmosphere-blue" />
@@ -431,7 +421,7 @@ export function AppShell() {
         </div>
       </header>
 
-      <main id="planner-content" ref={mainRef} tabIndex={-1} aria-label={pageTitle || "Ringkasan perencanaan"} className="mx-auto w-full max-w-md px-4 pt-4 lg:max-w-3xl lg:px-10">
+      <main id="planner-content" ref={mainRef} tabIndex={-1} aria-label={pageTitle || "Ringkasan perencanaan"} className="mx-auto w-full max-w-md px-3 pt-3 sm:px-4 lg:max-w-3xl lg:px-10 lg:pt-4">
         <SignupBanner show={showSignupBanner} />
         {/* Entrance only: no delayed exit that can render the wrong Outlet. */}
         <motion.div

@@ -1,181 +1,73 @@
-import { RingsMark } from "@/components/Decor";
-import { coupleInitials } from "@/components/CouplePhoto";
-import { NotificationBell } from "@/components/AppShellNav";
 import { FloatingTooltip } from "@/components/unlumen-ui/floating-tooltip";
 import { FEATURES } from "@/lib/features";
-import { countdownLabel } from "@/lib/format";
 import { Settings } from "@/lib/icons";
 import { NavLink, Link } from "react-router";
 
-type SyncInfo = {
-  isAnonymous: boolean;
-  email: string | null;
-  connectedEmail: string | null;
-} | null | undefined;
+type SideNavExtra = { openTasks: number };
 
-type SideNavExtra = {
-  /** Jumlah tugas terbuka — badge di item Checklist. */
-  openTasks: number;
-  wedding:
-    | (Partial<{
-        venueName: string;
-        onboarded: boolean;
-      }> & {
-        weddingDate: number;
-        partnerOneName: string;
-        partnerTwoName: string;
-      })
-    | null
-    | undefined;
-  couplePhoto: string | null | undefined;
-  /** Status sinkron lengkap untuk bell (dengan inviteCode). */
-  status:
-    | {
-        isAnonymous: boolean;
-        email: string | null;
-        connectedEmail: string | null;
-        inviteCode: string | null;
-      }
-    | null
-    | undefined;
-  /** Catatan tabungan untuk bell. */
-  savingsNote: string | null;
-  /** Pengingat tugas/vendor untuk bell. */
-  reminders: {
-    id: string;
-    label: string;
-    dueDate: number;
-    overdue: boolean;
-    daysLeft: number;
-  }[];
-};
-
-/**
- * Satu-satunya tempat navigasi (desktop): brand, SELURUH fitur, dan aksi
- * akun — sebelumnya terbagi dengan header atas yang kini dihapus.
- */
-export function SideNav({
-  status,
-  extra,
-}: {
-  status: SyncInfo;
-  extra?: SideNavExtra;
-}) {
-  const wedding = extra?.wedding;
-  const daysLabel =
-    wedding && wedding.onboarded ? countdownLabel(wedding.weddingDate) : undefined;
-
+/** Navigasi desktop sebagai dock mengambang dengan label Unlumen saat hover. */
+export function SideNav({ extra }: { extra?: SideNavExtra }) {
   return (
     <aside
-      aria-label="Navigasi utama"
-      className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col gap-4 border-r border-white/50 bg-white/55 px-5 py-6 shadow-[8px_0_36px_rgba(60,40,35,0.04)] backdrop-blur-2xl dark:border-white/10 dark:bg-slate-950/55 lg:flex"
+      aria-label="Navigasi desktop"
+      className="pointer-events-none fixed inset-x-0 bottom-4 z-40 hidden justify-center px-4 lg:flex"
     >
-      {/* Brand + nama pasangan + hitung mundur — menggantikan blok kiri header */}
-      <Link to="/app" className="flex items-center gap-3">
-        <span className="flex size-11 items-center justify-center rounded-full border border-foreground/10 bg-midnight-navy">
-          <RingsMark className="size-6 text-white" />
-        </span>
-        <span className="min-w-0">
-          <span className="block font-serif text-xl font-light leading-tight text-primary">
-            SatuJanji
-          </span>
-          {wedding ? (
-            <span className="meta block truncate">
-              {wedding.partnerOneName} & {wedding.partnerTwoName}
-              {daysLabel && (
-                <span className="text-primary"> · {daysLabel}</span>
-              )}
-            </span>
-          ) : (
-            <span className="meta block">Rencana pernikahan untuk berdua</span>
-          )}
-        </span>
-      </Link>
-
-      {/* SEMUA fitur, satu daftar — bukan lagi dipisah "utama/Alat" */}
-      <nav className="flex flex-col gap-1">
-        {FEATURES.map(({ to, label, desc, icon: Icon, surface }) => (
-          <FloatingTooltip.Trigger key={to} content={label} description={desc}>
-            <NavLink
-              to={to}
-              end={to === "/app"}
-              className={({ isActive }) =>
-                `flex items-center gap-2.5 rounded-full px-3 py-2.5 text-sm font-medium transition-colors ${
-                  isActive
-                    ? `${surface} shadow-sm`
-                    : "text-muted-foreground hover:bg-mist-gray hover:text-foreground"
-                }`
-              }
-              title={label}
-            >
-              <Icon className="size-4" weight="regular" />
-              <span className="truncate">{label}</span>
-              {to === "/app/checklist" && extra && extra.openTasks > 0 && (
-                <span className="ml-auto shrink-0 rounded-full bg-midnight-navy px-1.5 py-0.5 text-[10px] font-bold text-white">
-                  {extra.openTasks > 9 ? "9+" : extra.openTasks}
-                </span>
-              )}
-            </NavLink>
-          </FloatingTooltip.Trigger>
-        ))}
-      </nav>
-
-      <div className="mt-auto space-y-2">
-        {/* Bell + avatar — aksi header dipindah ke sini, ikut ke bawah panel */}
-        {extra && (
-          <div className="flex items-center justify-between gap-2 px-1">
-            <NotificationBell
-              wedding={extra.wedding}
-              openTasks={extra.openTasks}
-              workspace={extra.status}
-              savingsNote={extra.savingsNote}
-              reminders={extra.reminders}
-            />
-            <Link
-              to="/app/pengaturan"
-              aria-label="Pengaturan / foto pasangan"
-              className="block size-9 shrink-0 overflow-hidden rounded-full p-0.5 ring-2 ring-gold/50 transition-shadow hover:ring-gold"
-            >
-              {extra.couplePhoto ? (
-                <img
-                  src={extra.couplePhoto}
-                  alt="Foto pasangan"
-                  className="h-full w-full rounded-full object-cover"
-                />
-              ) : (
-                <span className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-primary via-primary to-gold-deep font-serif text-[13px] font-semibold tracking-wide text-primary-foreground">
-                  {coupleInitials(
-                    wedding?.partnerOneName,
-                    wedding?.partnerTwoName,
-                  )}
-                </span>
-              )}
-            </Link>
-          </div>
+      <nav className="pointer-events-auto flex max-w-[calc(100vw-2rem)] items-center gap-1 rounded-2xl border border-white/80 bg-[color-mix(in_srgb,var(--background)_88%,white_12%)] p-2 shadow-[0_12px_36px_rgba(40,31,24,0.16)] backdrop-blur-2xl dark:border-white/15 dark:bg-slate-950/85">
+        <FloatingTooltip.Trigger content="SatuJanji" description="Beranda perencanaan pernikahan">
+          <Link
+            to="/app"
+            aria-label="SatuJanji — Beranda"
+            className="flex size-11 shrink-0 items-center justify-center rounded-xl text-primary transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <span className="font-serif text-xl leading-none">SJ</span>
+          </Link>
+        </FloatingTooltip.Trigger>
+        <span aria-hidden="true" className="mx-1 h-7 w-px bg-border/80" />
+        {FEATURES.filter((feature) => feature.to !== "/app").map(
+          ({ to, label, desc, icon: Icon, surface }) => (
+            <FloatingTooltip.Trigger key={to} content={label} description={desc}>
+              <NavLink
+                to={to}
+                aria-label={label}
+                className={({ isActive }) =>
+                  `relative flex size-11 shrink-0 items-center justify-center rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                    isActive
+                      ? `${surface} shadow-sm`
+                      : "text-muted-foreground hover:-translate-y-0.5 hover:bg-secondary hover:text-foreground"
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <Icon className="size-[18px]" weight={isActive ? "fill" : "regular"} />
+                    {to === "/app/checklist" && (extra?.openTasks ?? 0) > 0 && (
+                      <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-berry-red text-[9px] font-bold text-white">
+                        {(extra?.openTasks ?? 0) > 9 ? "9+" : extra?.openTasks}
+                      </span>
+                    )}
+                  </>
+                )}
+              </NavLink>
+            </FloatingTooltip.Trigger>
+          ),
         )}
-
-        <div className="clay-inset flex items-center gap-2.5 rounded-2xl px-3 py-2.5">
-          <span
-            className={`size-2 shrink-0 rounded-full ${
-              status?.connectedEmail ? "bg-leaf" : "bg-berry-red"
-            }`}
-          />
-          <div className="min-w-0 flex-1">
-            <p className="label text-muted-foreground">
-              {status?.connectedEmail ? "Tersinkron dengan" : "Status akun"}
-            </p>
-            <p className="truncate text-xs font-medium">
-              {status?.connectedEmail ?? status?.email ?? "Masuk dengan email"}
-            </p>
-          </div>
-        </div>
-        <Link
-          to="/app/pengaturan"
-          className="flex items-center gap-2.5 rounded-full px-3 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-mist-gray hover:text-foreground"
-        >
-          <Settings className="size-4" /> Pengaturan
-        </Link>
-      </div>
+        <span aria-hidden="true" className="mx-1 h-7 w-px bg-border/80" />
+        <FloatingTooltip.Trigger content="Pengaturan" description="Akun, sinkronisasi, dan preferensi">
+          <NavLink
+            to="/app/pengaturan"
+            aria-label="Pengaturan"
+            className={({ isActive }) =>
+              `flex size-11 shrink-0 items-center justify-center rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                isActive
+                  ? "bg-tint-sage text-tint-sage-foreground shadow-sm"
+                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+              }`
+            }
+          >
+            <Settings className="size-[18px]" />
+          </NavLink>
+        </FloatingTooltip.Trigger>
+      </nav>
     </aside>
   );
 }

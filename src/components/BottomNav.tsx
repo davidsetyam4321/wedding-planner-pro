@@ -28,8 +28,8 @@ export function BottomNav() {
   const inGroup = GROUPED_PATHS.has(pathname);
 
   return (
-    <nav aria-label="Navigasi utama" className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
-      <div className="pointer-events-auto mx-auto flex max-w-md items-stretch justify-between gap-0.5 rounded-3xl border border-white/90 bg-[color-mix(in_srgb,var(--background)_88%,white_12%)] p-1.5 shadow-[0_10px_30px_rgba(56,37,31,0.14)] backdrop-blur-2xl dark:border-white/15 dark:bg-slate-950/85 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <nav aria-label="Navigasi utama" className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden">
+      <div className="pointer-events-auto mx-auto flex max-w-sm items-stretch justify-between gap-0.5 rounded-2xl border border-white/90 bg-[color-mix(in_srgb,var(--background)_88%,white_12%)] p-1 shadow-[0_8px_24px_rgba(56,37,31,0.14)] backdrop-blur-2xl dark:border-white/15 dark:bg-slate-950/85 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {PRIMARY_NAV.map(({ to, label, icon: Icon, active, badge }) => (
           <NavLink
             key={to}
@@ -37,7 +37,7 @@ export function BottomNav() {
             // `end` keeps Home from staying active on every nested /app/* route.
             end={to === "/app"}
             className={({ isActive }) =>
-              `relative flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2 text-[10px] font-semibold transition-colors duration-200 ${
+              `relative flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 py-1.5 text-[9px] sm:min-h-12 sm:gap-1 sm:rounded-2xl sm:px-1 sm:py-2 sm:text-[10px] font-semibold transition-colors duration-200 ${
                 isActive
                   ? `${active} font-bold`
                   : "text-muted-foreground hover:bg-secondary hover:text-foreground"
@@ -47,7 +47,7 @@ export function BottomNav() {
             {({ isActive }) => (
               <>
                 <Icon
-                  className="size-5 shrink-0"
+                  className="size-[18px] shrink-0 sm:size-5"
                   weight={isActive ? "fill" : "regular"}
                 />
                 <span className="leading-tight">{label}</span>
@@ -66,14 +66,14 @@ export function BottomNav() {
             <button
               type="button"
               aria-label="Fitur lainnya"
-              className={`relative flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2 text-[10px] font-medium transition-colors duration-200 ${
+              className={`relative flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 py-1.5 text-[9px] sm:min-h-12 sm:gap-1 sm:rounded-2xl sm:px-1 sm:py-2 sm:text-[10px] font-medium transition-colors duration-200 ${
                 inGroup
                   ? "bg-tint-sage font-semibold text-tint-sage-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               } data-[state=open]:bg-tint-sage data-[state=open]:font-semibold data-[state=open]:text-tint-sage-foreground data-[state=open]:shadow-sm`}
             >
               <LayoutGrid
-                className="size-5 shrink-0"
+                className="size-[18px] shrink-0 sm:size-5"
                 weight={inGroup ? "fill" : "regular"}
               />
               <span className="leading-tight">Lainnya</span>

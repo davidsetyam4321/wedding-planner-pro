@@ -59,16 +59,16 @@ function CountdownTimer({ weddingDate }: { weddingDate: number }) {
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-2 text-center">
+    <div className="grid grid-cols-4 gap-1.5 text-center sm:gap-2">
       {cells.map((cell) => (
         <div
           key={cell.label}
-          className="flex flex-col items-center rounded-2xl bg-white/15 py-2.5 shadow-sm backdrop-blur-md"
+          className="flex flex-col items-center rounded-xl bg-white/15 py-1.5 shadow-sm backdrop-blur-md sm:rounded-2xl sm:py-2.5"
         >
-          <p key={cell.value} className="countdown-digit num font-serif text-[1.35rem] font-semibold leading-tight text-white">
+          <p key={cell.value} className="countdown-digit num font-serif text-lg font-semibold leading-tight text-white sm:text-[1.35rem]">
             {String(cell.value).padStart(2, "0")}
           </p>
-          <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-white">
+          <p className="mt-0.5 text-[9px] font-semibold uppercase tracking-wider text-white sm:text-[11px]">
             {cell.label}
           </p>
         </div>
@@ -107,16 +107,16 @@ function SummaryCard({
   return (
     <Link
       to={to}
-      className="clay clay-press group block rounded-2xl p-4 transition-transform hover:-translate-y-0.5"
+      className="clay clay-press group block rounded-xl p-3 transition-transform hover:-translate-y-0.5 sm:rounded-2xl sm:p-4"
     >
       <span className="flex items-center justify-between gap-2">
         <span className="text-xs font-bold text-muted-foreground">{label}</span>
         <Icon className={`size-4 shrink-0 ${toneStyles.icon}`} />
       </span>
-      <span className="mt-2 block truncate font-serif text-xl font-semibold leading-tight">
+      <span className="mt-1.5 block truncate font-serif text-lg font-semibold leading-tight sm:mt-2 sm:text-xl">
         {numericValue === undefined ? value : <CountUp to={numericValue} duration={0.5} />}
       </span>
-      <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
+      <span className="mt-1 block text-[11px] leading-snug text-muted-foreground sm:text-xs sm:leading-relaxed">
         {detail}
       </span>
       <span className="mt-3 block h-1.5 overflow-hidden rounded-full bg-mist-gray">
@@ -179,7 +179,7 @@ export function HomePage() {
   };
 
   return (
-    <div className="grid grid-cols-2 items-start gap-3 sm:gap-4 lg:grid-cols-4">
+    <div className="grid grid-cols-2 items-start gap-2.5 sm:gap-4 lg:grid-cols-4">
       <input type="file" accept="image/*" className="hidden" {...inputProps} />
 
       {/* ── Pill sinkronisasi ────────────────────────────────── */}
@@ -208,7 +208,7 @@ export function HomePage() {
         <AnimatedContent
           distance={50}
           threshold={0.05}
-          className="sky-band relative col-span-2 overflow-hidden rounded-3xl p-4 shadow-float sm:p-5 lg:col-span-2"
+          className="sky-band relative col-span-2 overflow-hidden rounded-2xl p-3 shadow-float sm:rounded-3xl sm:p-5 lg:col-span-2"
         >
           {/* Selalu ada lukisan langit di belakang; foto pasangan menimpa jika diunggah */}
           {!couplePhoto && (
@@ -259,15 +259,15 @@ export function HomePage() {
           </div>
 
           {/* Nama pasangan sebagai tanda tangan script — titik personal ala undangan. */}
-          <p className="signature relative z-10 mt-1 text-[2.15rem] text-white">
+          <p className="signature relative z-10 mt-1 text-[1.75rem] leading-tight text-white sm:text-[2.15rem]">
             {`${wedding.partnerOneName} & ${wedding.partnerTwoName}`}
           </p>
 
-          <div className="relative z-10 mt-3 max-w-sm">
+          <div className="relative z-10 mt-2 max-w-sm sm:mt-3">
             <CountdownTimer weddingDate={wedding.weddingDate} />
           </div>
 
-          <div className="relative z-10 mt-3 space-y-1 text-[12px] text-white">
+          <div className="relative z-10 mt-2 space-y-1 text-[11px] text-white sm:mt-3 sm:text-[12px]">
             <p className="flex items-center gap-2">
               <CalendarDays className="size-4 shrink-0 text-white" />
               <span className="font-semibold text-white">
@@ -337,9 +337,9 @@ export function HomePage() {
       </section>
 
       {/* ── Aksi cepat — grid 2×2, selalu terlihat tanpa scroll ────── */}
-      <section className="clay col-span-2 space-y-2.5 p-3.5 sm:p-4 lg:col-span-2">
+      <section className="clay col-span-2 space-y-2 p-3 sm:space-y-2.5 sm:p-4 lg:col-span-2">
         <SectionHeader title="Aksi cepat" />
-        <Stagger className="grid grid-cols-2 gap-2">
+        <Stagger className="grid grid-cols-2 gap-1.5 sm:gap-2">
           {[
             { to: "/app/budget", label: "Catat Biaya", icon: Wallet, surface: "bg-tint-butter text-tint-butter-foreground" },
             { to: "/app/tamu", label: "Tambah Tamu", icon: UserPlus, surface: "bg-tint-rose text-tint-rose-foreground" },
@@ -349,14 +349,14 @@ export function HomePage() {
             <StaggerItem key={action.to}>
               <Link
                 to={action.to}
-                className="clay-inset clay-press group flex min-h-14 items-center gap-2 rounded-2xl p-2.5"
+                className="clay-inset clay-press group flex min-h-12 items-center gap-1.5 rounded-xl p-2 sm:min-h-14 sm:gap-2 sm:rounded-2xl sm:p-2.5"
               >
                 <span
-                  className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${action.surface} transition-transform duration-200 group-hover:scale-110`}
+                  className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${action.surface} transition-transform duration-200 group-hover:scale-110 sm:size-9 sm:rounded-xl`}
                 >
                   <action.icon className="size-4" />
                 </span>
-                <span className="min-w-0 flex-1 text-[13px] font-bold leading-tight">
+                <span className="min-w-0 flex-1 text-xs font-bold leading-tight sm:text-[13px]">
                   {action.label}
                 </span>
                 <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-primary" />
@@ -367,7 +367,7 @@ export function HomePage() {
       </section>
 
       {/* ── Agenda penting ────────────────────────────────────────────── */}
-      <section className="clay col-span-2 space-y-2.5 p-3.5 sm:p-4 lg:col-span-2">
+      <section className="clay col-span-2 space-y-2 p-3 sm:space-y-2.5 sm:p-4 lg:col-span-2">
         <SectionHeader
           title="Agenda berikutnya"
           action={
@@ -400,14 +400,14 @@ export function HomePage() {
               return (
                 <li
                   key={task._id}
-                  className="clay-inset list-enter flex items-center gap-2.5 rounded-xl p-2.5"
+                  className="clay-inset list-enter flex items-center gap-2 rounded-xl p-2 sm:gap-2.5 sm:p-2.5"
                   style={{ animationDelay: `${index * 55}ms` }}
                 >
                   <button
                     type="button"
                     aria-label={`Tandai tugas “${task.label}” selesai`}
                     onClick={() => toggleTask(task._id)}
-                    className={`flex size-7 shrink-0 items-center justify-center rounded-lg border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+                    className={`flex size-6 shrink-0 items-center justify-center rounded-md border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
                       task.done
                         ? "border-tint-sage-foreground bg-tint-sage-foreground text-white"
                         : "border-border text-transparent hover:border-primary"
@@ -416,7 +416,7 @@ export function HomePage() {
                     <Check className="size-4" />
                   </button>
                   <span
-                    className={`min-w-0 flex-1 text-sm font-semibold leading-snug ${
+                    className={`min-w-0 flex-1 text-xs font-semibold leading-snug sm:text-sm ${
                       task.done ? "text-muted-foreground line-through" : ""
                     }`}
                   >
