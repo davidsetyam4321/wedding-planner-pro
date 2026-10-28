@@ -29,7 +29,7 @@ export function BottomNav() {
 
   return (
     <nav aria-label="Navigasi utama" className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden">
-      <div className="pointer-events-auto mx-auto flex max-w-sm items-stretch justify-between gap-0.5 rounded-2xl border border-white/90 bg-[color-mix(in_srgb,var(--background)_88%,white_12%)] p-1 shadow-[0_8px_24px_rgba(56,37,31,0.14)] backdrop-blur-2xl dark:border-white/15 dark:bg-slate-950/85 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="pointer-events-auto mx-auto flex max-w-sm items-stretch justify-between gap-0.5 rounded-2xl border border-border bg-background p-1 shadow-float [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {PRIMARY_NAV.map(({ to, label, icon: Icon, active, badge }) => (
           <NavLink
             key={to}
@@ -37,7 +37,7 @@ export function BottomNav() {
             // `end` keeps Home from staying active on every nested /app/* route.
             end={to === "/app"}
             className={({ isActive }) =>
-              `relative flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 py-1.5 text-[9px] sm:min-h-12 sm:gap-1 sm:rounded-2xl sm:px-1 sm:py-2 sm:text-[10px] font-semibold transition-colors duration-200 ${
+              `relative flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 py-1.5 text-[11px] sm:min-h-12 sm:gap-1 sm:rounded-2xl sm:px-1 sm:py-2 sm:text-xs font-semibold transition-colors duration-200 ${
                 isActive
                   ? `${active} font-bold`
                   : "text-muted-foreground hover:bg-secondary hover:text-foreground"
@@ -52,8 +52,8 @@ export function BottomNav() {
                 />
                 <span className="leading-tight">{label}</span>
                 {badge && openTasks > 0 && (
-                  <span className="absolute right-0.5 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-berry-red px-1 text-[9px] font-semibold text-white">
-                    {openTasks > 9 ? "9+" : openTasks}
+                  <span className="absolute right-1 top-0.5 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+                    {openTasks > 99 ? "99+" : openTasks}
                   </span>
                 )}
               </>
@@ -66,7 +66,7 @@ export function BottomNav() {
             <button
               type="button"
               aria-label="Fitur lainnya"
-              className={`relative flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 py-1.5 text-[9px] sm:min-h-12 sm:gap-1 sm:rounded-2xl sm:px-1 sm:py-2 sm:text-[10px] font-medium transition-colors duration-200 ${
+              className={`relative flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 py-1.5 text-[11px] sm:min-h-12 sm:gap-1 sm:rounded-2xl sm:px-1 sm:py-2 sm:text-xs font-medium transition-colors duration-200 ${
                 inGroup
                   ? "bg-tint-sage font-semibold text-tint-sage-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"

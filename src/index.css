@@ -178,6 +178,17 @@
   /* --radius tetap 0.5rem → lg=8px (input), xl=12px (kartu) */
   --radius: 0.5rem;
 
+  --paper: #faf7ee;
+  --paper-sunk: #f5f0e3;
+  --ink: #241c20;
+  --ink-soft: #584a4c;
+  --line: #e2d9d7;
+  --brand: #1a3424;
+  --accent: #a06f30;
+  --positive: #3c5a44;
+  --warning: #7c5628;
+  --danger: #8c3028;
+
   --background: #faf7ee; /* kertas gading — latar halaman */
   --foreground: #241c20; /* ink hangat */
   --card: #fefdfc;
@@ -854,6 +865,101 @@
       display: none;
     }
   }
+}
+
+/* SatuJanji Fase 2: kertas acara, garis informasi, dan gerak terbatas pada dashboard. */
+:root {
+  --dur-instan: 90ms;
+  --dur-cepat: 180ms;
+  --dur-dasar: 300ms;
+  --dur-lambat: 520ms;
+  --dur-adegan: 1000ms;
+  --ease-keluar: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-masuk-keluar: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+:root[data-visual-style="classic"],
+:root[data-visual-style="unlumen"] {
+  --paper: var(--background);
+  --paper-sunk: var(--secondary);
+  --ink: var(--foreground);
+  --ink-soft: var(--muted-foreground);
+  --line: var(--border);
+  --brand: var(--primary);
+  --accent: var(--color-gold-deep);
+  --positive: var(--color-leaf);
+  --warning: var(--color-gold-deep);
+  --danger: var(--destructive);
+}
+
+.dashboard-hero {
+  isolation: isolate;
+  background: var(--color-forest-deep);
+}
+.dashboard-hero-photo {
+  object-position: center 54%;
+}
+.dashboard-hero-scrim {
+  background: linear-gradient(180deg, rgb(13 30 19 / 12%) 12%, rgb(13 30 19 / 25%) 43%, rgb(13 30 19 / 78%) 100%);
+}
+.dashboard-hero-opening {
+  clip-path: inset(0 0 100% 0 round 2rem);
+  animation: dashboard-photo-reveal var(--dur-adegan) var(--ease-keluar) forwards;
+}
+.dashboard-photo-opening {
+  transform: scale(1.035);
+  animation: dashboard-photo-scale var(--dur-adegan) var(--ease-keluar) forwards;
+}
+.dashboard-name-opening {
+  opacity: 0;
+  animation: dashboard-name-reveal 420ms var(--ease-keluar) 380ms forwards;
+}
+.dashboard-countdown-opening {
+  opacity: 0;
+  animation: dashboard-name-reveal 320ms var(--ease-keluar) 560ms forwards;
+}
+.dashboard-odometer {
+  animation: dashboard-digit-roll 260ms var(--ease-keluar);
+  transform-origin: center bottom;
+}
+.kawung-edge::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto;
+  height: 16px;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 32'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.5'%3E%3Cpath d='M16 2c-7 0-12 5-12 12s5 12 12 12 12-5 12-12S23 2 16 2Zm32 0c-7 0-12 5-12 12s5 12 12 12 12-5 12-12S55 2 48 2Z'/%3E%3Cpath d='M16 8c-3 0-6 3-6 6s3 6 6 6 6-3 6-6-3-6-6-6Zm32 0c-3 0-6 3-6 6s3 6 6 6 6-3 6-6-3-6-6-6Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 32px 16px;
+}
+@keyframes dashboard-photo-reveal { to { clip-path: inset(0 0 0 0 round 2rem); } }
+@keyframes dashboard-photo-scale { to { transform: scale(1); } }
+@keyframes dashboard-name-reveal { to { opacity: 1; } }
+@keyframes dashboard-digit-roll { from { opacity: 0.25; transform: translateY(-0.45em); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 639px) {
+  .dashboard-hero { min-height: 31rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-hero-opening,
+  .dashboard-photo-opening,
+  .dashboard-name-opening,
+  .dashboard-countdown-opening,
+  .dashboard-odometer {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+}
+:root[data-effects="off"] .dashboard-hero-opening,
+:root[data-effects="off"] .dashboard-photo-opening,
+:root[data-effects="off"] .dashboard-name-opening,
+:root[data-effects="off"] .dashboard-countdown-opening,
+:root[data-effects="off"] .dashboard-odometer {
+  animation: none !important;
+  opacity: 1;
+  transform: none;
+  clip-path: none;
 }
 
 /* ── Type scale ── */

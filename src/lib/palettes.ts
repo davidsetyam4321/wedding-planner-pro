@@ -324,6 +324,9 @@ export function paletteVars(roles: PaletteRoles): Record<string, string> {
   const tintRose = mix(S, "#ffffff", 0.86);
   const tintLeaf = mix(L, "#ffffff", 0.86);
   const tintWarm = mix(F, "#ffffff", 0.55);
+  const inkSoft = readableText(stone, B);
+  const warning = readableText("#8a5b10", B);
+  const danger = readableText("#a8322a", B);
 
   const set = (name: string, value: string) => {
     vars[name] = value;
@@ -364,6 +367,18 @@ export function paletteVars(roles: PaletteRoles): Record<string, string> {
   set("--color-petal", F);
   set("--color-bloom", accentFg);
   set("--color-ivory", B);
+
+  /* Semantic stationery tokens — share the active preset/custom palette. */
+  set("--paper", B);
+  set("--paper-sunk", tintSoft);
+  set("--ink", readableOn(B));
+  set("--ink-soft", inkSoft);
+  set("--line", fog);
+  set("--brand", primaryText);
+  set("--accent", secondaryText);
+  set("--positive", natureText);
+  set("--warning", warning);
+  set("--danger", danger);
 
   /* Token tema undangan — emas (ornamen), hutan (sisi gelap), krem (kertas) */
   set("--color-gold", lighten(S, 0.28));

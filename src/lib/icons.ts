@@ -18,6 +18,8 @@ export {
   CheckCircle as CheckCircle2,
   CheckCircle as CircleCheckIcon,
   Check as CheckIcon,
+  Cloud,
+  CloudCheck,
   CaretDown as ChevronDown,
   CaretDown as ChevronDownIcon,
   CaretLeft as ChevronLeft,
