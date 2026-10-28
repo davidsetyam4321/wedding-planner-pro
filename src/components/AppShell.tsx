@@ -1,3 +1,4 @@
+import { AmbientBackground } from "@/components/AmbientBackground";
 import { BottomNav } from "@/components/BottomNav";
 import { SideNav } from "@/components/SideNav";
 import { OnboardingDialog } from "@/components/Onboarding";
@@ -7,19 +8,11 @@ import { Petals, RingsMark, SprigMark } from "@/components/Decor";
 import Aurora from "@/components/reactbits/Aurora";
 import { Button } from "@/components/ui/button";
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { PageSkeleton, Stagger, StaggerItem } from "@/components/Shared";
+import { PageSkeleton } from "@/components/Shared";
 import { api } from "@/convex/_generated/api";
 import { FEATURES } from "@/lib/features";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -30,7 +23,7 @@ import {
 } from "@/lib/session";
 import { useAuth } from "@/hooks/use-auth";
 import { SETUP_REFRESH_EVENT } from "@/lib/session";
-import { Bell, Cloud, CloudCheck, Settings, Sparkles } from "@/lib/icons";
+import { Bell, Cloud, CloudCheck, Sparkles } from "@/lib/icons";
 import { motion, useReducedMotion } from "framer-motion";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
@@ -234,7 +227,6 @@ function NotificationBell({
 
 export function AppShell() {
   const { user } = useAuth();
-  const [featuresOpen, setFeaturesOpen] = useState(false);
   // Awal hari ini (stabil selama sesi) — basis hitung H-n pada pengingat.
   const [reminderNow] = useState(() => {
     const d = new Date();
@@ -272,6 +264,42 @@ export function AppShell() {
     mainRef.current?.focus({ preventScroll: true });
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [pathname]);
+  // Satu listener untuk seluruh baris interaktif: spotlight kursor hanya
+  // menulis dua CSS variable (tanpa state React, tanpa render ulang).
+  useEffect(() => {
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let frame = 0;
+    let activeRow: HTMLElement | null = null;
+    let nextX = 0;
+    let nextY = 0;
+
+    const paint = () => {
+      frame = 0;
+      if (!activeRow) return;
+      activeRow.style.setProperty("--row-x", `${nextX}px`);
+      activeRow.style.setProperty("--row-y", `${nextY}px`);
+    };
+
+    const handleMove = (event: PointerEvent) => {
+      if (document.documentElement.dataset.effects === "off") return;
+      const target = event.target as Element | null;
+      const row = target?.closest?.(".interactive-row") as HTMLElement | null;
+      if (!row) return;
+      const rect = row.getBoundingClientRect();
+      activeRow = row;
+      nextX = event.clientX - rect.left;
+      nextY = event.clientY - rect.top;
+      if (!frame) frame = window.requestAnimationFrame(paint);
+    };
+
+    document.addEventListener("pointermove", handleMove, { passive: true });
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      document.removeEventListener("pointermove", handleMove);
+    };
+  }, []);
+
   const savingsTotal =
     savings?.reduce((sum, deposit) => sum + deposit.amount, 0) ?? 0;
   const fundTarget = wedding?.fundTarget ?? 0;
@@ -333,6 +361,7 @@ export function AppShell() {
   return (
     <div className="app-workspace relative isolate mx-auto flex min-h-screen w-full max-w-[1680px]">
       <div aria-hidden="true" className="app-photo-backdrop" />
+      <AmbientBackground />
       {/* Onboarding sekali jalan — tampil sekali sampai diselesaikan/dilewati. */}
       {wedding && !wedding.onboarded && (
         <OnboardingDialog
@@ -350,9 +379,9 @@ export function AppShell() {
           <span className="font-serif text-xl">SatuJanji</span>
         </Link>
         <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">{pageTitle}</span>
-        {/* Status sinkron: satu ikon kecil dengan tooltip, bukan bar penuh. */}
+        {/* Status sinkron: live pill kecil — titik berdenyut + label singkat. */}
         <span
-          className="flex size-11 shrink-0 items-center justify-center text-[var(--ink-soft)]"
+          className="flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--paper)]/70 px-3 text-[0.8125rem] text-[var(--ink-soft)]"
           title={
             workspace?.connectedEmail
               ? `Tersinkron dengan ${workspace.connectedEmail}`
@@ -371,10 +400,14 @@ export function AppShell() {
           }
           role="img"
         >
+          <span className="live-dot text-[var(--positive)]" />
+          <span className="hidden sm:inline">
+            {workspace?.connectedEmail ? "Tersinkron" : "Lokal"}
+          </span>
           {workspace?.connectedEmail ? (
-            <CloudCheck className="size-[18px]" weight="regular" />
+            <CloudCheck className="hidden size-4 sm:block" weight="regular" />
           ) : (
-            <Cloud className="size-[18px]" weight="regular" />
+            <Cloud className="size-4" weight="regular" />
           )}
         </span>
         <NotificationBell wedding={wedding} openTasks={openTasks} workspace={workspace} savingsNote={savingsNote} reminders={reminders} />
@@ -395,52 +428,6 @@ export function AppShell() {
           <Suspense fallback={<PageSkeleton />}><Outlet /></Suspense>
         </motion.div>
       </main>
-
-      <Drawer open={featuresOpen} onOpenChange={setFeaturesOpen}>
-        <DrawerContent className="max-h-[85dvh] overflow-y-auto sm:mx-auto sm:max-w-md data-[vaul-drawer-direction=bottom]:rounded-t-3xl">
-          <DrawerHeader className="text-left">
-            <DrawerTitle className="font-serif text-xl">Semua Fitur</DrawerTitle>
-            <DrawerDescription>
-              Akses seluruh modul perencanaan pernikahan Anda dalam satu tempat.
-            </DrawerDescription>
-          </DrawerHeader>
-
-          <Stagger className="grid grid-cols-2 gap-3 px-4">
-            {FEATURES.map((feature) => (
-              <StaggerItem key={feature.to}>
-                <DrawerClose asChild>
-                  <Link
-                    to={feature.to}
-                    className={`clay clay-press block p-4 ${feature.surface}`}
-                  >
-                    <span className="flex items-center">
-                      <feature.icon className="size-5" />
-                    </span>
-                    <span className="mt-2.5 block text-sm font-extrabold leading-tight">
-                      {feature.label}
-                    </span>
-                    <span className="mt-1 block text-[11px] leading-snug opacity-80">
-                      {feature.desc}
-                    </span>
-                  </Link>
-                </DrawerClose>
-              </StaggerItem>
-            ))}
-          </Stagger>
-
-          <div className="px-4 pb-8">
-            <DrawerClose asChild>
-              <Link
-                to="/app/pengaturan"
-                className="clay clay-press flex items-center justify-between px-4 py-3.5 text-sm font-extrabold"
-              >
-                Pengaturan
-                <Settings className="size-4 text-muted-foreground" />
-              </Link>
-            </DrawerClose>
-          </div>
-        </DrawerContent>
-      </Drawer>
 
       <BottomNav />
       </div>

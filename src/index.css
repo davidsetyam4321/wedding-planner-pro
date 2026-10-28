@@ -121,13 +121,14 @@
   --color-forest-deep: #19291e;
   --color-cream: #f8f5ec;
 
-  /* Typography — Cormorant Garamond (display) + Plus Jakarta Sans (UI),
-     sama seperti tema undangan digital. */
-  --font-inter: "Avenir Next", "Segoe UI Variable", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Avenir Next", "Segoe UI Variable", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: Georgia, "Times New Roman", ui-serif, serif;
-  --font-grifter: Georgia, "Times New Roman", ui-serif, serif;
-  --font-script: Georgia, "Times New Roman", ui-serif, serif;
+  /* Typography — Fraunces (display serif dengan optical size) + Plus Jakarta
+     Sans (UI humanis). Satu keluarga display, satu keluarga teks. */
+  --font-display: "Fraunces", Georgia, "Times New Roman", ui-serif, serif;
+  --font-inter: "Plus Jakarta Sans", "Avenir Next", "Segoe UI Variable", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Avenir Next", "Segoe UI Variable", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Fraunces", Georgia, "Times New Roman", ui-serif, serif;
+  --font-grifter: "Fraunces", Georgia, "Times New Roman", ui-serif, serif;
+  --font-script: "Fraunces", Georgia, "Times New Roman", ui-serif, serif;
   --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Typography — Scale */
@@ -904,6 +905,20 @@
 .dashboard-check:active span {
   animation: dashboard-ink-check 300ms var(--ease-keluar) both;
 }
+/* Goresan tinta: centang digambar saat baris disentuh, lalu benar-benar
+   terisi ketika tombol ditekan (baris langsung pindah ke "selesai"). */
+.dashboard-check-path {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  transition: stroke-dashoffset 260ms var(--ease-keluar);
+}
+.dashboard-check:hover .dashboard-check-path,
+.dashboard-check:focus-visible .dashboard-check-path {
+  stroke-dashoffset: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-check-path { transition: none; }
+}
 @keyframes dashboard-ink-check {
   0% { transform: scale(0.7); }
   55% { transform: scale(1.15); }
@@ -919,6 +934,22 @@
 .dashboard-hero-scrim {
   background: linear-gradient(180deg, rgb(13 30 19 / 12%) 12%, rgb(13 30 19 / 25%) 43%, rgb(13 30 19 / 78%) 100%);
 }
+/* Geometri kawung di tepi hero: hidup, tapi tidak pernah di belakang teks
+   panjang — hanya di area foto dan memudar sebelum nama pasangan. */
+.dashboard-hero-batik {
+  opacity: 0.16;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 32'%3E%3Cg fill='none' stroke='%23f4e6c8' stroke-width='1.4'%3E%3Cpath d='M16 2c-7 0-12 5-12 12s5 12 12 12 12-5 12-12S23 2 16 2Zm32 0c-7 0-12 5-12 12s5 12 12 12 12-5 12-12S55 2 48 2Z'/%3E%3Cpath d='M16 8c-3 0-6 3-6 6s3 6 6 6 6-3 6-6-3-6-6-6Zm32 0c-3 0-6 3-6 6s3 6 6 6 6-3 6-6-3-6-6-6Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 44px 22px;
+  background-repeat: repeat;
+  mask-image: linear-gradient(180deg, #000 0%, rgb(0 0 0 / 55%) 55%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, rgb(0 0 0 / 55%) 55%, transparent 100%);
+  animation: sj-batik-breathe 16s cubic-bezier(0.65, 0, 0.35, 1) infinite alternate;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-hero-batik { animation: none; }
+}
+:root[data-effects="off"] .dashboard-hero-batik { animation: none; opacity: 0.1; }
 .dashboard-hero-opening {
   clip-path: inset(0 0 100% 0 round 2rem);
   animation: dashboard-photo-reveal var(--dur-adegan) var(--ease-keluar) forwards;
@@ -1622,4 +1653,336 @@
 }
 :root[data-effects="off"] .sj-page-heading::before {
   opacity: 0.04;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Fase 2 — "Tactile Editorial & Living Atmosphere"
+   Atmosfer berlapis, permukaan berdimensi, dan mikro-interaksi taktil.
+   Semua gerak memakai transform/opacity; warna lewat token semantik.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root {
+  --surface-glass: color-mix(in srgb, var(--paper, var(--background)) 84%, transparent);
+  --surface-glass-strong: color-mix(in srgb, var(--paper, var(--background)) 94%, transparent);
+  --specular-top: inset 0 1px 0 0 rgb(255 255 255 / 0.5);
+  --elev-ambient: 0 12px 34px -14px rgb(27 51 38 / 0.16), 0 2px 8px -2px rgb(27 51 38 / 0.06);
+  --elev-lifted: 0 26px 60px -24px rgb(27 51 38 / 0.28), 0 4px 14px -4px rgb(27 51 38 / 0.1);
+  --elev-sunk: inset 0 1px 3px rgb(27 51 38 / 0.1), inset 0 0 0 1px rgb(27 51 38 / 0.04);
+  --spotlight: radial-gradient(
+    260px circle at var(--row-x, 50%) var(--row-y, 50%),
+    color-mix(in srgb, var(--accent, #a06f30) 16%, transparent),
+    transparent 70%
+  );
+}
+
+@layer components {
+  .display-serif {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-variation-settings: "SOFT" 0, "WONK" 0;
+    letter-spacing: -0.015em;
+  }
+
+  /* Tier 2 — kartu kaca hangat dengan highlight specular 1px. */
+  .surface-card {
+    position: relative;
+    isolation: isolate;
+    background-color: var(--surface-glass);
+    border: 1px solid color-mix(in srgb, var(--line, #e2d9d7) 70%, transparent);
+    border-radius: 28px;
+    box-shadow: var(--specular-top), var(--elev-ambient);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    backdrop-filter: blur(16px) saturate(160%);
+  }
+  .surface-card--paper {
+    background-color: var(--surface-glass-strong);
+  }
+  .surface-card--flat {
+    border-radius: 12px;
+  }
+
+  /* Tier 3 — cekungan taktil untuk track, filter, dan wadah daftar. */
+  .surface-sunk {
+    background-color: color-mix(in srgb, var(--paper-sunk, #efe7e5) 70%, transparent);
+    border: 1px solid color-mix(in srgb, var(--line, #e2d9d7) 60%, transparent);
+    border-radius: 12px;
+    box-shadow: var(--elev-sunk);
+  }
+
+  /* Baris interaktif: spotlight kursor di desktop, elevasi halus saat hover. */
+  .interactive-row {
+    position: relative;
+    isolation: isolate;
+    transition: background-color 220ms var(--ease-keluar, ease);
+  }
+  .interactive-row::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--spotlight);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 240ms var(--ease-keluar, ease);
+  }
+  .interactive-row:hover::after,
+  .interactive-row:focus-within::after {
+    opacity: 1;
+  }
+
+  /* Shimmer hanya lewat transform pada lapisan pseudo, bukan animasi warna. */
+  .shimmer-track {
+    position: relative;
+    overflow: hidden;
+  }
+  .shimmer-track::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      100deg,
+      transparent 20%,
+      rgb(255 255 255 / 0.42) 48%,
+      transparent 76%
+    );
+    transform: translateX(-120%);
+    animation: sj-shimmer 5.5s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+    pointer-events: none;
+  }
+
+  /* Tiket acara: garis perforasi + takik di kedua sisi. */
+  .ticket-chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    border-radius: 14px;
+    border: 1px solid rgb(255 255 255 / 0.3);
+    background: rgb(18 32 23 / 42%);
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.28), 0 10px 24px -16px rgb(0 0 0 / 0.6);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    backdrop-filter: blur(14px) saturate(150%);
+  }
+
+  /* Indikator sinkron hidup: titik dengan denyut cincin, bukan bar penuh. */
+  .live-dot {
+    position: relative;
+    display: inline-flex;
+    width: 0.5rem;
+    height: 0.5rem;
+    flex: none;
+    border-radius: 9999px;
+    background-color: var(--positive, #3c5a44);
+  }
+  .live-dot::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    border: 1px solid currentColor;
+    opacity: 0;
+    animation: sj-pulse-ring 2.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  }
+
+  /* Odometer: kolom digit bermasker, hanya digit berubah yang menggulung. */
+  .odo-digit {
+    display: inline-block;
+    overflow: hidden;
+    height: 1em;
+    line-height: 1;
+    vertical-align: bottom;
+    perspective: 220px;
+  }
+  .odo-digit > span {
+    display: inline-block;
+    transform-origin: center bottom;
+    animation: sj-odo-roll 420ms var(--ease-keluar, cubic-bezier(0.22, 1, 0.36, 1));
+  }
+
+  /* Tepi specular bergradien untuk kartu utama (mask border, bukan overlay). */
+  .specular-edge {
+    position: relative;
+  }
+  .specular-edge::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      rgb(255 255 255 / 0.55),
+      rgb(255 255 255 / 0.08) 38%,
+      rgb(255 255 255 / 0.02) 70%,
+      color-mix(in srgb, var(--accent, #a06f30) 40%, transparent)
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+/* ── Ambient background ──────────────────────────────────────────────── */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+.ambient__wash {
+  position: absolute;
+  inset: -10%;
+  background:
+    radial-gradient(ellipse at 12% 8%, color-mix(in srgb, var(--accent, #a06f30) 10%, transparent), transparent 46%),
+    radial-gradient(ellipse at 88% 12%, color-mix(in srgb, var(--brand, #1a3424) 9%, transparent), transparent 44%),
+    linear-gradient(180deg, var(--paper, #fbf8f1), var(--background, #faf7ee));
+}
+.ambient__blob {
+  position: absolute;
+  width: 46vmax;
+  height: 46vmax;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  will-change: transform;
+  animation: sj-ambient-drift 22s cubic-bezier(0.65, 0, 0.35, 1) infinite alternate;
+}
+.ambient__blob--brand {
+  top: -16vmax;
+  left: -8vmax;
+  background: color-mix(in srgb, var(--brand, #1a3424) 32%, transparent);
+  animation-duration: 25s;
+}
+.ambient__blob--accent {
+  top: 8vmax;
+  right: -14vmax;
+  width: 38vmax;
+  height: 38vmax;
+  background: color-mix(in srgb, var(--accent, #a06f30) 34%, transparent);
+  animation-duration: 19s;
+  animation-delay: -6s;
+}
+.ambient__blob--sage {
+  bottom: -18vmax;
+  left: 18vmax;
+  width: 42vmax;
+  height: 42vmax;
+  background: color-mix(in srgb, var(--positive, #3c5a44) 26%, transparent);
+  animation-duration: 23s;
+  animation-delay: -11s;
+}
+.ambient__blob--paper {
+  bottom: -10vmax;
+  right: 4vmax;
+  width: 34vmax;
+  height: 34vmax;
+  background: color-mix(in srgb, var(--paper, #fbf8f1) 70%, var(--accent, #a06f30) 8%);
+  opacity: 0.6;
+  animation-duration: 21s;
+  animation-delay: -4s;
+}
+.ambient[data-awake="true"] .ambient__spotlight {
+  opacity: 1;
+}
+.ambient__spotlight {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(
+    620px circle at var(--mouse-x, 50%) var(--mouse-y, 30%),
+    color-mix(in srgb, var(--accent, #a06f30) 14%, transparent),
+    transparent 62%
+  );
+  transition: opacity 400ms ease;
+}
+.ambient__batik {
+  position: absolute;
+  inset: -6% 0 auto;
+  height: 46vh;
+  opacity: 0.055;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160'%3E%3Cg fill='none' stroke='%231b3326' stroke-width='1.1'%3E%3Ccircle cx='40' cy='40' r='26'/%3E%3Ccircle cx='40' cy='40' r='14'/%3E%3Ccircle cx='120' cy='40' r='26'/%3E%3Ccircle cx='120' cy='40' r='14'/%3E%3Ccircle cx='200' cy='40' r='26'/%3E%3Ccircle cx='200' cy='40' r='14'/%3E%3Ccircle cx='0' cy='120' r='26'/%3E%3Ccircle cx='0' cy='120' r='14'/%3E%3Ccircle cx='80' cy='120' r='26'/%3E%3Ccircle cx='80' cy='120' r='14'/%3E%3Ccircle cx='160' cy='120' r='26'/%3E%3Ccircle cx='160' cy='120' r='14'/%3E%3Ccircle cx='240' cy='120' r='26'/%3E%3Ccircle cx='240' cy='120' r='14'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 240px 160px;
+  background-repeat: repeat;
+  mask-image: linear-gradient(180deg, #000 0%, #000 38%, transparent 92%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 38%, transparent 92%);
+  transform: translateZ(0);
+  animation: sj-batik-breathe 18s cubic-bezier(0.65, 0, 0.35, 1) infinite alternate;
+}
+.ambient__grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.032;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.7'/%3E%3C/svg%3E");
+}
+.ambient[data-paused="true"] .ambient__blob,
+.ambient[data-paused="true"] .ambient__batik,
+.ambient[data-paused="true"] .live-dot::after {
+  animation-play-state: paused;
+}
+
+@keyframes sj-ambient-drift {
+  0% { transform: translate3d(-2%, -1%, 0) scale(1); }
+  50% { transform: translate3d(2%, 2%, 0) scale(1.07); }
+  100% { transform: translate3d(-1%, 1%, 0) scale(1.03); }
+}
+@keyframes sj-batik-breathe {
+  from { transform: scale(1) translate3d(0, 0, 0); opacity: 0.045; }
+  to { transform: scale(1.04) translate3d(0, -6px, 0); opacity: 0.07; }
+}
+@keyframes sj-shimmer {
+  0% { transform: translateX(-120%); }
+  55%, 100% { transform: translateX(120%); }
+}
+@keyframes sj-pulse-ring {
+  0% { opacity: 0.55; transform: scale(0.6); }
+  70% { opacity: 0; transform: scale(1.7); }
+  100% { opacity: 0; transform: scale(1.7); }
+}
+@keyframes sj-odo-roll {
+  from { transform: translateY(-58%) rotateX(-42deg); opacity: 0.15; }
+  to { transform: translateY(0) rotateX(0); opacity: 1; }
+}
+
+/* Desktop saja: spotlight kursor. Perangkat sentuh tidak membayar biayanya. */
+@media (pointer: coarse) {
+  .ambient__spotlight { display: none; }
+}
+
+/* Efek dimatikan (toggle Pengaturan) = permukaan solid, gerak minimal. */
+:root[data-effects="off"] .ambient__blob,
+:root[data-effects="off"] .ambient__batik,
+:root[data-effects="off"] .ambient__spotlight,
+:root[data-effects="off"] .shimmer-track::after,
+:root[data-effects="off"] .live-dot::after {
+  animation: none !important;
+}
+:root[data-effects="off"] .ambient__spotlight { opacity: 0 !important; transition: none; }
+:root[data-effects="off"] .ambient__blob { opacity: 0.28; }
+:root[data-effects="off"] .ambient__grain { opacity: 0.02; }
+:root[data-effects="off"] .surface-card {
+  background-color: var(--paper, var(--background));
+  box-shadow: none;
+  border-color: var(--line, #e2d9d7);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+:root[data-effects="off"] .interactive-row::after { display: none; }
+:root[data-effects="off"] .odo-digit > span { animation: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient__blob,
+  .ambient__batik,
+  .shimmer-track::after,
+  .live-dot::after,
+  .odo-digit > span {
+    animation: none !important;
+  }
+  .ambient__spotlight { display: none; }
+  .surface-card { transition: none; }
 }
