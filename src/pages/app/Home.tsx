@@ -21,7 +21,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useMutation, useQuery } from "convex/react";
 
-const HERO_FALLBACK = "/assets/upacara-jawa.jpg";
+const HERO_FALLBACK = "/assets/pengantin-panggih.jpg";
 
 /** Countdown pauses while the document is hidden; the live region only reports days. */
 function CountdownTimer({ weddingDate }: { weddingDate: number }) {
@@ -45,6 +45,8 @@ function CountdownTimer({ weddingDate }: { weddingDate: number }) {
   }, []);
 
   const parts = countdownParts(weddingDate, now);
+  const reducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const effectsDisabled = typeof document !== "undefined" && document.documentElement.dataset.effects === "off";
   const cells = [
     { value: parts.days, label: "Hari" },
     { value: parts.hours, label: "Jam" },
@@ -58,8 +60,10 @@ function CountdownTimer({ weddingDate }: { weddingDate: number }) {
       <div aria-hidden="true" className="grid grid-cols-4 gap-2 sm:gap-4">
         {cells.map(({ value, label }) => (
           <div key={label} className="min-w-0 border-t border-white/40 pt-2 sm:pt-3">
-            <span key={value} className="dashboard-odometer num block font-serif text-2xl leading-none text-white sm:text-4xl lg:text-5xl">
-              {String(value).padStart(2, "0")}
+            <span className="num block font-serif text-2xl leading-none text-white sm:text-4xl lg:text-5xl">
+              {String(value).padStart(2, "0").split("").map((digit, index) => (
+                <span key={`${label}-${index}-${digit}`} className={`inline-block ${!reducedMotion && !effectsDisabled ? "dashboard-odometer" : ""}`}>{digit}</span>
+              ))}
             </span>
             <span className="mt-2 block text-xs font-medium text-white/90 sm:text-sm">{label}</span>
           </div>
@@ -84,8 +88,11 @@ export function HomePage() {
   const couplePhoto = useQuery(api.wedding.getCouplePhoto);
   const { uploading, openPicker, inputProps } = useCouplePhotoUpload();
   const [openingScene, setOpeningScene] = useState(false);
+  const reducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const effectsDisabled = typeof document !== "undefined" && document.documentElement.dataset.effects === "off";
 
   useEffect(() => {
+    if (!wedding) return;
     const storageKey = "satujanji.dashboard-scene";
     try {
       if (window.sessionStorage.getItem(storageKey)) return;
@@ -96,7 +103,7 @@ export function HomePage() {
     } catch {
       // Dashboard remains usable when session storage is unavailable.
     }
-  }, []);
+  }, [wedding]);
 
   const allTasks = checklist ?? [];
   const openTasks = allTasks.filter((item) => !item.done);
@@ -139,12 +146,11 @@ export function HomePage() {
       {!wedding ? (
         <Skeleton className="col-span-full min-h-[28rem] rounded-[2rem] xl:min-h-[60vh]" />
       ) : (
-        <section className={`dashboard-hero kawung-edge relative isolate col-span-full flex min-h-[30rem] flex-col justify-between overflow-hidden rounded-[2rem] px-5 pb-6 pt-5 sm:min-h-[34rem] sm:px-8 sm:pb-9 sm:pt-8 xl:min-h-[60vh] xl:px-12 xl:pb-12 xl:pt-10 ${openingScene ? "dashboard-hero-opening" : ""}`} aria-label="Hari pernikahan">
-          <img
-            src={couplePhoto ?? HERO_FALLBACK}
+        <section className={`dashboard-hero kawung-edge relative isolate col-span-full flex min-h-[30rem] flex-col justify-between overflow-hidden rounded-[2rem] px-5 pb-6 pt-5 sm:min-h-[34rem] sm:px-8 sm:pb-9 sm:pt-8 xl:min-h-[60vh] xl:px-12 xl:pb-12 xl:pt-10 ${openingScene && !reducedMotion && !effectsDisabled ? "dashboard-hero-opening" : ""}`} aria-label="Hari pernikahan">
+          <img src={couplePhoto ?? HERO_FALLBACK}
             alt=""
             aria-hidden="true"
-            className={`dashboard-hero-photo absolute inset-0 -z-20 size-full object-cover ${openingScene ? "dashboard-photo-opening" : ""}`}
+            className={`dashboard-hero-photo absolute inset-0 -z-20 size-full object-cover ${openingScene && !reducedMotion && !effectsDisabled ? "dashboard-photo-opening" : ""}`} fetchPriority="high"
           />
           <div aria-hidden="true" className="dashboard-hero-scrim absolute inset-0 -z-10" />
           <div className="relative z-10 flex items-center justify-between gap-4">
@@ -163,11 +169,11 @@ export function HomePage() {
             </button>
           </div>
 
-          <div className={`relative z-10 mt-16 max-w-5xl sm:mt-20 ${openingScene ? "dashboard-name-opening" : ""}`}>
-            <p className="dashboard-couple-name font-serif text-[clamp(3.5rem,9vw,8rem)] leading-[0.94] text-white">
-              {wedding.partnerOneName} <span aria-hidden="true">&amp;</span><br className="hidden sm:block" /> {wedding.partnerTwoName}
-            </p>
-            <div className={`mt-8 sm:mt-10 ${openingScene ? "dashboard-countdown-opening" : ""}`}>
+          <div className={`relative z-10 mt-16 max-w-5xl sm:mt-20 ${openingScene && !reducedMotion && !effectsDisabled ? "dashboard-name-opening" : ""}`}>
+            <h1 className="dashboard-couple-name font-serif text-[clamp(3.5rem,9vw,8rem)] leading-[0.94] text-white">
+              {wedding.partnerOneName} &amp; {wedding.partnerTwoName}
+            </h1>
+            <div className={`mt-8 sm:mt-10 ${openingScene && !reducedMotion && !effectsDisabled ? "dashboard-countdown-opening" : ""}`}>
               <CountdownTimer weddingDate={wedding.weddingDate} />
             </div>
           </div>
@@ -190,13 +196,13 @@ export function HomePage() {
         </Link>
         <Link to="/app/checklist" className="group min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]">
           <p className="text-base leading-relaxed text-[var(--ink-soft)] sm:text-lg">
-            {checklist === undefined || guests === undefined ? "Memuat ringkasan acara…" : <>{openTasks === 0 ? "Semua tugas persiapan sudah selesai" : <><strong className="num font-semibold text-[var(--ink)]">{openTasks} tugas lagi</strong> dari {allTasks.length}</>}; <strong className="num font-semibold text-[var(--ink)]">{guestResponded}</strong> dari {guestCount} undangan sudah menjawab RSVP.</>}
+            {checklist === undefined || guests === undefined ? "Memuat ringkasan acara…" : <>{openTasks.length === 0 ? "Semua tugas persiapan sudah selesai" : <><strong className="num font-semibold text-[var(--ink)]">{openTasks.length} tugas lagi</strong> dari {allTasks.length}</>}; <strong className="num font-semibold text-[var(--ink)]">{guestResponded}</strong> dari {guestCount} undangan sudah menjawab RSVP.</>}
           </p>
           <span className="sr-only">Buka Checklist</span>
         </Link>
       </section>
 
-      <section className="col-span-full grid grid-cols-1 gap-7 md:grid-cols-2 md:gap-10 xl:col-span-6" aria-labelledby="agenda-title">
+      <section className="col-span-full min-w-0 xl:col-span-6" aria-labelledby="agenda-title">
         <div>
           <div className="flex items-end justify-between gap-4 border-b border-[var(--line)] pb-3">
             <h2 id="agenda-title" className="font-serif text-2xl text-[var(--ink)] sm:text-3xl">Perlu dikerjakan</h2>
@@ -215,7 +221,7 @@ export function HomePage() {
                 const priority = normalizePriority(task.priority);
                 return (
                   <li key={task._id} className="flex min-h-[4.5rem] items-center gap-3 py-2">
-                    <button type="button" aria-label={`Tandai tugas “${task.label}” selesai`} onClick={() => void toggleTask(task._id)} className="flex size-11 shrink-0 items-center justify-center rounded-md text-[var(--brand)] transition-colors hover:bg-[var(--paper-sunk)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]">
+                    <button type="button" aria-label={`Tandai tugas “${task.label}” selesai`} onClick={() => void toggleTask(task._id)} className="dashboard-check flex size-11 shrink-0 items-center justify-center rounded-md text-[var(--brand)] transition-colors hover:bg-[var(--paper-sunk)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]">
                       <span aria-hidden="true" className="flex size-5 items-center justify-center rounded border border-[var(--line)]"><Check className="size-4 opacity-0" /></span>
                     </button>
                     <span className="min-w-0 flex-1 py-1 text-sm font-medium leading-snug text-[var(--ink)] sm:text-base">{task.label}</span>
@@ -228,7 +234,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="col-span-full border-t border-[var(--line)] pt-5 md:col-span-2 md:border-t-0 md:pt-0 xl:col-span-6" aria-labelledby="shortcuts-title">
+      <section className="col-span-full min-w-0 border-t border-[var(--line)] pt-5 xl:col-span-6 xl:border-t-0 xl:pt-0" aria-labelledby="shortcuts-title">
         <h2 id="shortcuts-title" className="border-b border-[var(--line)] pb-3 font-serif text-2xl text-[var(--ink)] sm:text-3xl">Pintasan</h2>
         <ul className="divide-y divide-[var(--line)]">
           {quickActions.map(({ to, label, icon: Icon }) => (

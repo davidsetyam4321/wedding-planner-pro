@@ -127,10 +127,10 @@ export function NotificationBell({
         <Button
           variant="outline"
           size="icon"
-          className="relative size-9 rounded-full"
+          className="relative size-11 rounded-full"
           aria-label="Notifikasi"
         >
-          <Bell className="size-4" />
+          <Bell className="size-5" />
           {reminders.some((reminder) => reminder.overdue) && (
             <span aria-label="Ada tenggat yang terlewat" className="absolute -right-0.5 -top-0.5 size-2.5 rounded-full border-2 border-background bg-destructive" />
           )}

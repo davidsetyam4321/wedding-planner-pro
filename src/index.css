@@ -21,8 +21,8 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--ui-accent);
+  --color-accent-foreground: var(--ui-accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
@@ -123,12 +123,11 @@
 
   /* Typography — Cormorant Garamond (display) + Plus Jakarta Sans (UI),
      sama seperti tema undangan digital. */
-  --font-inter: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-serif: "Cormorant Garamond", "Times New Roman", ui-serif, Georgia, serif;
-  --font-grifter: "Cormorant Garamond", "Times New Roman", ui-serif, Georgia, serif;
-  /* Tanda tangan nama pasangan — Cormorant italic (bukan script terpisah). */
-  --font-script: "Cormorant Garamond", "Times New Roman", ui-serif, Georgia, serif;
+  --font-inter: "Avenir Next", "Segoe UI Variable", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Avenir Next", "Segoe UI Variable", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: Georgia, "Times New Roman", ui-serif, serif;
+  --font-grifter: Georgia, "Times New Roman", ui-serif, serif;
+  --font-script: Georgia, "Times New Roman", ui-serif, serif;
   --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Typography — Scale */
@@ -185,6 +184,9 @@
   --line: #e2d9d7;
   --brand: #1a3424;
   --accent: #a06f30;
+  --accent-foreground: #ffffff;
+  --ui-accent: #f2ebe2;
+  --ui-accent-foreground: #241c20;
   --positive: #3c5a44;
   --warning: #7c5628;
   --danger: #8c3028;
@@ -201,8 +203,10 @@
   --secondary-foreground: #241c20;
   --muted: #efe7e5;
   --muted-foreground: #241c20; /* kontras tinggi untuk teks kecil */
-  --accent: #f2ebe2; /* krem whisper */
-  --accent-foreground: #241c20;
+  --accent: #a06f30;
+  --accent-foreground: #ffffff;
+  --ui-accent: #f2ebe2;
+  --ui-accent-foreground: #241c20;
   --destructive: #7c5628; /* emas tua */
   --destructive-foreground: #ffffff;
   --border: #e2d9d7; /* hangat hairline */
@@ -259,8 +263,10 @@
   --secondary-foreground: #eae4d4;
   --muted: #1b3323;
   --muted-foreground: #a9b5a6;
-  --accent: #1f3a28;
-  --accent-foreground: #e6d3a8;
+  --accent: #c49e62;
+  --accent-foreground: #12200f;
+  --ui-accent: #1f3a28;
+  --ui-accent-foreground: #e6d3a8;
   --destructive: #c2705a;
   --destructive-foreground: #ffffff;
   --border: #24402c;
@@ -886,7 +892,6 @@
   --ink-soft: var(--muted-foreground);
   --line: var(--border);
   --brand: var(--primary);
-  --accent: var(--color-gold-deep);
   --positive: var(--color-leaf);
   --warning: var(--color-gold-deep);
   --danger: var(--destructive);
@@ -895,6 +900,18 @@
 .dashboard-hero {
   isolation: isolate;
   background: var(--color-forest-deep);
+}
+.dashboard-check:active span {
+  animation: dashboard-ink-check 300ms var(--ease-keluar) both;
+}
+@keyframes dashboard-ink-check {
+  0% { transform: scale(0.7); }
+  55% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.dashboard-check:active svg { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-check:active span { animation: none; }
 }
 .dashboard-hero-photo {
   object-position: center 54%;
@@ -918,10 +935,6 @@
   opacity: 0;
   animation: dashboard-name-reveal 320ms var(--ease-keluar) 560ms forwards;
 }
-.dashboard-odometer {
-  animation: dashboard-digit-roll 260ms var(--ease-keluar);
-  transform-origin: center bottom;
-}
 .kawung-edge::before {
   content: "";
   position: absolute;
@@ -935,7 +948,8 @@
 @keyframes dashboard-photo-reveal { to { clip-path: inset(0 0 0 0 round 2rem); } }
 @keyframes dashboard-photo-scale { to { transform: scale(1); } }
 @keyframes dashboard-name-reveal { to { opacity: 1; } }
-@keyframes dashboard-digit-roll { from { opacity: 0.25; transform: translateY(-0.45em); } to { opacity: 1; transform: translateY(0); } }
+@keyframes dashboard-digit-roll { from { opacity: 0.35; transform: translateY(-0.35em); } to { opacity: 1; transform: translateY(0); } }
+.dashboard-odometer { animation: dashboard-digit-roll 220ms var(--ease-keluar); transform-origin: center bottom; }
 @media (max-width: 639px) {
   .dashboard-hero { min-height: 31rem; }
 }
@@ -943,8 +957,7 @@
   .dashboard-hero-opening,
   .dashboard-photo-opening,
   .dashboard-name-opening,
-  .dashboard-countdown-opening,
-  .dashboard-odometer {
+  .dashboard-countdown-opening {
     animation: none !important;
     opacity: 1;
     transform: none;

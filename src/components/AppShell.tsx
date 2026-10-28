@@ -1,15 +1,9 @@
 import { BottomNav } from "@/components/BottomNav";
-import { BotanicalTexture } from "@/components/BotanicalTexture";
 import { SideNav } from "@/components/SideNav";
 import { OnboardingDialog } from "@/components/Onboarding";
 import { SignupBanner } from "@/components/SignupBanner";
 import { coupleInitials } from "@/components/CouplePhoto";
-import {
-  Petals,
-  PetalsFront,
-  RingsMark,
-  SprigMark,
-} from "@/components/Decor";
+import { Petals, RingsMark, SprigMark } from "@/components/Decor";
 import Aurora from "@/components/reactbits/Aurora";
 import { Button } from "@/components/ui/button";
 import {
@@ -200,14 +194,12 @@ function NotificationBell({
         <Button
           variant="outline"
           size="icon"
-          className="relative size-9 rounded-full"
+          className="relative size-11 rounded-full"
           aria-label="Notifikasi"
         >
-          <Bell className="size-4" />
-          {openTasks > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-              {openTasks > 9 ? "9+" : openTasks}
-            </span>
+          <Bell className="size-5" />
+          {reminders.some((reminder) => reminder.overdue) && (
+            <span aria-label="Ada tenggat yang terlewat" className="absolute -right-0.5 -top-0.5 size-2.5 rounded-full border-2 border-background bg-destructive" />
           )}
         </Button>
       </PopoverTrigger>
@@ -280,9 +272,6 @@ export function AppShell() {
     mainRef.current?.focus({ preventScroll: true });
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [pathname]);
-  /** Satu aksen warna per fitur — wash ambient & chip header mengikuti rute. */
-  const activeFeature = FEATURES.find((item) => item.to === pathname);
-
   const savingsTotal =
     savings?.reduce((sum, deposit) => sum + deposit.amount, 0) ?? 0;
   const fundTarget = wedding?.fundTarget ?? 0;
@@ -306,9 +295,7 @@ export function AppShell() {
   if (setupState === "pending" && !wedding) {
     return (
       <main className="relative isolate flex min-h-screen items-center justify-center">
-        <div aria-hidden="true" className="app-photo-backdrop">
-          <BotanicalTexture className="botanical-texture absolute inset-0 size-full" />
-        </div>
+        <div aria-hidden="true" className="app-photo-backdrop" />
         <Aurora className="pointer-events-none absolute inset-0 -z-10" />
         <Petals />
         <div className="clay relative overflow-hidden px-8 py-7 text-center">
@@ -328,9 +315,7 @@ export function AppShell() {
   if (setupState === "error" && !wedding) {
     return (
       <main className="relative isolate flex min-h-screen items-center justify-center p-6">
-        <div aria-hidden="true" className="app-photo-backdrop">
-          <BotanicalTexture className="botanical-texture absolute inset-0 size-full" />
-        </div>
+        <div aria-hidden="true" className="app-photo-backdrop" />
         <Petals />
         <div className="clay max-w-sm p-6 text-center">
           <p className="text-sm font-semibold">Gagal menyiapkan ruang kerja</p>
@@ -347,9 +332,7 @@ export function AppShell() {
 
   return (
     <div className="app-workspace relative isolate mx-auto flex min-h-screen w-full max-w-[1680px]">
-      <div aria-hidden="true" className="app-photo-backdrop">
-          <BotanicalTexture className="botanical-texture absolute inset-0 size-full" />
-        </div>
+      <div aria-hidden="true" className="app-photo-backdrop" />
       {/* Onboarding sekali jalan — tampil sekali sampai diselesaikan/dilewati. */}
       {wedding && !wedding.onboarded && (
         <OnboardingDialog
@@ -358,77 +341,29 @@ export function AppShell() {
           defaultTarget={wedding.fundTarget}
         />
       )}
-      <SideNav extra={{ openTasks }} />
-      <div className="sky-wash relative z-10 min-w-0 flex-1 pb-32 lg:pb-28">
-      {/* Ambient wash — atmosphere-blue sky tint mengikuti rute aktif */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
-      >
-        <div
-          className={`absolute -left-24 -top-28 size-[26rem] rounded-full blur-3xl transition-colors duration-700 ${
-            activeFeature?.glow ?? "bg-atmosphere-blue/20"
-          }`}
-        />
-        <div className="absolute -right-28 top-2/3 size-80 rounded-full bg-atmosphere-blue/15 blur-3xl" />
-      </div>
-      <Petals />
-      <PetalsFront />
-
+      <SideNav extra={{ openTasks, wedding, workspace, savingsNote, reminders, couplePhoto, partnerOneName: wedding?.partnerOneName, partnerTwoName: wedding?.partnerTwoName }} />
+      <div className="sky-wash relative z-10 min-w-0 flex-1 pb-24 lg:pb-0">
       <a href="#planner-content" className="skip-link">Langsung ke isi perencanaan</a>
-      <header className="mx-auto w-full max-w-md px-3 pt-3 sm:px-4 lg:max-w-[1520px] lg:px-12 lg:pt-5 xl:px-16 2xl:px-20">
-        <div className="flex flex-wrap gap-1.5">
-        <div className="hidden lg:flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-[11px] font-medium text-foreground backdrop-blur-md">
-          <span className="size-1.5 animate-pulse rounded-full bg-atmosphere-blue" />
-          {wedding?.partnerOneName} &amp; {wedding?.partnerTwoName}
-        </div>
-        <div className="flex flex-1 lg:hidden items-center gap-2">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-foreground/15 shadow-sm backdrop-blur-md">
-            <RingsMark className="size-5 text-primary" />
-          </span>
-          <h1 className="signature truncate text-[22px] leading-none text-primary">
-            SatuJanji
-          </h1>
-          {pageTitle && (
-            <span className="elegant truncate text-[13px] text-muted-foreground">{pageTitle}</span>
-          )}
-        </div>
-        <div className="ml-auto flex shrink-0 items-center gap-1.5">
-          <NotificationBell
-            wedding={wedding}
-            openTasks={openTasks}
-            workspace={workspace}
-            savingsNote={savingsNote}
-            reminders={reminders}
-          />
-          <Link
-            to="/app/pengaturan"
-            aria-label="Pengaturan"
-            className="block size-9 shrink-0 overflow-hidden rounded-full p-0.5 ring-2 ring-gold/50 transition-shadow hover:ring-gold"
-          >
-            {couplePhoto ? (
-              <img src={couplePhoto} alt="Foto pasangan" className="h-full w-full object-cover" />
-            ) : (
-              <span className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-primary via-primary to-gold-deep font-serif text-[13px] font-semibold tracking-wide text-primary-foreground">
-                {coupleInitials(
-                  wedding?.partnerOneName,
-                  wedding?.partnerTwoName,
-                )}
-              </span>
-            )}
-          </Link>
-        </div>
-        </div>
+      <header className="mx-auto flex w-full max-w-md items-center gap-2 px-4 pt-4 sm:gap-3 sm:px-6 lg:hidden">
+        <Link to="/app" aria-label="Beranda SatuJanji" className="flex min-h-11 items-center gap-2 text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <RingsMark className="size-5" />
+          <span className="font-serif text-xl">SatuJanji</span>
+        </Link>
+        <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">{pageTitle}</span>
+        <NotificationBell wedding={wedding} openTasks={openTasks} workspace={workspace} savingsNote={savingsNote} reminders={reminders} />
+        <Link to="/app/pengaturan" aria-label="Buka pengaturan" className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-paper-sunk text-sm font-semibold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          {couplePhoto ? <img src={couplePhoto} alt="" className="size-full object-cover" /> : coupleInitials(wedding?.partnerOneName, wedding?.partnerTwoName)}
+        </Link>
       </header>
 
-      <main id="planner-content" ref={mainRef} tabIndex={-1} aria-label={pageTitle || "Ringkasan perencanaan"} className="mx-auto w-full max-w-md px-3 pt-3 sm:px-4 lg:max-w-[1520px] lg:px-12 lg:pt-6 xl:px-16 2xl:px-20">
+      <main id="planner-content" ref={mainRef} tabIndex={-1} aria-label={pageTitle || "Ringkasan perencanaan"} className="mx-auto w-full max-w-md px-4 pt-4 sm:px-6 lg:max-w-[1520px] lg:px-12 lg:pt-8 xl:px-16 2xl:px-20">
         <SignupBanner show={showSignupBanner} />
         {/* Entrance only: no delayed exit that can render the wrong Outlet. */}
         <motion.div
           key={pathname}
-          initial={reducedMotion ? false : { opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: reducedMotion ? 0 : 0.24, ease: "easeOut" }}
+          initial={reducedMotion ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: reducedMotion ? 0 : 0.18, ease: "easeOut" }}
         >
           <Suspense fallback={<PageSkeleton />}><Outlet /></Suspense>
         </motion.div>

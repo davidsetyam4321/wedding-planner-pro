@@ -376,13 +376,18 @@ export function paletteVars(roles: PaletteRoles): Record<string, string> {
   set("--line", fog);
   set("--brand", primaryText);
   set("--accent", secondaryText);
+  set("--accent-foreground", readableOn(secondaryText));
   set("--positive", natureText);
   set("--warning", warning);
   set("--danger", danger);
+  set("--ui-accent", tintRose);
+  set("--ui-accent-foreground", readableOn(tintRose));
 
   /* Token tema undangan — emas (ornamen), hutan (sisi gelap), krem (kertas) */
   set("--color-gold", lighten(S, 0.28));
   set("--color-gold-deep", secondaryText);
+  set("--accent", secondaryText);
+  set("--accent-foreground", readableOn(secondaryText));
   set("--color-forest", primaryText);
   set("--color-forest-deep", primaryDeep);
   set("--color-cream", mix(F, "#ffffff", 0.45));
@@ -400,8 +405,7 @@ export function paletteVars(roles: PaletteRoles): Record<string, string> {
   set("--secondary-foreground", readableOn(tintSoft));
   set("--muted", mist);
   set("--muted-foreground", readableOn(mist));
-  set("--accent", tintRose);
-  set("--accent-foreground", readableOn(tintRose));
+
   set("--destructive", secondaryDeep);
   set("--destructive-foreground", "#ffffff");
   set("--border", fog);

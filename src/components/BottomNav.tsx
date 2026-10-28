@@ -3,11 +3,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { api } from "@/convex/_generated/api";
 import { PRIMARY_NAV, TOOL_NAV } from "@/lib/nav";
 import { LayoutGrid } from "@/lib/icons";
 import { NavLink, useLocation } from "react-router";
-import { useQuery } from "convex/react";
 
 /** Fitur yang disembunyikan di dalam tombol "Lainnya". */
 const GROUPED_PATHS = new Set(TOOL_NAV.map((feature) => feature.to));
@@ -22,15 +20,13 @@ const GROUPED_PATHS = new Set(TOOL_NAV.map((feature) => feature.to));
  * saat klik di luar atau menekan Escape.
  */
 export function BottomNav() {
-  const checklist = useQuery(api.checklist.list);
-  const openTasks = (checklist ?? []).filter((item) => !item.done).length;
   const { pathname } = useLocation();
   const inGroup = GROUPED_PATHS.has(pathname);
 
   return (
     <nav aria-label="Navigasi utama" className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden">
       <div className="pointer-events-auto mx-auto flex max-w-sm items-stretch justify-between gap-0.5 rounded-2xl border border-border bg-background p-1 shadow-float [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {PRIMARY_NAV.map(({ to, label, icon: Icon, active, badge }) => (
+        {PRIMARY_NAV.map(({ to, label, icon: Icon, active }) => (
           <NavLink
             key={to}
             to={to}
@@ -51,11 +47,6 @@ export function BottomNav() {
                   weight={isActive ? "fill" : "regular"}
                 />
                 <span className="leading-tight">{label}</span>
-                {badge && openTasks > 0 && (
-                  <span className="absolute right-1 top-0.5 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
-                    {openTasks > 99 ? "99+" : openTasks}
-                  </span>
-                )}
               </>
             )}
           </NavLink>

@@ -23,6 +23,7 @@ export function VisualStyleProvider({ children }: { children: ReactNode }) {
 
   useLayoutEffect(() => {
     document.documentElement.dataset.visualStyle = style;
+    document.documentElement.dataset.effects = style === "classic" ? "off" : "on";
     try {
       window.localStorage.setItem(STORAGE_KEY, style);
     } catch {

@@ -7,8 +7,6 @@ export type NavItem = {
   icon: Icon;
   /** pastel surface applied while the item is active */
   active: string;
-  /** show the open-task count badge (BottomNav) */
-  badge?: boolean;
 };
 
 /**
@@ -26,7 +24,6 @@ export const PRIMARY_NAV: NavItem[] = [
     label: "Checklist",
     icon: ListChecks,
     active: "text-primary",
-    badge: true,
   },
   {
     to: "/app/tamu",

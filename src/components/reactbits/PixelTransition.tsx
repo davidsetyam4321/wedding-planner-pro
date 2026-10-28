@@ -77,7 +77,7 @@ export default function PixelTransition({
         src={src}
         alt={alt}
         className="h-full w-full object-cover"
-        style={{
+        style={{ objectPosition: "center 54%",
           opacity: phase === "cover" ? 0 : 1,
           transition: "opacity 220ms ease",
         }}
