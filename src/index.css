@@ -1036,8 +1036,8 @@
   .label {
     font-size: var(--text-caption);
     font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    letter-spacing: 0;
+    text-transform: none;
     color: var(--muted-foreground);
   }
   .meta {
@@ -1533,4 +1533,93 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
+}
+
+/* ── Fase 3: bahasa dokumen cetak — kertas, garis 1px, dot leader, garis ganda ── */
+@layer components {
+  .sj-document-page {
+    max-width: 78rem;
+    margin-inline: auto;
+    width: 100%;
+  }
+
+  /* Motif kawung hanya menyentuh tepi judul, tidak pernah di belakang teks. */
+  .sj-page-heading {
+    position: relative;
+    isolation: isolate;
+  }
+  .sj-page-heading::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: -0.75rem -0.25rem auto;
+    height: 15px;
+    opacity: 0.06;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 32'%3E%3Cg fill='none' stroke='%231b3326' stroke-width='1.5'%3E%3Cpath d='M16 2c-7 0-12 5-12 12s5 12 12 12 12-5 12-12S23 2 16 2Zm32 0c-7 0-12 5-12 12s5 12 12 12 12-5 12-12S55 2 48 2Z'/%3E%3Cpath d='M16 8c-3 0-6 3-6 6s3 6 6 6 6-3 6-6-3-6-6-6Zm32 0c-3 0-6 3-6 6s3 6 6 6 6-3 6-6-3-6-6-6Z'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 28px 14px;
+    background-repeat: repeat-x;
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+
+  /* Tingkat permukaan 2: lembar kertas terangkat. Tanpa bayangan. */
+  .sj-paper-sheet {
+    background-color: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    box-shadow: none;
+  }
+
+  /* Baris ledger: garis 1px membawa informasi, bukan hiasan. */
+  .sj-ledger-row {
+    background-color: transparent;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+  }
+  .sj-ledger-row:last-child {
+    border-bottom: 0;
+  }
+
+  /* Dot leader dari label ke nominal. */
+  .sj-dot-leader {
+    flex: 1 1 auto;
+    min-width: 1.25rem;
+    align-self: flex-end;
+    margin-bottom: 0.4rem;
+    border-bottom: 1px dotted color-mix(in srgb, var(--line) 85%, var(--ink-soft));
+  }
+
+  /* Total di bawah garis ganda. */
+  .sj-double-rule {
+    border-top: 3px double var(--line);
+  }
+
+  /* Segmented control dua/tiga posisi tanpa bayangan. */
+  .sj-seg {
+    display: inline-flex;
+    gap: 2px;
+    padding: 2px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background-color: var(--paper-sunk);
+  }
+  .sj-seg > [data-active="true"] {
+    background-color: var(--paper);
+    border: 1px solid var(--line);
+    color: var(--ink);
+  }
+
+  /* Bar bertumpuk tunggal untuk komposisi uang/RSVP. */
+  .sj-stack-bar {
+    display: flex;
+    height: 0.5rem;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 9999px;
+    background-color: var(--paper-sunk);
+  }
+}
+:root[data-effects="off"] .sj-page-heading::before {
+  opacity: 0.04;
 }

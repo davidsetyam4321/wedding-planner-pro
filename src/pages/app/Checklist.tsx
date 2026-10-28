@@ -35,7 +35,6 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
-  PRIORITY_BADGE,
   PRIORITY_LABEL,
   nextPriority,
   normalizePriority,
@@ -57,10 +56,7 @@ import { useState, type CSSProperties, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useMutation, useQuery } from "convex/react";
 import {
-  Bar,
-  BarChart,
   CartesianGrid,
-  Cell,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -436,15 +432,13 @@ export function ChecklistPage() {
               priority: nextPriority(item.priority),
             })
           }
-          className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider transition-transform active:scale-95 ${
-            PRIORITY_BADGE[normalizePriority(item.priority)]
-          }`}
+          className="shrink-0 border-b border-dotted border-current px-1 py-1 text-xs text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)]"
         >
           {PRIORITY_LABEL[normalizePriority(item.priority)]}
         </button>
       )}
       {item.pic && (
-        <span className="chip shrink-0 bg-tint-sky text-tint-sky-foreground">
+        <span className="flex shrink-0 items-center gap-1 text-xs text-[var(--ink-soft)]">
           <UserRound className="size-3" /> {item.pic}
         </span>
       )}
@@ -683,113 +677,64 @@ export function ChecklistPage() {
             <p className="text-xs text-muted-foreground">Belum ada tugas dengan tenggat pada tanggal ini.</p>
           )}
         </div>
-        <p className="text-[11px] text-muted-foreground">{monthTasks.length} tugas bertenggat pada {monthLabel} · daftar di bawah mengikuti tenggat terdekat</p>
+        <p className="text-sm text-[var(--ink-soft)]">
+          {monthTasks.length} tugas bertenggat pada {monthLabel}. Daftar di bawah mengikuti tenggat terdekat.
+        </p>
       </section>
 
-      <section className="sj-paper-sheet p-5">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-sm text-[var(--ink-soft)]">Progres persiapan</p>
-            <p className="meta mt-1">
-              {open.length} tugas menunggu · {done.length} selesai
-            </p>
-          </div>
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-tint-sage text-xl text-tint-sage-foreground shadow-sm">
-            📝
-          </div>
-        </div>
-        <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-mist-gray">
-          <div
-            className="fill-botanical h-full rounded-full transition-all duration-700"
-            style={{ width: `${pct}%` }}
+      <section className="sj-paper-sheet p-5" aria-label="Progres persiapan">
+        <p className="max-w-[60ch] font-serif text-[1.375rem] leading-snug text-[var(--ink)] sm:text-2xl">
+          {open.length > 0
+            ? `${open.length} tugas lagi menunggu, ${done.length} sudah selesai.`
+            : done.length > 0
+              ? `Semua ${done.length} tugas sudah selesai.`
+              : "Belum ada tugas. Mulai dari yang paling dekat tenggatnya."}
+        </p>
+        <div
+          className="sj-stack-bar mt-4 h-2"
+          role="progressbar"
+          aria-valuenow={Math.min(100, pct)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`${pct}% tugas selesai`}
+        >
+          <span
+            className="h-full bg-[var(--brand)] transition-[width] duration-300 ease-out motion-reduce:transition-none"
+            style={{ width: `${Math.min(100, pct)}%` }}
           />
+          <span className="h-full bg-[var(--paper-sunk)]" />
         </div>
-        <p className="num meta mt-1.5">{pct}% selesai</p>
+        <p className="num mt-2 text-sm text-[var(--ink-soft)]">
+          {pct}% selesai dari {open.length + done.length} tugas.
+        </p>
+        {priorityBarData.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-2 border-t border-[var(--line)] pt-3" role="group" aria-label="Saring menurut prioritas">
+            {priorityBarData.map((row) => {
+              const active = priorityFilter === row.key;
+              const jumlah = row.selesai + row.sisa;
+              return (
+                <button
+                  key={row.key}
+                  type="button"
+                  aria-pressed={active}
+                  aria-label={`Prioritas ${row.name}: ${row.sisa} dari ${jumlah} tugas belum selesai`}
+                  onClick={() => setPriorityFilter(active ? null : row.key)}
+                  className={`chip min-h-11 gap-2 border-[var(--line)] ${
+                    active ? "bg-[var(--brand)] text-[var(--paper)]" : "text-[var(--ink)]"
+                  }`}
+                >
+                  {row.name}
+                  <span className="num text-[0.8125rem] opacity-80">
+                    {row.sisa}/{jumlah}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </section>
 
-      {priorityBarData.length > 0 && (
-        <ChartCard title="Progres per prioritas" meta="Klik batang untuk filter">
-          <div className="h-40">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={priorityBarData}
-                layout="vertical"
-                margin={{ top: 4, right: 8, bottom: 0, left: 4 }}
-              >
-                <CartesianGrid
-                  horizontal={false}
-                  stroke="var(--color-fog)"
-                />
-                <XAxis
-                  type="number"
-                  allowDecimals={false}
-                  tick={{ fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="name"
-                  tick={{ fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={58}
-                />
-                <Tooltip content={<ChartTip />} cursor={{ fill: "var(--color-mist-gray)" }} />
-                <Bar
-                  dataKey="selesai"
-                  name="Selesai"
-                  stackId="progres"
-                  fill="var(--chart-1)"
-                  barSize={16}
-                >
-                  {priorityBarData.map((row) => (
-                    <Cell
-                      key={row.key}
-                      className="cursor-pointer"
-                      onClick={() =>
-                        setPriorityFilter((previous) =>
-                          previous === row.key ? null : row.key,
-                        )
-                      }
-                    />
-                  ))}
-                </Bar>
-                <Bar
-                  dataKey="sisa"
-                  name="Sisa"
-                  stackId="progres"
-                  fill="var(--color-mist-gray)"
-                  radius={[0, 4, 4, 0]}
-                  barSize={16}
-                >
-                  {priorityBarData.map((row) => (
-                    <Cell
-                      key={row.key}
-                      className="cursor-pointer"
-                      onClick={() =>
-                        setPriorityFilter((previous) =>
-                          previous === row.key ? null : row.key,
-                        )
-                      }
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-1 flex items-center gap-3 text-[11px] font-semibold text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-chart-1" /> Selesai
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-mist-gray" /> Sisa
-            </span>
-          </div>
-        </ChartCard>
-      )}
-
-      {burndownData.length > 1 && (
+      {burndownData.length > 2 && (
         <ChartCard title="Burndown tugas" meta={`${burndownData.length} pekan`}>
           <div className="h-40">
             <ResponsiveContainer width="100%" height="100%">

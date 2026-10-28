@@ -201,20 +201,22 @@ export function MoodboardPage() {
       <BackLink />
 
       <header className="sj-page-heading border-b border-[var(--line)] pb-4">
-        <p className="text-sm text-[var(--ink-soft)]">Papan foto · {current}</p>
+        <p className="text-sm text-[var(--ink-soft)]">Papan foto kategori {current}</p>
         <h1 className="mt-1 font-serif text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--ink)]">Moodboard</h1>
         <p className="mt-2 text-base leading-relaxed text-[var(--ink-soft)]">{totalPhotos} foto di {boxes?.length ?? 0} kotak. Simpan inspirasi per kategori dan geser thumbnail untuk memindahkan foto.</p>
       </header>
-      <div className="flex items-center gap-2 overflow-x-auto border-b border-[var(--line)] pb-3">
+      <div className="flex items-center gap-1 overflow-x-auto border-b border-[var(--line)] pb-2" role="tablist" aria-label="Kategori moodboard">
         {categoryNames.map((name) => (
           <button
             key={name}
             type="button"
+            role="tab"
+            aria-selected={name === current}
             onClick={() => setActiveCategory(name)}
-            className={`chip shrink-0 ${
+            className={`min-h-11 shrink-0 border-b-2 px-3 text-sm transition-colors ${
               name === current
-                ? "bg-primary text-primary-foreground"
-                : "bg-tint-rose text-tint-rose-foreground"
+                ? "border-[var(--brand)] text-[var(--ink)]"
+                : "border-transparent text-[var(--ink-soft)] hover:text-[var(--ink)]"
             }`}
           >
             {name}
@@ -226,17 +228,17 @@ export function MoodboardPage() {
             setCategoryName("");
             setCategoryDialog("add");
           }}
-          className="chip shrink-0 bg-secondary text-secondary-foreground"
+          className="flex min-h-11 shrink-0 items-center gap-1.5 px-3 text-sm text-[var(--ink-soft)] hover:text-[var(--ink)]"
         >
           <Plus className="size-3.5" /> Kategori
         </button>
         <button
           type="button"
           onClick={() => setCategoryDialog("manage")}
-          className="chip shrink-0 bg-secondary text-secondary-foreground"
+          className="flex size-11 shrink-0 items-center justify-center text-[var(--ink-soft)] hover:text-[var(--ink)]"
           aria-label="Kelola kategori"
         >
-          <Pencil className="size-3.5" />
+          <Pencil className="size-4" />
         </button>
       </div>
 
@@ -254,14 +256,14 @@ export function MoodboardPage() {
             type="button"
             aria-label="Bersihkan pencarian"
             onClick={() => setQuery("")}
-            className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
+            className="absolute right-1 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center text-[var(--ink-soft)] hover:text-[var(--ink)]"
           >
-            <X className="size-3.5" />
+            <X className="size-4" />
           </button>
         )}
       </div>
 
-      <Stagger className="grid grid-cols-2 gap-3">
+      <Stagger className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3">
         {visibleBoxes.map((box) => {
           const cover = box.photos[0];
           const full = box.photos.length >= MAX_PHOTOS;
@@ -270,34 +272,26 @@ export function MoodboardPage() {
             <button
               type="button"
               onClick={() => setOpenBoxId(box._id)}
-              className="clay clay-press h-full w-full overflow-hidden p-0 text-left"
+              className="block w-full text-left"
             >
-              <div className="relative aspect-[4/3] w-full bg-muted">
+              <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[6px] bg-[var(--paper-sunk)]">
                 {cover ? (
                   <img
                     src={cover.url}
                     alt={box.title}
+                    loading="lazy"
                     className="size-full object-cover"
                   />
                 ) : (
-                  <div className="flex size-full items-center justify-center text-tint-rose-foreground">
+                  <div className="flex size-full items-center justify-center text-[var(--ink-soft)]">
                     <Images className="size-6 opacity-60" />
                   </div>
                 )}
-                <span className="num absolute bottom-1.5 right-1.5 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-bold text-white">
-                  {box.photos.length}/{MAX_PHOTOS}
-                </span>
               </div>
-              <div className="p-3">
-                <p className="text-xs font-extrabold leading-snug">{box.title}</p>
-                <p className="meta">
-                  {box.photos.length === 0
-                    ? "Belum ada foto"
-                    : full
-                      ? "Penuh"
-                      : "Klik untuk kelola"}
-                </p>
-              </div>
+              <p className="mt-2 text-sm leading-snug text-[var(--ink)]">{box.title}</p>
+              <p className="num text-[0.8125rem] text-[var(--ink-soft)]">
+                {box.photos.length} dari {MAX_PHOTOS} foto{full ? ", kotak penuh" : ""}
+              </p>
             </button>
             </StaggerItem>
           );
@@ -325,8 +319,8 @@ export function MoodboardPage() {
       )}
 
       <Button
-        variant="secondary"
-        className="w-full rounded-2xl"
+        variant="outline"
+        className="w-full rounded-lg border-[var(--line)] bg-transparent text-[var(--ink)]"
         onClick={() => setBoxDialog({ title: "" })}
       >
         <Plus className="size-4" /> Kotak baru di {current}

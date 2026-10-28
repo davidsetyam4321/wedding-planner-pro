@@ -14,14 +14,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  BranchMark,
-  BouquetMark,
-  FlowerMark,
-  SprigMark,
-  WreathMark,
-} from "@/components/Decor";
-import FadeContent from "@/components/FadeContent";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AnimatePresence, motion, useIsPresent, useReducedMotion } from "framer-motion";
@@ -32,7 +24,7 @@ import {
 } from "@/lib/icons";
 import type { Icon } from "@/lib/icons";
 
-import { Children, useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { Children, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router";
 
@@ -196,22 +188,17 @@ export function EmptyState({
   const Icon = EMPTY_ICONS[emoji] ?? ClipboardList;
   return (
     <div
-      className={`stationery flex flex-col items-center justify-center gap-3 rounded-3xl px-6 py-10 text-center ${
+      className={`flex flex-col items-start gap-3 border-t border-[var(--line)] px-1 py-8 text-left ${
         className ?? ""
       }`}
     >
-      <div className="relative">
-        <div className="icon-medallion flex size-14 items-center justify-center rounded-full text-primary">
-          <Icon aria-hidden="true" className="size-6" weight="duotone" />
-        </div>
-        <SprigMark className="absolute -right-2 -top-2 size-5 text-bloom" />
-      </div>
-      <p className="relative text-sm font-semibold">{title}</p>
+      <Icon aria-hidden="true" className="size-5 text-[var(--ink-soft)]" weight="light" />
+      <p className="text-base font-medium text-[var(--ink)]">{title}</p>
       {description && (
-        <p className="max-w-[36ch] text-sm leading-relaxed text-muted-foreground">{description}</p>
+        <p className="max-w-[52ch] text-sm leading-relaxed text-[var(--ink-soft)]">{description}</p>
       )}
       {actionLabel && onAction && (
-        <Button size="sm" className="mt-1 rounded-xl" onClick={onAction}>
+        <Button size="sm" variant="outline" className="mt-1 rounded-lg" onClick={onAction}>
           {actionLabel}
         </Button>
       )}
@@ -246,7 +233,7 @@ export function DueChip({ dueDate }: { dueDate: number }) {
 
   return (
     <span
-      className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-wider ${tone}`}
+      className={`num shrink-0 rounded-md px-1.5 py-1 text-[0.8125rem] ${tone}`}
       title={new Date(dueDate).toLocaleDateString("id-ID", {
         weekday: "long",
         day: "numeric",
@@ -265,13 +252,6 @@ export function DueChip({ dueDate }: { dueDate: number }) {
  * undangan cetak. Dipakai di seluruh halaman agar struktur judul seragam.
  * Ikonnya silih berganti antar section supaya penempatan tidak monoton.
  */
-const SECTION_MARKS = [
-  FlowerMark,
-  SprigMark,
-  BouquetMark,
-  BranchMark,
-  WreathMark,
-];
 export function SectionHeader({
   title,
   action,
@@ -279,23 +259,19 @@ export function SectionHeader({
   title: string;
   action?: ReactNode;
 }) {
-  // Ikon section beragam — dipilih deterministik dari judul, tidak monoton.
-  const Mark = SECTION_MARKS[[...title].length % SECTION_MARKS.length];
   return (
-    <FadeContent duration={550} className="mb-2.5">
-      <div className="flex items-end justify-between gap-2">
-        <h2 className="flex items-center gap-2 font-serif text-base font-normal uppercase leading-tight tracking-[0.12em] text-midnight-navy lg:text-lg xl:text-xl">
-          <Mark className="size-4 shrink-0 text-bloom" />
+    <div className="mb-2.5">
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <h2 className="font-serif text-xl leading-snug text-[var(--ink)] lg:text-2xl">
           {title}
         </h2>
         {action}
       </div>
-      {/* garis rambut khas kertas undangan di bawah judul seksi */}
       <span
         aria-hidden="true"
-        className="ornament-line mt-2 block w-full opacity-70"
+        className="mt-2 block w-full border-b border-[var(--line)]"
       />
-    </FadeContent>
+    </div>
   );
 }
 
@@ -362,11 +338,15 @@ export function MoneyInput({
   ariaLabel,
 }: LocalizedInputProps) {
   const [display, setDisplay] = useState(() => formatGroupedDigits(value));
+  const [syncedValue, setSyncedValue] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  // Nilai dari form/API bisa berubah (mis. setelah reset); sinkronkan tanpa
+  // efek supaya tidak ada render berantai.
+  if (value !== syncedValue) {
+    setSyncedValue(value);
     setDisplay(formatGroupedDigits(value));
-  }, [value]);
+  }
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const input = event.currentTarget;
@@ -419,10 +399,12 @@ export function DateInputID({
   ariaLabel,
 }: LocalizedInputProps) {
   const [display, setDisplay] = useState(() => dateInputDisplay(value));
+  const [syncedValue, setSyncedValue] = useState(value);
 
-  useEffect(() => {
+  if (value !== syncedValue) {
+    setSyncedValue(value);
     setDisplay(dateInputDisplay(value));
-  }, [value]);
+  }
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const digits = parseGroupedDigits(event.currentTarget.value).slice(0, 8);

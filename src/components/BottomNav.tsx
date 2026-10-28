@@ -57,11 +57,11 @@ export function BottomNav() {
             <button
               type="button"
               aria-label="Fitur lainnya"
-              className={`relative flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 py-1.5 text-[11px] sm:min-h-12 sm:gap-1 sm:rounded-2xl sm:px-1 sm:py-2 sm:text-xs font-medium transition-colors duration-200 ${
+              className={`relative flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg px-0.5 py-1.5 text-[11px] sm:min-h-12 sm:gap-1 sm:px-1 sm:py-2 sm:text-xs font-medium transition-colors duration-200 ${
                 inGroup
-                  ? "bg-tint-sage font-semibold text-tint-sage-foreground shadow-sm"
+                  ? "font-semibold text-[var(--brand)]"
                   : "text-muted-foreground hover:text-foreground"
-              } data-[state=open]:bg-tint-sage data-[state=open]:font-semibold data-[state=open]:text-tint-sage-foreground data-[state=open]:shadow-sm`}
+              } data-[state=open]:font-semibold data-[state=open]:text-[var(--brand)]`}
             >
               <LayoutGrid
                 className="size-[18px] shrink-0 sm:size-5"
@@ -73,29 +73,25 @@ export function BottomNav() {
           <PopoverContent
             side="top"
             align="end"
-            className="w-60 rounded-2xl p-2"
+            className="w-60 rounded-lg border-[var(--line)] bg-[var(--paper)] p-2"
           >
-            <p className="label px-2 pb-1.5 text-muted-foreground">
-              Fitur lainnya
+            <p className="px-2 pb-1.5 text-sm text-[var(--ink-soft)]">
+              Halaman lain
             </p>
-            <ul className="space-y-0.5">
+            <ul className="divide-y divide-[var(--line)]">
               {TOOL_NAV.map((feature) => (
                 <li key={feature.to}>
                   <NavLink
                     to={feature.to}
                     className={({ isActive }) =>
-                      `flex items-center gap-2.5 rounded-xl px-2 py-2 text-sm font-bold transition-colors ${
+                      `flex min-h-11 items-center gap-2.5 px-2 text-sm transition-colors ${
                         isActive
-                          ? `${feature.surface} shadow-sm`
-                          : "text-foreground hover:bg-tint-sage"
+                          ? "font-semibold text-[var(--brand)]"
+                          : "text-[var(--ink)] hover:text-[var(--brand)]"
                       }`
                     }
                   >
-                    <span
-                      className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${feature.surface}`}
-                    >
-                      <feature.icon className="size-4" weight="regular" />
-                    </span>
+                    <feature.icon className="size-4 shrink-0" weight="regular" />
                     <span className="min-w-0 flex-1 truncate">
                       {feature.label}
                     </span>

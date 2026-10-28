@@ -21,7 +21,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
 import { formatDateID, formatDateTimeID, formatRupiah, formatRupiahShort } from "@/lib/format";
-import { DateInputID, MoneyInput } from "@/components/Shared";
+import { MoneyInput } from "@/components/Shared";
 import { vendorPaidAmount } from "@/lib/budget";
 import { Loader2, Plus, Target, TrendingUp } from "@/lib/icons";
 import { useState } from "react";
@@ -42,47 +42,6 @@ import { toast } from "sonner";
 
 const QUICK_AMOUNTS = [250_000, 500_000, 1_000_000, 2_000_000];
 
-/** Ring progres SVG dengan gradasi sage → champagne (visualisasi target). */
-function ProgressRing({ pct, size = 88, stroke = 10 }: { pct: number; size?: number; stroke?: number }) {
-  const radius = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const clamped = Math.min(100, Math.max(0, pct));
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox={`0 0 ${size} ${size}`}
-      className="-rotate-90"
-      aria-hidden="true"
-    >
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke="var(--tint-sage)"
-        strokeWidth={stroke}
-      />
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke="url(#sj-ring-grad)"
-        strokeWidth={stroke}
-        strokeLinecap="round"
-        strokeDasharray={circumference}
-        strokeDashoffset={circumference - (clamped / 100) * circumference}
-      />
-      <defs>
-        <linearGradient id="sj-ring-grad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stopColor="var(--chart-1)" />
-      <stop offset="100%" stopColor="var(--chart-2)" />
-        </linearGradient>
-      </defs>
-    </svg>
-  );
-}
 const MONTHS = [
   "Januari", "Februari", "Maret", "April", "Mei", "Juni",
   "Juli", "Agustus", "September", "Oktober", "November", "Desember",
@@ -120,13 +79,13 @@ export function TabunganPage() {
   const paidVendorCost = vendors?.reduce((sum, vendor) => sum + vendorPaidAmount(vendor), 0) ?? 0;
   const vendorObligation = Math.max(0, totalVendorCost - paidVendorCost);
   const fundingGap = Math.max(0, vendorObligation - total);
+  const now = new Date();
   const monthsRemaining = wedding
-    ? Math.max(1, Math.ceil((wedding.weddingDate - Date.now()) / (30.4375 * 24 * 60 * 60 * 1000)))
+    ? Math.max(1, Math.ceil((wedding.weddingDate - now.getTime()) / (30.4375 * 24 * 60 * 60 * 1000)))
     : 1;
   const monthlySaving = Math.ceil(fundingGap / monthsRemaining);
   const pct = target > 0 ? Math.min(100, Math.round((total / target) * 100)) : 0;
 
-  const now = new Date();
   const thisMonth = list
     .filter((deposit) => {
       const date = new Date(deposit.savedAt);
@@ -254,14 +213,16 @@ export function TabunganPage() {
         <p className="mt-2 max-w-[60ch] text-base leading-relaxed text-[var(--ink-soft)]">{list.length} setoran tercatat sampai saat ini.</p>
       </header>
       <section className="sj-paper-sheet p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-sm text-[var(--ink-soft)]">Progres menuju target</p>
-            <p className="meta mt-1">Target {formatRupiahShort(target)}</p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-sm text-[var(--ink-soft)]">Terkumpul dari target <span className="num">{formatRupiah(target)}</span></p>
+            <p className="num mt-2 font-serif text-[clamp(2.5rem,7vw,4.5rem)] leading-none text-[var(--ink)]">
+              {formatRupiah(total)}
+            </p>
           </div>
           <button
             type="button"
-            className="chip bg-tint-lavender text-tint-lavender-foreground"
+            className="chip border-[var(--line)] bg-transparent text-[var(--ink)]"
             onClick={() => {
               setTargetValue(String(target));
               setTargetOpen(true);
@@ -271,23 +232,23 @@ export function TabunganPage() {
           </button>
         </div>
 
-        <div className="mt-4 flex items-center gap-4">
-          <div className="min-w-0 flex-1">
-            <p className="num text-3xl font-extrabold">{formatRupiah(total)}</p>
-            <p className="num mt-1.5 text-sm text-[var(--ink-soft)]">
-              {pct}% terkumpul · kurang {formatRupiah(Math.max(0, target - total))} dari target
-            </p>
-          </div>
-          <div className="relative shrink-0">
-            <ProgressRing pct={pct} />
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="num text-sm font-extrabold text-primary">{pct}%</span>
-              <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                Target
-              </span>
-            </div>
-          </div>
+        <div
+          className="sj-stack-bar mt-4 h-2"
+          role="progressbar"
+          aria-valuenow={Math.min(100, pct)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`Tabungan ${pct}% dari target`}
+        >
+          <span
+            className="h-full bg-[var(--brand)] transition-[width] duration-300 ease-out motion-reduce:transition-none"
+            style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
+          />
+          <span className="h-full bg-[var(--paper-sunk)]" />
         </div>
+        <p className="num mt-2 text-sm text-[var(--ink-soft)]">
+          {pct}% terkumpul, kurang {formatRupiah(Math.max(0, target - total))} dari target.
+        </p>
         <p className="mt-4 border-t border-[var(--line)] pt-3 text-sm leading-relaxed text-[var(--ink-soft)]">
           {vendors === undefined ? "Memuat sisa kewajiban vendor…" : vendorObligation > 0
             ? <>Sisa kewajiban vendor <strong className="num text-[var(--ink)]">{formatRupiah(vendorObligation)}</strong>. {fundingGap > 0
@@ -298,7 +259,7 @@ export function TabunganPage() {
       </section>
 
       <p className="border-b border-[var(--line)] py-3 text-sm text-[var(--ink-soft)]">
-        Bulan ini <strong className="num text-[var(--ink)]">{formatRupiah(thisMonth)}</strong> · rata-rata per setoran <strong className="num text-[var(--ink)]">{formatRupiah(average)}</strong> · {list.length} kali setor
+        Bulan ini <strong className="num text-[var(--ink)]">{formatRupiah(thisMonth)}</strong>, rata-rata per setoran <strong className="num text-[var(--ink)]">{formatRupiah(average)}</strong>, dari {list.length} kali setor.
       </p>
 
       {/* Mini chart: 6 bulan terakhir */}
@@ -309,33 +270,45 @@ export function TabunganPage() {
               title="6 bulan terakhir"
               action={<TrendingUp className="size-4 text-primary" />}
             />
-            <div className="mt-3 flex h-24 items-end justify-between gap-2">
-              {chart.map((bar) => (
-                <div
-                  key={bar.label}
-                  className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1"
-                >
-                  <p className="num text-[9px] font-bold text-muted-foreground">
-                    {bar.sum > 0 ? formatRupiahShort(bar.sum) : ""}
-                  </p>
+            {list.length < 2 ? (
+              <p className="mt-3 max-w-[55ch] text-sm leading-relaxed text-[var(--ink-soft)]">
+                Grafik enam bulan muncul setelah ada dua setoran. Catat setoran berikutnya untuk melihat polanya.
+              </p>
+            ) : (
+              <div className="mt-3 flex h-24 items-end justify-between gap-2">
+                {chart.map((bar) => (
                   <div
-                    className={`w-full max-w-9 rounded-t-lg transition-all ${
-                      bar.sum > 0 ? "bg-primary" : "bg-mist-gray"
-                    }`}
-                    style={{
-                      height: bar.sum > 0 ? `${Math.max(10, (bar.sum / chartMax) * 72)}px` : 6,
-                    }}
-                  />
-                  <p className="num text-[10px] font-bold text-muted-foreground">
-                    {bar.label}
-                  </p>
-                </div>
-              ))}
-            </div>
+                    key={bar.label}
+                    className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1"
+                    title={bar.sum > 0 ? formatRupiah(bar.sum) : "Belum ada setoran"}
+                  >
+                    <p className="num text-[0.8125rem] text-[var(--ink-soft)]">
+                      {bar.sum > 0 ? formatRupiahShort(bar.sum) : ""}
+                    </p>
+                    <div
+                      className={`w-full max-w-9 rounded-t-[6px] ${
+                        bar.sum > 0 ? "bg-[var(--brand)]" : "bg-[var(--paper-sunk)]"
+                      }`}
+                      style={{
+                        height: bar.sum > 0 ? `${Math.max(10, (bar.sum / chartMax) * 72)}px` : 6,
+                      }}
+                    />
+                    <p className="num text-[0.8125rem] text-[var(--ink-soft)]">
+                      {bar.label}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
         </StaggerItem>
       </Stagger>
 
+      {list.length < 2 ? (
+        <p className="border-t border-[var(--line)] py-4 text-sm leading-relaxed text-[var(--ink-soft)]">
+          Proyeksi tiga, enam, dan dua belas bulan muncul setelah ada dua setoran.
+        </p>
+      ) : (
       <ChartCard
         title="Proyeksi dana"
         action={
@@ -415,6 +388,7 @@ export function TabunganPage() {
           </span>
         </div>
       </ChartCard>
+      )}
 
       <section className="clay space-y-3 p-4">
         <SectionHeader title="Setor baru" />

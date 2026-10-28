@@ -1,4 +1,3 @@
-import { CHART_COLORS, ChartCard, ChartTip } from "@/components/Charts";
 import {
   BackLink,
   EmptyState,
@@ -24,6 +23,7 @@ import { WA_TEMPLATES, waLink, type WaContext } from "@/lib/contact";
 import { downloadCsv } from "@/lib/exportCsv";
 import { formatDateLongID } from "@/lib/format";
 import {
+  Check,
   FileDown,
   Loader2,
   MessageCircle,
@@ -34,18 +34,8 @@ import {
 } from "@/lib/icons";
 import { useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { undoableDelete } from "@/lib/undo";
 
@@ -74,30 +64,6 @@ const EMPTY_FORM: GuestForm = {
   phone: "",
   note: "",
 };
-
-const AVATAR_TINTS = [
-  "bg-tint-rose text-tint-rose-foreground",
-  "bg-tint-sky text-tint-sky-foreground",
-  "bg-tint-butter text-tint-butter-foreground",
-  "bg-tint-mint text-tint-mint-foreground",
-  "bg-tint-sage text-tint-sage-foreground",
-  "bg-tint-lavender text-tint-lavender-foreground",
-];
-
-/** Warna avatar yang konsisten untuk setiap grup tamu. */
-function groupTint(group: string): string {
-  let hash = 0;
-  for (const char of group) hash = (hash * 31 + char.charCodeAt(0)) % 997;
-  return AVATAR_TINTS[hash % AVATAR_TINTS.length];
-}
-
-function initialsOf(name: string): string {
-  const words = name.trim().split(/\s+/).filter(Boolean);
-  if (words.length === 0) return "?";
-  const first = words[0][0] ?? "";
-  const second = words[1]?.[0] ?? "";
-  return (first + second).toUpperCase();
-}
 
 export function TamuPage() {
   const guests = useQuery(api.guests.list);
@@ -140,31 +106,18 @@ export function TamuPage() {
   const tidakSeg = Math.round((declinedPax / paxBase) * 100);
   const pendingSeg = Math.max(0, 100 - hadirSeg - tidakSeg);
 
-  // Donut komposisi RSVP (berdasar pax) — klik irisan/legenda → filter daftar.
   const pendingPax = Math.max(0, totalPax - attendingPax - declinedPax);
-  const rsvpDonut: {
-    key: Rsvp;
-    name: string;
-    value: number;
-    color: string;
-  }[] = [
-    { key: "hadir" as const, name: "Hadir", value: attendingPax, color: "var(--chart-1)" },
-    { key: "pending" as const, name: "Menunggu", value: pendingPax, color: "var(--chart-3)" },
-    { key: "tidak" as const, name: "Berhalangan", value: declinedPax, color: "var(--color-stone)" },
-  ].filter((row) => row.value > 0);
+  const answered = list.filter((guest) => guest.rsvp !== "pending").length;
 
-  // Sebaran pax per grup (maks 6 teratas) — klik batang → filter grup.
-  const groupBarData = groups
+  // Sebaran pax per grup — dipakai sebagai daftar filter dengan hitungan.
+  const groupRows = groups
     .map((group) => ({
       group,
-      name: group,
       orang: list
         .filter((guest) => guest.group === group)
         .reduce((sum, guest) => sum + guest.pax, 0),
     }))
-    .sort((a, b) => b.orang - a.orang)
-    .slice(0, 6);
-
+    .sort((a, b) => b.orang - a.orang);
   const visible = list.filter((guest) => {
     if (groupFilter && guest.group !== groupFilter) return false;
     if (rsvpFilter !== "semua" && guest.rsvp !== rsvpFilter) return false;
@@ -178,13 +131,14 @@ export function TamuPage() {
       type="button"
       aria-pressed={rsvpFilter === key}
       onClick={() => setRsvpFilter(key)}
-      className={`chip shrink-0 ${
+      className={`chip shrink-0 gap-2 ${
         rsvpFilter === key
-          ? "bg-primary text-primary-foreground shadow-sm"
-          : "bg-secondary text-secondary-foreground"
+          ? "border-[var(--brand)] bg-[var(--brand)] text-[var(--paper)]"
+          : "border-[var(--line)] bg-transparent text-[var(--ink)]"
       }`}
     >
-      {label} · {count}
+      {label}
+      <span className="num text-[0.8125rem] opacity-80">{count}</span>
     </button>
   );
 
@@ -377,181 +331,32 @@ export function TamuPage() {
         <p className="mt-2 text-base leading-relaxed text-[var(--ink-soft)]">{totalPax} orang dari {list.length} undangan; {list.filter((guest) => guest.rsvp !== "pending").length} sudah menjawab.</p>
       </header>
 
-      <section className="sj-paper-sheet p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-sm text-[var(--ink-soft)]">Ringkasan buku tamu</p>
-            <p className="mt-2 max-w-[65ch] text-base leading-relaxed text-[var(--ink-soft)]">
-              {totalPax} orang dalam {list.length} undangan; {invited} undangan terkirim dan {list.filter((guest) => guest.rsvp !== "pending").length} sudah memberi jawaban.
-            </p>
-          </div>
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-tint-sky text-xl text-tint-sky-foreground shadow-sm">
-            💌
-          </div>
+      <section className="sj-paper-sheet p-5" aria-label="Jawaban tamu">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+          <h2 className="font-serif text-2xl leading-snug text-[var(--ink)]">Jawaban tamu</h2>
+          <p className="text-sm text-[var(--ink-soft)]">
+            {answered} dari {list.length} undangan sudah menjawab
+          </p>
         </div>
-        <div className="relative mt-4 flex h-2 w-full overflow-hidden rounded-full bg-mist-gray">
-          <div
-            className="h-full bg-primary transition-all duration-700"
-            style={{ width: `${hadirSeg}%` }}
-            title="Hadir"
-          />
-          <div
-            className="h-full bg-gold transition-all duration-700"
-            style={{ width: `${pendingSeg}%` }}
-            title="Menunggu"
-          />
-          <div
-            className="h-full bg-border transition-all duration-700"
-            style={{ width: `${tidakSeg}%` }}
-            title="Berhalangan"
-          />
+        <div
+          className="sj-stack-bar mt-4 h-2"
+          role="img"
+          aria-label={`Hadir ${attendingPax} orang, menunggu ${pendingPax} orang, berhalangan ${declinedPax} orang`}
+        >
+          <span className="h-full bg-[var(--brand)]" style={{ width: `${hadirSeg}%` }} />
+          <span className="h-full bg-[var(--accent)]" style={{ width: `${pendingSeg}%` }} />
+          <span className="h-full bg-[var(--line)]" style={{ width: `${tidakSeg}%` }} />
         </div>
-        <div className="relative mt-4 flex items-center gap-2 overflow-x-auto pb-0.5">
+        <div className="mt-4 flex flex-wrap gap-2">
           {rsvpPill("semua", "Semua", list.length)}
           {rsvpPill("hadir", "Hadir", list.filter((guest) => guest.rsvp === "hadir").length)}
           {rsvpPill("pending", "Belum", list.filter((guest) => guest.rsvp === "pending").length)}
           {rsvpPill("tidak", "Tidak", list.filter((guest) => guest.rsvp === "tidak").length)}
         </div>
-        <dl className="relative mt-3 grid grid-cols-3 gap-2">
-          <div className="stat-tile bg-secondary">
-            <dt>Total</dt>
-            <dd>{totalPax} org</dd>
-          </div>
-          <div className="stat-tile bg-secondary">
-            <dt>Hadir</dt>
-            <dd>{attendingPax} org</dd>
-          </div>
-          <div className="stat-tile bg-secondary">
-            <dt>Terikirim</dt>
-            <dd>{invited}/{list.length}</dd>
-          </div>
-        </dl>
+        <p className="mt-3 text-sm text-[var(--ink-soft)]">
+          {invited} undangan sudah dikirim. {attendingPax} orang diperkirakan hadir.
+        </p>
       </section>
-
-      {false && rsvpDonut.length > 0 && (
-        <ChartCard title="Komposisi RSVP" meta="Klik irisan untuk filter">
-          <div className="flex items-center gap-4">
-            <div className="relative size-32 shrink-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={rsvpDonut}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={40}
-                    outerRadius={58}
-                    paddingAngle={3}
-                    cornerRadius={6}
-                    strokeWidth={0}
-                  >
-                    {rsvpDonut.map((row) => (
-                      <Cell
-                        key={row.key}
-                        fill={row.color}
-                        className="cursor-pointer"
-                        onClick={() =>
-                          setRsvpFilter((previous) =>
-                            previous === row.key ? "semua" : row.key,
-                          )
-                        }
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    content={<ChartTip format={(value) => `${value} orang`} />}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <span className="num text-sm font-extrabold">{totalPax}</span>
-                <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                  orang
-                </span>
-              </div>
-            </div>
-            <ul className="min-w-0 flex-1 space-y-1.5">
-              {rsvpDonut.map((row) => (
-                <li key={row.key}>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setRsvpFilter((previous) =>
-                        previous === row.key ? "semua" : row.key,
-                      )
-                    }
-                    className="flex w-full items-center gap-2 rounded-lg px-1 py-0.5 text-xs transition-colors hover:bg-secondary"
-                  >
-                    <span
-                      className="size-2.5 shrink-0 rounded-full"
-                      style={{ backgroundColor: row.color }}
-                    />
-                    <span className="min-w-0 flex-1 truncate text-left font-semibold">
-                      {row.name}
-                    </span>
-                    <span className="num font-bold">{row.value}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </ChartCard>
-      )}
-
-      {false && groupBarData.length > 1 && (
-        <ChartCard title="Sebaran per grup" meta="Klik batang untuk filter">
-          <div className="h-44">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={groupBarData}
-                layout="vertical"
-                margin={{ top: 4, right: 8, bottom: 0, left: 4 }}
-              >
-                <CartesianGrid
-                  horizontal={false}
-                  stroke="var(--color-fog)"
-                />
-                <XAxis
-                  type="number"
-                  tick={{ fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="name"
-                  tick={{ fontSize: 9 }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={94}
-                />
-                <Tooltip
-                  content={<ChartTip format={(value) => `${value} orang`} />}
-                  cursor={{ fill: "var(--color-mist-gray)" }}
-                />
-                <Bar
-                  dataKey="orang"
-                  name="Orang"
-                  radius={[0, 4, 4, 0]}
-                  barSize={12}
-                >
-                  {groupBarData.map((row, index) => (
-                    <Cell
-                      key={row.group}
-                      fill={CHART_COLORS[index % CHART_COLORS.length]}
-                      className="cursor-pointer"
-                      onClick={() =>
-                        setGroupFilter((previous) =>
-                          previous === row.group ? null : row.group,
-                        )
-                      }
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </ChartCard>
-      )}
 
       <div className="flex flex-wrap gap-2">
         <Button className="flex-1 rounded-2xl" onClick={openNew}>
@@ -608,44 +413,35 @@ export function TamuPage() {
       </div>
 
       {groups.length > 1 && (
-        <div className="flex items-center gap-2 overflow-x-auto pb-1">
-          <button
-            type="button"
-            onClick={() => setGroupFilter(null)}
-            className={`chip shrink-0 ${
-              groupFilter === null
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary text-secondary-foreground"
-            }`}
-          >
-            Semua grup
-          </button>
-          {groups.map((group) => (
-            <button
-              key={group}
-              type="button"
-              onClick={() => setGroupFilter(group)}
-              className={`chip shrink-0 ${
-                groupFilter === group
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-tint-sky text-tint-sky-foreground"
-              }`}
-            >
-              {group}
-            </button>
-          ))}
-        </div>
+        <p className="text-sm text-[var(--ink-soft)]">
+          Saring per grup lewat daftar sebaran di bawah.
+        </p>
       )}
 
       <section className="space-y-3">
-        {groups.length > 0 && (
+        {groupRows.length > 0 && (
           <div className="sj-paper-sheet p-4">
             <h2 className="font-serif text-xl text-[var(--ink)]">Sebaran per grup</h2>
             <ul className="mt-2 divide-y divide-[var(--line)]">
-              {groups.map((group) => {
-                const people = list.filter((guest) => guest.group === group).reduce((sum, guest) => sum + guest.pax, 0);
-                return <li key={group}><button type="button" aria-pressed={groupFilter === group} onClick={() => setGroupFilter((current) => current === group ? null : group)} className="flex min-h-11 w-full items-center gap-3 py-2 text-left"><span className="min-w-0 flex-1 text-sm">{group}</span><span className="num text-sm">{people} orang</span><span aria-hidden="true" className="h-1 w-20 overflow-hidden bg-[var(--paper-sunk)]"><span className="block h-full bg-[var(--brand)]" style={{ width: `${totalPax ? people / totalPax * 100 : 0}%` }} /></span></button></li>;
-              })}
+              {groupRows.map((row) => (
+                <li key={row.group}>
+                  <button
+                    type="button"
+                    aria-pressed={groupFilter === row.group}
+                    onClick={() => setGroupFilter((current) => (current === row.group ? null : row.group))}
+                    className="flex min-h-11 w-full items-center gap-3 py-2 text-left"
+                  >
+                    <span className="min-w-0 flex-1 truncate text-sm text-[var(--ink)]">{row.group}</span>
+                    <span className="num text-sm text-[var(--ink-soft)]">{row.orang} orang</span>
+                    <span aria-hidden="true" className="h-1 w-20 shrink-0 overflow-hidden bg-[var(--paper-sunk)]">
+                      <span
+                        className="block h-full bg-[var(--brand)]"
+                        style={{ width: `${totalPax ? (row.orang / totalPax) * 100 : 0}%` }}
+                      />
+                    </span>
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
         )}
@@ -664,12 +460,12 @@ export function TamuPage() {
                     {guest.phone && (
                       <button
                         type="button"
-                        aria-label="Kirim pesan WhatsApp"
+                        aria-label={`Kirim pesan WhatsApp ke ${guest.name}`}
                         title="Kirim pesan WhatsApp"
                         onClick={() =>
                           setWaTarget({ name: guest.name, phone: guest.phone })
                         }
-                        className="flex size-7 items-center justify-center rounded-xl text-muted-foreground hover:bg-secondary hover:text-primary"
+                        className="flex size-11 items-center justify-center rounded-xl text-[var(--ink-soft)] transition-colors hover:bg-[var(--paper-sunk)] hover:text-[var(--ink)]"
                       >
                         <MessageCircle className="size-4" />
                       </button>
@@ -704,43 +500,18 @@ export function TamuPage() {
                   </div>
                 </div>
 
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setInvited({ guestId: guest._id, invited: !guest.invited })}
-                    className={`chip ${
-                      guest.invited
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary text-secondary-foreground"
-                    }`}
-                  >
-                    <CheckIcon invited={Boolean(guest.invited)} />
-                    {guest.invited ? "Undangan terkirim" : "Belum diundang"}
-                  </button>
-
-                  <div className="clay-inset flex gap-1 p-1">
-                    {RSVP_OPTIONS.map((option) => (
-                      <button
-                        key={option.key}
-                        type="button"
-                        onClick={() => {
-                          setRsvp({ guestId: guest._id, rsvp: option.key });
-                          if (option.key === "hadir") bloom();
-                        }}
-                        className={`rounded-xl px-2.5 py-1 text-[11px] font-bold transition-colors ${
-                          guest.rsvp === option.key
-                            ? option.key === "hadir"
-                              ? "bg-primary text-primary-foreground"
-                              : option.key === "tidak"
-                                ? "bg-destructive text-destructive-foreground"
-                                : "bg-secondary text-secondary-foreground"
-                            : "text-muted-foreground"
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
+                <div className="mt-3 flex items-center justify-between gap-3">
+                  <GuestStatusChip
+                    guest={guest}
+                    onInvite={(next) => setInvited({ guestId: guest._id, invited: next })}
+                    onRsvp={(next) => {
+                      setRsvp({ guestId: guest._id, rsvp: next });
+                      if (next === "hadir") bloom();
+                    }}
+                  />
+                  {guest.phone && (
+                    <span className="num text-[0.8125rem] text-[var(--ink-soft)]">{guest.phone}</span>
+                  )}
                 </div>
               </article>
             </StaggerItem>
@@ -880,14 +651,90 @@ export function TamuPage() {
   );
 }
 
-function CheckIcon({ invited }: { invited: boolean }) {
+function GuestStatusChip({
+  guest,
+  onInvite,
+  onRsvp,
+}: {
+  guest: { name: string; invited?: boolean; rsvp: Rsvp };
+  onInvite: (invited: boolean) => void;
+  onRsvp: (rsvp: Rsvp) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const invited = Boolean(guest.invited);
+  const label = !invited
+    ? "Undangan belum dikirim"
+    : guest.rsvp === "hadir"
+      ? "Hadir"
+      : guest.rsvp === "tidak"
+        ? "Berhalangan"
+        : "Menunggu jawaban";
+  const tone = !invited
+    ? "text-[var(--ink-soft)]"
+    : guest.rsvp === "hadir"
+      ? "text-[var(--positive)]"
+      : guest.rsvp === "tidak"
+        ? "text-[var(--danger)]"
+        : "text-[var(--gold)]";
+
   return (
-    <span
-      className={`flex size-3.5 items-center justify-center rounded-full border ${
-        invited ? "border-white/60 bg-white/30" : "border-current opacity-50"
-      }`}
-    >
-      {invited ? <span className="text-[8px] leading-none">✓</span> : null}
-    </span>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={`chip min-h-11 gap-2 border-[var(--line)] bg-transparent ${tone}`}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-label={`Status ${guest.name}: ${label}. Ubah status`}
+        >
+          {guest.rsvp === "hadir" && invited ? <Check className="size-4" /> : <Clock3Icon />}
+          {label}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        className="w-64 rounded-2xl border-[var(--line)] bg-[var(--paper)] p-3 text-[var(--ink)] shadow-[0_18px_40px_-24px_rgba(0,0,0,0.45)]"
+      >
+        <div className="flex items-center justify-between gap-3">
+          <Label htmlFor={`invited-${guest.name}`} className="text-sm text-[var(--ink)]">
+            Undangan terkirim
+          </Label>
+          <Switch
+            id={`invited-${guest.name}`}
+            checked={invited}
+            onCheckedChange={(next) => onInvite(Boolean(next))}
+          />
+        </div>
+        <div className="mt-3 space-y-1.5">
+          <p className="text-sm text-[var(--ink-soft)]">Jawaban tamu</p>
+          <div role="group" aria-label={`Jawaban ${guest.name}`} className="sj-seg w-full">
+            {RSVP_OPTIONS.map((option) => (
+              <button
+                key={option.key}
+                type="button"
+                data-active={String(guest.rsvp === option.key)}
+                aria-pressed={guest.rsvp === option.key}
+                onClick={() => {
+                  onRsvp(option.key);
+                  setOpen(false);
+                }}
+                className="min-h-10 flex-1 rounded-[6px] px-2 text-sm text-[var(--ink-soft)]"
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function Clock3Icon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" className="size-4">
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5V12l3 1.75" />
+    </svg>
   );
 }

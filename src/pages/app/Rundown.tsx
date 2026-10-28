@@ -21,9 +21,8 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
 import { printDocument } from "@/lib/printDoc";
 import { undoableDelete } from "@/lib/undo";
-import { Clock, Loader2, Plus, Printer, Search, UserRound, X } from "@/lib/icons";
+import { Loader2, Plus, Printer, Search, X } from "@/lib/icons";
 import { useState } from "react";
-import { useReducedMotion } from "framer-motion";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 
@@ -75,7 +74,6 @@ function formatWeddingDate(ms: number): string {
 
 /** Rundown acara: susunan agenda hari-H urut jam. */
 export function RundownPage() {
-  const reducedMotion = useReducedMotion();
   const items = useQuery(api.rundown.list);
   const wedding = useQuery(api.wedding.get);
   const createItem = useMutation(api.rundown.create);
@@ -237,41 +235,23 @@ export function RundownPage() {
         <p className="mt-2 text-base leading-relaxed text-[var(--ink-soft)]">{list.length ? <>Acara berlangsung dari <strong className="num text-[var(--ink)]">{firstTime}</strong> hingga <strong className="num text-[var(--ink)]">{lastTime}</strong>.</> : "Susun jalannya acara, dari akad hingga walimah."}</p>
       </header>
       <section className="sj-paper-sheet p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-sm text-[var(--ink-soft)]">Ringkasan susunan acara</p>
-            <p className="meta mt-1">
-              {list.length} agenda
-              {firstTime && lastTime ? ` · ${firstTime}–${lastTime}` : ""}
-            </p>
-          </div>
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-tint-sage text-xl text-tint-sage-foreground">
-            ⏰
-          </div>
-        </div>
-        <dl className="mt-4 grid grid-cols-3 gap-2">
-          <div className="stat-tile bg-secondary">
-            <dt>Agenda</dt>
-            <dd>{list.length}</dd>
-          </div>
-          <div className="stat-tile bg-secondary">
-            <dt>Mulai</dt>
-            <dd>{firstTime ?? "—"}</dd>
-          </div>
-          <div className="stat-tile bg-secondary">
-            <dt>Total durasi</dt>
-            <dd>{formatDuration(totalMinutes)}</dd>
-          </div>
-        </dl>
+        <p className="max-w-[58ch] font-serif text-[1.375rem] leading-snug text-[var(--ink)] sm:text-2xl">
+          {list.length === 0
+            ? "Belum ada agenda. Susunan acara akan tercetak rapi di sini setelah agenda pertama ditambahkan."
+            : `${list.length} agenda tersusun dari pukul ${firstTime} sampai ${lastTime}, membentang ${formatDuration(totalMinutes)}.`}
+        </p>
+        <p className="mt-2 max-w-[62ch] text-sm leading-relaxed text-[var(--ink-soft)]">
+          Total durasi mengikuti rentang dari agenda pertama sampai agenda yang paling akhir selesai, jadi agenda yang tumpang tindih tidak dihitung dua kali.
+        </p>
       </section>
 
       <div className="grid grid-cols-2 gap-2">
-        <Button className="rounded-2xl" onClick={openNew}>
+        <Button className="rounded-lg" onClick={openNew}>
           <Plus className="size-4" /> Tambah agenda
         </Button>
         <Button
           variant="outline"
-          className="rounded-2xl"
+          className="rounded-lg"
           onClick={printRundown}
           disabled={list.length === 0}
         >
@@ -286,7 +266,7 @@ export function RundownPage() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Cari acara, PIC, atau catatan"
-            className="pl-9 pr-9"
+            className="pl-9 pr-12"
             aria-label="Cari agenda"
           />
           {query !== "" && (
@@ -294,7 +274,7 @@ export function RundownPage() {
               type="button"
               aria-label="Bersihkan pencarian"
               onClick={() => setQuery("")}
-              className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
+              className="absolute right-1 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-lg text-[var(--ink-soft)] hover:text-[var(--ink)]"
             >
               <X className="size-3.5" />
             </button>
@@ -303,53 +283,45 @@ export function RundownPage() {
       )}
 
       <section className="relative">
-        {visible.length > 0 && (
-          <span aria-hidden className="sj-run-spine absolute bottom-4 left-[52px] top-4 w-px bg-[var(--line)]" />
-        )}
-        <Stagger className="space-y-3">
+        <Stagger className="divide-y divide-[var(--line)]">
           {visible.map((item) => {
             const duration = item.durationMinutes ?? 0;
             return (
               <StaggerItem key={item._id}>
-                <div className={`sj-run-sheet-row relative flex items-start gap-3 ${reducedMotion ? "" : "sj-run-sheet-reveal"}`}>
-                  {/* Timeline dot + clock chip */}
-                  <div className="relative z-10 flex w-12 shrink-0 flex-col items-center">
-                    <div className="clay-sm rounded-2xl bg-primary px-1.5 py-2 text-center text-primary-foreground">
-                      <p className="num text-xs font-extrabold">{item.startTime}</p>
-                      {duration > 0 && (
-                        <p className="num text-[10px] opacity-80">
-                          {addMinutes(item.startTime, duration)}
-                        </p>
-                      )}
-                    </div>
-                    <span className="mt-1 size-2 rounded-full bg-primary/60 ring-4 ring-background/80" />
+                <div className="flex items-start gap-3 py-4 sm:gap-5">
+                  <div className="w-14 shrink-0 text-right sm:w-20">
+                    <p className="num font-serif text-[1.5rem] leading-none text-[var(--ink)] sm:text-[1.75rem]">
+                      {item.startTime}
+                    </p>
+                    <p className="num mt-1.5 text-[0.8125rem] text-[var(--ink-soft)]">
+                      {duration > 0 ? formatDuration(duration) : "tanpa durasi"}
+                    </p>
                   </div>
 
-                  <article className="clay min-w-0 flex-1 p-3.5">
-                    <p className="text-sm font-bold leading-snug">{item.title}</p>
-                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                      {duration > 0 ? (
-                        <span className="chip bg-tint-sage text-tint-sage-foreground">
-                          <Clock className="size-3" /> {formatDuration(duration)}
-                        </span>
-                      ) : (
-                        <span className="meta">Durasi belum diisi</span>
-                      )}
-                      {item.pic && (
-                        <span className="chip bg-tint-sky text-tint-sky-foreground">
-                          <UserRound className="size-3" /> {item.pic}
+                  <div className="min-w-0 flex-1 border-l border-[var(--line)] pl-4 sm:pl-5">
+                    <p className="text-base font-semibold leading-snug text-[var(--ink)]">
+                      {item.title}
+                    </p>
+                    <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--ink-soft)]">
+                      {duration > 0 && (
+                        <span className="num">
+                          selesai {addMinutes(item.startTime, duration)}
                         </span>
                       )}
-                    </div>
-                    {item.note && <p className="meta mt-1">{item.note}</p>}
-                    <div className="absolute right-2 top-2">
-                      <RowMenu
-                        onEdit={() => openEdit(item)}
-                        onDelete={() => deleteItem(item)}
-                        deleteTitle={`Hapus "${item.title}"?`}
-                      />
-                    </div>
-                  </article>
+                      {item.pic && <span>PIC {item.pic}</span>}
+                    </p>
+                    {item.note && (
+                      <p className="mt-1 max-w-[62ch] text-sm leading-relaxed text-[var(--ink-soft)]">
+                        {item.note}
+                      </p>
+                    )}
+                  </div>
+
+                  <RowMenu
+                    onEdit={() => openEdit(item)}
+                    onDelete={() => deleteItem(item)}
+                    deleteTitle={`Hapus "${item.title}"?`}
+                  />
                 </div>
               </StaggerItem>
             );
@@ -450,7 +422,7 @@ export function RundownPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={submit} disabled={busy} className="w-full rounded-2xl">
+            <Button onClick={submit} disabled={busy} className="w-full rounded-lg">
               {busy ? <Loader2 className="size-4 animate-spin" /> : "Simpan agenda"}
             </Button>
           </DialogFooter>

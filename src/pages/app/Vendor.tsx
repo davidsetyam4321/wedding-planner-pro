@@ -1,4 +1,3 @@
-import { CHART_COLORS, ChartCard, ChartTip } from "@/components/Charts";
 import {
   BackLink,
   DueChip,
@@ -27,7 +26,6 @@ import { vendorPaidAmount } from "@/lib/budget";
 import { waLink } from "@/lib/contact";
 import {
   formatRupiah,
-  formatRupiahShort,
   fromDateInputValue,
   toDateInputValue,
 } from "@/lib/format";
@@ -46,18 +44,6 @@ import { downloadCsv } from "@/lib/exportCsv";
 import { printDocument } from "@/lib/printDoc";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import { toast } from "sonner";
 import { undoableDelete } from "@/lib/undo";
 
@@ -73,20 +59,6 @@ const STATUS_CHIP: Record<VendorStatus, string> = {
   belum: "bg-secondary text-secondary-foreground",
   dp: "bg-tint-butter text-tint-butter-foreground",
   lunas: "bg-primary text-primary-foreground",
-};
-
-/** Garis aksen warna status di sisi kiri kartu vendor (SatuJanji tones). */
-const STATUS_ACCENT: Record<VendorStatus, string> = {
-  belum: "bg-border",
-  dp: "bg-gold/70",
-  lunas: "bg-primary",
-};
-
-/** Warna status pembayaran (inkwell navy → coral emphasis). */
-const STATUS_COLORS: Record<VendorStatus, string> = {
-  belum: "var(--color-mist-gray)",
-  dp: "var(--chart-3)",
-  lunas: "var(--chart-1)",
 };
 
 type VendorForm = {
@@ -159,30 +131,6 @@ export function VendorPage() {
       vendor.category.toLowerCase().includes(term)
     );
   });
-
-  // Pie status pembayaran — klik irisan/legenda → filter daftar vendor.
-  const statusPieData: {
-    key: VendorStatus;
-    name: string;
-    value: number;
-    color: string;
-  }[] = STATUS_OPTIONS.map((option) => ({
-    key: option.key,
-    name: option.label,
-    value: list.filter((vendor) => vendor.status === option.key).length,
-    color: STATUS_COLORS[option.key],
-  })).filter((row) => row.value > 0);
-
-  // Stacked bar DP vs sisa (6 vendor termahal) — klik batang → fokus daftar ke vendor itu.
-  const paymentBarData = [...list]
-    .sort((a, b) => b.cost - a.cost)
-    .slice(0, 6)
-    .map((vendor) => ({
-      id: vendor._id as string,
-      name: vendor.name,
-      terbayar: vendorPaidAmount(vendor),
-      sisa: Math.max(0, vendor.cost - vendorPaidAmount(vendor)),
-    }));
 
   const openNew = () => {
     // Jenis pertama dari daftar Pengaturan jadi pilihan awal.
@@ -270,187 +218,25 @@ export function VendorPage() {
         <p className="mt-2 max-w-[65ch] text-base leading-relaxed text-[var(--ink-soft)]">{list.length} vendor · biaya <strong className="num text-[var(--ink)]">{formatRupiah(totalCost)}</strong> · sudah dibayar <strong className="num text-[var(--ink)]">{formatRupiah(paidTotal)}</strong> · tersisa <strong className="num text-[var(--ink)]">{formatRupiah(remaining)}</strong>.</p>
       </header>
 
-      <section className="sj-paper-sheet p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-sm text-[var(--ink-soft)]">Status pembayaran</p>
-            <p className="meta mt-1">
-              {lunasCount} vendor lunas · {categories.length} kategori
-            </p>
-          </div>
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-tint-butter text-xl text-tint-butter-foreground">
-            📋
-          </div>
-        </div>
-        <dl className="mt-4 grid grid-cols-3 gap-2">
-          <div className="stat-tile bg-secondary">
-            <dt>Total biaya</dt>
-            <dd>{formatRupiahShort(totalCost)}</dd>
-          </div>
-          <div className="stat-tile bg-secondary">
-            <dt>Terbayar</dt>
-            <dd>{formatRupiahShort(paidTotal)}</dd>
-          </div>
-          <div className="stat-tile bg-secondary">
-            <dt>Sisa</dt>
-            <dd>{formatRupiahShort(remaining)}</dd>
-          </div>
-        </dl>
-        <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-mist-gray">
-          <div
-            className="fill-botanical h-full rounded-full transition-all duration-700"
-            style={{
-              width: `${totalCost > 0 ? Math.min(100, Math.round((paidTotal / totalCost) * 100)) : 0}%`,
-            }}
+      <section className="sj-paper-sheet p-5" aria-label="Pembayaran vendor">
+        <p className="max-w-[62ch] font-serif text-[1.375rem] leading-snug text-[var(--ink)] sm:text-2xl">
+          Dari <span className="num">{formatRupiah(totalCost)}</span> total biaya vendor, <span className="num">{formatRupiah(paidTotal)}</span> sudah dibayar dan <span className="num">{formatRupiah(remaining)}</span> masih harus disiapkan.
+        </p>
+        <div
+          className="sj-stack-bar mt-4 h-2"
+          role="img"
+          aria-label={`Terbayar ${formatRupiah(paidTotal)} dari ${formatRupiah(totalCost)}`}
+        >
+          <span
+            className="h-full bg-[var(--positive)] transition-[width] duration-300 ease-out motion-reduce:transition-none"
+            style={{ width: `${totalCost > 0 ? Math.min(100, Math.round((paidTotal / totalCost) * 100)) : 0}%` }}
           />
+          <span className="h-full bg-[var(--accent)]" />
         </div>
+        <p className="mt-3 text-sm text-[var(--ink-soft)]">
+          Terbayar <span className="num text-[var(--ink)]">{formatRupiah(paidTotal)}</span>, sisa <span className="num text-[var(--ink)]">{formatRupiah(remaining)}</span>. {lunasCount} dari {list.length} vendor sudah lunas.
+        </p>
       </section>
-
-      {statusPieData.length > 0 && (
-        <ChartCard title="Status pembayaran" meta="Klik irisan untuk filter">
-          <div className="flex items-center gap-4">
-            <div className="relative size-32 shrink-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={statusPieData}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={40}
-                    outerRadius={58}
-                    paddingAngle={3}
-                    cornerRadius={6}
-                    strokeWidth={0}
-                  >
-                    {statusPieData.map((row) => (
-                      <Cell
-                        key={row.key}
-                        fill={row.color}
-                        className="cursor-pointer"
-                        onClick={() =>
-                          setStatusFilter((previous) =>
-                            previous === row.key ? null : row.key,
-                          )
-                        }
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<ChartTip />} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <span className="num text-sm font-extrabold">{list.length}</span>
-                <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                  vendor
-                </span>
-              </div>
-            </div>
-            <ul className="min-w-0 flex-1 space-y-1.5">
-              {statusPieData.map((row) => (
-                <li key={row.key}>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setStatusFilter((previous) =>
-                        previous === row.key ? null : row.key,
-                      )
-                    }
-                    className="flex w-full items-center gap-2 rounded-lg px-1 py-0.5 text-xs transition-colors hover:bg-secondary"
-                  >
-                    <span
-                      className="size-2.5 shrink-0 rounded-full"
-                      style={{ backgroundColor: row.color }}
-                    />
-                    <span className="min-w-0 flex-1 truncate text-left font-semibold">
-                      {row.name}
-                    </span>
-                    <span className="num font-bold">{row.value}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </ChartCard>
-      )}
-
-      {paymentBarData.length > 0 && (
-        <ChartCard title="DP vs sisa pembayaran" meta="Klik batang untuk fokus vendor">
-          <div className="h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={paymentBarData}
-                layout="vertical"
-                margin={{ top: 4, right: 8, bottom: 0, left: 4 }}
-              >
-                <CartesianGrid
-                  horizontal={false}
-                  stroke="var(--color-fog)"
-                />
-                <XAxis
-                  type="number"
-                  tickFormatter={(value: number | string) =>
-                    formatRupiahShort(Number(value))
-                  }
-                  tick={{ fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="name"
-                  tick={{ fontSize: 9 }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={94}
-                />
-                <Tooltip
-                  content={<ChartTip format={formatRupiahShort} />}
-                  cursor={{ fill: "var(--color-mist-gray)" }}
-                />
-                <Bar
-                  dataKey="terbayar"
-                  name="Terbayar"
-                  stackId="bayar"
-                  fill="var(--chart-1)"
-                  barSize={14}
-                >
-                  {paymentBarData.map((row) => (
-                    <Cell
-                      key={row.id}
-                      className="cursor-pointer"
-                      onClick={() => setQuery(row.name)}
-                    />
-                  ))}
-                </Bar>
-                <Bar
-                  dataKey="sisa"
-                  name="Sisa"
-                  stackId="bayar"
-                  fill={CHART_COLORS[3]}
-                  radius={[0, 4, 4, 0]}
-                  barSize={14}
-                >
-                  {paymentBarData.map((row) => (
-                    <Cell
-                      key={row.id}
-                      className="cursor-pointer"
-                      onClick={() => setQuery(row.name)}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-1 flex items-center gap-3 text-[11px] font-semibold text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-chart-1" /> Terbayar
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-chart-3" /> Sisa
-            </span>
-          </div>
-        </ChartCard>
-      )}
 
       <div className="flex gap-2">
         <Button className="flex-1 rounded-2xl" onClick={openNew}>
@@ -536,11 +322,12 @@ export function VendorPage() {
             <button
               key={category}
               type="button"
+              aria-pressed={categoryFilter === category}
               onClick={() => setCategoryFilter(category)}
-              className={`chip shrink-0 ${
+              className={`min-h-11 shrink-0 border-b-2 px-1 text-sm transition-colors ${
                 categoryFilter === category
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-tint-butter text-tint-butter-foreground"
+                  ? "border-[var(--brand)] text-[var(--ink)]"
+                  : "border-transparent text-[var(--ink-soft)] hover:text-[var(--ink)]"
               }`}
             >
               {category}
@@ -553,7 +340,7 @@ export function VendorPage() {
         <button
           type="button"
           onClick={() => setStatusFilter(null)}
-          className="chip self-start bg-tint-butter text-tint-butter-foreground"
+          className="chip self-start border-[var(--line)] bg-transparent text-[var(--ink)]"
         >
           Status: {STATUS_OPTIONS.find((option) => option.key === statusFilter)?.label}{" "}
           <X className="size-3" />
@@ -569,11 +356,7 @@ export function VendorPage() {
             const wa = vendor.contact ? waLink(vendor.contact) : null;
             return (
               <StaggerItem key={vendor._id}>
-                <article className="sj-ledger-row relative overflow-hidden p-4 pl-5">
-                  <span
-                    className={`absolute inset-y-0 left-0 w-1.5 ${STATUS_ACCENT[status]}`}
-                    aria-hidden
-                  />
+                <article className="sj-ledger-row relative p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="text-sm font-extrabold truncate">{vendor.name}</p>
@@ -591,6 +374,17 @@ export function VendorPage() {
                         {left > 0 && (
                           <p className="num meta">sisa {formatRupiah(left)}</p>
                         )}
+                        <span
+                          aria-hidden
+                          className="mt-1.5 ml-auto block h-1 w-24 overflow-hidden rounded-full bg-[var(--paper-sunk)]"
+                        >
+                          <span
+                            className="block h-full bg-[var(--positive)]"
+                            style={{
+                              width: `${vendor.cost > 0 ? Math.min(100, Math.round((paid / vendor.cost) * 100)) : 0}%`,
+                            }}
+                          />
+                        </span>
                       </div>
                       <RowMenu
                         onEdit={() => openEdit(vendor)}
@@ -636,8 +430,8 @@ export function VendorPage() {
                     </div>
 
                     {paid > 0 && (
-                      <span className="chip bg-tint-mint text-tint-mint-foreground">
-                        Terbayar {formatRupiahShort(paid)}
+                      <span className="num text-[0.8125rem] text-[var(--ink-soft)]">
+                        Terbayar {formatRupiah(paid)}
                       </span>
                     )}
 

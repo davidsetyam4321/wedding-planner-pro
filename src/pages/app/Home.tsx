@@ -87,23 +87,31 @@ export function HomePage() {
   const toggleItem = useMutation(api.checklist.toggle);
   const couplePhoto = useQuery(api.wedding.getCouplePhoto);
   const { uploading, openPicker, inputProps } = useCouplePhotoUpload();
-  const [openingScene, setOpeningScene] = useState(false);
   const reducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const effectsDisabled = typeof document !== "undefined" && document.documentElement.dataset.effects === "off";
+  // Adegan pembuka hanya sekali per sesi; dibaca sekali saat mount agar tidak
+  // memicu render berantai dari dalam efek.
+  const [bootTime] = useState(() => Date.now());
+  const [openingScene, setOpeningScene] = useState(() => {
+    if (typeof window === "undefined") return false;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
+    if (document.documentElement.dataset.effects === "off") return false;
+    try {
+      const storageKey = "satujanji.dashboard-scene";
+      if (window.sessionStorage.getItem(storageKey)) return false;
+      window.sessionStorage.setItem(storageKey, "seen");
+      return true;
+    } catch {
+      // Dashboard tetap dapat dipakai saat session storage tidak tersedia.
+      return false;
+    }
+  });
 
   useEffect(() => {
-    if (!wedding) return;
-    const storageKey = "satujanji.dashboard-scene";
-    try {
-      if (window.sessionStorage.getItem(storageKey)) return;
-      window.sessionStorage.setItem(storageKey, "seen");
-      setOpeningScene(true);
-      const timeout = window.setTimeout(() => setOpeningScene(false), 1100);
-      return () => window.clearTimeout(timeout);
-    } catch {
-      // Dashboard remains usable when session storage is unavailable.
-    }
-  }, [wedding]);
+    if (!openingScene) return;
+    const timeout = window.setTimeout(() => setOpeningScene(false), 1100);
+    return () => window.clearTimeout(timeout);
+  }, [openingScene]);
 
   const allTasks = checklist ?? [];
   const openTasks = allTasks.filter((item) => !item.done);
@@ -116,7 +124,7 @@ export function HomePage() {
   const savingsTotal = budget?.savingsTotal ?? 0;
   const fundingGap = Math.max(0, vendorObligation - savingsTotal);
   const monthsRemaining = wedding
-    ? Math.max(1, Math.ceil((wedding.weddingDate - Date.now()) / (30.4375 * 24 * 60 * 60 * 1000)))
+    ? Math.max(1, Math.ceil((wedding.weddingDate - bootTime) / (30.4375 * 24 * 60 * 60 * 1000)))
     : 1;
   const monthlySaving = Math.ceil(fundingGap / monthsRemaining);
 
@@ -225,7 +233,7 @@ export function HomePage() {
                       <span aria-hidden="true" className="flex size-5 items-center justify-center rounded border border-[var(--line)]"><Check className="size-4 opacity-0" /></span>
                     </button>
                     <span className="min-w-0 flex-1 py-1 text-sm font-medium leading-snug text-[var(--ink)] sm:text-base">{task.label}</span>
-                    <span className="max-w-32 shrink-0 text-right text-xs leading-relaxed text-[var(--ink-soft)] sm:max-w-40 sm:text-sm">{deadlineLabel(task.dueDate)}<br /><span className="text-[var(--accent)]">{PRIORITY_LABEL[priority]}</span></span>
+                    <span className="max-w-32 shrink-0 text-right text-xs leading-relaxed text-[var(--ink-soft)] sm:max-w-40 sm:text-sm">{deadlineLabel(task.dueDate)}<br /><span className="text-[var(--gold)]">{PRIORITY_LABEL[priority]}</span></span>
                   </li>
                 );
               })}

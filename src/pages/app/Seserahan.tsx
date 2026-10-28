@@ -1,4 +1,3 @@
-import { ChartCard, ChartTip } from "@/components/Charts";
 import {
   EmptyState,
   RowMenu,
@@ -21,18 +20,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 import { formatRupiah } from "@/lib/format";
-import {
-  CheckCircle2,
-  ExternalLink,
-  Gift,
-  Link2,
-  Plus,
-  ShoppingCart,
-} from "@/lib/icons";
+import { ExternalLink, Plus } from "@/lib/icons";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 type Status = Doc<"seserahanItem">["status"];
 
@@ -43,31 +34,10 @@ type Status = Doc<"seserahanItem">["status"];
 const STATUSES: {
   value: Status;
   label: string;
-  icon: typeof Link2;
-  surface: string;
-  color: string;
 }[] = [
-  {
-    value: "link",
-    label: "Dicari",
-    icon: Link2,
-    surface: "bg-tint-butter text-tint-butter-foreground",
-    color: "var(--chart-3)",
-  },
-  {
-    value: "cart",
-    label: "Keranjang",
-    icon: ShoppingCart,
-    surface: "bg-tint-lavender text-tint-lavender-foreground",
-    color: "var(--chart-2)",
-  },
-  {
-    value: "bought",
-    label: "Dibeli",
-    icon: CheckCircle2,
-    surface: "bg-tint-mint text-tint-mint-foreground",
-    color: "var(--chart-1)",
-  },
+  { value: "link", label: "Dicari" },
+  { value: "cart", label: "Keranjang" },
+  { value: "bought", label: "Dibeli" },
 ];
 
 /** "tokopedia.com/x" → "https://tokopedia.com/x"; kosong → undefined. */
@@ -102,7 +72,6 @@ function SeserahanRow({
   const setStatus = useMutation(api.seserahan.setStatus);
   const remove = useMutation(api.seserahan.remove);
   const [busy, setBusy] = useState(false);
-  const current = STATUSES.find((s) => s.value === item.status) ?? STATUSES[0];
   const bought = item.status === "bought";
   const unitPrice = item.unitPrice ?? 0;
   const quantity = item.quantity ?? 1;
@@ -120,15 +89,12 @@ function SeserahanRow({
   };
 
   return (
-    <div className="sj-ledger-row p-3">
+    <div className="sj-ledger-row p-4">
       <div className="flex items-start gap-3">
-        <span className={`flex size-9 shrink-0 items-center justify-center border-r border-[var(--line)] pr-3 ${current.surface}`}>
-          <current.icon className="size-4" />
-        </span>
         <div className="min-w-0 flex-1">
           <p
-            className={`truncate text-sm font-extrabold ${
-              bought ? "text-muted-foreground line-through decoration-2" : ""
+            className={`text-base font-semibold leading-snug ${
+              bought ? "text-[var(--ink-soft)] line-through decoration-1" : "text-[var(--ink)]"
             }`}
           >
             {item.title}
@@ -138,51 +104,61 @@ function SeserahanRow({
               href={item.link}
               target="_blank"
               rel="noreferrer noopener"
-              className="meta mt-0.5 flex items-center gap-1 text-primary hover:underline"
+              className="mt-0.5 flex items-center gap-1 text-[0.8125rem] text-[var(--ink-soft)] underline-offset-4 hover:text-[var(--ink)] hover:underline"
             >
-              <Link2 className="size-3 shrink-0" />
               <span className="truncate">{linkLabel(item.link)}</span>
-              <ExternalLink className="size-3 shrink-0 opacity-70" />
+              <ExternalLink className="size-3 shrink-0" />
             </a>
           ) : (
-            <p className="meta mt-0.5">Belum ada link · sedang dicari</p>
-          )}
-          {(item.unitPrice !== undefined || item.quantity !== undefined) && (
-            <p className="mt-1 text-xs font-semibold text-foreground/80">
-              {item.unitPrice !== undefined
-                ? `${formatRupiah(unitPrice)} × ${quantity} = ${formatRupiah(unitPrice * quantity)}`
-                : `Jumlah ${quantity} barang`}
-            </p>
+            <p className="mt-0.5 text-[0.8125rem] text-[var(--ink-soft)]">Belum ada tautan</p>
           )}
           {item.note && (
-            <p className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground">
+            <p className="mt-1 whitespace-pre-wrap text-[0.8125rem] leading-relaxed text-[var(--ink-soft)]">
               {item.note}
             </p>
           )}
         </div>
-        <Checkbox
-          checked={bought}
-          disabled={busy}
-          aria-label={`Tandai ${item.title} ${bought ? "belum dibeli" : "sudah dibeli"}`}
-          onCheckedChange={(checked) =>
-            void switchTo(checked === true ? "bought" : "cart")
-          }
-          className="mt-1 size-5 rounded-md"
-        />
-        <RowMenu
-          onEdit={() => onEdit(item)}
-          onDelete={() => {
-            remove({ itemId: item._id })
-              .then(() => toast.success(`“${item.title}” dihapus`))
-              .catch(() => toast.error("Gagal menghapus seserahan."));
-          }}
-          deleteTitle={`Hapus “${item.title}”?`}
-          deleteDescription="Baris seserahan ini hilang dari daftar berdua."
-        />
+        <div className="flex shrink-0 items-start">
+          <span className="flex size-11 items-center justify-center">
+            <Checkbox
+              checked={bought}
+              disabled={busy}
+              aria-label={`Tandai ${item.title} ${bought ? "belum dibeli" : "sudah dibeli"}`}
+              onCheckedChange={(checked) =>
+                void switchTo(checked === true ? "bought" : "cart")
+              }
+              className="size-5 rounded-md border-[var(--line)]"
+            />
+          </span>
+          <RowMenu
+            onEdit={() => onEdit(item)}
+            onDelete={() => {
+              remove({ itemId: item._id })
+                .then(() => toast.success(`“${item.title}” dihapus`))
+                .catch(() => toast.error("Gagal menghapus seserahan."));
+            }}
+            deleteTitle={`Hapus “${item.title}”?`}
+            deleteDescription="Baris seserahan ini hilang dari daftar berdua."
+          />
+        </div>
       </div>
 
-      {/* ── Switch status: Link → Keranjang → Dibeli, sekali ketuk ──── */}
-      <div className="mt-3 flex gap-1 border-t border-[var(--line)] pt-2">
+      <div className="mt-2 flex items-baseline gap-2">
+        <span className="shrink-0 text-[0.8125rem] text-[var(--ink-soft)]">
+          {quantity} barang
+        </span>
+        <span aria-hidden="true" className="sj-dot-leader" />
+        <span className="num shrink-0 text-sm text-[var(--ink)]">
+          {item.unitPrice !== undefined ? formatRupiah(unitPrice * quantity) : "harga belum diisi"}
+        </span>
+      </div>
+
+      {/* ── Tahap belanja: Dicari → Keranjang → Dibeli, sekali ketuk ──── */}
+      <div
+        role="group"
+        aria-label={`Tahap belanja ${item.title}`}
+        className="sj-seg mt-3 w-full"
+      >
         {STATUSES.map((s) => {
           const active = s.value === item.status;
           return (
@@ -190,17 +166,12 @@ function SeserahanRow({
               key={s.value}
               type="button"
               disabled={busy}
+              data-active={String(active)}
               aria-pressed={active}
-              aria-label={`Status ${s.label} untuk ${item.title}`}
               onClick={() => void switchTo(s.value)}
-              className={`flex min-h-11 flex-1 items-center justify-center gap-1 border-b-2 px-2 py-1.5 text-sm font-semibold transition-colors ${
-                active
-                  ? "border-[var(--brand)] text-[var(--brand)]"
-                  : "border-transparent text-[var(--ink-soft)] hover:border-[var(--line)]"
-              }`}
+              className="min-h-10 flex-1 rounded-[6px] px-2 text-sm text-[var(--ink-soft)] transition-colors disabled:opacity-60"
             >
-              <s.icon className="size-3.5" />
-              <span className="truncate">{s.label}</span>
+              {s.label}
             </button>
           );
         })}
@@ -313,107 +284,63 @@ export function SeserahanPage() {
       <header className="sj-page-heading border-b border-[var(--line)] pb-4">
         <p className="text-sm text-[var(--ink-soft)]">Daftar hantaran</p>
         <h1 className="mt-1 font-serif text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--ink)]">Seserahan &amp; hantaran</h1>
-        <p className="mt-2 max-w-[60ch] text-base leading-relaxed text-[var(--ink-soft)]">{total ? `${bought} dari ${total} barang sudah dibeli (${pct}%).` : "Catat barang untuk mulai menyiapkan hantaran."} Nilai tercatat {formatRupiah(totalValue)}.</p>
+        <p className="mt-2 max-w-[60ch] text-base leading-relaxed text-[var(--ink-soft)]">
+          {total > 0
+            ? `${totalQuantity} barang dengan nilai tercatat ${formatRupiah(totalValue)}.`
+            : "Catat barang untuk mulai menyiapkan hantaran."}
+        </p>
       </header>
-      {/* ── Ringkasan progres ──────────────────────────────────────── */}
+      {/* ── Progres hantaran ───────────────────────────────────────── */}
       <section className="sj-paper-sheet p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-sm text-[var(--ink-soft)]">Progres belanja</p>
-            <p className="mt-1.5 font-serif text-xl leading-tight">
-              {total === 0
-                ? "Belum ada barang seserahan"
-                : `${bought} dari ${total} barang sudah dibeli`}
-            </p>
-            <p className="meta mt-1">Jumlah {totalQuantity} barang</p>
-            {itemsWithPrice < total && total > 0 && (
-              <p className="meta mt-0.5">{total - itemsWithPrice} barang belum memiliki harga</p>
-            )}
-          </div>
-          <span
-            className={`chip shrink-0 ${
-              total > 0 && pct === 100
-                ? "bg-sky-tint text-midnight-navy"
-                : "bg-mist-gray text-ink"
-            }`}
-          >
-            <Gift className="size-3.5" />
-            {pct}%
-          </span>
+        <p className="max-w-[62ch] text-base leading-relaxed text-[var(--ink)]">
+          {total === 0
+            ? "Belum ada barang seserahan yang dicatat."
+            : `${bought} dari ${total} barang sudah dibeli; ${total - bought} barang masih dicari atau di keranjang.`}
+        </p>
+        <div className="mt-3 flex items-baseline justify-between gap-3">
+          <span className="text-[0.8125rem] text-[var(--ink-soft)]">{totalQuantity} barang di daftar</span>
+          <span className="num text-sm text-[var(--ink)]">{pct}%</span>
         </div>
-        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-mist-gray">
+        <div
+          className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[var(--paper-sunk)]"
+          role="progressbar"
+          aria-valuenow={pct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Progres belanja seserahan"
+        >
           <div
-            className="fill-botanical h-full rounded-full transition-all duration-700"
+            className="h-full rounded-full bg-[var(--brand)] transition-[width] duration-300 ease-out"
             style={{ width: `${pct}%` }}
           />
         </div>
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {STATUSES.map((s) => {
-            const count = (items ?? []).filter(
-              (i) => i.status === s.value,
-            ).length;
-            return (
-              <span key={s.value} className={`chip ${s.surface}`}>
-                <s.icon className="size-3.5" />
-                {count} {s.label}
-              </span>
-            );
-          })}
+        {itemsWithPrice < total && total > 0 && (
+          <p className="mt-2 text-[0.8125rem] text-[var(--ink-soft)]">
+            {total - itemsWithPrice} barang belum punya harga.
+          </p>
+        )}
+        <div className="mt-4 flex flex-wrap gap-2 border-t border-[var(--line)] pt-3">
+          <button
+            type="button"
+            aria-pressed={statusFilter === null}
+            onClick={() => setStatusFilter(null)}
+            className={`chip min-h-11 ${statusFilter === null ? "border-[var(--brand)] text-[var(--ink)]" : "border-[var(--line)] text-[var(--ink-soft)]"}`}
+          >
+            Semua <span className="num">{total}</span>
+          </button>
+          {statusData.map((status) => (
+            <button
+              key={status.value}
+              type="button"
+              aria-pressed={statusFilter === status.value}
+              onClick={() => setStatusFilter((current) => current === status.value ? null : status.value)}
+              className={`chip min-h-11 ${statusFilter === status.value ? "border-[var(--brand)] text-[var(--ink)]" : "border-[var(--line)] text-[var(--ink-soft)]"}`}
+            >
+              {status.label} <span className="num">{status.count}</span>
+            </button>
+          ))}
         </div>
       </section>
-
-      {total > 0 && (
-        <ChartCard
-          title="Tahap belanja"
-          meta={statusFilter ? "Pilih lagi untuk melepas filter" : "Pilih tahap untuk menyaring daftar"}
-        >
-          <div className="flex flex-col items-center gap-3 sm:flex-row">
-            <div className="h-40 w-full max-w-[220px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={statusData.filter((row) => row.count > 0)}
-                    dataKey="count"
-                    nameKey="label"
-                    innerRadius={48}
-                    outerRadius={70}
-                    paddingAngle={4}
-                    stroke="none"
-                    onClick={(entry) => {
-                      const value = entry.payload?.value as Status | undefined;
-                      if (!value) return;
-                      setStatusFilter((current) => current === value ? null : value);
-                    }}
-                    className="cursor-pointer"
-                  >
-                    {statusData.filter((row) => row.count > 0).map((row) => (
-                      <Cell key={row.value} fill={row.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<ChartTip format={(value) => `${value} barang`} />} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="grid w-full flex-1 grid-cols-1 gap-2 sm:grid-cols-3">
-              {statusData.map((status) => (
-                <button
-                  key={status.value}
-                  type="button"
-                  aria-pressed={statusFilter === status.value}
-                  onClick={() => setStatusFilter((current) => current === status.value ? null : status.value)}
-                  className={`flex min-h-14 items-center justify-between gap-2 rounded-xl px-3 text-left transition-colors ${statusFilter === status.value ? status.surface : "bg-secondary/60 hover:bg-secondary"}`}
-                >
-                  <span className="flex items-center gap-2 text-xs font-bold">
-                    <span className="size-2.5 rounded-full" style={{ backgroundColor: status.color }} />
-                    {status.label}
-                  </span>
-                  <span className="num text-lg font-extrabold">{status.count}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </ChartCard>
-      )}
 
       {/* ── Daftar ─────────────────────────────────────────────────── */}
       <SectionHeader
@@ -427,9 +354,9 @@ export function SeserahanPage() {
 
       {items === undefined ? (
         <div className="space-y-3">
-          <Skeleton className="h-24 rounded-3xl" />
-          <Skeleton className="h-24 rounded-3xl" />
-          <Skeleton className="h-24 rounded-3xl" />
+          <Skeleton className="h-24 rounded-lg" />
+          <Skeleton className="h-24 rounded-lg" />
+          <Skeleton className="h-24 rounded-lg" />
         </div>
       ) : items.length === 0 ? (
         <EmptyState
@@ -443,7 +370,7 @@ export function SeserahanPage() {
         <EmptyState
           emoji="🛍️"
           title="Tidak ada barang di tahap ini"
-          description="Pilih tahap belanja lain pada grafik untuk melihat barangnya."
+          description="Pilih tahap belanja lain di atas untuk melihat barangnya."
           actionLabel="Lihat semua barang"
           onAction={() => setStatusFilter(null)}
         />
@@ -459,7 +386,7 @@ export function SeserahanPage() {
 
       {/* ── Dialog tambah / ubah ───────────────────────────────────── */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-sm rounded-3xl">
+        <DialogContent className="max-w-sm rounded-lg">
           <DialogHeader>
             <DialogTitle>
               {editingId ? "Ubah seserahan" : "Tambah seserahan"}

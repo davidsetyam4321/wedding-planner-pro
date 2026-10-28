@@ -30,7 +30,7 @@ import {
 } from "@/lib/session";
 import { useAuth } from "@/hooks/use-auth";
 import { SETUP_REFRESH_EVENT } from "@/lib/session";
-import { Bell, Settings, Sparkles } from "@/lib/icons";
+import { Bell, Cloud, CloudCheck, Settings, Sparkles } from "@/lib/icons";
 import { motion, useReducedMotion } from "framer-motion";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
@@ -344,19 +344,46 @@ export function AppShell() {
       <SideNav extra={{ openTasks, wedding, workspace, savingsNote, reminders, couplePhoto, partnerOneName: wedding?.partnerOneName, partnerTwoName: wedding?.partnerTwoName }} />
       <div className="sky-wash relative z-10 min-w-0 flex-1 pb-24 lg:pb-0">
       <a href="#planner-content" className="skip-link">Langsung ke isi perencanaan</a>
-      <header className="mx-auto flex w-full max-w-md items-center gap-2 px-4 pt-4 sm:gap-3 sm:px-6 lg:hidden">
+      <header className="mx-auto flex w-full max-w-md items-center gap-2 px-4 pt-4 sm:max-w-2xl sm:gap-3 sm:px-6 lg:hidden">
         <Link to="/app" aria-label="Beranda SatuJanji" className="flex min-h-11 items-center gap-2 text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <RingsMark className="size-5" />
           <span className="font-serif text-xl">SatuJanji</span>
         </Link>
         <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">{pageTitle}</span>
+        {/* Status sinkron: satu ikon kecil dengan tooltip, bukan bar penuh. */}
+        <span
+          className="flex size-11 shrink-0 items-center justify-center text-[var(--ink-soft)]"
+          title={
+            workspace?.connectedEmail
+              ? `Tersinkron dengan ${workspace.connectedEmail}`
+              : workspace?.isAnonymous
+                ? "Ruang kerja lokal — masuk lewat Pengaturan agar tersinkron"
+                : workspace?.inviteCode
+                  ? "Menunggu pasangan bergabung"
+                  : "Belum tersinkron"
+          }
+          aria-label={
+            workspace?.connectedEmail
+              ? `Tersinkron dengan ${workspace.connectedEmail}`
+              : workspace?.isAnonymous
+                ? "Ruang kerja lokal, belum tersinkron"
+                : "Menunggu pasangan bergabung"
+          }
+          role="img"
+        >
+          {workspace?.connectedEmail ? (
+            <CloudCheck className="size-[18px]" weight="regular" />
+          ) : (
+            <Cloud className="size-[18px]" weight="regular" />
+          )}
+        </span>
         <NotificationBell wedding={wedding} openTasks={openTasks} workspace={workspace} savingsNote={savingsNote} reminders={reminders} />
         <Link to="/app/pengaturan" aria-label="Buka pengaturan" className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-paper-sunk text-sm font-semibold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           {couplePhoto ? <img src={couplePhoto} alt="" className="size-full object-cover" /> : coupleInitials(wedding?.partnerOneName, wedding?.partnerTwoName)}
         </Link>
       </header>
 
-      <main id="planner-content" ref={mainRef} tabIndex={-1} aria-label={pageTitle || "Ringkasan perencanaan"} className="mx-auto w-full max-w-md px-4 pt-4 sm:px-6 lg:max-w-[1520px] lg:px-12 lg:pt-8 xl:px-16 2xl:px-20">
+      <main id="planner-content" ref={mainRef} tabIndex={-1} aria-label={pageTitle || "Ringkasan perencanaan"} className="mx-auto w-full max-w-md px-4 pt-4 sm:max-w-2xl sm:px-6 lg:max-w-[1520px] lg:px-12 lg:pt-8 xl:px-16 2xl:px-20">
         <SignupBanner show={showSignupBanner} />
         {/* Entrance only: no delayed exit that can render the wrong Outlet. */}
         <motion.div

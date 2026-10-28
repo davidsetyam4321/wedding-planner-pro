@@ -36,20 +36,15 @@ import {
   Loader2,
   Plus,
   Search,
-  Wallet,
   X,
 } from "@/lib/icons";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import {
   Bar,
-  BarChart,
   CartesianGrid,
-  Cell,
   ComposedChart,
   Line,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -162,25 +157,6 @@ export function BudgetPage() {
     ...row,
     color: DONUT_COLORS[index % DONUT_COLORS.length],
   }));
-
-  // Batang per kategori: alokasi vs terbayar (klik → filter daftar).
-  // Terbayar = pengeluaran manual kategori itu saja; pembayaran vendor tidak
-  // lagi dijumlahkan ke setiap kategori (dulu terhitung berkali-kali), melainkan
-  // tampil sebagai batang "Vendor" tersendiri tanpa alokasi.
-  const categoryBarData = categories.map((category) => ({
-    id: category._id as string,
-    name: category.name,
-    alokasi: Math.max(0, category.allocated),
-    terbayar: categoryTotals.get(category._id)?.paid ?? 0,
-  }));
-  if (vendorTotal > 0) {
-    categoryBarData.push({
-      id: "vendor",
-      name: "Vendor",
-      alokasi: 0,
-      terbayar: vendorTotal,
-    });
-  }
 
   const filterCategory =
     categories.find((category) => category._id === filterCategoryId) ?? null;
@@ -446,64 +422,53 @@ export function BudgetPage() {
         <h1 className="mt-1 font-serif text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--ink)]">Anggaran pernikahan</h1>
         <p className="mt-2 text-base leading-relaxed text-[var(--ink-soft)]">Terpakai <strong className="num text-[var(--ink)]">{formatRupiah(totalSpent)}</strong> dari alokasi <strong className="num text-[var(--ink)]">{formatRupiah(totalAllocated)}</strong>.</p>
       </header>
-      <section className="sj-paper-sheet p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-sm text-[var(--ink-soft)]">Ringkasan buku kas</p>
-            <p className="meta mt-1">
-              Terpakai {formatRupiah(totalSpent)} dari{" "}
-              {formatRupiah(totalAllocated)}
-            </p>
-          </div>
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-tint-mint text-tint-mint-foreground shadow-sm">
-            <Wallet className="size-5" />
-          </div>
-        </div>
+      <section className="sj-paper-sheet p-5" aria-label="Ringkasan buku kas">
+        <p className="max-w-[62ch] font-serif text-[1.375rem] leading-snug text-[var(--ink)] sm:text-2xl">
+          Dari alokasi <span className="num">{formatRupiah(totalAllocated)}</span>, <span className="num">{formatRupiah(totalSpent)}</span> sudah tercatat terpakai dan <span className="num">{formatRupiah(totalPaid)}</span> di antaranya sudah lunas.
+        </p>
         <div
-          className="mt-4 h-3 overflow-hidden rounded-full bg-mist-gray"
+          className="sj-stack-bar mt-4 h-2"
           role="progressbar"
-          aria-label="Progres pengeluaran terhadap alokasi"
+          aria-label="Pengeluaran terhadap alokasi"
           aria-valuenow={Math.min(100, spentPct)}
           aria-valuemin={0}
           aria-valuemax={100}
         >
-          <div
-            className={`h-full rounded-full transition-all duration-700 ${
-              isOver ? "bg-destructive" : "fill-botanical"
-            }`}
+          <span
+            className={`h-full transition-[width] duration-300 ease-out motion-reduce:transition-none ${isOver ? "bg-[var(--danger)]" : "bg-[var(--brand)]"}`}
             style={{ width: `${Math.min(100, spentPct)}%` }}
           />
+          <span className="h-full bg-[var(--paper-sunk)]" />
         </div>
-        <div className="relative mt-2 flex items-center gap-1.5">
-          {isOver && (
-            <span className="chip bg-destructive/90 text-white">
-              <AlertTriangle className="size-3" /> Melebihi alokasi
-            </span>
-          )}
-        </div>
-        <dl className="relative mt-3 grid grid-cols-3 gap-2">
-          <div className="stat-tile bg-secondary">
-            <dt>Terpakai</dt>
-            <dd>{formatRupiah(totalSpent)}</dd>
+        <dl className="mt-4 space-y-1.5 text-sm">
+          <div className="flex items-end gap-2">
+            <dt className="shrink-0 text-[var(--ink-soft)]">Sudah terpakai</dt>
+            <span aria-hidden className="sj-dot-leader" />
+            <dd className="num shrink-0 text-[var(--ink)]">{formatRupiah(totalSpent)}</dd>
           </div>
-          <div className="stat-tile bg-secondary">
-            <dt>Lunas</dt>
-            <dd>{formatRupiah(totalPaid)}</dd>
+          <div className="flex items-end gap-2">
+            <dt className="shrink-0 text-[var(--ink-soft)]">Sudah lunas ke vendor</dt>
+            <span aria-hidden className="sj-dot-leader" />
+            <dd className="num shrink-0 text-[var(--ink)]">{formatRupiah(totalPaid)}</dd>
           </div>
-          <div className="stat-tile bg-secondary">
-            <dt>Sisa alokasi</dt>
-            <dd className={sisaDana < 0 ? "text-destructive" : undefined}>
-              {sisaDana < 0
-                ? `−${formatRupiah(-sisaDana)}`
-                : formatRupiah(sisaDana)}
+          <div className="flex items-end gap-2">
+            <dt className="shrink-0 text-[var(--ink-soft)]">Sisa alokasi anggaran</dt>
+            <span aria-hidden className="sj-dot-leader" />
+            <dd className={`num shrink-0 ${sisaDana < 0 ? "text-[var(--danger)]" : "text-[var(--ink)]"}`}>
+              {sisaDana < 0 ? `−${formatRupiah(-sisaDana)}` : formatRupiah(sisaDana)}
             </dd>
           </div>
+          <div className="flex items-end gap-2 border-t border-[var(--line)] pt-1.5">
+            <dt className="shrink-0 text-[var(--ink-soft)]">Tabungan tercatat</dt>
+            <span aria-hidden className="sj-dot-leader" />
+            <dd className="num shrink-0 text-[var(--ink)]">{formatRupiah(savingsTotal)}</dd>
+          </div>
         </dl>
-        <div className="mt-3 clay-sm rounded-xl p-3 bg-sky-tint">
-          <p className="meta">Tabungan tercatat</p>
-          <p className="num font-extrabold">{formatRupiah(savingsTotal)}</p>
-          <p className="meta mt-0.5">Saldo kas setelah biaya tercatat</p>
-        </div>
+        {isOver && (
+          <p className="mt-3 flex items-center gap-2 text-sm text-[var(--danger)]">
+            <AlertTriangle className="size-4" /> Pengeluaran melewati alokasi. Kurangi kategori atau naikkan alokasi.
+          </p>
+        )}
       </section>
 
       {/* Grafik: Ikhtisar (donut) | Tren (kumulatif + alokasi vs terbayar) */}
@@ -515,10 +480,10 @@ export function BudgetPage() {
             role="tab"
             aria-selected={chartTab === tab}
             onClick={() => setChartTab(tab)}
-            className={`flex-1 rounded-full px-3 py-2 text-xs font-bold transition-all ${
+            className={`min-h-11 flex-1 border-b-2 px-3 text-sm transition-colors ${
               chartTab === tab
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "bg-secondary text-muted-foreground hover:text-foreground"
+                ? "border-[var(--brand)] text-[var(--ink)]"
+                : "border-transparent text-[var(--ink-soft)] hover:text-[var(--ink)]"
             }`}
           >
             {tab === "ikhtisar" ? "Ikhtisar" : "Tren"}
@@ -526,102 +491,56 @@ export function BudgetPage() {
         ))}
       </div>
 
-      {/* Donut komposisi pengeluaran — klik irisan/legenda untuk filter daftar */}
-      {chartTab === "ikhtisar" && donutData.length > 0 && (
-        <section className="clay p-4">
-          <div className="mb-2 flex items-center justify-between">
-            <h2 className="h-card">Komposisi pengeluaran</h2>
-            <span className="meta">{donutData.length} irisan</span>
+      {/* Komposisi pengeluaran sebagai baris ledger, bukan donat */}
+      {chartTab === "ikhtisar" && (
+        <section className="sj-paper-sheet p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h2 className="font-serif text-xl text-[var(--ink)]">Komposisi pengeluaran</h2>
+            <span className="text-sm text-[var(--ink-soft)]">
+              Total <span className="num">{formatRupiah(totalSpent)}</span>
+            </span>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="relative size-32 shrink-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={donutData}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={40}
-                    outerRadius={58}
-                    paddingAngle={3}
-                    cornerRadius={6}
-                    strokeWidth={0}
-                  >
-                    {donutData.map((entry, index) => {
-                      const categoryId = entry.categoryId;
-                      return (
-                        <Cell
-                          key={`${entry.name}-${index}`}
-                          fill={DONUT_COLORS[index % DONUT_COLORS.length]}
-                          className={categoryId ? "cursor-pointer" : undefined}
-                          onClick={
-                            categoryId ? () => toggleFilter(categoryId) : undefined
-                          }
-                        />
-                      );
-                    })}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Terpakai
-                </span>
-                <span className="num text-[11px] font-extrabold">
-                  {formatRupiahShort(totalSpent)}
-                </span>
-              </div>
-            </div>
-            <ul className="min-w-0 flex-1 space-y-1">
+          {donutLegend.length === 0 ? (
+            <p className="mt-3 max-w-[55ch] text-sm leading-relaxed text-[var(--ink-soft)]">
+              Belum ada pengeluaran tercatat. Catat biaya pertama supaya komposisinya terlihat.
+            </p>
+          ) : (
+            <ul className="mt-2 divide-y divide-[var(--line)]">
               {donutLegend.map((row, index) => {
                 const categoryId = row.categoryId;
-                const active = categoryId
-                  ? filterCategoryId === categoryId
-                  : false;
-                const dot = (
-                  <span
-                    className="size-2.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: row.color }}
-                  />
-                );
-                const text = (
+                const active = categoryId ? filterCategoryId === categoryId : false;
+                const share = totalSpent > 0 ? Math.round((row.value / totalSpent) * 100) : 0;
+                const body = (
                   <>
-                    <span className="min-w-0 flex-1 truncate font-semibold">
-                      {row.name}
+                    <span className="flex w-full items-baseline gap-2">
+                      <span className="truncate text-sm text-[var(--ink)]">{row.name}</span>
+                      <span aria-hidden className="sj-dot-leader" />
+                      <span className="num shrink-0 text-sm text-[var(--ink)]">{formatRupiah(row.value)}</span>
                     </span>
-                    <span className="num shrink-0 font-bold text-muted-foreground">
-                      {formatRupiahShort(row.value)}
+                    <span aria-hidden className="mt-1.5 block h-1 w-full overflow-hidden bg-[var(--paper-sunk)]">
+                      <span className="block h-full bg-[var(--brand)]" style={{ width: `${Math.min(100, share)}%` }} />
                     </span>
                   </>
                 );
                 return (
                   <li key={`${row.name}-${index}`}>
                     {categoryId ? (
-                      /* Legenda jadi tombol supaya filter bisa diakses keyboard. */
                       <button
                         type="button"
                         aria-pressed={active}
                         onClick={() => toggleFilter(categoryId)}
-                        className={`flex w-full items-center gap-2 rounded-xl px-2 py-1 text-xs transition-colors ${
-                          active
-                            ? "bg-tint-butter text-tint-butter-foreground"
-                            : "hover:bg-secondary"
-                        }`}
+                        className={`flex min-h-11 w-full flex-col justify-center py-2 text-left ${active ? "text-[var(--brand)]" : ""}`}
                       >
-                        {dot}
-                        {text}
+                        {body}
                       </button>
                     ) : (
-                      <span className="flex items-center gap-2 px-2 py-1 text-xs">
-                        {dot}
-                        {text}
-                      </span>
+                      <div className="flex min-h-11 flex-col justify-center py-2">{body}</div>
                     )}
                   </li>
                 );
               })}
             </ul>
-          </div>
+          )}
         </section>
       )}
 
@@ -630,9 +549,9 @@ export function BudgetPage() {
           title="Tren pengeluaran"
           meta={trendData.length > 0 ? `${trendData.length} bulan` : "belum ada data"}
         >
-          {trendData.length === 0 ? (
-            <p className="py-6 text-center text-xs text-muted-foreground">
-              Belum ada pengeluaran tercatat untuk tren.
+          {trendData.length < 3 ? (
+            <p className="py-6 text-sm leading-relaxed text-[var(--ink-soft)]">
+              Tren bulanan baru dibaca setelah tiga bulan pengeluaran tercatat. Sejauh ini {trendData.length} bulan terisi.
             </p>
           ) : (
             <div className="h-44">
@@ -681,75 +600,6 @@ export function BudgetPage() {
               </ResponsiveContainer>
             </div>
           )}
-        </ChartCard>
-      )}
-
-      {chartTab === "tren" && categoryBarData.length > 0 && (
-        <ChartCard title="Alokasi vs terbayar" meta="Klik batang untuk filter daftar">
-          <div className="h-52">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={categoryBarData}
-                layout="vertical"
-                margin={{ top: 4, right: 8, bottom: 0, left: 4 }}
-              >
-                <CartesianGrid
-                  horizontal={false}
-                  stroke="var(--color-fog)"
-                />
-                <XAxis
-                  type="number"
-                  tickFormatter={(value: number | string) => formatRupiahShort(Number(value))}
-                  tick={{ fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="name"
-                  tick={{ fontSize: 9 }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={94}
-                />
-                <Tooltip content={<ChartTip format={formatRupiahShort} />} />
-                <Bar
-                  dataKey="alokasi"
-                  name="Alokasi"
-                  fill="var(--color-mist-gray)"
-                  radius={[0, 4, 4, 0]}
-                  barSize={9}
-                >
-                  {categoryBarData.map((row) => (
-                    <Cell
-                      key={`alokasi-${row.id}`}
-                      className={
-                        row.id === "vendor" ? undefined : "cursor-pointer"
-                      }
-                      onClick={() => toggleFilter(row.id)}
-                    />
-                  ))}
-                </Bar>
-                <Bar
-                  dataKey="terbayar"
-                  name="Terbayar"
-                  fill="var(--chart-1)"
-                  radius={[0, 4, 4, 0]}
-                  barSize={9}
-                >
-                  {categoryBarData.map((row) => (
-                    <Cell
-                      key={`terbayar-${row.id}`}
-                      className={
-                        row.id === "vendor" ? undefined : "cursor-pointer"
-                      }
-                      onClick={() => toggleFilter(row.id)}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
         </ChartCard>
       )}
 
