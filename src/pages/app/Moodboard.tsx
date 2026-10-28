@@ -188,7 +188,7 @@ export function MoodboardPage() {
   if (categories === undefined || boxes === undefined) return <PageSkeleton />;
 
   return (
-    <div className="space-y-4">
+    <div className="sj-document-page sj-moodboard-page space-y-4">
       <input
         ref={fileInputRef}
         type="file"
@@ -200,25 +200,12 @@ export function MoodboardPage() {
 
       <BackLink />
 
-      <section className="clay p-5">
-        <div className="flex items-center gap-3">
-          <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-tint-rose text-xl text-tint-rose-foreground">
-            🎨
-          </div>
-          <div>
-            <p className="label text-muted-foreground">Koleksi inspirasi</p>
-            <p className="meta mt-1">
-              {boxes?.length ?? 0} kotak · {totalPhotos} foto di {current}
-            </p>
-          </div>
-        </div>
-        <p className="meta mt-3">
-          Simpan referensi per kategori sebanyak yang Anda butuhkan. Klik kotak
-          untuk melihat galeri, geser thumbnail untuk pindah foto.
-        </p>
-      </section>
-
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+      <header className="sj-page-heading border-b border-[var(--line)] pb-4">
+        <p className="text-sm text-[var(--ink-soft)]">Papan foto · {current}</p>
+        <h1 className="mt-1 font-serif text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--ink)]">Moodboard</h1>
+        <p className="mt-2 text-base leading-relaxed text-[var(--ink-soft)]">{totalPhotos} foto di {boxes?.length ?? 0} kotak. Simpan inspirasi per kategori dan geser thumbnail untuk memindahkan foto.</p>
+      </header>
+      <div className="flex items-center gap-2 overflow-x-auto border-b border-[var(--line)] pb-3">
         {categoryNames.map((name) => (
           <button
             key={name}

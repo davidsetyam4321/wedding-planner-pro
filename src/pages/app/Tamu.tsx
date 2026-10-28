@@ -369,15 +369,20 @@ export function TamuPage() {
   if (guests === undefined) return <PageSkeleton />;
 
   return (
-    <div className="space-y-4">
+    <div className="sj-document-page sj-guestbook-page space-y-4">
       <BackLink />
+      <header className="sj-page-heading border-b border-[var(--line)] pb-4">
+        <p className="text-sm text-[var(--ink-soft)]">Buku tamu</p>
+        <h1 className="mt-1 font-serif text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--ink)]">Daftar tamu</h1>
+        <p className="mt-2 text-base leading-relaxed text-[var(--ink-soft)]">{totalPax} orang dari {list.length} undangan; {list.filter((guest) => guest.rsvp !== "pending").length} sudah menjawab.</p>
+      </header>
 
-      <section className="clay p-5">
+      <section className="sj-paper-sheet p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="label text-muted-foreground">Respons undangan</p>
-            <p className="meta mt-1">
-              {list.length} tamu · {totalPax} orang · {invited} terkirim
+            <p className="text-sm text-[var(--ink-soft)]">Ringkasan buku tamu</p>
+            <p className="mt-2 max-w-[65ch] text-base leading-relaxed text-[var(--ink-soft)]">
+              {totalPax} orang dalam {list.length} undangan; {invited} undangan terkirim dan {list.filter((guest) => guest.rsvp !== "pending").length} sudah memberi jawaban.
             </p>
           </div>
           <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-tint-sky text-xl text-tint-sky-foreground shadow-sm">
@@ -423,7 +428,7 @@ export function TamuPage() {
         </dl>
       </section>
 
-      {rsvpDonut.length > 0 && (
+      {false && rsvpDonut.length > 0 && (
         <ChartCard title="Komposisi RSVP" meta="Klik irisan untuk filter">
           <div className="flex items-center gap-4">
             <div className="relative size-32 shrink-0">
@@ -492,7 +497,7 @@ export function TamuPage() {
         </ChartCard>
       )}
 
-      {groupBarData.length > 1 && (
+      {false && groupBarData.length > 1 && (
         <ChartCard title="Sebaran per grup" meta="Klik batang untuk filter">
           <div className="h-44">
             <ResponsiveContainer width="100%" height="100%">
@@ -633,24 +638,29 @@ export function TamuPage() {
       )}
 
       <section className="space-y-3">
-        <Stagger className="space-y-3">
+        {groups.length > 0 && (
+          <div className="sj-paper-sheet p-4">
+            <h2 className="font-serif text-xl text-[var(--ink)]">Sebaran per grup</h2>
+            <ul className="mt-2 divide-y divide-[var(--line)]">
+              {groups.map((group) => {
+                const people = list.filter((guest) => guest.group === group).reduce((sum, guest) => sum + guest.pax, 0);
+                return <li key={group}><button type="button" aria-pressed={groupFilter === group} onClick={() => setGroupFilter((current) => current === group ? null : group)} className="flex min-h-11 w-full items-center gap-3 py-2 text-left"><span className="min-w-0 flex-1 text-sm">{group}</span><span className="num text-sm">{people} orang</span><span aria-hidden="true" className="h-1 w-20 overflow-hidden bg-[var(--paper-sunk)]"><span className="block h-full bg-[var(--brand)]" style={{ width: `${totalPax ? people / totalPax * 100 : 0}%` }} /></span></button></li>;
+              })}
+            </ul>
+          </div>
+        )}
+        <Stagger className="divide-y divide-[var(--line)]">
           {visible.map((guest) => (
             <StaggerItem key={guest._id}>
-              <article className="clay p-4">
+              <article className="sj-ledger-row p-4">
                 <div className="flex items-start gap-3">
-                  <div
-                    className={`clay-sm flex size-11 shrink-0 items-center justify-center rounded-2xl text-sm font-extrabold ${groupTint(guest.group)}`}
-                  >
-                    {initialsOf(guest.name)}
-                  </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-extrabold">{guest.name}</p>
-                    <p className="meta">
-                      {guest.group} · {guest.pax} orang
-                    </p>
+                    <p className="meta">{guest.group}</p>
                     {guest.note && <p className="meta mt-0.5 italic">{guest.note}</p>}
                   </div>
-                  <div className="flex shrink-0 items-center gap-1.5">
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className="num text-sm font-semibold text-[var(--ink)]">{guest.pax} orang</span>
                     {guest.phone && (
                       <button
                         type="button"

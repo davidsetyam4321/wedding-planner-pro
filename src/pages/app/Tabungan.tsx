@@ -20,7 +20,9 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
-import { formatDateTimeID, formatRupiah, formatRupiahShort } from "@/lib/format";
+import { formatDateID, formatDateTimeID, formatRupiah, formatRupiahShort } from "@/lib/format";
+import { DateInputID, MoneyInput } from "@/components/Shared";
+import { vendorPaidAmount } from "@/lib/budget";
 import { Loader2, Plus, Target, TrendingUp } from "@/lib/icons";
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
@@ -110,13 +112,19 @@ export function TabunganPage() {
   const [targetValue, setTargetValue] = useState("");
   const [targetBusy, setTargetBusy] = useState(false);
 
-  const budget = useQuery(api.budget.overview);
+  const vendors = useQuery(api.vendors.list);
   const list = deposits ?? [];
   const total = list.reduce((sum, deposit) => sum + deposit.amount, 0);
   const target = wedding?.fundTarget ?? 0;
-  const totalSpent = budget?.expenses.reduce((sum, expense) => sum + expense.amount, 0) ?? 0;
+  const totalVendorCost = vendors?.reduce((sum, vendor) => sum + vendor.cost, 0) ?? 0;
+  const paidVendorCost = vendors?.reduce((sum, vendor) => sum + vendorPaidAmount(vendor), 0) ?? 0;
+  const vendorObligation = Math.max(0, totalVendorCost - paidVendorCost);
+  const fundingGap = Math.max(0, vendorObligation - total);
+  const monthsRemaining = wedding
+    ? Math.max(1, Math.ceil((wedding.weddingDate - Date.now()) / (30.4375 * 24 * 60 * 60 * 1000)))
+    : 1;
+  const monthlySaving = Math.ceil(fundingGap / monthsRemaining);
   const pct = target > 0 ? Math.min(100, Math.round((total / target) * 100)) : 0;
-  const anggaranSudahTerbiaya = total >= totalSpent;
 
   const now = new Date();
   const thisMonth = list
@@ -239,11 +247,16 @@ export function TabunganPage() {
   if (deposits === undefined) return <PageSkeleton />;
 
   return (
-    <div className="space-y-4">
-      <section className="clay p-5">
+    <div className="sj-document-page sj-savings-page space-y-4">
+      <header className="sj-page-heading border-b border-[var(--line)] pb-4">
+        <p className="text-sm font-medium text-[var(--ink-soft)]">Buku kas · Tabungan</p>
+        <h1 className="mt-1 font-serif text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--ink)]">Tabungan bersama</h1>
+        <p className="mt-2 max-w-[60ch] text-base leading-relaxed text-[var(--ink-soft)]">{list.length} setoran tercatat sampai saat ini.</p>
+      </header>
+      <section className="sj-paper-sheet p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="label text-muted-foreground">Progres tabungan</p>
+            <p className="text-sm text-[var(--ink-soft)]">Progres menuju target</p>
             <p className="meta mt-1">Target {formatRupiahShort(target)}</p>
           </div>
           <button
@@ -261,8 +274,8 @@ export function TabunganPage() {
         <div className="mt-4 flex items-center gap-4">
           <div className="min-w-0 flex-1">
             <p className="num text-3xl font-extrabold">{formatRupiah(total)}</p>
-            <p className="num meta mt-1.5">
-              {pct}% terkumpul · sisa {formatRupiah(Math.max(0, target - total))}
+            <p className="num mt-1.5 text-sm text-[var(--ink-soft)]">
+              {pct}% terkumpul · kurang {formatRupiah(Math.max(0, target - total))} dari target
             </p>
           </div>
           <div className="relative shrink-0">
@@ -275,40 +288,18 @@ export function TabunganPage() {
             </div>
           </div>
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <div className={`clay-sm rounded-xl p-3 ${anggaranSudahTerbiaya ? "bg-sky-tint" : "bg-mist-gray"}`}>
-            <p className="meta">Total pengeluaran anggaran</p>
-            <p className="num font-extrabold">{formatRupiahShort(totalSpent)}</p>
-          </div>
-          <div className={`clay-sm rounded-xl p-3 ${anggaranSudahTerbiaya ? "bg-sky-tint" : "bg-mist-gray"}`}>
-            <p className="meta">Tabungan vs anggaran</p>
-            <p className="num font-extrabold">
-              {anggaranSudahTerbiaya ? (
-                <span className="text-tint-mint-foreground">Cukup</span>
-              ) : (
-                <span className="text-tint-sky-foreground">
-                  Butuh {formatRupiahShort(Math.max(0, totalSpent - total))}
-                </span>
-              )}
-            </p>
-          </div>
-        </div>
+        <p className="mt-4 border-t border-[var(--line)] pt-3 text-sm leading-relaxed text-[var(--ink-soft)]">
+          {vendors === undefined ? "Memuat sisa kewajiban vendor…" : vendorObligation > 0
+            ? <>Sisa kewajiban vendor <strong className="num text-[var(--ink)]">{formatRupiah(vendorObligation)}</strong>. {fundingGap > 0
+              ? <>Tabungan masih kurang <strong className="num text-[var(--ink)]">{formatRupiah(fundingGap)}</strong> — sekitar <strong className="num text-[var(--ink)]">{formatRupiah(monthlySaving)}</strong> per bulan hingga {wedding ? formatDateID(wedding.weddingDate) : "hari pernikahan"}.</>
+              : <>Tabungan tercatat sudah mencukupi kewajiban vendor saat ini.</>}</>
+            : "Belum ada sisa kewajiban vendor yang tercatat."}
+        </p>
       </section>
 
-      <section className="grid grid-cols-3 gap-2">
-        <dl className="clay stat-tile bg-tint-lavender text-tint-lavender-foreground">
-          <dt>Bulan ini</dt>
-          <dd>{formatRupiahShort(thisMonth)}</dd>
-        </dl>
-        <dl className="clay stat-tile bg-tint-sky text-tint-sky-foreground">
-          <dt>Rata-rata</dt>
-          <dd>{formatRupiahShort(average)}</dd>
-        </dl>
-        <dl className="clay stat-tile bg-tint-mint text-tint-mint-foreground">
-          <dt>Setoran</dt>
-          <dd>{list.length}×</dd>
-        </dl>
-      </section>
+      <p className="border-b border-[var(--line)] py-3 text-sm text-[var(--ink-soft)]">
+        Bulan ini <strong className="num text-[var(--ink)]">{formatRupiah(thisMonth)}</strong> · rata-rata per setoran <strong className="num text-[var(--ink)]">{formatRupiah(average)}</strong> · {list.length} kali setor
+      </p>
 
       {/* Mini chart: 6 bulan terakhir */}
       <Stagger>
@@ -442,14 +433,11 @@ export function TabunganPage() {
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="deposit-amount">Nominal (Rp)</Label>
-          <Input
+          <MoneyInput
             id="deposit-amount"
-            type="number"
-            min={0}
-            step={50000}
             value={amount}
-            onChange={(event) => setAmount(event.target.value)}
-            placeholder="500000"
+            onChange={setAmount}
+            placeholder="500.000"
           />
         </div>
         <div className="space-y-1.5">
@@ -550,15 +538,10 @@ export function TabunganPage() {
           <div className="space-y-3">
             <div className="space-y-1.5">
               <Label htmlFor="edit-amount">Nominal (Rp)</Label>
-              <Input
+              <MoneyInput
                 id="edit-amount"
-                type="number"
                 value={editing?.amount ?? ""}
-                onChange={(event) =>
-                  setEditing((previous) =>
-                    previous ? { ...previous, amount: event.target.value } : previous,
-                  )
-                }
+                onChange={(amount) => setEditing((previous) => previous ? { ...previous, amount } : previous)}
               />
             </div>
             <div className="space-y-1.5">
@@ -589,13 +572,11 @@ export function TabunganPage() {
           </DialogHeader>
           <div className="space-y-1.5">
             <Label htmlFor="target-value">Total kebutuhan (Rp)</Label>
-            <Input
+            <MoneyInput
               id="target-value"
-              type="number"
-              min={0}
-              step={1000000}
               value={targetValue}
-              onChange={(event) => setTargetValue(event.target.value)}
+              onChange={setTargetValue}
+              placeholder="50.000.000"
             />
           </div>
           <DialogFooter>

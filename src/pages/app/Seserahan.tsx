@@ -49,7 +49,7 @@ const STATUSES: {
 }[] = [
   {
     value: "link",
-    label: "Link",
+    label: "Dicari",
     icon: Link2,
     surface: "bg-tint-butter text-tint-butter-foreground",
     color: "var(--chart-3)",
@@ -120,11 +120,9 @@ function SeserahanRow({
   };
 
   return (
-    <div className="clay p-4">
+    <div className="sj-ledger-row p-3">
       <div className="flex items-start gap-3">
-        <span
-          className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${current.surface}`}
-        >
+        <span className={`flex size-9 shrink-0 items-center justify-center border-r border-[var(--line)] pr-3 ${current.surface}`}>
           <current.icon className="size-4" />
         </span>
         <div className="min-w-0 flex-1">
@@ -147,7 +145,7 @@ function SeserahanRow({
               <ExternalLink className="size-3 shrink-0 opacity-70" />
             </a>
           ) : (
-            <p className="meta mt-0.5">Belum ada link</p>
+            <p className="meta mt-0.5">Belum ada link · sedang dicari</p>
           )}
           {(item.unitPrice !== undefined || item.quantity !== undefined) && (
             <p className="mt-1 text-xs font-semibold text-foreground/80">
@@ -184,7 +182,7 @@ function SeserahanRow({
       </div>
 
       {/* ── Switch status: Link → Keranjang → Dibeli, sekali ketuk ──── */}
-      <div className="mt-3 flex gap-1 rounded-xl bg-secondary p-1">
+      <div className="mt-3 flex gap-1 border-t border-[var(--line)] pt-2">
         {STATUSES.map((s) => {
           const active = s.value === item.status;
           return (
@@ -195,10 +193,10 @@ function SeserahanRow({
               aria-pressed={active}
               aria-label={`Status ${s.label} untuk ${item.title}`}
               onClick={() => void switchTo(s.value)}
-              className={`flex flex-1 items-center justify-center gap-1 rounded-lg px-2 py-1.5 text-[11px] font-bold transition ${
+              className={`flex min-h-11 flex-1 items-center justify-center gap-1 border-b-2 px-2 py-1.5 text-sm font-semibold transition-colors ${
                 active
-                  ? `${s.surface} shadow-sm`
-                  : "text-muted-foreground hover:bg-background/70"
+                  ? "border-[var(--brand)] text-[var(--brand)]"
+                  : "border-transparent text-[var(--ink-soft)] hover:border-[var(--line)]"
               }`}
             >
               <s.icon className="size-3.5" />
@@ -311,20 +309,23 @@ export function SeserahanPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="sj-document-page sj-gift-page space-y-4">
+      <header className="sj-page-heading border-b border-[var(--line)] pb-4">
+        <p className="text-sm text-[var(--ink-soft)]">Daftar hantaran</p>
+        <h1 className="mt-1 font-serif text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--ink)]">Seserahan &amp; hantaran</h1>
+        <p className="mt-2 max-w-[60ch] text-base leading-relaxed text-[var(--ink-soft)]">{total ? `${bought} dari ${total} barang sudah dibeli (${pct}%).` : "Catat barang untuk mulai menyiapkan hantaran."} Nilai tercatat {formatRupiah(totalValue)}.</p>
+      </header>
       {/* ── Ringkasan progres ──────────────────────────────────────── */}
-      <section className="clay p-5">
+      <section className="sj-paper-sheet p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="label text-muted-foreground">Seserahan & hantaran</p>
+            <p className="text-sm text-[var(--ink-soft)]">Progres belanja</p>
             <p className="mt-1.5 font-serif text-xl leading-tight">
               {total === 0
                 ? "Belum ada barang seserahan"
                 : `${bought} dari ${total} barang sudah dibeli`}
             </p>
-            <p className="meta mt-1">
-              {totalQuantity} barang · {formatRupiah(totalValue)} nilai tercatat
-            </p>
+            <p className="meta mt-1">Jumlah {totalQuantity} barang</p>
             {itemsWithPrice < total && total > 0 && (
               <p className="meta mt-0.5">{total - itemsWithPrice} barang belum memiliki harga</p>
             )}
@@ -482,7 +483,7 @@ export function SeserahanPage() {
             </div>
             <div className="space-y-1.5">
               <label htmlFor="seserahan-link" className="label">
-                Link toko (opsional)
+                Tautan toko (opsional)
               </label>
               <Input
                 id="seserahan-link"
@@ -496,8 +497,8 @@ export function SeserahanPage() {
                 className="rounded-xl"
               />
               <p className="meta">
-                Item baru otomatis berstatus “Link” — tinggal ditukar dari
-                daftar.
+                Item baru otomatis berstatus “Dicari” — tautannya bisa ditambahkan nanti.
+
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3">

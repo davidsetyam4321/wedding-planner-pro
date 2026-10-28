@@ -7,6 +7,8 @@ import {
   RowMenu,
   Stagger,
   StaggerItem,
+  DateInputID,
+  MoneyInput,
 } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
@@ -260,15 +262,20 @@ export function VendorPage() {
   if (vendors === undefined) return <PageSkeleton />;
 
   return (
-    <div className="space-y-4">
+    <div className="sj-document-page sj-vendor-page space-y-4">
       <BackLink />
+      <header className="sj-page-heading border-b border-[var(--line)] pb-4">
+        <p className="text-sm text-[var(--ink-soft)]">Daftar nota vendor</p>
+        <h1 className="mt-1 font-serif text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--ink)]">Vendor pernikahan</h1>
+        <p className="mt-2 max-w-[65ch] text-base leading-relaxed text-[var(--ink-soft)]">{list.length} vendor · biaya <strong className="num text-[var(--ink)]">{formatRupiah(totalCost)}</strong> · sudah dibayar <strong className="num text-[var(--ink)]">{formatRupiah(paidTotal)}</strong> · tersisa <strong className="num text-[var(--ink)]">{formatRupiah(remaining)}</strong>.</p>
+      </header>
 
-      <section className="clay p-5">
+      <section className="sj-paper-sheet p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="label text-muted-foreground">Status pembayaran</p>
+            <p className="text-sm text-[var(--ink-soft)]">Status pembayaran</p>
             <p className="meta mt-1">
-              {list.length} vendor · {lunasCount} lunas · {categories.length} kategori
+              {lunasCount} vendor lunas · {categories.length} kategori
             </p>
           </div>
           <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-tint-butter text-xl text-tint-butter-foreground">
@@ -562,7 +569,7 @@ export function VendorPage() {
             const wa = vendor.contact ? waLink(vendor.contact) : null;
             return (
               <StaggerItem key={vendor._id}>
-                <article className="clay relative overflow-hidden p-4 pl-5">
+                <article className="sj-ledger-row relative overflow-hidden p-4 pl-5">
                   <span
                     className={`absolute inset-y-0 left-0 w-1.5 ${STATUS_ACCENT[status]}`}
                     aria-hidden
@@ -582,7 +589,7 @@ export function VendorPage() {
                           {formatRupiah(vendor.cost)}
                         </p>
                         {left > 0 && (
-                          <p className="num meta">sisa {formatRupiahShort(left)}</p>
+                          <p className="num meta">sisa {formatRupiah(left)}</p>
                         )}
                       </div>
                       <RowMenu
@@ -611,16 +618,16 @@ export function VendorPage() {
                   </div>
 
                   <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <div className="clay-inset flex gap-1 p-1">
-                      {STATUS_OPTIONS.map((option) => (
+                  <div className="flex gap-1 border-t border-[var(--line)] pt-2">
+                    {STATUS_OPTIONS.map((option) => (
                         <button
                           key={option.key}
                           type="button"
                           onClick={() => void changeStatus(vendor._id, option.key)}
-                          className={`rounded-xl px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                          className={`min-h-11 flex-1 border-b-2 px-2.5 py-1 text-sm font-semibold transition-colors ${
                             status === option.key
-                              ? STATUS_CHIP[option.key]
-                              : "text-muted-foreground hover:text-foreground"
+                              ? "border-[var(--brand)] text-[var(--brand)]"
+                              : "border-transparent text-[var(--ink-soft)] hover:border-[var(--line)]"
                           }`}
                         >
                           {option.label}
@@ -635,7 +642,7 @@ export function VendorPage() {
                     )}
 
                     {vendor.dueDate && status !== "lunas" && (
-                      <DueChip dueDate={vendor.dueDate} />
+                      <span className="text-xs text-[var(--ink-soft)]">Jatuh tempo <DueChip dueDate={vendor.dueDate} /></span>
                     )}
 
                     {vendor.contact &&
@@ -740,31 +747,11 @@ export function VendorPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="vendor-cost">Biaya (Rp)</Label>
-                <Input
-                  id="vendor-cost"
-                  type="number"
-                  min={0}
-                  step={100000}
-                  value={form.cost}
-                  onChange={(event) =>
-                    setForm((prev) => ({ ...prev, cost: event.target.value }))
-                  }
-                  placeholder="5000000"
-                />
+                <MoneyInput id="vendor-cost" value={form.cost} onChange={(cost) => setForm((prev) => ({ ...prev, cost }))} placeholder="5.000.000" />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="vendor-dp">Sudah DP (Rp)</Label>
-                <Input
-                  id="vendor-dp"
-                  type="number"
-                  min={0}
-                  step={100000}
-                  value={form.dpAmount}
-                  onChange={(event) =>
-                    setForm((prev) => ({ ...prev, dpAmount: event.target.value }))
-                  }
-                  placeholder="1000000"
-                />
+                <MoneyInput id="vendor-dp" value={form.dpAmount} onChange={(dpAmount) => setForm((prev) => ({ ...prev, dpAmount }))} placeholder="1.000.000" />
               </div>
             </div>
             <div className="space-y-1.5">
@@ -790,14 +777,7 @@ export function VendorPage() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="vendor-due">Jatuh tempo pembayaran (opsional)</Label>
-              <Input
-                id="vendor-due"
-                type="date"
-                value={form.due}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, due: event.target.value }))
-                }
-              />
+              <DateInputID id="vendor-due" value={form.due} onChange={(due) => setForm((prev) => ({ ...prev, due }))} ariaLabel="Jatuh tempo pembayaran, format hari/bulan/tahun" />
               <p className="meta">
                 Tenggat DP / pelunasan — muncul di pengingat bila mendekati.
               </p>

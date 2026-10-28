@@ -32,7 +32,8 @@ import {
 } from "@/lib/icons";
 import type { Icon } from "@/lib/icons";
 
-import { Children, useState, type ReactNode } from "react";
+import { Children, useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router";
 
 /**
@@ -328,6 +329,143 @@ export function BackLink({
  * Placeholder yang ditampilkan selama query Convex pertama masih dimuat,
  * supaya halaman tidak berkedip menampilkan empty-state dulu.
  */
+type LocalizedInputProps = {
+  id: string;
+  value: string;
+  onChange: (value: string) => void;
+  className?: string;
+  placeholder?: string;
+  ariaLabel?: string;
+};
+
+function parseGroupedDigits(value: string): string {
+  return value.replace(/\D/g, "");
+}
+
+function formatGroupedDigits(value: string): string {
+  const digits = parseGroupedDigits(value);
+  let formatted = "";
+  for (let index = 0; index < digits.length; index += 1) {
+    if (index > 0 && (digits.length - index) % 3 === 0) formatted += ".";
+    formatted += digits[index];
+  }
+  return formatted;
+}
+
+/** Nominal berkelompok ribuan, tetap mengirim digit polos ke form/API. */
+export function MoneyInput({
+  id,
+  value,
+  onChange,
+  className,
+  placeholder = "500.000",
+  ariaLabel,
+}: LocalizedInputProps) {
+  const [display, setDisplay] = useState(() => formatGroupedDigits(value));
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setDisplay(formatGroupedDigits(value));
+  }, [value]);
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const input = event.currentTarget;
+    const digitsBeforeCaret = parseGroupedDigits(input.value.slice(0, input.selectionStart ?? input.value.length)).length;
+    const digits = parseGroupedDigits(input.value);
+    const formatted = formatGroupedDigits(digits);
+    setDisplay(formatted);
+    onChange(digits);
+    requestAnimationFrame(() => {
+      if (document.activeElement !== inputRef.current) return;
+      let caret = 0;
+      let seen = 0;
+      while (caret < formatted.length && seen < digitsBeforeCaret) {
+        if (formatted[caret] >= "0" && formatted[caret] <= "9") seen += 1;
+        caret += 1;
+      }
+      inputRef.current?.setSelectionRange(caret, caret);
+    });
+  };
+
+  return (
+    <Input
+      ref={inputRef}
+      id={id}
+      type="text"
+      inputMode="numeric"
+      value={display}
+      onChange={handleChange}
+      placeholder={placeholder}
+      aria-label={ariaLabel}
+      className={className}
+    />
+  );
+}
+
+function dateInputDisplay(isoValue: string): string {
+  const [year, month, day] = isoValue.split("-");
+  return year?.length === 4 && month?.length === 2 && day?.length === 2
+    ? `${day}/${month}/${year}`
+    : "";
+}
+
+/** Date picker teks dd/mm/yyyy; hanya menyimpan ISO setelah tanggal valid. */
+export function DateInputID({
+  id,
+  value,
+  onChange,
+  className,
+  placeholder = "dd/mm/yyyy",
+  ariaLabel,
+}: LocalizedInputProps) {
+  const [display, setDisplay] = useState(() => dateInputDisplay(value));
+
+  useEffect(() => {
+    setDisplay(dateInputDisplay(value));
+  }, [value]);
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const digits = parseGroupedDigits(event.currentTarget.value).slice(0, 8);
+    const formatted = digits.length <= 2
+      ? digits
+      : digits.length <= 4
+        ? `${digits.slice(0, 2)}/${digits.slice(2)}`
+        : `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+    setDisplay(formatted);
+    if (digits.length === 0) {
+      onChange("");
+      return;
+    }
+    if (digits.length !== 8) {
+      onChange("");
+      return;
+    }
+    const day = Number(digits.slice(0, 2));
+    const month = Number(digits.slice(2, 4));
+    const year = Number(digits.slice(4));
+    const date = new Date(year, month - 1, day);
+    if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+      onChange("");
+      return;
+    }
+    onChange(`${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`);
+  };
+
+  return (
+    <Input
+      id={id}
+      type="text"
+      inputMode="numeric"
+      autoComplete="off"
+      value={display}
+      onChange={handleChange}
+      placeholder={placeholder}
+      aria-label={ariaLabel}
+      className={className}
+    />
+  );
+}
+
 export function PageSkeleton() {
   return (
     <div className="space-y-4" role="status" aria-busy="true" aria-label="Memuat data perencanaan">

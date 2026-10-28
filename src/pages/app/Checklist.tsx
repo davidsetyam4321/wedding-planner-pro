@@ -1,5 +1,5 @@
 import { CHART_COLORS, ChartCard, ChartTip } from "@/components/Charts";
-import { EmptyState, PageSkeleton, RowMenu, Stagger, StaggerItem, DueChip } from "@/components/Shared";
+import { EmptyState, PageSkeleton, RowMenu, Stagger, StaggerItem, DueChip, DateInputID } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -546,8 +546,13 @@ export function ChecklistPage() {
   if (items === undefined) return <PageSkeleton />;
 
   return (
-    <div className="space-y-4">
-      <section className="clay space-y-4 p-4 sm:p-5" aria-label="Kalender tenggat checklist">
+    <div className="sj-document-page sj-checklist-page space-y-4">
+      <header className="sj-page-heading border-b border-[var(--line)] pb-4">
+        <p className="text-sm text-[var(--ink-soft)]">Persiapan menuju hari-H</p>
+        <h1 className="mt-1 font-serif text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--ink)]">Checklist</h1>
+        <p className="mt-2 text-base leading-relaxed text-[var(--ink-soft)]">{open.length} tugas lagi dari {all.length}; {pct}% sudah selesai.</p>
+      </header>
+      <section className="sj-paper-sheet space-y-4 p-4 sm:p-5" aria-label="Kalender tenggat checklist">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="label text-muted-foreground">Jadwal checklist</p>
@@ -681,10 +686,10 @@ export function ChecklistPage() {
         <p className="text-[11px] text-muted-foreground">{monthTasks.length} tugas bertenggat pada {monthLabel} · daftar di bawah mengikuti tenggat terdekat</p>
       </section>
 
-      <section className="clay p-5">
+      <section className="sj-paper-sheet p-5">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="label text-muted-foreground">Progres tugas</p>
+            <p className="text-sm text-[var(--ink-soft)]">Progres persiapan</p>
             <p className="meta mt-1">
               {open.length} tugas menunggu · {done.length} selesai
             </p>
@@ -826,7 +831,7 @@ export function ChecklistPage() {
         </ChartCard>
       )}
 
-      <section className="clay space-y-3 p-4">
+      <section className="sj-paper-sheet space-y-3 p-4">
         <form
           className="flex gap-2"
           onSubmit={(event) => {
@@ -839,11 +844,11 @@ export function ChecklistPage() {
             onChange={(event) => setLabel(event.target.value)}
             placeholder="Tambah tugas, tekan Enter"
           />
-          <Input
-            type="date"
+          <DateInputID
+            id="new-task-due"
             value={newDue}
-            onChange={(event) => setNewDue(event.target.value)}
-            aria-label="Tenggat tugas (opsional)"
+            onChange={setNewDue}
+            ariaLabel="Tenggat tugas (format hari/bulan/tahun, opsional)"
             className="w-40 shrink-0"
           />
           <Button type="submit" size="icon" className="rounded-xl" disabled={adding || !label.trim()}>
@@ -1079,15 +1084,11 @@ export function ChecklistPage() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="edit-due">Tenggat (opsional)</Label>
-            <Input
+            <DateInputID
               id="edit-due"
-              type="date"
               value={editing?.due ?? ""}
-              onChange={(event) =>
-                setEditing((previous) =>
-                  previous ? { ...previous, due: event.target.value } : previous,
-                )
-              }
+              onChange={(due) => setEditing((previous) => previous ? { ...previous, due } : previous)}
+              ariaLabel="Tenggat tugas, format hari/bulan/tahun"
             />
           </div>
           <div className="space-y-1.5">

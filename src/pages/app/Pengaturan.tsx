@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/convex/_generated/api";
 import { fromDateInputValue, toDateInputValue } from "@/lib/format";
+import { DateInputID, MoneyInput } from "@/components/Shared";
 import { bloom } from "@/lib/bloom";
 import { Camera, Loader2, Plus, Save, Trash2, X } from "@/lib/icons";
 import { useState } from "react";
@@ -147,10 +148,14 @@ export function PengaturanPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="sj-document-page sj-settings-page space-y-4">
       <BackLink />
-
-      <section className="clay p-5">
+      <header className="sj-page-heading border-b border-[var(--line)] pb-4">
+        <p className="text-sm text-[var(--ink-soft)]">Ruang kerja berdua</p>
+        <h1 className="mt-1 font-serif text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--ink)]">Pengaturan</h1>
+        <p className="mt-2 max-w-[60ch] text-base leading-relaxed text-[var(--ink-soft)]">Atur identitas, tema, akun, dan daftar vendor yang dipakai bersama.</p>
+      </header>
+      <section className="sj-paper-sheet p-5">
         <div className="flex items-center gap-3">
           <div className="clay-sm flex size-11 items-center justify-center rounded-2xl bg-tint-rose text-lg text-tint-rose-foreground">
             ⚙️
@@ -168,15 +173,15 @@ export function PengaturanPage() {
             <Sparkles className="size-5" />
           </div>
           <div>
-            <UiLabel htmlFor="visual-style" className="font-semibold">Tampilan Unlumen</UiLabel>
-            <p className="meta mt-1">Gaya baru, kaca lembut, dan animasi. Matikan untuk kembali ke tampilan sebelumnya.</p>
+            <UiLabel htmlFor="visual-style" className="font-semibold">Efek visual dan animasi</UiLabel>
+            <p className="meta mt-1">Matikan efek untuk mengurangi gerak dan memakai permukaan solid.</p>
           </div>
         </div>
         <Switch
           id="visual-style"
           checked={style === "unlumen"}
           onCheckedChange={(enabled) => setStyle(enabled ? "unlumen" : "classic")}
-          aria-label="Aktifkan tampilan Unlumen"
+          aria-label="Aktifkan efek visual dan animasi"
         />
       </section>
 
@@ -264,11 +269,11 @@ export function PengaturanPage() {
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="set-date">Tanggal pernikahan</Label>
-          <Input
+          <DateInputID
             id="set-date"
-            type="date"
             value={dateValue}
-            onChange={(e) => setDateValue(e.target.value)}
+            onChange={setDateValue}
+            ariaLabel="Tanggal pernikahan, format hari/bulan/tahun"
           />
         </div>
         <div className="space-y-1.5">
@@ -282,14 +287,11 @@ export function PengaturanPage() {
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="set-target">Target dana (Rp)</Label>
-          <Input
+          <MoneyInput
             id="set-target"
-            type="number"
-            min={0}
-            step={100000}
             value={target}
-            onChange={(e) => setTarget(e.target.value)}
-            placeholder="64000000"
+            onChange={setTarget}
+            placeholder="64.000.000"
           />
         </div>
         <Button type="submit" className="w-full rounded-2xl" disabled={saving}>

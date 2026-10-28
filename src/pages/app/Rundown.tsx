@@ -23,6 +23,7 @@ import { printDocument } from "@/lib/printDoc";
 import { undoableDelete } from "@/lib/undo";
 import { Clock, Loader2, Plus, Printer, Search, UserRound, X } from "@/lib/icons";
 import { useState } from "react";
+import { useReducedMotion } from "framer-motion";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 
@@ -74,6 +75,7 @@ function formatWeddingDate(ms: number): string {
 
 /** Rundown acara: susunan agenda hari-H urut jam. */
 export function RundownPage() {
+  const reducedMotion = useReducedMotion();
   const items = useQuery(api.rundown.list);
   const wedding = useQuery(api.wedding.get);
   const createItem = useMutation(api.rundown.create);
@@ -99,14 +101,19 @@ export function RundownPage() {
             (item.pic ?? "").toLowerCase().includes(term),
         );
   const firstTime = list[0]?.startTime;
-  const lastItem = list[list.length - 1];
-  const lastTime = lastItem
-    ? addMinutes(lastItem.startTime, lastItem.durationMinutes ?? 0)
+  const endMinutes = list.reduce((latest, item) => {
+    const [hours, minutes] = item.startTime.split(":").map(Number);
+    const end = (hours * 60 + minutes) + (item.durationMinutes ?? 0);
+    return Math.max(latest, end);
+  }, firstTime ? (() => { const [hours, minutes] = firstTime.split(":").map(Number); return hours * 60 + minutes; })() : 0);
+  const lastTime = list.length > 0
+    ? `${String(Math.floor((endMinutes % 1440) / 60)).padStart(2, "0")}:${String(endMinutes % 60).padStart(2, "0")}`
     : undefined;
-  const totalMinutes = list.reduce(
-    (sum, item) => sum + (item.durationMinutes ?? 0),
-    0,
-  );
+  // Agenda yang tumpang tindih dihitung sebagai satu rentang keseluruhan, bukan
+  // dijumlahkan berulang kali seperti durasi setiap item.
+  const totalMinutes = list.length > 0
+    ? Math.max(0, endMinutes - (() => { const [hours, minutes] = firstTime!.split(":").map(Number); return hours * 60 + minutes; })())
+    : 0;
 
   const openNew = () => {
     const previous = list[list.length - 1];
@@ -222,13 +229,17 @@ export function RundownPage() {
   if (items === undefined) return <PageSkeleton />;
 
   return (
-    <div className="space-y-4">
+    <div className="sj-document-page sj-rundown-page space-y-4">
       <BackLink />
-
-      <section className="clay p-5">
+      <header className="sj-page-heading border-b border-[var(--line)] pb-4">
+        <p className="text-sm text-[var(--ink-soft)]">Susunan acara tercetak</p>
+        <h1 className="mt-1 font-serif text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--ink)]">Rundown acara</h1>
+        <p className="mt-2 text-base leading-relaxed text-[var(--ink-soft)]">{list.length ? <>Acara berlangsung dari <strong className="num text-[var(--ink)]">{firstTime}</strong> hingga <strong className="num text-[var(--ink)]">{lastTime}</strong>.</> : "Susun jalannya acara, dari akad hingga walimah."}</p>
+      </header>
+      <section className="sj-paper-sheet p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="label text-muted-foreground">Agenda hari-H</p>
+            <p className="text-sm text-[var(--ink-soft)]">Ringkasan susunan acara</p>
             <p className="meta mt-1">
               {list.length} agenda
               {firstTime && lastTime ? ` · ${firstTime}–${lastTime}` : ""}
@@ -293,17 +304,14 @@ export function RundownPage() {
 
       <section className="relative">
         {visible.length > 0 && (
-          <span
-            aria-hidden
-            className="absolute bottom-4 left-[52px] top-4 w-0.5 rounded-full bg-gradient-to-b from-primary/40 via-primary/25 to-transparent"
-          />
+          <span aria-hidden className="sj-run-spine absolute bottom-4 left-[52px] top-4 w-px bg-[var(--line)]" />
         )}
         <Stagger className="space-y-3">
           {visible.map((item) => {
             const duration = item.durationMinutes ?? 0;
             return (
               <StaggerItem key={item._id}>
-                <div className="relative flex items-start gap-3">
+                <div className={`sj-run-sheet-row relative flex items-start gap-3 ${reducedMotion ? "" : "sj-run-sheet-reveal"}`}>
                   {/* Timeline dot + clock chip */}
                   <div className="relative z-10 flex w-12 shrink-0 flex-col items-center">
                     <div className="clay-sm rounded-2xl bg-primary px-1.5 py-2 text-center text-primary-foreground">

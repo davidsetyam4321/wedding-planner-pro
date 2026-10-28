@@ -3,7 +3,7 @@ import {
   ChartCard,
   ChartTip,
 } from "@/components/Charts";
-import { EmptyState, PageSkeleton, RowMenu, Stagger, StaggerItem } from "@/components/Shared";
+import { EmptyState, PageSkeleton, RowMenu, Stagger, StaggerItem, MoneyInput } from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -429,7 +429,7 @@ export function BudgetPage() {
           title: "Tabungan",
           lines: [
             `Tabungan terkumpul: ${formatRupiah(savingsTotal)}`,
-            `Sisa dana (tabungan − terpakai): ${formatRupiah(sisaDana)}`,
+            `Saldo kas setelah biaya (tabungan − terpakai): ${formatRupiah(sisaDana)}`,
           ],
         },
       ],
@@ -440,13 +440,19 @@ export function BudgetPage() {
 
   return (
     <div className="space-y-4">
-      <section className="clay p-5">
+      <div className="sj-document-page sj-budget-page space-y-4">
+      <header className="sj-page-heading border-b border-[var(--line)] pb-4">
+        <p className="text-sm text-[var(--ink-soft)]">Buku kas · Budget</p>
+        <h1 className="mt-1 font-serif text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--ink)]">Anggaran pernikahan</h1>
+        <p className="mt-2 text-base leading-relaxed text-[var(--ink-soft)]">Terpakai <strong className="num text-[var(--ink)]">{formatRupiah(totalSpent)}</strong> dari alokasi <strong className="num text-[var(--ink)]">{formatRupiah(totalAllocated)}</strong>.</p>
+      </header>
+      <section className="sj-paper-sheet p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="label text-muted-foreground">Ikhtisar anggaran</p>
+            <p className="text-sm text-[var(--ink-soft)]">Ringkasan buku kas</p>
             <p className="meta mt-1">
-              Terpakai {formatRupiahShort(totalSpent)} dari{" "}
-              {formatRupiahShort(totalAllocated)}
+              Terpakai {formatRupiah(totalSpent)} dari{" "}
+              {formatRupiah(totalAllocated)}
             </p>
           </div>
           <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-tint-mint text-tint-mint-foreground shadow-sm">
@@ -478,25 +484,25 @@ export function BudgetPage() {
         <dl className="relative mt-3 grid grid-cols-3 gap-2">
           <div className="stat-tile bg-secondary">
             <dt>Terpakai</dt>
-            <dd>{formatRupiahShort(totalSpent)}</dd>
+            <dd>{formatRupiah(totalSpent)}</dd>
           </div>
           <div className="stat-tile bg-secondary">
             <dt>Lunas</dt>
-            <dd>{formatRupiahShort(totalPaid)}</dd>
+            <dd>{formatRupiah(totalPaid)}</dd>
           </div>
           <div className="stat-tile bg-secondary">
-            <dt>Sisa dana</dt>
+            <dt>Sisa alokasi</dt>
             <dd className={sisaDana < 0 ? "text-destructive" : undefined}>
               {sisaDana < 0
-                ? `−${formatRupiahShort(-sisaDana)}`
-                : formatRupiahShort(sisaDana)}
+                ? `−${formatRupiah(-sisaDana)}`
+                : formatRupiah(sisaDana)}
             </dd>
           </div>
         </dl>
         <div className="mt-3 clay-sm rounded-xl p-3 bg-sky-tint">
           <p className="meta">Tabungan tercatat</p>
-          <p className="num font-extrabold">{formatRupiahShort(savingsTotal)}</p>
-          <p className="meta mt-0.5">Sisa dana = tabungan − terpakai</p>
+          <p className="num font-extrabold">{formatRupiah(savingsTotal)}</p>
+          <p className="meta mt-0.5">Saldo kas setelah biaya tercatat</p>
         </div>
       </section>
 
@@ -881,7 +887,7 @@ export function BudgetPage() {
                 <p className="meta text-[10px]">Total gabungan · {vendorExpenses.length} lunas</p>
               </div>
               <span className="num shrink-0 text-sm font-bold">
-                {formatRupiahShort(vendorTotal)}
+                {formatRupiah(vendorTotal)}
               </span>
             </section>
           </StaggerItem>
@@ -933,17 +939,12 @@ export function BudgetPage() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="exp-amount">Nominal (Rp)</Label>
-              <Input
+              <MoneyInput
                 id="exp-amount"
-                type="number"
-                min={0}
-                step={50000}
-                value={expenseForm.amount}
-                onChange={(event) =>
-                  setExpenseForm((previous) => ({ ...previous, amount: event.target.value }))
-                }
-                placeholder="1500000"
-              />
+                  value={expenseForm.amount}
+                  onChange={(amount) => setExpenseForm((previous) => ({ ...previous, amount }))}
+                  placeholder="1.500.000"
+                />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="exp-category">Kategori</Label>
@@ -1068,19 +1069,12 @@ export function BudgetPage() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="cat-alloc">Alokasi (Rp)</Label>
-              <Input
+              <MoneyInput
                 id="cat-alloc"
-                type="number"
-                min={0}
-                step={500000}
-                value={categoryDialog?.allocated ?? ""}
-                onChange={(event) =>
-                  setCategoryDialog((previous) =>
-                    previous ? { ...previous, allocated: event.target.value } : previous,
-                  )
-                }
-                placeholder="5000000"
-              />
+                  value={categoryDialog?.allocated ?? ""}
+                  onChange={(allocated) => setCategoryDialog((previous) => previous ? { ...previous, allocated } : previous)}
+                  placeholder="5.000.000"
+                />
             </div>
           </div>
           <DialogFooter>
@@ -1090,6 +1084,7 @@ export function BudgetPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }
