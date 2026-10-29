@@ -134,9 +134,9 @@ function deadlineLabel(dueDate: number | undefined, today: number) {
     days < 0
       ? "text-[var(--danger)]"
       : days <= 3
-        ? "text-[var(--gold)]"
+        ? "text-[var(--warning)]"
         : "text-[var(--ink-soft)]";
-  return { text: `${formatDateID(dueDate)} · ${text}`, tone };
+  return { text: `${formatDateID(dueDate)}, ${text}`, tone };
 }
 
 export function HomePage() {
@@ -244,7 +244,7 @@ export function HomePage() {
 
           <div className="relative z-10 flex items-center justify-between gap-4">
             <p className="flex items-center gap-2 text-sm font-medium text-white/90 sm:text-base">
-              <Heart className="size-[18px] text-[var(--gold)]" weight="fill" />
+              <Heart className="size-[18px] text-[var(--color-gold)]" weight="fill" />
               Menjelang hari pernikahan
             </p>
             <button
@@ -275,12 +275,12 @@ export function HomePage() {
 
             <div className="mt-5 flex flex-wrap gap-2 sm:mt-6">
               <p className="ticket-chip px-3.5 py-2 text-[0.8125rem] text-white sm:text-sm">
-                <CalendarDays className="size-4 shrink-0 text-[var(--gold)]" />
+                <CalendarDays className="size-4 shrink-0 text-[var(--color-gold)]" />
                 <span className="num">{formatDateLongID(wedding.weddingDate)}</span>
               </p>
               {wedding.venueName && (
                 <p className="ticket-chip px-3.5 py-2 text-[0.8125rem] text-white sm:text-sm">
-                  <MapPin className="size-4 shrink-0 text-[var(--gold)]" />
+                  <MapPin className="size-4 shrink-0 text-[var(--color-gold)]" />
                   <span className="truncate">{wedding.venueName}</span>
                 </p>
               )}
@@ -487,7 +487,7 @@ export function HomePage() {
                     </span>
                     <span className="shrink-0 text-right text-[0.8125rem] leading-relaxed">
                       <span className={`block num ${due.tone}`}>{due.text}</span>
-                      <span className="block text-[var(--gold)]">{PRIORITY_LABEL[priority]}</span>
+                      <span className="block text-[var(--warning)]">{PRIORITY_LABEL[priority]}</span>
                     </span>
                   </li>
                 );

@@ -1,5 +1,5 @@
 import { animate, useInView, useReducedMotion } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface CountUpProps {
   to: number;
@@ -12,6 +12,15 @@ interface CountUpProps {
   separator?: string;
   onStart?: () => void;
   onEnd?: () => void;
+}
+
+function formatValue(value: number, precision: number, separator: string) {
+  const text = new Intl.NumberFormat("en-US", {
+    useGrouping: Boolean(separator),
+    minimumFractionDigits: precision,
+    maximumFractionDigits: precision,
+  }).format(value);
+  return separator ? text.replace(/,/g, separator) : text;
 }
 
 export default function CountUp({
@@ -27,45 +36,43 @@ export default function CountUp({
     (String(to).split(".")[1] ?? "").length,
     (String(from).split(".")[1] ?? "").length,
   );
+  // Nilai yang sudah menetap — dipakai saat React merender ulang. Selama
+  // animasi berjalan, teks ditulis langsung ke node supaya tidak ada render
+  // per frame.
+  const [settled, setSettled] = useState(() =>
+    formatValue(direction === "down" ? to : from, precision, separator),
+  );
   const callbacks = useRef({ onStart, onEnd });
   useEffect(() => { callbacks.current = { onStart, onEnd }; }, [onStart, onEnd]);
-
-  const format = (value: number) => {
-    const text = new Intl.NumberFormat("en-US", {
-      useGrouping: Boolean(separator),
-      minimumFractionDigits: precision,
-      maximumFractionDigits: precision,
-    }).format(value);
-    return separator ? text.replace(/,/g, separator) : text;
-  };
 
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
     const render = (value: number) => {
       latestValue.current = value;
-      const text = new Intl.NumberFormat("en-US", {
-        useGrouping: Boolean(separator),
-        minimumFractionDigits: precision,
-        maximumFractionDigits: precision,
-      }).format(value);
-      element.textContent = separator ? text.replace(/,/g, separator) : text;
+      element.textContent = formatValue(value, precision, separator);
     };
-    if (reducedMotion) { render(target); return; }
+    if (reducedMotion) return;
     if (!inView || !startWhen) return;
     const controls = animate(latestValue.current, target, {
       duration: Math.max(0, duration), delay: Math.max(0, delay), ease: "easeOut",
       onPlay: () => callbacks.current.onStart?.(),
       onUpdate: render,
-      onComplete: () => { render(target); callbacks.current.onEnd?.(); },
+      onComplete: () => {
+        render(target);
+        setSettled(formatValue(target, precision, separator));
+        callbacks.current.onEnd?.();
+      },
     });
     return () => controls.stop();
   }, [target, precision, separator, reducedMotion, inView, startWhen, duration, delay]);
 
   return (
     <span className={className}>
-      <span className="sr-only">{format(target)}</span>
-      <span ref={ref} aria-hidden="true">{format(reducedMotion ? target : latestValue.current)}</span>
+      <span className="sr-only">{formatValue(target, precision, separator)}</span>
+      <span ref={ref} aria-hidden="true">
+        {reducedMotion ? formatValue(target, precision, separator) : settled}
+      </span>
     </span>
   );
 }

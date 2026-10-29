@@ -1,6 +1,7 @@
 import {
   BackLink,
   EmptyState,
+  PageHeading,
   PageSkeleton,
   RowMenu,
   Stagger,
@@ -22,7 +23,7 @@ import { bloom } from "@/lib/bloom";
 import { printDocument } from "@/lib/printDoc";
 import { undoableDelete } from "@/lib/undo";
 import { Loader2, Plus, Printer, Search, X } from "@/lib/icons";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 
@@ -84,6 +85,8 @@ export function RundownPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [query, setQuery] = useState("");
+  const listRef = useRef<HTMLDivElement>(null);
+  const spineRef = useRef<HTMLSpanElement>(null);
 
   const list = items ?? [];
   const term = query.trim().toLowerCase();
@@ -112,6 +115,40 @@ export function RundownPage() {
   const totalMinutes = list.length > 0
     ? Math.max(0, endMinutes - (() => { const [hours, minutes] = firstTime!.split(":").map(Number); return hours * 60 + minutes; })())
     : 0;
+
+  // Spine tinta terisi mengikuti posisi gulir daftar, ditulis langsung ke
+  // style supaya tidak memicu render React tiap frame.
+  useEffect(() => {
+    const node = listRef.current;
+    const fill = spineRef.current;
+    if (!node || !fill) return;
+    const reduced =
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      document.documentElement.dataset.effects === "off";
+    if (reduced) {
+      fill.style.transform = "scaleY(1)";
+      return;
+    }
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const rect = node.getBoundingClientRect();
+      const progress =
+        (window.innerHeight * 0.65 - rect.top) / Math.max(1, rect.height);
+      fill.style.transform = `scaleY(${Math.max(0, Math.min(1, progress))})`;
+    };
+    const onScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [visible.length, list.length]);
 
   const openNew = () => {
     const previous = list[list.length - 1];
@@ -227,41 +264,64 @@ export function RundownPage() {
   if (items === undefined) return <PageSkeleton />;
 
   return (
-    <div className="sj-document-page sj-rundown-page space-y-4">
-      <BackLink />
-      <header className="sj-page-heading border-b border-[var(--line)] pb-4">
-        <p className="text-sm text-[var(--ink-soft)]">Susunan acara tercetak</p>
-        <h1 className="mt-1 font-serif text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--ink)]">Rundown acara</h1>
-        <p className="mt-2 text-base leading-relaxed text-[var(--ink-soft)]">{list.length ? <>Acara berlangsung dari <strong className="num text-[var(--ink)]">{firstTime}</strong> hingga <strong className="num text-[var(--ink)]">{lastTime}</strong>.</> : "Susun jalannya acara, dari akad hingga walimah."}</p>
-      </header>
-      <section className="sj-paper-sheet p-5">
-        <p className="max-w-[58ch] font-serif text-[1.375rem] leading-snug text-[var(--ink)] sm:text-2xl">
-          {list.length === 0
-            ? "Belum ada agenda. Susunan acara akan tercetak rapi di sini setelah agenda pertama ditambahkan."
-            : `${list.length} agenda tersusun dari pukul ${firstTime} sampai ${lastTime}, membentang ${formatDuration(totalMinutes)}.`}
-        </p>
-        <p className="mt-2 max-w-[62ch] text-sm leading-relaxed text-[var(--ink-soft)]">
-          Total durasi mengikuti rentang dari agenda pertama sampai agenda yang paling akhir selesai, jadi agenda yang tumpang tindih tidak dihitung dua kali.
-        </p>
-      </section>
-
-      <div className="grid grid-cols-2 gap-2">
-        <Button className="rounded-lg" onClick={openNew}>
-          <Plus className="size-4" /> Tambah agenda
-        </Button>
-        <Button
-          variant="outline"
-          className="rounded-lg"
-          onClick={printRundown}
-          disabled={list.length === 0}
-        >
-          <Printer className="size-4" /> Cetak / PDF
-        </Button>
+    <div className="sj-document-page sj-rundown-page rundown-print space-y-4">
+      <style>{`
+        @media print {
+          body:has(.rundown-print) nav,
+          body:has(.rundown-print) .ambient { display: none !important; }
+          body:has(.rundown-print) { background: #fff !important; }
+          .rundown-print { max-width: none !important; color: #000 !important; }
+          .rundown-print .rundown-noprint { display: none !important; }
+          .rundown-print .sj-paper-sheet {
+            background: #fff !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            -webkit-backdrop-filter: none !important;
+            backdrop-filter: none !important;
+          }
+          .rundown-print .rundown-spine { background: #000 !important; }
+          .rundown-print li { break-inside: avoid; page-break-inside: avoid; }
+          .rundown-print .rundown-rule { border-color: #bbb !important; }
+        }
+      `}</style>
+      <div className="rundown-noprint">
+        <BackLink />
       </div>
+      <PageHeading
+        kicker="Susunan acara"
+        title="Rundown acara"
+        summary={
+          list.length ? (
+            <>
+              {list.length} agenda dari pukul{" "}
+              <strong className="num text-[var(--ink)]">{firstTime}</strong> sampai{" "}
+              <strong className="num text-[var(--ink)]">{lastTime}</strong>, membentang{" "}
+              <strong className="num text-[var(--ink)]">{formatDuration(totalMinutes)}</strong>.
+            </>
+          ) : (
+            "Susun jalannya acara, dari akad hingga walimah."
+          )
+        }
+        action={
+          <>
+            <Button className="rounded-lg" onClick={openNew}>
+              <Plus className="size-4" /> Tambah agenda
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-lg"
+              onClick={printRundown}
+              disabled={list.length === 0}
+            >
+              <Printer className="size-4" /> Cetak / PDF
+            </Button>
+          </>
+        }
+      />
 
       {list.length > 3 && (
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="rundown-noprint relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--ink-soft)]" />
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -282,46 +342,75 @@ export function RundownPage() {
         </div>
       )}
 
-      <section className="relative">
-        <Stagger className="divide-y divide-[var(--line)]">
-          {visible.map((item) => {
+      <section ref={listRef} className="relative" aria-label="Susunan acara">
+        {list.length > 0 && (
+          <>
+            <span
+              aria-hidden="true"
+              className="rundown-spine absolute bottom-0 left-[3.1rem] top-0 w-px bg-[var(--line)] sm:left-[5.6rem]"
+            />
+            <span
+              ref={spineRef}
+              aria-hidden="true"
+              className="rundown-spine absolute bottom-0 left-[3.1rem] top-0 w-px origin-top bg-[var(--brand)] sm:left-[5.6rem]"
+              style={{ transform: "scaleY(0)" }}
+            />
+          </>
+        )}
+        <Stagger className="">
+          {visible.map((item, index) => {
             const duration = item.durationMinutes ?? 0;
+            const endTime = duration > 0 ? addMinutes(item.startTime, duration) : undefined;
             return (
               <StaggerItem key={item._id}>
-                <div className="flex items-start gap-3 py-4 sm:gap-5">
-                  <div className="w-14 shrink-0 text-right sm:w-20">
-                    <p className="num font-serif text-[1.5rem] leading-none text-[var(--ink)] sm:text-[1.75rem]">
+                <div className="rundown-rule group grid grid-cols-[3.1rem_minmax(0,1fr)] items-start gap-x-4 border-b border-[var(--line)] py-5 sm:grid-cols-[5.6rem_minmax(0,1fr)] sm:gap-x-6">
+                  <div className="min-w-0 pr-1 text-right">
+                    <p className="display-serif num text-[1.4rem] leading-none text-[var(--ink)] sm:text-[2rem]">
                       {item.startTime}
                     </p>
-                    <p className="num mt-1.5 text-[0.8125rem] text-[var(--ink-soft)]">
+                    {endTime && (
+                      <p className="num mt-1.5 text-[0.8125rem] leading-tight text-[var(--ink-soft)]">
+                        sampai {endTime}
+                      </p>
+                    )}
+                    <p className="num mt-1 text-[0.8125rem] leading-tight text-[var(--ink-soft)]">
                       {duration > 0 ? formatDuration(duration) : "tanpa durasi"}
                     </p>
                   </div>
 
-                  <div className="min-w-0 flex-1 border-l border-[var(--line)] pl-4 sm:pl-5">
-                    <p className="text-base font-semibold leading-snug text-[var(--ink)]">
-                      {item.title}
-                    </p>
-                    <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--ink-soft)]">
-                      {duration > 0 && (
-                        <span className="num">
-                          selesai {addMinutes(item.startTime, duration)}
-                        </span>
-                      )}
-                      {item.pic && <span>PIC {item.pic}</span>}
-                    </p>
+                  <div className="relative min-w-0">
+                    <span
+                      aria-hidden="true"
+                      className="absolute -left-[1.15rem] top-[0.55rem] size-1.5 rounded-full bg-[var(--paper)] ring-1 ring-[var(--brand)] sm:-left-[1.4rem]"
+                    />
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="num text-[0.8125rem] text-[var(--accent)]">
+                          {String(index + 1).padStart(2, "0")}
+                        </p>
+                        <h2 className="display-serif mt-0.5 text-[1.35rem] leading-snug text-[var(--ink)] sm:text-[1.6rem]">
+                          {item.title}
+                        </h2>
+                      </div>
+                      <div className="rundown-noprint shrink-0">
+                        <RowMenu
+                          onEdit={() => openEdit(item)}
+                          onDelete={() => deleteItem(item)}
+                          deleteTitle={`Hapus "${item.title}"?`}
+                        />
+                      </div>
+                    </div>
+                    {item.pic && (
+                      <p className="mt-1.5 text-sm text-[var(--ink-soft)]">
+                        Penanggung jawab <span className="text-[var(--ink)]">{item.pic}</span>
+                      </p>
+                    )}
                     {item.note && (
-                      <p className="mt-1 max-w-[62ch] text-sm leading-relaxed text-[var(--ink-soft)]">
+                      <p className="mt-1.5 max-w-[62ch] text-sm leading-relaxed text-[var(--ink-soft)]">
                         {item.note}
                       </p>
                     )}
                   </div>
-
-                  <RowMenu
-                    onEdit={() => openEdit(item)}
-                    onDelete={() => deleteItem(item)}
-                    deleteTitle={`Hapus "${item.title}"?`}
-                  />
                 </div>
               </StaggerItem>
             );
@@ -329,23 +418,27 @@ export function RundownPage() {
         </Stagger>
 
         {items !== undefined && list.length === 0 && (
-          <EmptyState
-            emoji="⏰"
-            title="Belum ada agenda"
-            description="Susun acara hari-H dari persiapan pagi sampai ramah tamah malam."
-            actionLabel="Tambah agenda"
-            onAction={openNew}
-          />
+          <div className="rundown-noprint pt-2">
+            <EmptyState
+              emoji="⏰"
+              title="Belum ada agenda"
+              description="Susun acara hari-H dari persiapan pagi sampai ramah tamah malam."
+              actionLabel="Tambah agenda"
+              onAction={openNew}
+            />
+          </div>
         )}
 
         {list.length > 0 && visible.length === 0 && (
-          <EmptyState
-            emoji="🔍"
-            title="Tidak ada agenda yang cocok"
-            description={`Tidak ada acara yang mengandung “${query}”. Coba kata kunci lain.`}
-            actionLabel="Reset pencarian"
-            onAction={() => setQuery("")}
-          />
+          <div className="rundown-noprint pt-2">
+            <EmptyState
+              emoji="🔍"
+              title="Tidak ada agenda yang cocok"
+              description={`Tidak ada acara yang mengandung “${query}”. Coba kata kunci lain.`}
+              actionLabel="Reset pencarian"
+              onAction={() => setQuery("")}
+            />
+          </div>
         )}
       </section>
 

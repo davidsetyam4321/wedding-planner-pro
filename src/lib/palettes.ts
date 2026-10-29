@@ -303,9 +303,13 @@ export function paletteVars(roles: PaletteRoles): Record<string, string> {
   const L = roles.nature;
   const B = roles.background;
 
-  const primaryText = readableText(P);
-  const secondaryText = readableText(S);
-  const natureText = readableText(L);
+  // Teks berwarna diukur terhadap permukaan terang tergelap yang dipakai
+  // aplikasi (`--paper-sunk`, bukan putih), supaya label kecil tetap >= 4.5:1
+  // di ketujuh preset, palet kustom, kartu, dan baris cekung.
+  const surfaceReference = mix(F, B, 0.35);
+  const primaryText = readableText(P, surfaceReference);
+  const secondaryText = readableText(S, surfaceReference);
+  const natureText = readableText(L, surfaceReference);
   const primaryHover = darken(primaryText, 0.16);
   const primaryDeep = darken(primaryText, 0.3);
   const onPrimary = readableOn(primaryText);
@@ -320,13 +324,13 @@ export function paletteVars(roles: PaletteRoles): Record<string, string> {
   const mist = mix("#eee5e4", B, 0.12);
   const card = mix(B, "#ffffff", 0.8);
   const white = mix(B, "#ffffff", 0.93);
-  const tintSoft = mix(F, B, 0.35);
+  const tintSoft = surfaceReference;
   const tintRose = mix(S, "#ffffff", 0.86);
   const tintLeaf = mix(L, "#ffffff", 0.86);
   const tintWarm = mix(F, "#ffffff", 0.55);
   const inkSoft = readableText(stone, B);
-  const warning = readableText("#8a5b10", B);
-  const danger = readableText("#a8322a", B);
+  const warning = readableText("#8a5b10", surfaceReference);
+  const danger = readableText("#a8322a", surfaceReference);
 
   const set = (name: string, value: string) => {
     vars[name] = value;

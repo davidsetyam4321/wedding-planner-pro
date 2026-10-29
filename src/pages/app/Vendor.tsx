@@ -1,14 +1,18 @@
 import {
   BackLink,
-  DueChip,
   EmptyState,
+  LedgerFigure,
+  PageHeading,
   PageSkeleton,
   RowMenu,
+  Segmented,
+  StackBar,
   Stagger,
   StaggerItem,
   DateInputID,
   MoneyInput,
 } from "@/components/Shared";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -55,11 +59,51 @@ const STATUS_OPTIONS: { key: VendorStatus; label: string }[] = [
   { key: "lunas", label: "Lunas" },
 ];
 
-const STATUS_CHIP: Record<VendorStatus, string> = {
-  belum: "bg-secondary text-secondary-foreground",
-  dp: "bg-tint-butter text-tint-butter-foreground",
-  lunas: "bg-primary text-primary-foreground",
+/** Label panjang untuk baris daftar; nilai enum tetap belum/dp/lunas. */
+const STATUS_LABEL: Record<VendorStatus, string> = {
+  belum: "Belum dibayar",
+  dp: "DP terbayar",
+  lunas: "Lunas",
 };
+
+/**
+ * Penanda status: tidak pernah hanya warna. Belum = cincin netral,
+ * DP = separuh lingkaran emas, Lunas = centang hijau.
+ */
+function StatusMark({ status, className = "size-4" }: { status: VendorStatus; className?: string }) {
+  if (status === "lunas") {
+    return (
+      <svg viewBox="0 0 20 20" aria-hidden="true" className={className} fill="none">
+        <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.4" opacity="0.45" />
+        <path d="M6 10.5 8.8 13.2 14 7.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  if (status === "dp") {
+    return (
+      <svg viewBox="0 0 20 20" aria-hidden="true" className={className} fill="none">
+        <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.4" />
+        <path d="M10 2a8 8 0 0 1 0 16Z" fill="currentColor" opacity="0.9" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true" className={className} fill="none">
+      <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.4" opacity="0.55" />
+    </svg>
+  );
+}
+
+/** “Jatuh tempo H-137”, “Jatuh tempo hari ini”, atau “Terlambat 3 hari”. */
+function dueLabel(dueDate: number) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const days = Math.round((dueDate - today.getTime()) / 86_400_000);
+  if (days < 0) return { text: `Terlambat ${Math.abs(days)} hari`, late: true };
+  if (days === 0) return { text: "Jatuh tempo hari ini", late: true };
+  if (days === 1) return { text: "Jatuh tempo besok", late: false };
+  return { text: `Jatuh tempo H-${days}`, late: false };
+}
 
 type VendorForm = {
   id: Id<"vendor"> | null;
@@ -101,6 +145,8 @@ export function VendorPage() {
   const [query, setQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<VendorStatus | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const reducedMotion = useReducedMotion();
 
   const list = vendors ?? [];
   const categories = Array.from(new Set(list.map((v) => v.category)));
@@ -212,39 +258,91 @@ export function VendorPage() {
   return (
     <div className="sj-document-page sj-vendor-page space-y-4">
       <BackLink />
-      <header className="sj-page-heading border-b border-[var(--line)] pb-4">
-        <p className="text-sm text-[var(--ink-soft)]">Daftar nota vendor</p>
-        <h1 className="mt-1 font-serif text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--ink)]">Vendor pernikahan</h1>
-        <p className="mt-2 max-w-[65ch] text-base leading-relaxed text-[var(--ink-soft)]">{list.length} vendor · biaya <strong className="num text-[var(--ink)]">{formatRupiah(totalCost)}</strong> · sudah dibayar <strong className="num text-[var(--ink)]">{formatRupiah(paidTotal)}</strong> · tersisa <strong className="num text-[var(--ink)]">{formatRupiah(remaining)}</strong>.</p>
-      </header>
+      <PageHeading
+        kicker="Daftar nota vendor"
+        title="Vendor pernikahan"
+        summary={
+          list.length === 0 ? (
+            "Belum ada nota vendor yang tercatat."
+          ) : (
+            <>
+              {list.length} vendor menagih{" "}
+              <strong className="num font-semibold text-[var(--ink)]">{formatRupiah(totalCost)}</strong>.{" "}
+              <strong className="num font-semibold text-[var(--ink)]">{formatRupiah(paidTotal)}</strong>{" "}
+              sudah terbayar, dan{" "}
+              <strong className="num font-semibold text-[var(--ink)]">{formatRupiah(remaining)}</strong>{" "}
+              masih harus disiapkan.
+            </>
+          )
+        }
+      />
 
       <section className="sj-paper-sheet p-5" aria-label="Pembayaran vendor">
-        <p className="max-w-[62ch] font-serif text-[1.375rem] leading-snug text-[var(--ink)] sm:text-2xl">
-          Dari <span className="num">{formatRupiah(totalCost)}</span> total biaya vendor, <span className="num">{formatRupiah(paidTotal)}</span> sudah dibayar dan <span className="num">{formatRupiah(remaining)}</span> masih harus disiapkan.
-        </p>
-        <div
-          className="sj-stack-bar mt-4 h-2"
-          role="img"
-          aria-label={`Terbayar ${formatRupiah(paidTotal)} dari ${formatRupiah(totalCost)}`}
-        >
-          <span
-            className="h-full bg-[var(--positive)] transition-[width] duration-300 ease-out motion-reduce:transition-none"
-            style={{ width: `${totalCost > 0 ? Math.min(100, Math.round((paidTotal / totalCost) * 100)) : 0}%` }}
-          />
-          <span className="h-full bg-[var(--accent)]" />
+        <div className="grid gap-5 lg:grid-cols-12 lg:items-end">
+          <div className="min-w-0 lg:col-span-7">
+            <p className="max-w-[52ch] display-serif text-[1.5rem] leading-snug text-[var(--ink)] sm:text-[1.75rem]">
+              {list.length === 0
+                ? "Mulai dari vendor utama: katering, dekorasi, lalu dokumentasi."
+                : `${lunasCount} dari ${list.length} vendor sudah lunas. ${list.length - lunasCount} nota masih berjalan.`}
+            </p>
+            <div className="mt-4">
+              <StackBar
+                label={`Terbayar ${formatRupiah(paidTotal)} dari total ${formatRupiah(totalCost)}`}
+                segments={[
+                  {
+                    label: "Terbayar",
+                    value: paidTotal,
+                    tone: "positive",
+                    title: `Terbayar ${formatRupiah(paidTotal)}`,
+                  },
+                  {
+                    label: "Belum dibayar",
+                    value: remaining,
+                    tone: "accent",
+                    title: `Belum dibayar ${formatRupiah(remaining)}`,
+                  },
+                ]}
+              />
+            </div>
+            <div className="mt-3 flex flex-wrap items-baseline gap-x-5 gap-y-1 text-[0.8125rem] text-[var(--ink-soft)]">
+              <span className="flex items-center gap-1.5">
+                <span aria-hidden="true" className="size-2 rounded-full bg-[var(--positive)]" />
+                Terbayar <span className="num text-[var(--ink)]">{formatRupiah(paidTotal)}</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span aria-hidden="true" className="size-2 rounded-full bg-[var(--accent)]" />
+                Belum dibayar <span className="num text-[var(--ink)]">{formatRupiah(remaining)}</span>
+              </span>
+            </div>
+          </div>
+
+          <div className="grid gap-2.5 border-t border-[var(--line)] pt-4 lg:col-span-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+            <LedgerFigure label="Total biaya" value={formatRupiah(totalCost)} strong />
+            <LedgerFigure label="Sudah dibayar" value={formatRupiah(paidTotal)} />
+            <div className="sj-double-rule pt-2">
+              <LedgerFigure label="Belum dibayar" value={formatRupiah(remaining)} strong />
+            </div>
+          </div>
         </div>
-        <p className="mt-3 text-sm text-[var(--ink-soft)]">
-          Terbayar <span className="num text-[var(--ink)]">{formatRupiah(paidTotal)}</span>, sisa <span className="num text-[var(--ink)]">{formatRupiah(remaining)}</span>. {lunasCount} dari {list.length} vendor sudah lunas.
-        </p>
       </section>
 
-      <div className="flex gap-2">
-        <Button className="flex-1 rounded-2xl" onClick={openNew}>
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative min-w-0 flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--ink-soft)]" />
+          <Input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Cari vendor atau kategori…"
+            aria-label="Cari vendor atau kategori"
+            className="pl-9"
+          />
+        </div>
+        <Button className="rounded-lg" onClick={openNew}>
           <Plus className="size-4" /> Tambah vendor
         </Button>
         <Button
           variant="outline"
-          className="rounded-2xl"
+          className="rounded-lg"
           onClick={() => {
             downloadCsv(
               "vendor-satujanji",
@@ -268,7 +366,7 @@ export function VendorPage() {
         </Button>
         <Button
           variant="outline"
-          className="rounded-2xl"
+          className="rounded-lg"
           onClick={() =>
             printDocument(
               "Daftar Vendor & Pembayaran",
@@ -294,169 +392,257 @@ export function VendorPage() {
         </Button>
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Cari vendor atau kategori…"
-          aria-label="Cari vendor atau kategori"
-          className="pl-9"
-        />
-      </div>
-
-      {categories.length > 1 && (
-        <div className="flex items-center gap-2 overflow-x-auto pb-1">
-          <button
-            type="button"
-            onClick={() => setCategoryFilter(null)}
-            className={`chip shrink-0 ${
-              categoryFilter === null
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary text-secondary-foreground"
-            }`}
-          >
-            Semua
-          </button>
-          {categories.map((category) => (
+      <div className="flex flex-col gap-3 border-y border-[var(--line)] py-3 lg:flex-row lg:items-center lg:justify-between">
+        {categories.length > 1 ? (
+          <div className="-mx-1 flex items-center gap-1 overflow-x-auto px-1 pb-0.5">
             <button
-              key={category}
               type="button"
-              aria-pressed={categoryFilter === category}
-              onClick={() => setCategoryFilter(category)}
-              className={`min-h-11 shrink-0 border-b-2 px-1 text-sm transition-colors ${
-                categoryFilter === category
-                  ? "border-[var(--brand)] text-[var(--ink)]"
+              onClick={() => setCategoryFilter(null)}
+              aria-pressed={categoryFilter === null}
+              className={`min-h-11 shrink-0 border-b-2 px-2 text-sm transition-colors ${
+                categoryFilter === null
+                  ? "border-[var(--brand)] font-medium text-[var(--ink)]"
                   : "border-transparent text-[var(--ink-soft)] hover:text-[var(--ink)]"
               }`}
             >
-              {category}
+              Semua jenis
             </button>
-          ))}
+            {categories.map((category) => (
+              <button
+                key={category}
+                type="button"
+                aria-pressed={categoryFilter === category}
+                onClick={() => setCategoryFilter(category)}
+                className={`min-h-11 shrink-0 border-b-2 px-2 text-sm transition-colors ${
+                  categoryFilter === category
+                    ? "border-[var(--brand)] font-medium text-[var(--ink)]"
+                    : "border-transparent text-[var(--ink-soft)] hover:text-[var(--ink)]"
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-[var(--ink-soft)]">
+            {list.length > 0 ? "Semua nota dalam satu daftar." : "Nota vendor akan tersusun di sini."}
+          </p>
+        )}
+
+        <div className="flex shrink-0 items-center gap-2">
+          {statusFilter && (
+            <button
+              type="button"
+              onClick={() => setStatusFilter(null)}
+              className="flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-[0.8125rem] text-[var(--ink-soft)] hover:text-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+            >
+              <X className="size-3.5" /> Hapus filter status
+            </button>
+          )}
+          <Segmented
+            label="Saring menurut status pembayaran"
+            className="sm:w-auto"
+            value={statusFilter ?? "semua"}
+            onChange={(next) =>
+              setStatusFilter(next === "semua" ? null : (next as VendorStatus))
+            }
+            options={[
+              { value: "semua", label: `Semua ${list.length}` },
+              ...STATUS_OPTIONS.map((option) => ({
+                value: option.key,
+                label: `${option.label} ${list.filter((vendor) => vendor.status === option.key).length}`,
+              })),
+            ]}
+          />
         </div>
-      )}
+      </div>
 
-      {statusFilter && (
-        <button
-          type="button"
-          onClick={() => setStatusFilter(null)}
-          className="chip self-start border-[var(--line)] bg-transparent text-[var(--ink)]"
-        >
-          Status: {STATUS_OPTIONS.find((option) => option.key === statusFilter)?.label}{" "}
-          <X className="size-3" />
-        </button>
-      )}
-
-      <section className="space-y-3">
-        <Stagger className="space-y-3">
+      <section>
+        <Stagger className="border-t border-[var(--line)]">
           {visible.map((vendor) => {
             const status = vendor.status as VendorStatus;
             const paid = vendorPaidAmount(vendor);
             const left = Math.max(0, vendor.cost - paid);
             const wa = vendor.contact ? waLink(vendor.contact) : null;
+            const due = vendor.dueDate ? dueLabel(vendor.dueDate) : null;
+            const isOpen = expandedId === vendor._id;
+            const paidPct = vendor.cost > 0 ? Math.round((paid / vendor.cost) * 100) : 0;
             return (
               <StaggerItem key={vendor._id}>
-                <article className="sj-ledger-row relative p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="text-sm font-extrabold truncate">{vendor.name}</p>
-                      <p className="meta">
-                        {vendor.category}
-                        {vendor.contact ? ` · ${vendor.contact}` : ""}
-                      </p>
-                      {vendor.note && <p className="meta mt-0.5 italic">{vendor.note}</p>}
-                    </div>
-                    <div className="flex shrink-0 items-center gap-2">
-                      <div className="text-right">
-                        <p className="num text-sm font-extrabold">
-                          {formatRupiah(vendor.cost)}
-                        </p>
-                        {left > 0 && (
-                          <p className="num meta">sisa {formatRupiah(left)}</p>
+                <motion.article
+                  layout={reducedMotion ? false : true}
+                  className="sj-ledger-row interactive-row relative"
+                >
+                  <div className="flex items-start gap-1.5 p-3 sm:p-4">
+                    <button
+                      type="button"
+                      aria-expanded={isOpen}
+                      aria-controls={`vendor-${vendor._id}-rincian`}
+                      onClick={() => setExpandedId(isOpen ? null : vendor._id)}
+                      className="flex min-h-11 min-w-0 flex-1 flex-col gap-2 rounded-lg text-left outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+                    >
+                      <span className="flex w-full items-start justify-between gap-3">
+                        <span className="min-w-0">
+                          <span className="block truncate text-base font-semibold leading-snug text-[var(--ink)]">
+                            {vendor.name}
+                          </span>
+                          <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.8125rem] text-[var(--ink-soft)]">
+                            <span className="inline-flex items-center gap-1.5 text-[var(--ink)]">
+                              <StatusMark
+                                status={status}
+                                className={`size-3.5 ${status === "lunas" ? "text-[var(--positive)]" : status === "dp" ? "text-[var(--accent)]" : "text-[var(--ink-soft)]"}`}
+                              />
+                              {STATUS_LABEL[status]}
+                            </span>
+                            <span aria-hidden="true">·</span>
+                            <span>{vendor.category}</span>
+                          </span>
+                        </span>
+                        <span className="shrink-0 text-right">
+                          <span className="num block text-base font-semibold leading-snug text-[var(--ink)]">
+                            {formatRupiah(vendor.cost)}
+                          </span>
+                          <span className="num mt-0.5 block text-[0.8125rem] text-[var(--ink-soft)]">
+                            {left > 0 ? `Sisa ${formatRupiah(left)}` : "Tidak ada sisa"}
+                          </span>
+                        </span>
+                      </span>
+
+                      <span className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 text-[0.8125rem]">
+                        {due && (
+                          <span className={due.late ? "text-[var(--danger)]" : "text-[var(--ink-soft)]"}>
+                            {due.text}
+                          </span>
                         )}
-                        <span
-                          aria-hidden
-                          className="mt-1.5 ml-auto block h-1 w-24 overflow-hidden rounded-full bg-[var(--paper-sunk)]"
-                        >
-                          <span
-                            className="block h-full bg-[var(--positive)]"
-                            style={{
-                              width: `${vendor.cost > 0 ? Math.min(100, Math.round((paid / vendor.cost) * 100)) : 0}%`,
-                            }}
+                        {!due && status !== "lunas" && (
+                          <span className="text-[var(--ink-soft)]">Tanpa jatuh tempo</span>
+                        )}
+                        {vendor.contact && (
+                          <span className="truncate text-[var(--ink-soft)]">{vendor.contact}</span>
+                        )}
+                        <span className="ml-auto inline-flex shrink-0 items-center gap-1 font-medium text-[var(--brand)]">
+                          {isOpen ? "Tutup rincian" : "Rincian"}
+                          <ChevronDown
+                            aria-hidden="true"
+                            className={`size-3.5 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
                           />
                         </span>
-                      </div>
-                      <RowMenu
-                        onEdit={() => openEdit(vendor)}
-                        onDelete={() => {
-                          removeVendor({ vendorId: vendor._id });
-                          undoableDelete(
-                            `Vendor "${vendor.name}" dihapus.`,
-                            () =>
-                              createVendor({
-                                name: vendor.name,
-                                category: vendor.category,
-                                contact: vendor.contact,
-                                cost: vendor.cost,
-                                dpAmount: vendor.dpAmount,
-                                note: vendor.note,
-                                status: vendor.status,
-                                dueDate: vendor.dueDate,
-                              }),
-                            { successMessage: `Vendor "${vendor.name}" kembali.` },
-                          );
-                        }}
-                        deleteTitle={`Hapus ${vendor.name}?`}
+                      </span>
+                    </button>
+
+                    <RowMenu
+                      onEdit={() => openEdit(vendor)}
+                      onDelete={() => {
+                        removeVendor({ vendorId: vendor._id });
+                        undoableDelete(
+                          `Vendor "${vendor.name}" dihapus.`,
+                          () =>
+                            createVendor({
+                              name: vendor.name,
+                              category: vendor.category,
+                              contact: vendor.contact,
+                              cost: vendor.cost,
+                              dpAmount: vendor.dpAmount,
+                              note: vendor.note,
+                              status: vendor.status,
+                              dueDate: vendor.dueDate,
+                            }),
+                          { successMessage: `Vendor "${vendor.name}" kembali.` },
+                        );
+                      }}
+                      deleteTitle={`Hapus ${vendor.name}?`}
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2.5 px-3 pb-3 sm:px-4">
+                    <div className="min-w-0 flex-1">
+                      <StackBar
+                        label={`Terbayar ${formatRupiah(paid)} dari ${formatRupiah(vendor.cost)}`}
+                        segments={[
+                          { label: "Terbayar", value: paid, tone: "positive", title: `Terbayar ${formatRupiah(paid)}` },
+                          { label: "Belum dibayar", value: left, tone: "sunk", title: `Belum dibayar ${formatRupiah(left)}` },
+                        ]}
                       />
                     </div>
+                    <span className="num shrink-0 text-[0.8125rem] text-[var(--ink-soft)]">
+                      {paidPct}%
+                    </span>
                   </div>
 
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <div className="flex gap-1 border-t border-[var(--line)] pt-2">
-                    {STATUS_OPTIONS.map((option) => (
-                        <button
-                          key={option.key}
-                          type="button"
-                          onClick={() => void changeStatus(vendor._id, option.key)}
-                          className={`min-h-11 flex-1 border-b-2 px-2.5 py-1 text-sm font-semibold transition-colors ${
-                            status === option.key
-                              ? "border-[var(--brand)] text-[var(--brand)]"
-                              : "border-transparent text-[var(--ink-soft)] hover:border-[var(--line)]"
-                          }`}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        key="detail"
+                        id={`vendor-${vendor._id}-rincian`}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: reducedMotion ? 0 : 0.18 }}
+                        className="border-t border-[var(--line)] px-4 pb-4 pt-3 sm:px-5"
+                      >
+                        <div className="grid gap-4 sm:grid-cols-12">
+                          <div className="min-w-0 sm:col-span-7">
+                            <p className="text-[0.8125rem] text-[var(--ink-soft)]">Catatan</p>
+                            <p className="mt-1 max-w-[58ch] text-sm leading-relaxed text-[var(--ink)]">
+                              {vendor.note?.trim() ? vendor.note : "Belum ada catatan untuk vendor ini."}
+                            </p>
+                            <p className="mt-3 num text-sm text-[var(--ink)]">
+                              Terbayar {formatRupiah(paid)} dari {formatRupiah(vendor.cost)}
+                            </p>
+                          </div>
+                          <div className="sm:col-span-5">
+                            <p className="text-[0.8125rem] text-[var(--ink-soft)]">Kontak</p>
+                            {vendor.contact ? (
+                              <div className="mt-1 flex flex-wrap items-center gap-2">
+                                <span className="num inline-flex min-h-11 items-center gap-1.5 text-sm text-[var(--ink)]">
+                                  <Phone className="size-4 text-[var(--ink-soft)]" /> {vendor.contact}
+                                </span>
+                                {wa ? (
+                                  <a
+                                    href={wa}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    aria-label={`Chat WhatsApp ${vendor.name}`}
+                                    className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-[var(--line)] px-3 text-sm font-medium text-[var(--brand)] transition-transform duration-200 hover:border-[var(--brand)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+                                  >
+                                    <MessageCircle className="size-4" /> Chat WhatsApp
+                                  </a>
+                                ) : (
+                                  <span className="text-[0.8125rem] text-[var(--ink-soft)]">
+                                    Nomor belum bisa dipakai untuk WhatsApp.
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <p className="mt-1 text-sm text-[var(--ink-soft)]">Belum ada kontak.</p>
+                            )}
+                          </div>
+                        </div>
 
-                    {paid > 0 && (
-                      <span className="num text-[0.8125rem] text-[var(--ink-soft)]">
-                        Terbayar {formatRupiah(paid)}
-                      </span>
+                        <div className="mt-4 flex flex-col gap-2 border-t border-[var(--line)] pt-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="w-full sm:max-w-sm">
+                            <Segmented
+                              label={`Status pembayaran ${vendor.name}`}
+                              value={status}
+                              onChange={(next) => void changeStatus(vendor._id, next)}
+                              options={STATUS_OPTIONS.map((option) => ({
+                                value: option.key,
+                                label: option.label,
+                              }))}
+                            />
+                          </div>
+                          <p className="text-[0.8125rem] leading-relaxed text-[var(--ink-soft)]">
+                            {status === "lunas"
+                              ? "Nota ini sudah lunas."
+                              : status === "dp"
+                                ? `DP tercatat ${formatRupiah(paid)}; sisa ${formatRupiah(left)}.`
+                                : `Belum ada pembayaran; sisa ${formatRupiah(left)}.`}
+                          </p>
+                        </div>
+                      </motion.div>
                     )}
-
-                    {vendor.dueDate && status !== "lunas" && (
-                      <span className="text-xs text-[var(--ink-soft)]">Jatuh tempo <DueChip dueDate={vendor.dueDate} /></span>
-                    )}
-
-                    {vendor.contact &&
-                      (wa ? (
-                        <a
-                          href={wa}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="chip bg-secondary text-secondary-foreground"
-                          aria-label="Chat WhatsApp"
-                        >
-                          <MessageCircle className="size-3.5" /> Chat
-                        </a>
-                      ) : (
-                        <span className="chip bg-secondary text-secondary-foreground">
-                          <Phone className="size-3.5" /> {vendor.contact}
-                        </span>
-                      ))}
-                  </div>
-                </article>
+                  </AnimatePresence>
+                </motion.article>
               </StaggerItem>
             );
           })}
@@ -481,9 +667,11 @@ export function VendorPage() {
       </section>
 
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{form.id ? "Ubah vendor" : "Vendor baru"}</DialogTitle>
+            <DialogTitle className="display-serif text-2xl">
+              {form.id ? "Ubah vendor" : "Vendor baru"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-1.5">
@@ -550,24 +738,15 @@ export function VendorPage() {
             </div>
             <div className="space-y-1.5">
               <Label>Status pembayaran</Label>
-              <div className="clay-inset flex gap-1 p-1">
-                {STATUS_OPTIONS.map((option) => (
-                  <button
-                    key={option.key}
-                    type="button"
-                    onClick={() =>
-                      setForm((prev) => ({ ...prev, status: option.key }))
-                    }
-                    className={`flex-1 rounded-xl px-2.5 py-1.5 text-[11px] font-bold transition-colors ${
-                      form.status === option.key
-                        ? STATUS_CHIP[option.key]
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
+              <Segmented
+                label="Status pembayaran vendor baru"
+                value={form.status}
+                onChange={(next) => setForm((prev) => ({ ...prev, status: next }))}
+                options={STATUS_OPTIONS.map((option) => ({
+                  value: option.key,
+                  label: option.label,
+                }))}
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="vendor-due">Jatuh tempo pembayaran (opsional)</Label>
@@ -589,7 +768,7 @@ export function VendorPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={submit} disabled={busy} className="w-full rounded-2xl">
+            <Button onClick={submit} disabled={busy} className="w-full rounded-lg">
               {busy ? <Loader2 className="size-4 animate-spin" /> : "Simpan vendor"}
             </Button>
           </DialogFooter>

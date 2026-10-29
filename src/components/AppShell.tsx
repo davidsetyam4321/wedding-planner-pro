@@ -16,7 +16,7 @@ import { PageSkeleton } from "@/components/Shared";
 import { api } from "@/convex/_generated/api";
 import { FEATURES } from "@/lib/features";
 import type { Id } from "@/convex/_generated/dataModel";
-import { countdownLabel, formatDateID, formatRupiahShort } from "@/lib/format";
+import { countdownLabel, formatDateID, formatRupiah } from "@/lib/format";
 import {
   readStoredAnonymousUser,
   trackAnonymousUser,
@@ -165,7 +165,7 @@ function NotificationBell({
     if (wedding) {
       list.push({
         id: "countdown",
-        label: `${countdownLabel(wedding.weddingDate)} menuju hari pernikahan · ${formatDateID(wedding.weddingDate)}`,
+        label: `${countdownLabel(wedding.weddingDate)} menuju hari pernikahan, ${formatDateID(wedding.weddingDate)}`,
       });
       list.push({
         id: "checklist",
@@ -305,7 +305,7 @@ export function AppShell() {
   const fundTarget = wedding?.fundTarget ?? 0;
   const savingsNote =
     fundTarget > 0
-      ? `Tabungan ${formatRupiahShort(savingsTotal)} dari target ${formatRupiahShort(fundTarget)}.`
+      ? `Tabungan ${formatRupiah(savingsTotal)} dari target ${formatRupiah(fundTarget)}.`
       : null;
   const openTasks = (checklist ?? []).filter((item) => !item.done).length;
 

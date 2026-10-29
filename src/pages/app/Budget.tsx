@@ -1,9 +1,16 @@
+import { ChartTip } from "@/components/Charts";
 import {
-  CHART_COLORS as DONUT_COLORS,
-  ChartCard,
-  ChartTip,
-} from "@/components/Charts";
-import { EmptyState, PageSkeleton, RowMenu, Stagger, StaggerItem, MoneyInput } from "@/components/Shared";
+  EmptyState,
+  LedgerFigure,
+  MoneyInput,
+  PageHeading,
+  PageSkeleton,
+  RowMenu,
+  Segmented,
+  StackBar,
+  Stagger,
+  StaggerItem,
+} from "@/components/Shared";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,6 +32,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { bloom } from "@/lib/bloom";
 import { formatDateShortID, formatRupiah, formatRupiahShort } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import { deleteBudgetItem, summarizeBudget } from "@/lib/budget";
 import { downloadCsv } from "@/lib/exportCsv";
 import { printDocument } from "@/lib/printDoc";
@@ -134,29 +142,29 @@ export function BudgetPage() {
   );
   const categoryById = new Map(categories.map((category) => [category._id, category]));
 
-  // Donut komposisi pengeluaran — pengeluaran per kategori + irisan "Vendor"
-  // tersendiri. `categoryId` ikut dibawa supaya klik-filter tidak mengandalkan
-  // nama (aman untuk kategori kembar). Maks. 6 irisan + "Lainnya".
-  type DonutRow = { name: string; value: number; categoryId?: string };
-  const donutRaw: DonutRow[] = categories
-    .map((category) => ({
+  // Komposisi pengeluaran sebagai baris ledger berurut nominal — bukan donat.
+  // `categoryId` ikut dibawa supaya klik-filter tidak mengandalkan nama (aman
+  // untuk kategori kembar).
+  type CompositionRow = { name: string; value: number; categoryId?: string };
+  const compositionRows: CompositionRow[] = [
+    ...categories.map((category) => ({
       name: category.name,
       value: categoryTotals.get(category._id)?.spent ?? 0,
       categoryId: category._id as string,
-    }))
-    .filter((row) => row.value > 0);
-  if (vendorTotal > 0) {
-    donutRaw.push({ name: "Vendor", value: vendorTotal });
-  }
-  donutRaw.sort((a, b) => b.value - a.value);
-  const donutTop = donutRaw.slice(0, 6);
-  const donutRest = donutRaw.slice(6).reduce((sum, row) => sum + row.value, 0);
-  const donutData: DonutRow[] =
-    donutRest > 0 ? [...donutTop, { name: "Lainnya", value: donutRest }] : donutTop;
-  const donutLegend = donutData.map((row, index) => ({
-    ...row,
-    color: DONUT_COLORS[index % DONUT_COLORS.length],
-  }));
+    })),
+    ...(vendorTotal > 0
+      ? [{ name: "Pembayaran vendor", value: vendorTotal }]
+      : []),
+  ]
+    .filter((row) => row.value > 0)
+    .sort((a, b) => b.value - a.value);
+
+  // Dua angka "sisa" yang berbeda dan tidak boleh tertukar:
+  // - sisaAnggaran: alokasi kategori dikurangi yang sudah terpakai.
+  // - saldoKas: tabungan tercatat dikurangi yang sudah terpakai.
+  const sisaAnggaran = totalAllocated - totalSpent;
+  const belumDibayar = Math.max(0, totalSpent - totalPaid);
+  const saldoKas = sisaDana;
 
   const filterCategory =
     categories.find((category) => category._id === filterCategoryId) ?? null;
@@ -176,7 +184,7 @@ export function BudgetPage() {
     vendorExpenses.length > 0 &&
     (term === "" || matchesQuery("vendor"));
 
-  /** Toggle filter kategori dari donut/batang grafik (baris Vendor diabaikan). */
+  /** Toggle filter kategori dari baris komposisi (baris Vendor diabaikan). */
   const toggleFilter = (id: string) => {
     if (id === "vendor") return;
     setFilterCategoryId((previous) => (previous === id ? null : id));
@@ -414,127 +422,219 @@ export function BudgetPage() {
 
   if (budget === undefined) return <PageSkeleton />;
 
+  const sisaAnggaranLabel =
+    sisaAnggaran < 0
+      ? `Lewat ${formatRupiah(-sisaAnggaran)}`
+      : formatRupiah(sisaAnggaran);
+
   return (
-    <div className="space-y-4">
-      <div className="sj-document-page sj-budget-page space-y-4">
-      <header className="sj-page-heading border-b border-[var(--line)] pb-4">
-        <p className="text-sm text-[var(--ink-soft)]">Buku kas · Budget</p>
-        <h1 className="mt-1 font-serif text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--ink)]">Anggaran pernikahan</h1>
-        <p className="mt-2 text-base leading-relaxed text-[var(--ink-soft)]">Terpakai <strong className="num text-[var(--ink)]">{formatRupiah(totalSpent)}</strong> dari alokasi <strong className="num text-[var(--ink)]">{formatRupiah(totalAllocated)}</strong>.</p>
-      </header>
-      <section className="sj-paper-sheet p-5" aria-label="Ringkasan buku kas">
-        <p className="max-w-[62ch] font-serif text-[1.375rem] leading-snug text-[var(--ink)] sm:text-2xl">
-          Dari alokasi <span className="num">{formatRupiah(totalAllocated)}</span>, <span className="num">{formatRupiah(totalSpent)}</span> sudah tercatat terpakai dan <span className="num">{formatRupiah(totalPaid)}</span> di antaranya sudah lunas.
-        </p>
-        <div
-          className="sj-stack-bar mt-4 h-2"
-          role="progressbar"
-          aria-label="Pengeluaran terhadap alokasi"
-          aria-valuenow={Math.min(100, spentPct)}
-          aria-valuemin={0}
-          aria-valuemax={100}
-        >
-          <span
-            className={`h-full transition-[width] duration-300 ease-out motion-reduce:transition-none ${isOver ? "bg-[var(--danger)]" : "bg-[var(--brand)]"}`}
-            style={{ width: `${Math.min(100, spentPct)}%` }}
-          />
-          <span className="h-full bg-[var(--paper-sunk)]" />
+    <div className="sj-document-page sj-budget-page space-y-5">
+      <PageHeading
+        kicker="Buku kas"
+        title="Anggaran pernikahan"
+        summary={
+          <>
+            <strong className="num font-medium text-[var(--ink)]">{formatRupiah(totalSpent)}</strong>{" "}
+            terpakai dari alokasi <strong className="num font-medium text-[var(--ink)]">{formatRupiah(totalAllocated)}</strong>{" "}
+            di {categories.length} kategori; {formatRupiah(totalPaid)} sudah lunas ke vendor.
+          </>
+        }
+        action={
+          <>
+            <Button className="rounded-xl" onClick={openNewExpense}>
+              <Plus className="size-4" /> Catat pengeluaran
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-xl"
+              onClick={() => setCategoryDialog({ id: null, name: "", allocated: "" })}
+            >
+              Kategori
+            </Button>
+            {categories.length > 0 && (
+              <Button
+                variant="ghost"
+                className="rounded-xl"
+                onClick={() => setCategoryManagerOpen(true)}
+              >
+                Kelola
+              </Button>
+            )}
+          </>
+        }
+      />
+
+      <section className="sj-paper-sheet p-5 sm:p-6" aria-label="Ringkasan buku kas">
+        <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
+          <div className="min-w-0">
+            <p className="text-sm text-[var(--ink-soft)]">Sudah terpakai</p>
+            <p className="figure-xl mt-1 text-[var(--ink)]">{formatRupiah(totalSpent)}</p>
+            <p className="mt-2 max-w-[58ch] text-sm leading-relaxed text-[var(--ink-soft)]">
+              {spentPct}% dari alokasi. {formatRupiah(totalPaid)} sudah dibayar ke vendor,{" "}
+              {formatRupiah(belumDibayar)} masih tercatat belum dibayar.
+            </p>
+          </div>
+          <div className="shrink-0 text-left sm:text-right">
+            <p className="text-sm text-[var(--ink-soft)]">Sisa anggaran</p>
+            <p
+              className={cn(
+                "num mt-1 text-2xl font-semibold leading-none",
+                sisaAnggaran < 0 ? "text-[var(--danger)]" : "text-[var(--ink)]",
+              )}
+            >
+              {sisaAnggaranLabel}
+            </p>
+            <p className="mt-1 text-[0.8125rem] text-[var(--ink-soft)]">
+              Alokasi dikurangi yang terpakai
+            </p>
+          </div>
         </div>
-        <dl className="mt-4 space-y-1.5 text-sm">
-          <div className="flex items-end gap-2">
-            <dt className="shrink-0 text-[var(--ink-soft)]">Sudah terpakai</dt>
-            <span aria-hidden className="sj-dot-leader" />
-            <dd className="num shrink-0 text-[var(--ink)]">{formatRupiah(totalSpent)}</dd>
-          </div>
-          <div className="flex items-end gap-2">
-            <dt className="shrink-0 text-[var(--ink-soft)]">Sudah lunas ke vendor</dt>
-            <span aria-hidden className="sj-dot-leader" />
-            <dd className="num shrink-0 text-[var(--ink)]">{formatRupiah(totalPaid)}</dd>
-          </div>
-          <div className="flex items-end gap-2">
-            <dt className="shrink-0 text-[var(--ink-soft)]">Sisa alokasi anggaran</dt>
-            <span aria-hidden className="sj-dot-leader" />
-            <dd className={`num shrink-0 ${sisaDana < 0 ? "text-[var(--danger)]" : "text-[var(--ink)]"}`}>
-              {sisaDana < 0 ? `−${formatRupiah(-sisaDana)}` : formatRupiah(sisaDana)}
-            </dd>
-          </div>
-          <div className="flex items-end gap-2 border-t border-[var(--line)] pt-1.5">
-            <dt className="shrink-0 text-[var(--ink-soft)]">Tabungan tercatat</dt>
-            <span aria-hidden className="sj-dot-leader" />
-            <dd className="num shrink-0 text-[var(--ink)]">{formatRupiah(savingsTotal)}</dd>
-          </div>
+
+        <StackBar
+          className="mt-5 h-3"
+          label={`Komposisi anggaran: ${formatRupiah(totalPaid)} terbayar, ${formatRupiah(belumDibayar)} belum dibayar, ${formatRupiah(Math.max(0, sisaAnggaran))} belum dialokasikan`}
+          segments={[
+            { label: "Terbayar", value: totalPaid, tone: "brand", title: `Terbayar ${formatRupiah(totalPaid)}` },
+            { label: "Belum dibayar", value: belumDibayar, tone: "accent", title: `Belum dibayar ${formatRupiah(belumDibayar)}` },
+            {
+              label: "Belum dialokasikan",
+              value: Math.max(0, sisaAnggaran),
+              tone: "sunk",
+              title: `Belum dialokasikan ${formatRupiah(Math.max(0, sisaAnggaran))}`,
+            },
+          ]}
+        />
+        <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[0.8125rem] text-[var(--ink-soft)]">
+          <span className="flex items-center gap-1.5">
+            <span aria-hidden className="size-2 rounded-full bg-[var(--brand)]" /> Terbayar
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span aria-hidden className="size-2 rounded-full bg-[var(--accent)]" /> Belum dibayar
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span aria-hidden className="size-2 rounded-full bg-[var(--paper-sunk)] ring-1 ring-[var(--line)]" /> Belum dialokasikan
+          </span>
+        </p>
+
+        <dl className="mt-5 grid gap-x-10 gap-y-2.5 sm:grid-cols-2">
+          <LedgerFigure label="Alokasi total" value={formatRupiah(totalAllocated)} />
+          <LedgerFigure label="Sudah terpakai" value={formatRupiah(totalSpent)} />
+          <LedgerFigure label="Sudah lunas ke vendor" value={formatRupiah(totalPaid)} />
+          <LedgerFigure
+            label="Belum dibayar"
+            value={formatRupiah(belumDibayar)}
+            hint="Bagian terpakai yang belum lunas"
+          />
+          <LedgerFigure
+            label="Tabungan tercatat"
+            value={formatRupiah(savingsTotal)}
+            hint="Setoran yang sudah masuk"
+          />
+          <LedgerFigure
+            label="Saldo kas"
+            value={
+              saldoKas < 0 ? `−${formatRupiah(-saldoKas)}` : formatRupiah(saldoKas)
+            }
+            hint="Tabungan dikurangi yang terpakai"
+          />
         </dl>
+        <div className="sj-double-rule mt-4 flex items-baseline justify-between gap-3 pt-2">
+          <span className="text-sm font-medium text-[var(--ink)]">Total alokasi</span>
+          <span className="num text-base font-semibold text-[var(--ink)]">
+            {formatRupiah(totalAllocated)}
+          </span>
+        </div>
         {isOver && (
-          <p className="mt-3 flex items-center gap-2 text-sm text-[var(--danger)]">
-            <AlertTriangle className="size-4" /> Pengeluaran melewati alokasi. Kurangi kategori atau naikkan alokasi.
+          <p className="mt-3 flex items-start gap-2 text-sm leading-relaxed text-[var(--danger)]">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0" /> Pengeluaran melewati alokasi{" "}
+            {formatRupiah(Math.abs(sisaAnggaran))}. Kurangi kategori atau naikkan alokasinya.
           </p>
         )}
       </section>
 
-      {/* Grafik: Ikhtisar (donut) | Tren (kumulatif + alokasi vs terbayar) */}
-      <div className="flex gap-2" role="tablist" aria-label="Tampilan grafik budget">
-        {(["ikhtisar", "tren"] as const).map((tab) => (
-          <button
-            key={tab}
-            type="button"
-            role="tab"
-            aria-selected={chartTab === tab}
-            onClick={() => setChartTab(tab)}
-            className={`min-h-11 flex-1 border-b-2 px-3 text-sm transition-colors ${
-              chartTab === tab
-                ? "border-[var(--brand)] text-[var(--ink)]"
-                : "border-transparent text-[var(--ink-soft)] hover:text-[var(--ink)]"
-            }`}
-          >
-            {tab === "ikhtisar" ? "Ikhtisar" : "Tren"}
-          </button>
-        ))}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Segmented
+          label="Tampilan buku kas"
+          value={chartTab}
+          onChange={setChartTab}
+          className="max-w-[15rem]"
+          options={[
+            { value: "ikhtisar", label: "Ikhtisar" },
+            { value: "tren", label: "Tren" },
+          ]}
+        />
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" className="min-h-11 rounded-xl" onClick={exportCsv}>
+            <FileDown className="size-4" /> CSV
+          </Button>
+          <Button variant="outline" className="min-h-11 rounded-xl" onClick={exportPdf}>
+            <FileText className="size-4" /> PDF
+          </Button>
+        </div>
       </div>
 
-      {/* Komposisi pengeluaran sebagai baris ledger, bukan donat */}
-      {chartTab === "ikhtisar" && (
-        <section className="sj-paper-sheet p-5">
-          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h2 className="font-serif text-xl text-[var(--ink)]">Komposisi pengeluaran</h2>
+      {chartTab === "ikhtisar" ? (
+        <section className="sj-paper-sheet p-5" aria-label="Komposisi pengeluaran">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-[var(--line)] pb-2">
+            <h2 className="display-serif text-xl text-[var(--ink)]">Komposisi pengeluaran</h2>
             <span className="text-sm text-[var(--ink-soft)]">
-              Total <span className="num">{formatRupiah(totalSpent)}</span>
+              Total <span className="num text-[var(--ink)]">{formatRupiah(totalSpent)}</span>
             </span>
           </div>
-          {donutLegend.length === 0 ? (
-            <p className="mt-3 max-w-[55ch] text-sm leading-relaxed text-[var(--ink-soft)]">
-              Belum ada pengeluaran tercatat. Catat biaya pertama supaya komposisinya terlihat.
-            </p>
+          {compositionRows.length === 0 ? (
+            <div className="pt-4">
+              <p className="max-w-[55ch] text-sm leading-relaxed text-[var(--ink-soft)]">
+                Belum ada pengeluaran tercatat. Catat yang pertama supaya komposisinya terbaca.
+              </p>
+              <button
+                type="button"
+                onClick={openNewExpense}
+                className="mt-2 min-h-11 text-sm font-medium text-[var(--brand)] underline underline-offset-4"
+              >
+                Catat pengeluaran
+              </button>
+            </div>
           ) : (
-            <ul className="mt-2 divide-y divide-[var(--line)]">
-              {donutLegend.map((row, index) => {
+            <ul className="mt-1">
+              {compositionRows.map((row, index) => {
                 const categoryId = row.categoryId;
                 const active = categoryId ? filterCategoryId === categoryId : false;
                 const share = totalSpent > 0 ? Math.round((row.value / totalSpent) * 100) : 0;
                 const body = (
                   <>
                     <span className="flex w-full items-baseline gap-2">
-                      <span className="truncate text-sm text-[var(--ink)]">{row.name}</span>
+                      <span className="truncate text-sm text-[var(--ink)] sm:text-base">{row.name}</span>
                       <span aria-hidden className="sj-dot-leader" />
                       <span className="num shrink-0 text-sm text-[var(--ink)]">{formatRupiah(row.value)}</span>
+                      <span className="num w-10 shrink-0 text-right text-[0.8125rem] text-[var(--ink-soft)]">
+                        {share}%
+                      </span>
                     </span>
-                    <span aria-hidden className="mt-1.5 block h-1 w-full overflow-hidden bg-[var(--paper-sunk)]">
-                      <span className="block h-full bg-[var(--brand)]" style={{ width: `${Math.min(100, share)}%` }} />
+                    <span aria-hidden className="mt-1.5 block h-1 w-full overflow-hidden rounded-full bg-[var(--paper-sunk)]">
+                      <span
+                        className="block h-full origin-left rounded-full bg-[var(--brand)] transition-transform duration-500"
+                        style={{ transform: `scaleX(${Math.min(1, Math.max(0, share / 100))})` }}
+                      />
                     </span>
                   </>
                 );
                 return (
-                  <li key={`${row.name}-${index}`}>
+                  <li key={`${row.name}-${index}`} className="sj-ledger-row">
                     {categoryId ? (
                       <button
                         type="button"
                         aria-pressed={active}
+                        title={`Saring pengeluaran ${row.name}`}
                         onClick={() => toggleFilter(categoryId)}
-                        className={`flex min-h-11 w-full flex-col justify-center py-2 text-left ${active ? "text-[var(--brand)]" : ""}`}
+                        className={cn(
+                          "flex min-h-12 w-full flex-col justify-center px-1 py-2.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]",
+                          active && "text-[var(--brand)]",
+                        )}
                       >
                         {body}
                       </button>
                     ) : (
-                      <div className="flex min-h-11 flex-col justify-center py-2">{body}</div>
+                      <div className="flex min-h-12 flex-col justify-center px-1 py-2.5">{body}</div>
                     )}
                   </li>
                 );
@@ -542,19 +642,30 @@ export function BudgetPage() {
             </ul>
           )}
         </section>
-      )}
-
-      {chartTab === "tren" && (
-        <ChartCard
-          title="Tren pengeluaran"
-          meta={trendData.length > 0 ? `${trendData.length} bulan` : "belum ada data"}
-        >
+      ) : (
+        <section className="sj-paper-sheet p-5" aria-label="Tren pengeluaran">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-[var(--line)] pb-2">
+            <h2 className="display-serif text-xl text-[var(--ink)]">Tren pengeluaran</h2>
+            <span className="text-sm text-[var(--ink-soft)]">
+              {trendData.length > 0 ? `${trendData.length} bulan tercatat` : "belum ada data"}
+            </span>
+          </div>
           {trendData.length < 3 ? (
-            <p className="py-6 text-sm leading-relaxed text-[var(--ink-soft)]">
-              Tren bulanan baru dibaca setelah tiga bulan pengeluaran tercatat. Sejauh ini {trendData.length} bulan terisi.
-            </p>
+            <div className="pt-4">
+              <p className="max-w-[55ch] text-sm leading-relaxed text-[var(--ink-soft)]">
+                Tren bulanan baru terbaca setelah tiga bulan pengeluaran. Sejauh ini{" "}
+                {trendData.length} bulan terisi — tambahkan catatan berikutnya agar garisnya bermakna.
+              </p>
+              <button
+                type="button"
+                onClick={openNewExpense}
+                className="mt-2 min-h-11 text-sm font-medium text-[var(--brand)] underline underline-offset-4"
+              >
+                Catat pengeluaran
+              </button>
+            </div>
           ) : (
-            <div className="h-44">
+            <div className="mt-4 h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart
                   data={trendData}
@@ -562,187 +673,182 @@ export function BudgetPage() {
                 >
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="var(--color-fog)"
+                    stroke="var(--line)"
                     vertical={false}
                   />
                   <XAxis
                     dataKey="month"
-                    tick={{ fontSize: 10 }}
+                    tick={{ fontSize: 11, fill: "var(--ink-soft)" }}
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis
                     tickFormatter={(value: number | string) => formatRupiahShort(Number(value))}
-                    tick={{ fontSize: 10 }}
+                    tick={{ fontSize: 11, fill: "var(--ink-soft)" }}
                     axisLine={false}
                     tickLine={false}
-                    width={58}
+                    width={56}
                   />
                   <Tooltip
-                    content={<ChartTip format={formatRupiahShort} />}
-                    cursor={{ fill: "var(--color-mist-gray)" }}
+                    content={<ChartTip format={formatRupiah} />}
+                    cursor={{ fill: "color-mix(in srgb, var(--brand) 8%, transparent)" }}
                   />
                   <Bar
                     dataKey="baru"
                     name="Bulan itu"
-                    fill="var(--chart-3)"
+                    fill="var(--accent)"
                     radius={[4, 4, 0, 0]}
+                    maxBarSize={26}
                   />
                   <Line
                     type="monotone"
                     dataKey="kumulatif"
                     name="Kumulatif"
-                    stroke="var(--chart-2)"
+                    stroke="var(--brand)"
                     strokeWidth={2.5}
-                    dot={{ r: 3, fill: "var(--chart-2)" }}
+                    dot={{ r: 3, fill: "var(--brand)" }}
                   />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
           )}
-        </ChartCard>
+        </section>
       )}
 
-      <div className="flex flex-wrap gap-2">
-        <Button className="flex-1 rounded-2xl" onClick={openNewExpense}>
-          <Plus className="size-4" /> Catat pengeluaran
-        </Button>
-        <Button
-          variant="secondary"
-          className="rounded-2xl"
-          onClick={() => setCategoryDialog({ id: null, name: "", allocated: "" })}
-        >
-          Kategori
-        </Button>
-        {categories.length > 0 && (
-          <Button
-            variant="ghost"
-            className="rounded-2xl"
-            onClick={() => setCategoryManagerOpen(true)}
-          >
-            Kelola
-          </Button>
-        )}
-        <Button
-          variant="outline"
-          className="rounded-2xl"
-          onClick={exportCsv}
-        >
-          <FileDown className="size-4" /> CSV
-        </Button>
-        <Button
-          variant="outline"
-          className="rounded-2xl"
-          onClick={exportPdf}
-        >
-          <FileText className="size-4" /> PDF
-        </Button>
-      </div>
+      <section className="space-y-3" aria-label="Daftar pengeluaran">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative min-w-0 flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--ink-soft)]" />
+            <Input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Cari pengeluaran atau kategori"
+              className="min-h-11 pl-9 pr-11"
+              aria-label="Cari pengeluaran"
+            />
+            {query !== "" && (
+              <button
+                type="button"
+                aria-label="Bersihkan pencarian"
+                onClick={() => setQuery("")}
+                className="absolute right-0 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-lg text-[var(--ink-soft)] hover:text-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+              >
+                <X className="size-3.5" />
+              </button>
+            )}
+          </div>
+          {filterCategory && (
+            <button
+              type="button"
+              onClick={() => setFilterCategoryId(null)}
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-[var(--line)] bg-[var(--paper-sunk)] px-3 text-sm text-[var(--ink)] transition-colors hover:border-[var(--brand)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+            >
+              Kategori: {filterCategory.name} <X className="size-3.5" />
+            </button>
+          )}
+        </div>
 
-      <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Cari pengeluaran atau kategori"
-          className="pl-9 pr-9"
-          aria-label="Cari pengeluaran"
-        />
-        {query !== "" && (
-          <button
-            type="button"
-            aria-label="Bersihkan pencarian"
-            onClick={() => setQuery("")}
-            className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
-          >
-            <X className="size-3.5" />
-          </button>
-        )}
-      </div>
+        <div className="flex items-baseline justify-between gap-3 border-b border-[var(--line)] pb-1.5 text-[0.8125rem] text-[var(--ink-soft)]">
+          <span>Keterangan</span>
+          <span className="num">Nominal</span>
+        </div>
 
-      {filterCategory && (
-        <button
-          type="button"
-          onClick={() => setFilterCategoryId(null)}
-          className="chip self-start bg-tint-butter text-tint-butter-foreground"
-        >
-          Filter: {filterCategory.name} <X className="size-3" />
-        </button>
-      )}
+        <Stagger>
+          {visibleManualExpenses.map((expense) => {
+            const category = categoryById.get(expense.categoryId);
+            const rowDate = expense.createdAt ?? expense.paidAt;
+            return (
+              <StaggerItem key={expense._id}>
+                <section className="sj-ledger-row flex flex-wrap items-center gap-x-3 gap-y-2 px-1 py-3 sm:flex-nowrap">
+                  <button
+                    type="button"
+                    aria-label={expense.paidAt ? "Tandai belum lunas" : "Tandai lunas"}
+                    aria-pressed={Boolean(expense.paidAt)}
+                    onClick={() => {
+                      togglePaid({ expenseId: expense._id, paid: !expense.paidAt });
+                      if (!expense.paidAt) bloom();
+                    }}
+                    className={cn(
+                      "flex size-11 shrink-0 items-center justify-center rounded-lg border transition-transform active:scale-[0.94] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]",
+                      expense.paidAt
+                        ? "border-[var(--brand)] bg-[var(--brand)] text-[var(--paper)]"
+                        : "border-[var(--line)] bg-[var(--paper)] text-[var(--ink-soft)] hover:border-[var(--brand)] hover:text-[var(--brand)]",
+                    )}
+                  >
+                    <Check className="size-4" weight="bold" />
+                  </button>
 
-      <Stagger className="space-y-2">
-        {visibleManualExpenses.map((expense) => {
-          const category = categoryById.get(expense.categoryId);
-          const rowDate = expense.createdAt ?? expense.paidAt;
-          return (
-            <StaggerItem key={expense._id}>
-              <section className="clay flex items-center gap-2.5 px-3 py-2.5">
-                <button
-                  type="button"
-                  aria-label={expense.paidAt ? "Tandai belum lunas" : "Tandai lunas"}
-                  onClick={() => {
-                    togglePaid({ expenseId: expense._id, paid: !expense.paidAt });
-                    if (!expense.paidAt) bloom();
-                  }}
-                  className={`flex size-6 shrink-0 items-center justify-center rounded-full transition-colors ${
-                    expense.paidAt
-                      ? "bg-primary text-primary-foreground"
-                      : "clay-inset text-muted-foreground hover:text-primary"
-                  }`}
-                >
-                  <Check className="size-3" />
-                </button>
-                <span className="min-w-0 flex-1">
-                  <span className={`block truncate text-sm ${expense.paidAt ? "text-muted-foreground" : ""}`}>
-                    {expense.label}
-                  </span>
-                  <span className="meta mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[10px]">
-                    <span className="rounded-full bg-secondary px-2 py-0.5 font-semibold text-secondary-foreground">
-                      {category?.name ?? "Kategori dihapus"}
-                    </span>
-                    {rowDate ? <span>{formatDateShortID(rowDate)}</span> : null}
-                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className={cn(
+                        "truncate text-sm font-medium sm:text-base",
+                        expense.paidAt ? "text-[var(--ink-soft)] line-through decoration-[var(--line)]" : "text-[var(--ink)]",
+                      )}
+                    >
+                      {expense.label}
+                    </p>
+                    <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[0.8125rem] text-[var(--ink-soft)]">
+                      <span>{category?.name ?? "Kategori dihapus"}</span>
+                      {rowDate ? <span className="num">{formatDateShortID(rowDate)}</span> : null}
+                    </p>
+                  </div>
+
+                  <div className="ml-auto shrink-0 text-right">
+                    <p className="num text-sm font-semibold text-[var(--ink)] sm:text-base">
+                      {formatRupiah(expense.amount)}
+                    </p>
+                    <p
+                      className={cn(
+                        "text-[0.8125rem]",
+                        expense.paidAt ? "text-[var(--brand)]" : "text-[var(--accent)]",
+                      )}
+                    >
+                      {expense.paidAt ? "Lunas" : "Belum dibayar"}
+                    </p>
+                  </div>
+
+                  <RowMenu
+                    onEdit={() => openEditExpense(expense)}
+                    onDelete={() => {
+                      void deleteBudgetItem(
+                        `"${expense.label}" dihapus.`,
+                        () => deleteExpense({ expenseId: expense._id }),
+                        () =>
+                          addExpense({
+                            categoryId: expense.categoryId,
+                            label: expense.label,
+                            amount: expense.amount,
+                            paid: Boolean(expense.paidAt),
+                          }),
+                        { successMessage: "Pengeluaran dipulihkan." },
+                      );
+                    }}
+                    deleteTitle={`Hapus "${expense.label}"?`}
+                  />
+                </section>
+              </StaggerItem>
+            );
+          })}
+
+          {vendorVisible && (
+            <StaggerItem key="vendor-group">
+              <section className="sj-ledger-row flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-1 py-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-[var(--ink)] sm:text-base">
+                    Pembayaran vendor
+                  </p>
+                  <p className="mt-0.5 text-[0.8125rem] text-[var(--ink-soft)]">
+                    {vendorExpenses.length} pembayaran sudah tercatat
+                  </p>
+                </div>
+                <span className="num shrink-0 text-sm font-semibold text-[var(--ink)] sm:text-base">
+                  {formatRupiah(vendorTotal)}
                 </span>
-                <span className="num shrink-0 text-sm font-bold">
-                  {formatRupiah(expense.amount)}
-                </span>
-                <RowMenu
-                  onEdit={() => openEditExpense(expense)}
-                  onDelete={() => {
-                    void deleteBudgetItem(
-                      `"${expense.label}" dihapus.`,
-                      () => deleteExpense({ expenseId: expense._id }),
-                      () =>
-                        addExpense({
-                          categoryId: expense.categoryId,
-                          label: expense.label,
-                          amount: expense.amount,
-                          paid: Boolean(expense.paidAt),
-                        }),
-                      { successMessage: "Pengeluaran dipulihkan." },
-                    );
-                  }}
-                  deleteTitle={`Hapus "${expense.label}"?`}
-                />
               </section>
             </StaggerItem>
-          );
-        })}
-
-        {vendorVisible && (
-          <StaggerItem key="vendor-group">
-            <section className="clay flex items-center justify-between gap-3 px-3 py-2.5">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">Pembayaran vendor</p>
-                <p className="meta text-[10px]">Total gabungan · {vendorExpenses.length} lunas</p>
-              </div>
-              <span className="num shrink-0 text-sm font-bold">
-                {formatRupiah(vendorTotal)}
-              </span>
-            </section>
-          </StaggerItem>
-        )}
-      </Stagger>
+          )}
+        </Stagger>
+      </section>
 
       {budget !== undefined &&
         (categories.length > 0 || term !== "") &&
@@ -771,7 +877,7 @@ export function BudgetPage() {
       )}
 
       <Dialog open={expenseOpen} onOpenChange={setExpenseOpen}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-sm rounded-2xl border-[var(--line)] bg-[var(--paper)] shadow-[var(--elev-lifted)]">
           <DialogHeader>
             <DialogTitle>{expenseForm.id ? "Ubah pengeluaran" : "Pengeluaran baru"}</DialogTitle>
           </DialogHeader>
@@ -809,11 +915,11 @@ export function BudgetPage() {
               >
                 <SelectTrigger
                   id="exp-category"
-                  className="h-10 w-full rounded-xl border border-border bg-card px-3 text-sm shadow-sm transition-colors hover:bg-secondary/50 focus-visible:border-ring focus-visible:ring-ring/30"
+                  className="min-h-11 w-full rounded-lg border border-[var(--line)] bg-[var(--paper)] px-3 text-sm transition-colors hover:border-[var(--brand)] focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
                 >
                   <SelectValue placeholder="Pilih kategori" />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl border border-border bg-popover p-1.5 shadow-lg">
+                <SelectContent className="rounded-xl border border-[var(--line)] bg-[var(--paper)] p-1.5 shadow-[var(--elev-lifted)]">
                   {categories.map((category) => (
                     <SelectItem
                       key={category._id}
@@ -843,14 +949,14 @@ export function BudgetPage() {
                 />
               </div>
             )}
-            <label className="flex items-center gap-2 text-sm">
+            <label className="flex min-h-11 cursor-pointer items-center gap-2.5 text-sm text-[var(--ink)]">
               <input
                 type="checkbox"
                 checked={expenseForm.paid}
                 onChange={(event) =>
                   setExpenseForm((previous) => ({ ...previous, paid: event.target.checked }))
                 }
-                className="size-4 accent-[var(--primary)]"
+                className="size-5 rounded-[4px] accent-[var(--brand)]"
               />
               Sudah dibayar
             </label>
@@ -864,7 +970,7 @@ export function BudgetPage() {
       </Dialog>
 
       <Dialog open={categoryManagerOpen} onOpenChange={setCategoryManagerOpen}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-sm rounded-2xl border-[var(--line)] bg-[var(--paper)] shadow-[var(--elev-lifted)]">
           <DialogHeader>
             <DialogTitle>Kelola kategori</DialogTitle>
           </DialogHeader>
@@ -897,7 +1003,7 @@ export function BudgetPage() {
         open={categoryDialog !== null}
         onOpenChange={(open) => !open && setCategoryDialog(null)}
       >
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-sm rounded-2xl border-[var(--line)] bg-[var(--paper)] shadow-[var(--elev-lifted)]">
           <DialogHeader>
             <DialogTitle>
               {categoryDialog?.id ? "Ubah kategori" : "Kategori baru"}
@@ -934,7 +1040,6 @@ export function BudgetPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      </div>
     </div>
   );
 }

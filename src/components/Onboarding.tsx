@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BouquetMark } from "@/components/Decor";
+import { DateInputID, MoneyInput } from "@/components/Shared";
 import { api } from "@/convex/_generated/api";
 import { bloom } from "@/lib/bloom";
 import { fromDateInputValue, toDateInputValue } from "@/lib/format";
@@ -163,12 +164,11 @@ export function OnboardingDialog({
           {step === 1 && (
             <div className="space-y-1.5">
               <Label htmlFor="onb-date">Tanggal pernikahan</Label>
-              <Input
+              <DateInputID
                 id="onb-date"
-                type="date"
                 value={date}
-                onChange={(event) => setDate(event.target.value)}
-                autoFocus
+                onChange={setDate}
+                ariaLabel="Tanggal pernikahan, format hari/bulan/tahun"
               />
               <p className="meta">Bisa diubah kapan saja di Pengaturan.</p>
             </div>
@@ -177,16 +177,12 @@ export function OnboardingDialog({
           {step === 2 && (
             <div className="space-y-1.5">
               <Label htmlFor="onb-target">Target dana (Rp)</Label>
-              <Input
+              <MoneyInput
                 id="onb-target"
-                type="number"
-                min={0}
-                step={1000000}
                 value={target}
-                onChange={(event) => setTarget(event.target.value)}
-                placeholder="64000000"
-                autoFocus
-                inputMode="numeric"
+                onChange={setTarget}
+                placeholder="64.000.000"
+                ariaLabel="Target dana dalam rupiah"
               />
               <div className="flex flex-wrap gap-2 pt-1">
                 {[30_000_000, 64_000_000, 100_000_000, 150_000_000].map(

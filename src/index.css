@@ -184,13 +184,13 @@
   --ink-soft: #584a4c;
   --line: #e2d9d7;
   --brand: #1a3424;
-  --accent: #a06f30;
+  --accent: #91642d;
   --accent-foreground: #ffffff;
   --ui-accent: #f2ebe2;
   --ui-accent-foreground: #241c20;
   --positive: #3c5a44;
-  --warning: #7c5628;
-  --danger: #8c3028;
+  --warning: #8a5b10;
+  --danger: #a8322a;
 
   --background: #faf7ee; /* kertas gading — latar halaman */
   --foreground: #241c20; /* ink hangat */
@@ -204,7 +204,7 @@
   --secondary-foreground: #241c20;
   --muted: #efe7e5;
   --muted-foreground: #241c20; /* kontras tinggi untuk teks kecil */
-  --accent: #a06f30;
+  --accent: #91642d;
   --accent-foreground: #ffffff;
   --ui-accent: #f2ebe2;
   --ui-accent-foreground: #241c20;
@@ -212,7 +212,7 @@
   --destructive-foreground: #ffffff;
   --border: #e2d9d7; /* hangat hairline */
   --input: #e2d9d7;
-  --ring: #a06f30; /* emas */
+  --ring: #91642d; /* emas */
   --chart-1: #1a3424; /* hijau hutan */
   --chart-2: #a06f30; /* emas */
   --chart-3: #3c5a44; /* hijau daun */
@@ -1594,19 +1594,39 @@
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
   }
 
-  /* Tingkat permukaan 2: lembar kertas terangkat. Tanpa bayangan. */
+  /* Tingkat permukaan 2: lembar kertas terangkat — kaca hangat berlapis. */
   .sj-paper-sheet {
-    background-color: var(--paper);
-    border: 1px solid var(--line);
+    position: relative;
+    isolation: isolate;
+    background-color: var(--surface-glass, var(--paper));
+    border: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
     border-radius: 28px;
-    box-shadow: none;
+    box-shadow: var(--specular-top, 0 1px 0 rgb(255 255 255 / 0.5)), var(--elev-ambient);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    backdrop-filter: blur(16px) saturate(160%);
   }
 
   /* Baris ledger: garis 1px membawa informasi, bukan hiasan. */
   .sj-ledger-row {
+    position: relative;
     background-color: transparent;
     border-bottom: 1px solid var(--line);
-    border-radius: 0;
+    border-radius: 12px;
+    transition: background-color 200ms var(--ease-keluar, ease);
+  }
+  @media (hover: hover) {
+    .sj-ledger-row:hover {
+      background-color: color-mix(in srgb, var(--paper) 55%, transparent);
+    }
+  }
+
+  /* Angka uang utama — display serif dengan digit tabular. */
+  .figure-xl {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(2.75rem, 7vw, 4.5rem);
+    line-height: 0.98;
+    letter-spacing: -0.02em;
   }
   .sj-ledger-row:last-child {
     border-bottom: 0;
@@ -1969,6 +1989,12 @@
   background-color: var(--paper, var(--background));
   box-shadow: none;
   border-color: var(--line, #e2d9d7);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+:root[data-effects="off"] .sj-paper-sheet {
+  background-color: var(--paper, var(--background));
+  box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }

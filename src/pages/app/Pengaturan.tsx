@@ -1,12 +1,11 @@
 import { AccountSection } from "@/components/AccountSection";
-import { BackLink } from "@/components/Shared";
+import { BackLink, PageHeading } from "@/components/Shared";
 import { coupleInitials, useCouplePhotoUpload } from "@/components/CouplePhoto";
 import { RingsMark } from "@/components/Decor";
 import { PaletteSection } from "@/components/PaletteSettings";
 import { useVisualStyle } from "@/components/VisualStyleProvider";
 import { Switch } from "@/components/ui/switch";
 import { Label as UiLabel } from "@/components/ui/label";
-import PixelTransition from "@/components/reactbits/PixelTransition";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,8 +23,8 @@ import { api } from "@/convex/_generated/api";
 import { fromDateInputValue, toDateInputValue } from "@/lib/format";
 import { DateInputID, MoneyInput } from "@/components/Shared";
 import { bloom } from "@/lib/bloom";
-import { Camera, Loader2, Plus, Save, Trash2, X } from "@/lib/icons";
-import { useState } from "react";
+import { Camera, Check, Loader2, Plus, Save, Trash2, X } from "@/lib/icons";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 
@@ -52,6 +51,7 @@ export function PengaturanPage() {
   const { uploading, openPicker, inputProps } = useCouplePhotoUpload();
   const { style, setStyle } = useVisualStyle();
   const [saving, setSaving] = useState(false);
+  const [justSaved, setJustSaved] = useState(false);
   const [newVendorType, setNewVendorType] = useState("");
   const [typeBusy, setTypeBusy] = useState(false);
   const [pendingDeleteType, setPendingDeleteType] = useState<string | null>(null);
@@ -73,6 +73,12 @@ export function PengaturanPage() {
     setTarget(String(wedding.fundTarget));
   }
 
+  useEffect(() => {
+    if (!justSaved) return;
+    const timeout = window.setTimeout(() => setJustSaved(false), 1200);
+    return () => window.clearTimeout(timeout);
+  }, [justSaved]);
+
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!partnerOne.trim() || !partnerTwo.trim() || !dateValue) {
@@ -89,6 +95,7 @@ export function PengaturanPage() {
         venueName: venue,
       });
       bloom();
+      setJustSaved(true);
       toast.success("Tersimpan.");
     } catch {
       toast.error("Pengaturan gagal disimpan. Coba lagi sebentar.");
@@ -160,15 +167,11 @@ export function PengaturanPage() {
     <div className="sj-document-page sj-settings-page space-y-6">
       <BackLink />
 
-      <header className="sj-page-heading border-b border-[var(--line)] pb-4">
-        <p className="text-sm text-[var(--ink-soft)]">Ruang kerja berdua</p>
-        <h1 className="mt-1 font-serif text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--ink)]">
-          Pengaturan
-        </h1>
-        <p className="mt-2 max-w-[60ch] text-base leading-relaxed text-[var(--ink-soft)]">
-          Identitas, tema, akun, dan jenis vendor yang dipakai berdua.
-        </p>
-      </header>
+      <PageHeading
+        kicker="Ruang kerja berdua"
+        title="Pengaturan"
+        summary="Identitas, tema, akun, dan jenis vendor yang dipakai berdua. Semua perubahan langsung terlihat di halaman lain."
+      />
 
       <input type="file" accept="image/*" className="hidden" {...inputProps} />
 
@@ -177,13 +180,14 @@ export function PengaturanPage() {
           aria-label="Isi halaman pengaturan"
           className="lg:sticky lg:top-6 lg:self-start"
         >
-          <p className="text-sm text-[var(--ink-soft)]">Isi halaman</p>
-          <ul className="mt-1">
+          <p className="hidden text-sm text-[var(--ink-soft)] lg:block">Isi halaman</p>
+          {/* HP: daftar teks yang bisa digeser; desktop: daftar vertikal. */}
+          <ul className="-mx-1 flex gap-5 overflow-x-auto px-1 pb-1 lg:mx-0 lg:mt-1 lg:flex-col lg:gap-0 lg:overflow-visible lg:px-0">
             {SECTIONS.map((section) => (
-              <li key={section.id}>
+              <li key={section.id} className="shrink-0">
                 <a
                   href={`#${section.id}`}
-                  className="flex min-h-11 items-center border-b border-[var(--line)] text-sm text-[var(--ink-soft)] hover:text-[var(--ink)]"
+                  className="flex min-h-11 items-center whitespace-nowrap border-b border-transparent text-sm text-[var(--ink-soft)] transition-colors hover:border-[var(--line)] hover:text-[var(--ink)] lg:w-full lg:whitespace-normal lg:border-[var(--line)]"
                 >
                   {section.label}
                 </a>
@@ -193,8 +197,8 @@ export function PengaturanPage() {
         </nav>
 
         <div className="min-w-0 space-y-6">
-          <section id="identitas" className="sj-paper-sheet scroll-mt-24 p-5">
-            <h2 className="font-serif text-xl text-[var(--ink)]">
+          <section id="identitas" className="sj-paper-sheet scroll-mt-24 p-5 sm:p-6">
+            <h2 className="display-serif text-2xl leading-snug text-[var(--ink)]">
               Identitas pernikahan
             </h2>
             <p className="mt-1 max-w-[60ch] text-sm leading-relaxed text-[var(--ink-soft)]">
@@ -247,20 +251,32 @@ export function PengaturanPage() {
                   placeholder="64.000.000"
                 />
               </div>
-              <div className="sm:col-span-2">
+              <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
                 <Button
                   type="submit"
-                  className="w-full rounded-lg sm:w-auto"
+                  className="min-h-11 rounded-lg transition-transform active:scale-[0.97] sm:w-auto"
                   disabled={saving}
                 >
                   {saving ? (
                     <Loader2 className="size-4 animate-spin" />
+                  ) : justSaved ? (
+                    <>
+                      <Check className="size-4" /> Tersimpan
+                    </>
                   ) : (
                     <>
                       <Save className="size-4" /> Simpan
                     </>
                   )}
                 </Button>
+                <p
+                  role="status"
+                  className="text-[0.8125rem] text-[var(--ink-soft)]"
+                >
+                  {justSaved
+                    ? "Perubahan tersimpan di kedua perangkat."
+                    : "Berlaku untuk seluruh halaman."}
+                </p>
               </div>
             </form>
           </section>
@@ -269,24 +285,27 @@ export function PengaturanPage() {
             id="foto-hero"
             className="sj-paper-sheet scroll-mt-24 overflow-hidden"
           >
-            <div className="p-5 pb-4">
-              <h2 className="font-serif text-xl text-[var(--ink)]">Foto hero</h2>
+            <div className="p-5 pb-4 sm:p-6 sm:pb-4">
+              <h2 className="display-serif text-2xl leading-snug text-[var(--ink)]">
+                Foto hero
+              </h2>
               <p className="mt-1 max-w-[60ch] text-sm leading-relaxed text-[var(--ink-soft)]">
-                Pratinjau ini memakai rasio dan posisi yang sama dengan hero di
-                dashboard.
+                Pratinjau di bawah memakai rasio dan titik fokus yang sama dengan
+                hero di Beranda. Foto tajam, tanpa blur.
               </p>
             </div>
-            <div className="relative aspect-[4/3] w-full bg-[var(--paper-sunk)]">
+            <div className="relative aspect-[16/10] w-full overflow-hidden bg-[var(--paper-sunk)] sm:aspect-[16/9]">
               {couplePhoto ? (
-                <PixelTransition
+                <img
                   src={couplePhoto}
-                  alt="Foto pasangan"
-                  className="h-full w-full"
+                  alt="Pratinjau foto hero"
+                  className="h-full w-full object-cover object-center"
+                  style={{ objectPosition: "center" }}
                 />
               ) : (
                 <div className="flex h-full w-full flex-col items-center justify-center gap-1.5">
                   <RingsMark className="size-9 text-[var(--ink-soft)]/40" />
-                  <p className="font-serif text-2xl text-[var(--ink-soft)]">
+                  <p className="display-serif text-2xl text-[var(--ink-soft)]">
                     {coupleInitials(
                       wedding?.partnerOneName,
                       wedding?.partnerTwoName,
@@ -297,12 +316,16 @@ export function PengaturanPage() {
                   </p>
                 </div>
               )}
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 border border-white/25"
+              />
             </div>
-            <div className="flex flex-wrap items-center gap-2 p-4">
+            <div className="flex flex-wrap items-center gap-2 p-4 sm:px-6">
               <Button
                 type="button"
                 variant="secondary"
-                className="rounded-lg"
+                className="min-h-11 rounded-lg transition-transform active:scale-[0.97]"
                 onClick={openPicker}
                 disabled={uploading}
               >
@@ -317,7 +340,7 @@ export function PengaturanPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="rounded-lg"
+                  className="min-h-11 rounded-lg transition-transform active:scale-[0.97]"
                   disabled={uploading}
                   onClick={async () => {
                     try {
@@ -336,18 +359,25 @@ export function PengaturanPage() {
 
           <section
             id="efek-visual"
-            className="sj-paper-sheet scroll-mt-24 p-5"
+            className="sj-paper-sheet scroll-mt-24 p-5 sm:p-6"
           >
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <UiLabel
                   htmlFor="visual-style"
-                  className="text-base text-[var(--ink)]"
+                  className="display-serif text-xl text-[var(--ink)]"
                 >
                   Efek visual dan animasi
                 </UiLabel>
-                <p className="mt-1 max-w-[52ch] text-sm leading-relaxed text-[var(--ink-soft)]">
-                  Matikan untuk permukaan solid dan gerak minimal.
+                <p className="mt-1.5 max-w-[56ch] text-sm leading-relaxed text-[var(--ink-soft)]">
+                  Saat aktif, latar bergerak halus, permukaan berlapis, dan
+                  transisi terasa hidup. Saat dimatikan, semua permukaan solid
+                  dan gerak dipangkas jadi crossfade singkat.
+                </p>
+                <p className="mt-2 text-[0.8125rem] text-[var(--ink-soft)]">
+                  {style === "unlumen"
+                    ? "Efek visual sedang aktif di perangkat ini."
+                    : "Efek visual sedang dimatikan di perangkat ini."}
                 </p>
               </div>
               <Switch
@@ -371,10 +401,10 @@ export function PengaturanPage() {
 
           <section
             id="jenis-vendor"
-            className="sj-paper-sheet scroll-mt-24 p-5"
+            className="sj-paper-sheet scroll-mt-24 p-5 sm:p-6"
           >
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <h2 className="font-serif text-xl text-[var(--ink)]">
+              <h2 className="display-serif text-2xl leading-snug text-[var(--ink)]">
                 Jenis vendor
               </h2>
               <p className="num text-[0.8125rem] text-[var(--ink-soft)]">
@@ -382,35 +412,35 @@ export function PengaturanPage() {
               </p>
             </div>
             <p className="mt-1 max-w-[60ch] text-sm leading-relaxed text-[var(--ink-soft)]">
-              Daftar ini yang tampil di dropdown halaman Vendor.
+              Daftar ini yang tampil di pilihan jenis saat menambah vendor.
             </p>
-            <ul className="mt-3 flex flex-wrap gap-2">
+            <ul className="mt-3 divide-y divide-[var(--line)] border-y border-[var(--line)]">
               {types.map((type) => {
                 const used = usageOf(type);
                 return (
                   <li
                     key={type}
-                    className="chip gap-1 border-[var(--line)] bg-transparent text-[var(--ink)]"
+                    className="interactive-row flex min-h-12 items-center gap-3 px-1 py-1.5"
                   >
-                    <span className="max-w-[14ch] truncate">{type}</span>
-                    {used > 0 && (
-                      <span className="num text-[0.8125rem] text-[var(--ink-soft)]">
-                        {used}
-                      </span>
-                    )}
+                    <span className="min-w-0 flex-1 truncate text-sm font-medium text-[var(--ink)]">
+                      {type}
+                    </span>
+                    <span className="num shrink-0 text-[0.8125rem] text-[var(--ink-soft)]">
+                      {used > 0 ? `dipakai ${used} vendor` : "belum dipakai"}
+                    </span>
                     <button
                       type="button"
                       aria-label={`Hapus jenis ${type}`}
                       onClick={() => setPendingDeleteType(type)}
-                      className="flex size-6 items-center justify-center rounded-md text-[var(--ink-soft)] transition-colors hover:bg-[var(--paper-sunk)] hover:text-[var(--danger)]"
+                      className="flex size-11 shrink-0 items-center justify-center rounded-lg text-[var(--ink-soft)] transition-colors hover:bg-[var(--paper-sunk)] hover:text-[var(--danger)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
                     >
-                      <X className="size-3.5" />
+                      <X className="size-4" />
                     </button>
                   </li>
                 );
               })}
             </ul>
-            <form className="mt-3 flex gap-2" onSubmit={submitVendorType}>
+            <form className="mt-4 flex flex-col gap-2 sm:flex-row" onSubmit={submitVendorType}>
               <Input
                 value={newVendorType}
                 onChange={(event) => setNewVendorType(event.target.value)}
@@ -421,7 +451,7 @@ export function PengaturanPage() {
               <Button
                 type="submit"
                 variant="secondary"
-                className="shrink-0 rounded-lg"
+                className="min-h-11 shrink-0 rounded-lg transition-transform active:scale-[0.97]"
                 disabled={typeBusy}
               >
                 {typeBusy ? (

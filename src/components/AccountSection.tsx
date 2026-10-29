@@ -192,7 +192,7 @@ export function AccountSection() {
 
   if (isLoading) {
     return (
-      <div className="clay-inset flex h-20 items-center justify-center rounded-2xl">
+      <div className="surface-sunk flex h-20 items-center justify-center">
         <Loader2 className="size-4 animate-spin text-muted-foreground" />
       </div>
     );
@@ -206,13 +206,14 @@ export function AccountSection() {
   // ── Not signed in with an email yet ──────────────────────────────────────
   if (isAnon || !user?.email) {
     return (
-      <section className="clay p-4">
-        <div className="flex items-center gap-2">
-          <span className="clay-sm flex size-9 items-center justify-center rounded-xl bg-tint-lavender text-tint-lavender-foreground">
-            <Mail className="size-4" />
-          </span>
-          <div>
-            <h2 className="h-card">Masuk dengan Email</h2>              <p className="meta">Agar tersimpan permanen dan bisa dibuka dari perangkat lain</p>
+      <section className="sj-paper-sheet p-5 sm:p-6">
+        <div className="flex items-start gap-3 border-b border-[var(--line)] pb-3">
+          <Mail className="mt-1.5 size-4 shrink-0 text-[var(--ink-soft)]" weight="light" />
+          <div className="min-w-0">
+            <h2 className="display-serif text-2xl leading-snug text-[var(--ink)]">Masuk dengan email</h2>
+            <p className="mt-0.5 text-[0.8125rem] leading-relaxed text-[var(--ink-soft)]">
+              Agar rencana tersimpan permanen dan bisa dibuka dari perangkat lain.
+            </p>
           </div>
         </div>
 
@@ -302,15 +303,13 @@ export function AccountSection() {
 
   // ── Signed in with email: partner sharing ────────────────────────────────
   return (
-    <section className="clay p-4">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <span className="clay-sm flex size-9 items-center justify-center rounded-xl bg-tint-mint text-tint-mint-foreground">
-            <ShieldCheck className="size-4" />
-          </span>
-          <div>
-            <h2 className="h-card">Akun tersinkron</h2>
-            <p className="meta">{user.email}</p>
+    <section className="sj-paper-sheet p-5 sm:p-6">
+      <div className="flex items-start justify-between gap-2 border-b border-[var(--line)] pb-3">
+        <div className="flex items-start gap-3">
+          <ShieldCheck className="mt-1.5 size-4 shrink-0 text-[var(--ink-soft)]" weight="light" />
+          <div className="min-w-0">
+            <h2 className="display-serif text-2xl leading-snug text-[var(--ink)]">Akun dan pasangan</h2>
+            <p className="mt-0.5 truncate text-[0.8125rem] text-[var(--ink-soft)]">{user.email}</p>
           </div>
         </div>
         <button
@@ -331,9 +330,9 @@ export function AccountSection() {
       </div>
 
       {connectedEmail ? (
-        <div className="clay-inset mt-3 rounded-2xl px-3 py-2.5">
-          <p className="label text-muted-foreground">Terhubung dengan</p>
-          <p className="num mt-0.5 text-sm font-bold">{connectedEmail}</p>
+        <div className="surface-sunk mt-3 px-3.5 py-3">
+          <p className="text-[0.8125rem] text-[var(--ink-soft)]">Terhubung dengan</p>
+          <p className="num mt-0.5 text-sm font-semibold text-[var(--ink)]">{connectedEmail}</p>
           <p className="meta mt-1">
             Setiap perubahan Anda dan pasangan langsung tampil di kedua
             perangkat.
@@ -356,8 +355,8 @@ export function AccountSection() {
           )}
         </div>
       ) : isOwner ? (
-        <div className="clay-inset mt-3 rounded-2xl px-3 py-2.5">
-          <p className="label text-muted-foreground">Kode pasangan</p>
+        <div className="surface-sunk mt-3 px-3.5 py-3">
+          <p className="text-[0.8125rem] text-[var(--ink-soft)]">Kode pasangan</p>
           {shareCode ? (
             <div className="mt-1 flex items-center justify-between gap-2">
               <p
@@ -416,8 +415,8 @@ export function AccountSection() {
           </p>
         </div>
       ) : (
-        <div className="clay-inset mt-3 space-y-2.5 rounded-2xl px-3 py-2.5">
-          <p className="label text-muted-foreground">Gabung pakai kode</p>
+        <div className="surface-sunk mt-3 space-y-2.5 px-3.5 py-3">
+          <p className="text-[0.8125rem] text-[var(--ink-soft)]">Gabung pakai kode</p>
           <div className="flex items-center gap-2">
             <Input
               aria-label="Kode undangan pasangan"
@@ -461,8 +460,8 @@ export function AccountSection() {
       {/* Owner without a partner can also join someone else's workspace —
           useful when the partner set everything up first. */}
       {isOwner && !connectedEmail && (
-        <div className="clay-inset mt-2.5 space-y-2.5 rounded-2xl px-3 py-2.5">
-          <p className="label text-muted-foreground">Gabung pakai kode</p>
+        <div className="surface-sunk mt-2.5 space-y-2.5 px-3.5 py-3">
+          <p className="text-[0.8125rem] text-[var(--ink-soft)]">Gabung pakai kode</p>
           <div className="flex items-center gap-2">
             <Input
               aria-label="Kode undangan pasangan"

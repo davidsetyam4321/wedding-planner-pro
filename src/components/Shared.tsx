@@ -14,8 +14,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { AnimatePresence, motion, useIsPresent, useReducedMotion } from "framer-motion";
 import {
   ChevronLeft, ClipboardList, Clock3, Gift, Handshake, Mail,
@@ -24,7 +24,7 @@ import {
 } from "@/lib/icons";
 import type { Icon } from "@/lib/icons";
 
-import { Children, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { Children, useId, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router";
 
@@ -188,20 +188,231 @@ export function EmptyState({
   const Icon = EMPTY_ICONS[emoji] ?? ClipboardList;
   return (
     <div
-      className={`flex flex-col items-start gap-3 border-t border-[var(--line)] px-1 py-8 text-left ${
-        className ?? ""
-      }`}
+      className={`surface-sunk flex flex-col items-start gap-2.5 px-4 py-7 text-left ${className ?? ""}`}
     >
       <Icon aria-hidden="true" className="size-5 text-[var(--ink-soft)]" weight="light" />
-      <p className="text-base font-medium text-[var(--ink)]">{title}</p>
+      <p className="display-serif text-xl leading-snug text-[var(--ink)]">{title}</p>
       {description && (
         <p className="max-w-[52ch] text-sm leading-relaxed text-[var(--ink-soft)]">{description}</p>
       )}
       {actionLabel && onAction && (
-        <Button size="sm" variant="outline" className="mt-1 rounded-lg" onClick={onAction}>
+        <button
+          type="button"
+          onClick={onAction}
+          className="mt-1 inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-[var(--line)] bg-[var(--paper)] px-3.5 text-sm font-medium text-[var(--ink)] transition-transform duration-200 hover:border-[var(--brand)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+        >
           {actionLabel}
-        </Button>
+        </button>
       )}
+    </div>
+  );
+}
+
+/**
+ * Judul halaman bergaya dokumen: kicker kecil, judul display besar, satu
+ * kalimat ringkasan berangka, lalu garis rambut — bukan kartu statistik.
+ */
+export function PageHeading({
+  kicker,
+  title,
+  summary,
+  action,
+}: {
+  kicker?: ReactNode;
+  title: ReactNode;
+  summary?: ReactNode;
+  action?: ReactNode;
+}) {
+  return (
+    <header className="sj-page-heading relative border-b border-[var(--line)] pb-4">
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+        <div className="min-w-0">
+          {kicker && (
+            <p className="text-sm font-medium text-[var(--ink-soft)]">{kicker}</p>
+          )}
+          <h1 className="mt-1 display-serif text-[clamp(2.25rem,4vw,3.5rem)] leading-[1.02] text-[var(--ink)]">
+            {title}
+          </h1>
+        </div>
+        {action && <div className="flex flex-wrap items-center gap-2">{action}</div>}
+      </div>
+      {summary && (
+        <p className="mt-3 max-w-[64ch] text-base leading-relaxed text-[var(--ink-soft)]">
+          {summary}
+        </p>
+      )}
+    </header>
+  );
+}
+
+/** Satu baris ledger: label, dot leader, lalu nominal tabular. */
+export function LedgerFigure({
+  label,
+  value,
+  hint,
+  strong,
+}: {
+  label: ReactNode;
+  value: ReactNode;
+  hint?: ReactNode;
+  strong?: boolean;
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="flex items-baseline gap-2">
+        <span className="shrink-0 text-sm text-[var(--ink-soft)]">{label}</span>
+        <span aria-hidden="true" className="sj-dot-leader" />
+        <span
+          className={cn(
+            "num shrink-0 text-right text-sm text-[var(--ink)]",
+            strong ? "font-semibold" : "font-medium",
+          )}
+        >
+          {value}
+        </span>
+      </div>
+      {hint && (
+        <p className="mt-0.5 text-[0.8125rem] leading-relaxed text-[var(--ink-soft)]">{hint}</p>
+      )}
+    </div>
+  );
+}
+
+export type StackSegment = {
+  label: string;
+  value: number;
+  tone?: "brand" | "accent" | "positive" | "warning" | "danger" | "sunk";
+  /** Judul lengkap untuk tooltip (nilai penuh). */
+  title?: string;
+};
+
+const SEGMENT_COLOR: Record<NonNullable<StackSegment["tone"]>, string> = {
+  brand: "var(--brand, #1a3424)",
+  accent: "var(--accent, #a06f30)",
+  positive: "var(--positive, #3c5a44)",
+  warning: "var(--warning, #a06f30)",
+  danger: "var(--danger, #8f2f27)",
+  sunk: "color-mix(in srgb, var(--ink-soft, #6b6257) 22%, transparent)",
+};
+
+/**
+ * Satu bar bertumpuk untuk komposisi uang/RSVP. Segmen tumbuh lewat
+ * transform (bukan width) supaya tidak memicu layout saat nilai berubah.
+ */
+export function StackBar({
+  segments,
+  label,
+  className,
+}: {
+  segments: StackSegment[];
+  label: string;
+  className?: string;
+}) {
+  const reducedMotion = useReducedMotion();
+  const total = segments.reduce((sum, segment) => sum + Math.max(0, segment.value), 0);
+  const shares = segments.map((segment) =>
+    total > 0 ? (Math.max(0, segment.value) / total) * 100 : 0,
+  );
+  const offsets = shares.reduce<number[]>((acc, share, index) => {
+    acc.push(index === 0 ? 0 : acc[index - 1] + shares[index - 1]);
+    return acc;
+  }, []);
+
+  return (
+    <div
+      role="img"
+      aria-label={label}
+      className={cn(
+        "relative h-2.5 w-full overflow-hidden rounded-full bg-[var(--paper-sunk)] shadow-[var(--elev-sunk)]",
+        className,
+      )}
+    >
+      {segments.map((segment, index) => {
+        const share = shares[index];
+        const left = offsets[index];
+        if (share <= 0) return null;
+        return (
+          <motion.span
+            key={`${segment.label}-${index}`}
+            className="absolute inset-y-0 origin-left"
+            title={segment.title ?? `${segment.label}: ${segment.value}`}
+            style={{
+              left: `${left}%`,
+              width: "100%",
+              backgroundColor: SEGMENT_COLOR[segment.tone ?? "brand"],
+            }}
+            initial={false}
+            animate={{ scaleX: share / 100 }}
+            transition={
+              reducedMotion
+                ? { duration: 0 }
+                : { type: "spring", stiffness: 420, damping: 34 }
+            }
+          />
+        );
+      })}
+      <span aria-hidden="true" className="shimmer-track pointer-events-none absolute inset-0" />
+    </div>
+  );
+}
+
+/**
+ * Segmented control dua/tiga posisi dengan thumb yang meluncur (shared layout).
+ * Nilai yang tersimpan tidak berubah — hanya label tampilannya.
+ */
+export function Segmented<T extends string>({
+  options,
+  value,
+  onChange,
+  label,
+  className,
+  disabled,
+}: {
+  options: { value: T; label: string }[];
+  value: T;
+  onChange: (value: T) => void;
+  label: string;
+  className?: string;
+  disabled?: boolean;
+}) {
+  const id = useId();
+  const reducedMotion = useReducedMotion();
+  return (
+    <div
+      role="group"
+      aria-label={label}
+      className={cn("sj-seg inline-flex w-full max-w-full gap-0.5 p-0.5", className)}
+    >
+      {options.map((option) => {
+        const active = option.value === value;
+        return (
+          <button
+            key={option.value}
+            type="button"
+            disabled={disabled}
+            aria-pressed={active}
+            onClick={() => onChange(option.value)}
+            className={cn(
+              "relative flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-md px-2.5 py-1.5 text-[0.8125rem] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--brand)] disabled:opacity-60",
+              active ? "text-[var(--ink)]" : "text-[var(--ink-soft)] hover:text-[var(--ink)]",
+            )}
+          >
+            {active && (
+              <motion.span
+                aria-hidden="true"
+                layoutId={`seg-${id}`}
+                className="absolute inset-0 rounded-md border border-[var(--line)] bg-[var(--paper)] shadow-[var(--specular-top)]"
+                transition={
+                  reducedMotion
+                    ? { duration: 0 }
+                    : { type: "spring", stiffness: 420, damping: 34 }
+                }
+              />
+            )}
+            <span className="relative z-10 truncate">{option.label}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }

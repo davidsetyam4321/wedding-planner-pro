@@ -1,8 +1,12 @@
 import {
   BackLink,
   EmptyState,
+  LedgerFigure,
+  PageHeading,
   PageSkeleton,
   RowMenu,
+  Segmented,
+  StackBar,
   Stagger,
   StaggerItem,
 } from "@/components/Shared";
@@ -100,12 +104,6 @@ export function TamuPage() {
   const declinedPax = list
     .filter((guest) => guest.rsvp === "tidak")
     .reduce((sum, guest) => sum + guest.pax, 0);
-  // Bar 3 segmen gaya SatuJanji: hadir / menunggu / berhalangan (berdasar pax).
-  const paxBase = Math.max(1, totalPax);
-  const hadirSeg = Math.round((attendingPax / paxBase) * 100);
-  const tidakSeg = Math.round((declinedPax / paxBase) * 100);
-  const pendingSeg = Math.max(0, 100 - hadirSeg - tidakSeg);
-
   const pendingPax = Math.max(0, totalPax - attendingPax - declinedPax);
   const answered = list.filter((guest) => guest.rsvp !== "pending").length;
 
@@ -125,22 +123,12 @@ export function TamuPage() {
     return guest.name.toLowerCase().includes(query.trim().toLowerCase());
   });
 
-  const rsvpPill = (key: "semua" | Rsvp, label: string, count: number) => (
-    <button
-      key={key}
-      type="button"
-      aria-pressed={rsvpFilter === key}
-      onClick={() => setRsvpFilter(key)}
-      className={`chip shrink-0 gap-2 ${
-        rsvpFilter === key
-          ? "border-[var(--brand)] bg-[var(--brand)] text-[var(--paper)]"
-          : "border-[var(--line)] bg-transparent text-[var(--ink)]"
-      }`}
-    >
-      {label}
-      <span className="num text-[0.8125rem] opacity-80">{count}</span>
-    </button>
-  );
+  const hasFilter = query.trim() !== "" || groupFilter !== null || rsvpFilter !== "semua";
+  const resetFilters = () => {
+    setQuery("");
+    setGroupFilter(null);
+    setRsvpFilter("semua");
+  };
 
   const openNew = () => {
     setForm(EMPTY_FORM);
@@ -325,212 +313,306 @@ export function TamuPage() {
   return (
     <div className="sj-document-page sj-guestbook-page space-y-4">
       <BackLink />
-      <header className="sj-page-heading border-b border-[var(--line)] pb-4">
-        <p className="text-sm text-[var(--ink-soft)]">Buku tamu</p>
-        <h1 className="mt-1 font-serif text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--ink)]">Daftar tamu</h1>
-        <p className="mt-2 text-base leading-relaxed text-[var(--ink-soft)]">{totalPax} orang dari {list.length} undangan; {list.filter((guest) => guest.rsvp !== "pending").length} sudah menjawab.</p>
-      </header>
+
+      <PageHeading
+        kicker="Buku tamu"
+        title="Daftar tamu"
+        summary={
+          list.length === 0
+            ? "Belum ada nama di buku tamu. Mulai dari keluarga terdekat."
+            : <>
+                {totalPax} orang dari {list.length} undangan; {answered} sudah menjawab dan{" "}
+                {attendingPax} orang diperkirakan hadir.
+              </>
+        }
+        action={
+          <>
+            <Button className="min-h-11 rounded-lg" onClick={openNew}>
+              <Plus className="size-4" /> Tamu baru
+            </Button>
+            <Button
+              variant="secondary"
+              className="min-h-11 rounded-lg"
+              onClick={() => void markAllSent()}
+            >
+              <Send className="size-4" /> Tandai terkirim
+            </Button>
+            <Button variant="outline" className="min-h-11 rounded-lg" onClick={exportCsv}>
+              <FileDown className="size-4" /> CSV
+            </Button>
+            <Button
+              variant="outline"
+              className="min-h-11 rounded-lg"
+              disabled={importing}
+              onClick={() => fileRef.current?.click()}
+            >
+              {importing ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Upload className="size-4" />
+              )}
+              Impor
+            </Button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".csv,text/csv"
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) void importCsv(file);
+              }}
+            />
+          </>
+        }
+      />
 
       <section className="sj-paper-sheet p-5" aria-label="Jawaban tamu">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-          <h2 className="font-serif text-2xl leading-snug text-[var(--ink)]">Jawaban tamu</h2>
-          <p className="text-sm text-[var(--ink-soft)]">
-            {answered} dari {list.length} undangan sudah menjawab
-          </p>
-        </div>
-        <div
-          className="sj-stack-bar mt-4 h-2"
-          role="img"
-          aria-label={`Hadir ${attendingPax} orang, menunggu ${pendingPax} orang, berhalangan ${declinedPax} orang`}
-        >
-          <span className="h-full bg-[var(--brand)]" style={{ width: `${hadirSeg}%` }} />
-          <span className="h-full bg-[var(--accent)]" style={{ width: `${pendingSeg}%` }} />
-          <span className="h-full bg-[var(--line)]" style={{ width: `${tidakSeg}%` }} />
-        </div>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {rsvpPill("semua", "Semua", list.length)}
-          {rsvpPill("hadir", "Hadir", list.filter((guest) => guest.rsvp === "hadir").length)}
-          {rsvpPill("pending", "Belum", list.filter((guest) => guest.rsvp === "pending").length)}
-          {rsvpPill("tidak", "Tidak", list.filter((guest) => guest.rsvp === "tidak").length)}
-        </div>
-        <p className="mt-3 text-sm text-[var(--ink-soft)]">
-          {invited} undangan sudah dikirim. {attendingPax} orang diperkirakan hadir.
+        <p className="max-w-[64ch] text-base leading-relaxed text-[var(--ink)]">
+          {list.length === 0
+            ? "Begitu tamu ditambahkan, jawaban hadir dan berhalangan akan tampil di sini."
+            : <>
+                {invited} dari {list.length} undangan sudah dikirim; {answered} sudah menjawab.{" "}
+                <strong className="num font-semibold">{attendingPax}</strong> orang hadir,{" "}
+                <strong className="num font-semibold">{pendingPax}</strong> belum pasti, dan{" "}
+                <strong className="num font-semibold">{declinedPax}</strong> berhalangan.
+              </>}
         </p>
+
+        <StackBar
+          className="mt-4 h-2.5"
+          label={`Hadir ${attendingPax} orang, menunggu ${pendingPax} orang, berhalangan ${declinedPax} orang`}
+          segments={[
+            { label: "Hadir", value: attendingPax, tone: "brand" },
+            { label: "Belum menjawab", value: pendingPax, tone: "accent" },
+            { label: "Berhalangan", value: declinedPax, tone: "sunk" },
+          ]}
+        />
+
+        <div className="mt-4 grid gap-2.5 sm:grid-cols-3">
+          <LedgerFigure
+            label="Hadir"
+            value={`${attendingPax} orang`}
+            hint={`${list.filter((guest) => guest.rsvp === "hadir").length} undangan`}
+          />
+          <LedgerFigure
+            label="Belum menjawab"
+            value={`${pendingPax} orang`}
+            hint={`${list.filter((guest) => guest.rsvp === "pending").length} undangan`}
+          />
+          <LedgerFigure
+            label="Berhalangan"
+            value={`${declinedPax} orang`}
+            hint={`${list.filter((guest) => guest.rsvp === "tidak").length} undangan`}
+          />
+        </div>
       </section>
 
-      <div className="flex flex-wrap gap-2">
-        <Button className="flex-1 rounded-2xl" onClick={openNew}>
-          <Plus className="size-4" /> Tamu baru
-        </Button>
-        <Button
-          variant="secondary"
-          className="rounded-2xl"
-          onClick={() => void markAllSent()}
-        >
-          <Send className="size-4" /> Tandai terkirim
-        </Button>
-        <Button
-          variant="outline"
-          className="rounded-2xl"
-          onClick={exportCsv}
-        >
-          <FileDown className="size-4" /> CSV
-        </Button>
-        <Button
-          variant="outline"
-          className="rounded-2xl"
-          disabled={importing}
-          onClick={() => fileRef.current?.click()}
-        >
-          {importing ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <Upload className="size-4" />
-          )}
-          Impor
-        </Button>
-        <input
-          ref={fileRef}
-          type="file"
-          accept=".csv,text/csv"
-          className="hidden"
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            if (file) void importCsv(file);
-          }}
+      {/* Satu baris saring: cari nama, status jawaban, sebaran grup. */}
+      <div className="surface-sunk flex flex-col gap-3 p-3 sm:flex-row sm:items-center">
+        <div className="relative min-w-0 flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--ink-soft)]" />
+          <Input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Cari nama tamu…"
+            aria-label="Cari nama tamu"
+            className="min-h-11 border-transparent bg-[var(--paper)] pl-9"
+          />
+        </div>
+        <Segmented
+          label="Saring status jawaban"
+          value={rsvpFilter}
+          onChange={setRsvpFilter}
+          className="sm:w-auto"
+          options={[
+            { value: "semua", label: `Semua ${list.length}` },
+            { value: "hadir", label: `Hadir ${list.filter((guest) => guest.rsvp === "hadir").length}` },
+            { value: "pending", label: `Belum ${list.filter((guest) => guest.rsvp === "pending").length}` },
+            { value: "tidak", label: `Tidak ${list.filter((guest) => guest.rsvp === "tidak").length}` },
+          ]}
         />
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Cari nama tamu…"
-          aria-label="Cari nama tamu"
-          className="pl-9"
-        />
-      </div>
-
-      {groups.length > 1 && (
-        <p className="text-sm text-[var(--ink-soft)]">
-          Saring per grup lewat daftar sebaran di bawah.
-        </p>
-      )}
-
-      <section className="space-y-3">
-        {groupRows.length > 0 && (
-          <div className="sj-paper-sheet p-4">
-            <h2 className="font-serif text-xl text-[var(--ink)]">Sebaran per grup</h2>
-            <ul className="mt-2 divide-y divide-[var(--line)]">
-              {groupRows.map((row) => (
-                <li key={row.group}>
-                  <button
-                    type="button"
-                    aria-pressed={groupFilter === row.group}
-                    onClick={() => setGroupFilter((current) => (current === row.group ? null : row.group))}
-                    className="flex min-h-11 w-full items-center gap-3 py-2 text-left"
-                  >
-                    <span className="min-w-0 flex-1 truncate text-sm text-[var(--ink)]">{row.group}</span>
-                    <span className="num text-sm text-[var(--ink-soft)]">{row.orang} orang</span>
-                    <span aria-hidden="true" className="h-1 w-20 shrink-0 overflow-hidden bg-[var(--paper-sunk)]">
+      <section className="space-y-4">
+        {groupRows.length > 1 && (
+          <div className="surface-sunk p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+              <p className="text-sm text-[var(--ink-soft)]">Sebaran per grup</p>
+              {groupFilter && (
+                <button
+                  type="button"
+                  onClick={() => setGroupFilter(null)}
+                  className="min-h-11 text-sm font-medium text-[var(--brand)] underline underline-offset-4"
+                >
+                  Tampilkan semua grup
+                </button>
+              )}
+            </div>
+            <ul className="mt-1 grid gap-1 sm:grid-cols-2">
+              {groupRows.map((row) => {
+                const active = groupFilter === row.group;
+                return (
+                  <li key={row.group}>
+                    <button
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => setGroupFilter(active ? null : row.group)}
+                      className={`flex min-h-11 w-full items-center gap-3 rounded-lg border px-2.5 py-1.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] ${
+                        active
+                          ? "border-[var(--brand)] bg-[var(--paper)]"
+                          : "border-transparent hover:bg-[var(--paper)]"
+                      }`}
+                    >
+                      <span className="min-w-0 flex-1 truncate text-sm font-medium text-[var(--ink)]">
+                        {row.group || "Tanpa grup"}
+                      </span>
+                      <span className="num shrink-0 text-[0.8125rem] text-[var(--ink-soft)]">
+                        {row.orang} orang
+                      </span>
                       <span
-                        className="block h-full bg-[var(--brand)]"
-                        style={{ width: `${totalPax ? (row.orang / totalPax) * 100 : 0}%` }}
-                      />
-                    </span>
-                  </button>
-                </li>
-              ))}
+                        aria-hidden="true"
+                        className="relative h-1 w-14 shrink-0 overflow-hidden rounded-full bg-[var(--paper-sunk)]"
+                      >
+                        <span
+                          className="block h-full origin-left rounded-full bg-[var(--brand)] transition-transform duration-500 ease-out motion-reduce:transition-none"
+                          style={{
+                            transform: `scaleX(${totalPax ? row.orang / totalPax : 0})`,
+                          }}
+                        />
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}
-        <Stagger className="divide-y divide-[var(--line)]">
+
+        <div className="sj-paper-sheet overflow-hidden">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--line)] px-4 py-2.5">
+            <p className="text-sm text-[var(--ink-soft)]">
+              {visible.length} dari {list.length} undangan tampil
+            </p>
+            {hasFilter && (
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="min-h-11 text-sm font-medium text-[var(--brand)] underline underline-offset-4"
+              >
+                Hapus filter
+              </button>
+            )}
+          </div>
+          <Stagger>
           {visible.map((guest) => (
             <StaggerItem key={guest._id}>
-              <article className="sj-ledger-row p-4">
+              <article className="sj-ledger-row interactive-row px-3 py-3 sm:px-4">
                 <div className="flex items-start gap-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-extrabold">{guest.name}</p>
-                    <p className="meta">{guest.group}</p>
-                    {guest.note && <p className="meta mt-0.5 italic">{guest.note}</p>}
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <span className="num text-sm font-semibold text-[var(--ink)]">{guest.pax} orang</span>
-                    {guest.phone && (
-                      <button
-                        type="button"
-                        aria-label={`Kirim pesan WhatsApp ke ${guest.name}`}
-                        title="Kirim pesan WhatsApp"
-                        onClick={() =>
-                          setWaTarget({ name: guest.name, phone: guest.phone })
-                        }
-                        className="flex size-11 items-center justify-center rounded-xl text-[var(--ink-soft)] transition-colors hover:bg-[var(--paper-sunk)] hover:text-[var(--ink)]"
-                      >
-                        <MessageCircle className="size-4" />
-                      </button>
-                    )}
-                    <RowMenu
-                      onEdit={() => openEdit(guest)}
-                      onDelete={() => {
-                        removeGuest({ guestId: guest._id });
-                        undoableDelete(
-                          `Tamu "${guest.name}" dihapus.`,
-                          async () => {
-                            const newId = await createGuest({
-                              name: guest.name,
-                              group: guest.group,
-                              pax: guest.pax,
-                              phone: guest.phone,
-                              note: guest.note,
-                            });
-                            // Pulihkan juga status undangan & RSVP-nya.
-                            if (guest.invited) {
-                              await setInvited({ guestId: newId, invited: true });
-                            }
-                            if (guest.rsvp !== "pending") {
-                              await setRsvp({ guestId: newId, rsvp: guest.rsvp });
-                            }
-                          },
-                          { successMessage: `Tamu "${guest.name}" kembali.` },
-                        );
-                      }}
-                      deleteTitle={`Hapus ${guest.name}?`}
-                    />
-                  </div>
-                </div>
+                  <span
+                    aria-hidden="true"
+                    className="display-serif mt-0.5 grid size-10 shrink-0 place-items-center rounded-md border border-[var(--line)] bg-[var(--paper)] text-lg leading-none text-[var(--ink-soft)]"
+                  >
+                    {guest.name.trim().charAt(0).toUpperCase() || "?"}
+                  </span>
 
-                <div className="mt-3 flex items-center justify-between gap-3">
-                  <GuestStatusChip
-                    guest={guest}
-                    onInvite={(next) => setInvited({ guestId: guest._id, invited: next })}
-                    onRsvp={(next) => {
-                      setRsvp({ guestId: guest._id, rsvp: next });
-                      if (next === "hadir") bloom();
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+                      <p className="min-w-0 truncate text-base font-medium leading-snug text-[var(--ink)]">
+                        {guest.name}
+                      </p>
+                      <p className="text-[0.8125rem] text-[var(--ink-soft)]">
+                        {guest.group || "Tanpa grup"}
+                      </p>
+                      <span aria-hidden="true" className="sj-dot-leader hidden sm:block" />
+                      <span className="num shrink-0 text-sm font-semibold text-[var(--ink)]">
+                        {guest.pax} orang
+                      </span>
+                    </div>
+
+                    {guest.note && (
+                      <p className="mt-0.5 line-clamp-2 max-w-[60ch] text-[0.8125rem] leading-relaxed text-[var(--ink-soft)]">
+                        {guest.note}
+                      </p>
+                    )}
+
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <GuestStatusChip
+                        guest={guest}
+                        onInvite={(next) => setInvited({ guestId: guest._id, invited: next })}
+                        onRsvp={(next) => {
+                          setRsvp({ guestId: guest._id, rsvp: next });
+                          if (next === "hadir") bloom();
+                        }}
+                      />
+                      {guest.phone && (
+                        <>
+                          <span className="num text-[0.8125rem] text-[var(--ink-soft)]">
+                            {guest.phone}
+                          </span>
+                          <button
+                            type="button"
+                            aria-label={`Kirim pesan WhatsApp ke ${guest.name}`}
+                            title="Kirim pesan WhatsApp"
+                            onClick={() => setWaTarget({ name: guest.name, phone: guest.phone })}
+                            className="flex size-11 items-center justify-center rounded-lg text-[var(--ink-soft)] transition-colors hover:bg-[var(--paper-sunk)] hover:text-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+                          >
+                            <MessageCircle className="size-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <RowMenu
+                    onEdit={() => openEdit(guest)}
+                    onDelete={() => {
+                      removeGuest({ guestId: guest._id });
+                      undoableDelete(
+                        `Tamu "${guest.name}" dihapus.`,
+                        async () => {
+                          const newId = await createGuest({
+                            name: guest.name,
+                            group: guest.group,
+                            pax: guest.pax,
+                            phone: guest.phone,
+                            note: guest.note,
+                          });
+                          // Pulihkan juga status undangan & RSVP-nya.
+                          if (guest.invited) {
+                            await setInvited({ guestId: newId, invited: true });
+                          }
+                          if (guest.rsvp !== "pending") {
+                            await setRsvp({ guestId: newId, rsvp: guest.rsvp });
+                          }
+                        },
+                        { successMessage: `Tamu "${guest.name}" kembali.` },
+                      );
                     }}
+                    deleteTitle={`Hapus ${guest.name}?`}
                   />
-                  {guest.phone && (
-                    <span className="num text-[0.8125rem] text-[var(--ink-soft)]">{guest.phone}</span>
-                  )}
                 </div>
               </article>
             </StaggerItem>
           ))}
-        </Stagger>
+          </Stagger>
 
-        {visible.length === 0 && guests !== undefined && (
-          <EmptyState
-            emoji={query || groupFilter || rsvpFilter !== "semua" ? "🔍" : "💌"}
-            title={query || groupFilter || rsvpFilter !== "semua" ? "Tidak ada tamu yang cocok" : "Belum ada tamu"}
-            description={
-              query || groupFilter || rsvpFilter !== "semua"
-                ? "Coba ubah filter atau kata kunci pencarian."
-                : "Mulai dari keluarga terdekat, lalu teman dan rekan kerja."
-            }
-            actionLabel={query || groupFilter || rsvpFilter !== "semua" ? undefined : "Tambah tamu"}
-            onAction={query || groupFilter || rsvpFilter !== "semua" ? undefined : openNew}
-          />
-        )}
+          {visible.length === 0 && guests !== undefined && (
+            <div className="p-3">
+              <EmptyState
+                emoji={hasFilter ? "🔍" : "💌"}
+                title={hasFilter ? "Tidak ada tamu yang cocok" : "Belum ada tamu"}
+                description={
+                  hasFilter
+                    ? "Ubah kata kunci atau tampilkan semua grup untuk melihat tamu lainnya."
+                    : "Mulai dari keluarga terdekat, lalu teman dan rekan kerja."
+                }
+                actionLabel={hasFilter ? "Hapus filter" : "Tambah tamu"}
+                onAction={hasFilter ? resetFilters : openNew}
+              />
+            </div>
+          )}
+        </div>
       </section>
 
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
@@ -629,10 +711,10 @@ export function TamuPage() {
                 type="button"
                 onClick={() => sendTemplate(template.key)}
                 disabled={!waTarget?.phone}
-                className="clay-inset w-full rounded-2xl px-3.5 py-3 text-left transition-colors hover:bg-secondary disabled:opacity-60"
+                className="surface-sunk w-full px-3.5 py-3 text-left transition-colors hover:bg-[var(--paper)] disabled:opacity-60"
               >
-                <span className="block text-sm font-bold">{template.label}</span>
-                <span className="meta mt-0.5 block line-clamp-2">
+                <span className="block text-sm font-semibold text-[var(--ink)]">{template.label}</span>
+                <span className="mt-0.5 block line-clamp-2 text-[0.8125rem] leading-relaxed text-[var(--ink-soft)]">
                   {waTarget
                     ? template.build(waContext(waTarget)).replace(/\n+/g, " ")
                     : ""}
@@ -641,7 +723,7 @@ export function TamuPage() {
             ))}
           </div>
           {!waTarget?.phone && (
-            <p className="text-xs font-semibold text-destructive">
+            <p className="text-[0.8125rem] font-semibold text-destructive">
               Tamu ini belum punya nomor WhatsApp.
             </p>
           )}
@@ -662,40 +744,50 @@ function GuestStatusChip({
 }) {
   const [open, setOpen] = useState(false);
   const invited = Boolean(guest.invited);
-  const label = !invited
-    ? "Undangan belum dikirim"
-    : guest.rsvp === "hadir"
+  const rsvpLabel =
+    guest.rsvp === "hadir"
       ? "Hadir"
       : guest.rsvp === "tidak"
         ? "Berhalangan"
-        : "Menunggu jawaban";
-  const tone = !invited
-    ? "text-[var(--ink-soft)]"
-    : guest.rsvp === "hadir"
+        : "Menunggu";
+  const inviteLabel = invited ? "Terkirim" : "Belum dikirim";
+  const label = `${inviteLabel}, ${rsvpLabel.toLowerCase()}`;
+  const rsvpTone =
+    guest.rsvp === "hadir"
       ? "text-[var(--positive)]"
       : guest.rsvp === "tidak"
         ? "text-[var(--danger)]"
-        : "text-[var(--gold)]";
+        : "text-[var(--warning)]";
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
           type="button"
-          className={`chip min-h-11 gap-2 border-[var(--line)] bg-transparent ${tone}`}
+          className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[var(--line)] bg-transparent px-2.5 text-sm text-[var(--ink)] transition-colors hover:bg-[var(--paper-sunk)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
           aria-haspopup="dialog"
           aria-expanded={open}
           aria-label={`Status ${guest.name}: ${label}. Ubah status`}
         >
-          {guest.rsvp === "hadir" && invited ? <Check className="size-4" /> : <Clock3Icon />}
-          {label}
+          {guest.rsvp === "hadir" && invited ? (
+            <Check className="size-4 text-[var(--positive)]" />
+          ) : (
+            <Clock3Icon />
+          )}
+          <span className="flex items-baseline gap-2">
+            <span className="text-[0.8125rem] text-[var(--ink-soft)]">{inviteLabel}</span>
+            <span aria-hidden="true" className="h-3 w-px bg-[var(--line)]" />
+            <span className={`text-[0.8125rem] font-medium ${rsvpTone}`}>{rsvpLabel}</span>
+          </span>
         </button>
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="w-64 rounded-2xl border-[var(--line)] bg-[var(--paper)] p-3 text-[var(--ink)] shadow-[0_18px_40px_-24px_rgba(0,0,0,0.45)]"
+        className="w-72 rounded-xl border-[var(--line)] bg-[var(--paper)] p-3 text-[var(--ink)] shadow-[var(--elev-lifted)]"
       >
-        <div className="flex items-center justify-between gap-3">
+        <p className="display-serif text-lg leading-snug text-[var(--ink)]">{guest.name}</p>
+
+        <div className="mt-3 flex items-center justify-between gap-3 border-t border-[var(--line)] pt-3">
           <Label htmlFor={`invited-${guest.name}`} className="text-sm text-[var(--ink)]">
             Undangan terkirim
           </Label>
@@ -705,25 +797,21 @@ function GuestStatusChip({
             onCheckedChange={(next) => onInvite(Boolean(next))}
           />
         </div>
+
         <div className="mt-3 space-y-1.5">
           <p className="text-sm text-[var(--ink-soft)]">Jawaban tamu</p>
-          <div role="group" aria-label={`Jawaban ${guest.name}`} className="sj-seg w-full">
-            {RSVP_OPTIONS.map((option) => (
-              <button
-                key={option.key}
-                type="button"
-                data-active={String(guest.rsvp === option.key)}
-                aria-pressed={guest.rsvp === option.key}
-                onClick={() => {
-                  onRsvp(option.key);
-                  setOpen(false);
-                }}
-                className="min-h-10 flex-1 rounded-[6px] px-2 text-sm text-[var(--ink-soft)]"
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
+          <Segmented
+            label={`Jawaban ${guest.name}`}
+            value={guest.rsvp}
+            onChange={(next) => {
+              onRsvp(next);
+              setOpen(false);
+            }}
+            options={RSVP_OPTIONS.map((option) => ({
+              value: option.key,
+              label: option.label,
+            }))}
+          />
         </div>
       </PopoverContent>
     </Popover>
